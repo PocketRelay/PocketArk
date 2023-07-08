@@ -32,3 +32,5 @@ bitflags = "2.3.3"
 bytes = "1.4.0"
 tokio-util = { version = "0.7.8", features = ["full"] }
 futures = "0.3.28"
+uuid = { version = "1.4.0", features = ["v4", "serde", "fast-rng"] }
+chrono = { version = "0.4.26", features = ["serde", "alloc"] }

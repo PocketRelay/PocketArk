@@ -1,10 +1,21 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use blaze_pk::{codec::Encodable, tag::TdfType, writer::TdfWriter};
+use blaze_pk::{
+    codec::{Decodable, Encodable},
+    error::DecodeResult,
+    reader::TdfReader,
+    tag::TdfType,
+    writer::TdfWriter,
+};
 
 pub mod util {
     pub static COMPONENT: u16 = 9;
     pub static PRE_AUTH: u16 = 7;
+}
+
+pub mod user_sessions {
+    pub static COMPONENT: u16 = 30722;
+    pub static UPDATE_NETWORK_INFO: u16 = 20;
 }
 
 pub struct PreAuthResponse;
@@ -96,4 +107,24 @@ impl Encodable for PingResponse {
     fn encode(&self, w: &mut TdfWriter) {
         w.tag_u64(b"STIM", self.time);
     }
+}
+
+pub struct AuthRequest {
+    pub token: String,
+}
+
+impl Decodable for AuthRequest {
+    fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
+        let token = reader.tag(b"AUTH")?;
+        Ok(Self { token })
+    }
+}
+
+pub struct UpdateNetworkInfo {}
+
+#[test]
+fn test() {
+    let bytes = [1, 130, 252, 237, 244, 20, 1, 1];
+    let a = u64::from_be_bytes(bytes);
+    println!("{}", a)
 }

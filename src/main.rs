@@ -12,6 +12,7 @@ use tokio_util::codec::{FramedRead, FramedWrite};
 mod blaze;
 mod http;
 mod packet;
+mod structs;
 
 #[tokio::main]
 async fn main() {
