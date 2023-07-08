@@ -1,10 +1,12 @@
 use std::net::SocketAddr;
 
 use futures::StreamExt;
+use http::start_http;
 use packet::PacketCodec;
 use tokio::{
     io::split,
     net::{TcpListener, TcpStream},
+    signal,
 };
 use tokio_native_tls::TlsStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
@@ -16,7 +18,10 @@ mod structs;
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
+    tokio::spawn(start_http());
+    tokio::spawn(start_server());
+
+    let _ = signal::ctrl_c().await;
 }
 
 async fn start_server() {
@@ -59,5 +64,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>) {
                 return;
             }
         };
+
+        println!("Got packet: {:?}", &packet.header)
     }
 }

@@ -26,7 +26,7 @@ pub struct PacketHeader {
 }
 
 pub struct Packet {
-    header: PacketHeader,
+    pub header: PacketHeader,
     pre_msg: Bytes,
     body: Bytes,
 }
