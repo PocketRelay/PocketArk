@@ -9,6 +9,7 @@ use tokio::{
 use tokio_native_tls::TlsStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
+mod http;
 mod packet;
 
 #[tokio::main]
