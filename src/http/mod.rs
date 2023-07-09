@@ -18,7 +18,7 @@ mod models;
 mod routes;
 
 const CERTIFICATE: &[u8] = include_bytes!("../resources/identity/cert.der");
-const PRIVATE_KEY: &[u8] = include_bytes!("../resources/identity/cert.der");
+const PRIVATE_KEY: &[u8] = include_bytes!("../resources/identity/key.pem");
 
 pub async fn start_server() {
     let addr: SocketAddr = SocketAddr::V4(SocketAddrV4::new(

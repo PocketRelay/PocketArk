@@ -44,7 +44,7 @@ pub fn setup(logging_level: LevelFilter) {
         .build(
             Root::builder()
                 .appenders(APPENDERS)
-                .build(LevelFilter::Warn),
+                .build(LevelFilter::Debug),
         )
         .expect("Failed to create logging config");
 
