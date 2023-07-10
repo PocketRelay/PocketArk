@@ -11,18 +11,18 @@ use crate::blaze::{
 
 use super::EmptyData;
 
-pub async fn pre_auth(session: &mut Session, req: EmptyData) -> PreAuthResponse {
+pub async fn pre_auth(session: &mut Session, _req: EmptyData) -> PreAuthResponse {
     PreAuthResponse {
         target: session.host_target.clone(),
     }
 }
 
-pub async fn post_auth(session: &mut Session, req: EmptyData) -> PostAuthResponse {
+pub async fn post_auth(_session: &mut Session, _req: EmptyData) -> PostAuthResponse {
     PostAuthResponse
 }
 
 pub async fn fetch_client_config(
-    session: &mut Session,
+    _session: &mut Session,
     req: ClientConfigRequest,
 ) -> ClientConfigResponse {
     let config: TdfMap<String, String> = match req.id.as_str() {
@@ -38,7 +38,7 @@ pub async fn fetch_client_config(
     ClientConfigResponse { config }
 }
 
-pub async fn ping(session: &mut Session, req: EmptyData) -> PingResponse {
+pub async fn ping(_session: &mut Session, _req: EmptyData) -> PingResponse {
     let time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards")
