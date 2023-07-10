@@ -54,7 +54,7 @@ impl PacketHeader {
 pub struct Packet {
     pub header: PacketHeader,
     pre_msg: Bytes,
-    body: Bytes,
+    pub body: Bytes,
 }
 
 impl Packet {
@@ -63,6 +63,22 @@ impl Packet {
             header: self.header.response(),
             pre_msg: Bytes::new(),
             body: Bytes::from(contents.encode_bytes()),
+        }
+    }
+
+    pub fn notify<C: Encodable>(component: u16, command: u16, contents: C) -> Self {
+        Self {
+            header: PacketHeader::notify(component, command),
+            pre_msg: Bytes::new(),
+            body: Bytes::from(contents.encode_bytes()),
+        }
+    }
+
+    pub fn respond_empty(&self) -> Self {
+        Self {
+            header: self.header.response(),
+            pre_msg: Bytes::new(),
+            body: Bytes::new(),
         }
     }
 }

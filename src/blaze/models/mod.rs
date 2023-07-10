@@ -7,6 +7,7 @@ use blaze_pk::{
     tag::TdfType,
     writer::TdfWriter,
 };
+use log::debug;
 
 use crate::http::middleware::upgrade::{BlazeScheme, UpgradedTarget};
 
@@ -36,6 +37,8 @@ impl Encodable for PreAuthResponse {
             self.target.host,
             self.target.port
         );
+
+        debug!("{}", host_alt);
 
         w.tag_str(b"ASRC", "310335");
         w.tag_slice_list(
@@ -132,6 +135,115 @@ impl Decodable for AuthRequest {
     fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
         let token = reader.tag(b"AUTH")?;
         Ok(Self { token })
+    }
+}
+
+pub struct AuthNotify;
+
+impl Encodable for AuthNotify {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.tag_zero(b"\x17CON");
+        w.tag_u32(b"ALOC", 1701727834);
+        w.tag_u32(b"BUID", 978651371);
+        w.tag_triple(b"CGID", (30722u64, 2u64, 1052287650009u64));
+        w.tag_str(b"DSNM", "Jacobtread");
+        w.tag_zero(b"FRST");
+        w.tag_str(b"KEY", "0");
+        w.tag_u32(b"LAST", 1688871852);
+        w.tag_u32(b"LLOG", 1688871991);
+        w.tag_str(b"MAIL", "******@gmail.com");
+        w.tag_str(b"NASP", "cem_ea_id");
+        w.tag_u32(b"PID", 978651371);
+        w.tag_u8(b"PLAT", 4);
+        w.tag_u64(b"UID", 1000279946559);
+        w.tag_u8(b"USTP", 0);
+        w.tag_u64(b"XREF", 1000279946559);
+    }
+}
+
+pub struct AuthResponse;
+
+impl Encodable for AuthResponse {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.group(b"SESS", |w| {
+            w.tag_zero(b"\x17CON");
+            w.tag_u32(b"BUID", 978651371);
+            w.tag_zero(b"FRST");
+            w.tag_str(b"KEY", "0");
+            w.tag_u32(b"LLOG", 1688871991);
+            w.tag_str(b"MAIL", "******@gmail.com");
+            w.group(b"PDTL", |w| {
+                w.tag_str(b"DSNM", "Jacobtread");
+                w.tag_u32(b"LAST", 0);
+                w.tag_u32(b"PID", 978651371);
+                w.tag_u8(b"PLAT", 4);
+                w.tag_u8(b"STAS", 0);
+                w.tag_u64(b"XREF", 1000279946559);
+            });
+            w.tag_u64(b"UID", 1000279946559);
+        });
+        w.tag_u8(b"SPAM", 0);
+        w.tag_u8(b"UNDR", 0);
+    }
+}
+
+pub struct ClientConfigReq {
+    pub cfid: String,
+}
+
+impl Decodable for ClientConfigReq {
+    fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
+        let cfid = reader.tag(b"CFID")?;
+        Ok(ClientConfigReq { cfid })
+    }
+}
+
+pub struct ClientConfigRes;
+impl Encodable for ClientConfigRes {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.tag_map_tuples(
+            b"CONF",
+            &[
+                ("display", "console2/welcome"),
+                ("redirect_uri", "http://127.0.0.1/success"),
+            ],
+        )
+    }
+}
+
+pub struct PostAuthRes;
+
+impl Encodable for PostAuthRes {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.group(b"TELE", |w| {
+            w.tag_str(b"ADRS", "https://river.data.ea.com");
+            w.tag_zero(b"ANON");
+            w.tag_str(b"DISA", "AD,AF,AG,AI,AL,AM,AN,AO,AQ,AR,AS,AW,AX,AZ,BA,BB,BD,BF,BH,BI,BJ,BM,BN,BO,BR,BS,BT,BV,BW,BY,BZ,CC,CD,CF,CG,CI,CK,CL,CM,CN,CO,CR,CU,CV,CX,DJ,DM,DO,DZ,EC,EG,EH,ER,ET,FJ,FK,FM,FO,GA,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GS,GT,GU,GW,GY,HM,HN,HT,ID,IL,IM,IN,IO,IQ,IR,IS,JE,JM,JO,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LY,MA,MC,MD,ME,MG,MH,ML,MM,MN,MO,MP,MQ,MR,MS,MU,MV,MW,MY,MZ,NA,NC,NE,NF,NG,NI,NP,NR,NU,OM,PA,PE,PF,PG,PH,PK,PM,PN,PS,PW,PY,QA,RE,RS,RW,SA,SB,SC,SD,SG,SH,SJ,SL,SM,SN,SO,SR,ST,SV,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TT,TV,TZ,UA,UG,UM,UY,UZ,VA,VC,VE,VG,VN,VU,WF,WS,YE,YT,ZM,ZW,ZZ");
+            w.tag_zero(b"EDCT");
+            w.tag_str(b"FILT", "-UION/****");
+            w.tag_u32(b"LOC", 1701727834);
+            w.tag_zero(b"MINR");
+            w.tag_str(b"NOOK", "US,CA,MX");
+            w.tag_u16(b"LOC", 443);
+            w.tag_u16(b"SDLY", 15000);
+            w.tag_str(b"SESS", "4QiqktOCVpD");
+            w.tag_str(b"SKEY", "^�¦��Δ�ۍ��ڍ���騊�웱�䕋ƌ������������֦̉���ʉ��ؗ��͛�̙�����¦����ı�������ɣ�˲��Ҁ�");
+            w.tag_u16(b"SPCT", 75);
+            w.tag_str(b"STIM", "Default");
+            w.tag_str(b"SVNM", "telemetry-3-common");
+        });
+        w.group(b"TICK", |w| {
+            w.tag_str(b"ADRS", "10.23.15.2");
+            w.tag_u16(b"PORT", 8999);
+            w.tag_str(
+                b"SKEY",
+                "978651371,10.23.15.2:8999,masseffect-4-pc,10,50,50,50,50,0,12",
+            );
+        });
+        w.group(b"UROP", |w| {
+            w.tag_u8(b"TMOP", 1);
+            w.tag_u32(b"UID", 978651371)
+        })
     }
 }
 

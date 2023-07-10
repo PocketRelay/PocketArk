@@ -2,8 +2,9 @@
 //! and automatically decoding the packet contents to the function type
 
 use blaze_pk::{
-    codec::Encodable,
+    codec::{Decodable, Encodable},
     error::{DecodeError, DecodeResult},
+    reader::TdfReader,
 };
 use std::{
     collections::HashMap,
@@ -25,17 +26,17 @@ pub trait FromRequest: Sized + Send + 'static {
     fn from_request(req: &Packet) -> DecodeResult<Self>;
 }
 
+impl<D: Decodable + Send + 'static> FromRequest for D {
+    fn from_request(req: &Packet) -> DecodeResult<Self> {
+        let mut reader = TdfReader::new(&req.body);
+        D::decode(&mut reader)
+    }
+}
+
 /// Wrapper over the [FromRequest] type to support the unit type
 /// to differentiate
 pub trait FromRequestInternal: Sized + 'static {
     fn from_request(req: &Packet) -> DecodeResult<Self>;
-}
-
-/// Unit type implementation for handlers that don't take a req type
-impl FromRequestInternal for () {
-    fn from_request(_req: &Packet) -> DecodeResult<Self> {
-        Ok(())
-    }
 }
 
 /// Implementation for normal [FromRequest] implementations
@@ -108,29 +109,6 @@ where
 {
     fn handle(&self, state: &'a mut State, req: Req) -> BoxFuture<'a, Res> {
         Box::pin(self(state, req))
-    }
-}
-
-/// Handler implementation for async functions that take the state with no
-/// request type
-///
-/// ```
-/// struct State;
-/// struct Res;
-///
-/// async fn test(state: &mut State) -> Res {
-///     Res {}
-/// }
-/// ```
-impl<'a, State, Fun, Fut, Res> Handler<'a, State, (), Res> for Fun
-where
-    Fun: Fn(&'a mut State) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Res> + Send + 'a,
-    Res: IntoResponse,
-    State: Send + 'static,
-{
-    fn handle(&self, state: &'a mut State, _: ()) -> BoxFuture<'a, Res> {
-        Box::pin(self(state))
     }
 }
 
