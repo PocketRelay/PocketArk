@@ -9,15 +9,11 @@ use axum::{
 use hyper::{header, http::HeaderValue, StatusCode};
 use log::{debug, error};
 use serde::Serialize;
-use tokio::io::split;
-use tokio_util::codec::{Framed, FramedRead, FramedWrite};
+use tokio_util::codec::Framed;
 
 use crate::{
-    blaze::{
-        packet::PacketCodec,
-        routes::{handle_session, Session},
-    },
-    http::{middleware::upgrade::BlazeUpgrade, models::client::*},
+    blaze::{packet::PacketCodec, session::Session},
+    http::middleware::upgrade::BlazeUpgrade,
 };
 
 #[derive(Serialize)]
@@ -62,7 +58,7 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
 
         debug!("New session: {}", session_id);
 
-        handle_session(session).await;
+        session.handle().await;
     });
 
     let mut response = Empty::new().into_response();
