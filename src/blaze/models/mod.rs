@@ -8,6 +8,8 @@ use blaze_pk::{
     writer::TdfWriter,
 };
 
+use crate::http::middleware::upgrade::{BlazeScheme, UpgradedTarget};
+
 pub mod util {
     pub static COMPONENT: u16 = 9;
     pub static PRE_AUTH: u16 = 7;
@@ -18,10 +20,23 @@ pub mod user_sessions {
     pub static UPDATE_NETWORK_INFO: u16 = 20;
 }
 
-pub struct PreAuthResponse;
+pub struct PreAuthResponse {
+    target: UpgradedTarget,
+}
 
 impl Encodable for PreAuthResponse {
     fn encode(&self, w: &mut TdfWriter) {
+        let host = &self.target.host;
+        let port = &self.target.port.to_string();
+        let secure = &matches!(self.target.scheme, BlazeScheme::Https).to_string();
+
+        let host_alt = format!(
+            "{}{}:{}",
+            self.target.scheme.value(),
+            self.target.host,
+            self.target.port
+        );
+
         w.tag_str(b"ASRC", "310335");
         w.tag_slice_list(
             b"CIDS",
@@ -37,13 +52,13 @@ impl Encodable for PreAuthResponse {
                 &[
                     ("arubaDisabled", "false"),
                     ("arubaEndpoint", "PROD"),
-                    ("arubaHostname", "https://pin-em.data.ea.com/"),
+                    ("arubaHostname", &host_alt),
                     ("associationListSkipInitialSet", "1"),
                     ("autoReconnectEnabled", "0"),
                     // TODO: Replace bytevault with the local name
-                    ("bytevaultHostname", "mea-public.biowareonline.net"),
-                    ("bytevaultPort", "443"),
-                    ("bytevaultSecure", "true"),
+                    ("bytevaultHostname", host),
+                    ("bytevaultPort", port),
+                    ("bytevaultSecure", secure),
                     ("cachedUserRefreshInterval", "1s"),
                     ("connIdleTimeout", "40s"),
                     ("defaultRequestTimeout", "20s"),
@@ -56,8 +71,8 @@ impl Encodable for PreAuthResponse {
                     ("pingPeriod", "20s"),
                     // TODO: Replace with local telemtry server
                     ("riverEnv", "prod"),
-                    ("riverHost", "https://pin-river.data.ea.com"),
-                    ("riverPort", "443"),
+                    ("riverHost", &host_alt),
+                    ("riverPort", port),
                     ("userManagerMaxCachedUsers", "0"),
                     ("voipHeadsetUpdateRate", "1000"),
                     ("xblTokenUrn", "accounts.ea.com"),

@@ -1,0 +1,8 @@
+
+
+Authenticate through client app:
+-> When client attempts to login provide creds already known
+
+
+Client Authenticates
+-> Give Client PID

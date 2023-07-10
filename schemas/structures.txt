@@ -1,0 +1,19 @@
+Players:
+    Id: u64
+    OriginId: u64,
+    Name: String,
+    MtxCurrency: u64
+    GrindCurrency: u64
+    MissionCurrency: u64
+
+InventoryItem:
+    PlayerId: u64
+    ItemId: UUID
+    DefinitionName: UUID
+    StackSize: u16
+    Seen: bool
+    InstanceAttributes: map of string -> string maybe?
+    Created: Date
+    LastGrant: Date
+    EarnedBy: String
+    Restricted: bool

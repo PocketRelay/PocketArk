@@ -1,16 +1,22 @@
 use log::LevelFilter;
-use tokio::signal;
+use tokio::{select, signal};
 
 mod blaze;
 mod http;
+mod services;
 mod utils;
 
 #[tokio::main]
 async fn main() {
     utils::logging::setup(LevelFilter::Debug);
 
-    tokio::spawn(http::start_server());
-    tokio::spawn(blaze::start_server());
+    select! {
+        _ = http::start_server() => {
 
-    let _ = signal::ctrl_c().await;
+        }
+
+        _ = signal::ctrl_c() => {
+
+        }
+    }
 }

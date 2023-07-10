@@ -12,8 +12,9 @@ use openssl::{
     x509::X509,
 };
 
-use crate::utils::constants::HTTPS_SERVER_PORT;
+use crate::utils::constants::SERVER_PORT;
 
+pub mod middleware;
 mod models;
 mod routes;
 
@@ -21,10 +22,8 @@ const CERTIFICATE: &[u8] = include_bytes!("../resources/identity/cert.der");
 const PRIVATE_KEY: &[u8] = include_bytes!("../resources/identity/key.pem");
 
 pub async fn start_server() {
-    let addr: SocketAddr = SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(0, 0, 0, 0),
-        HTTPS_SERVER_PORT,
-    ));
+    let addr: SocketAddr =
+        SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(0, 0, 0, 0), SERVER_PORT));
 
     let router = routes::router();
     let mut acceptor = SslAcceptor::mozilla_intermediate(SslMethod::tls_server()).unwrap();
