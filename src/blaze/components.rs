@@ -2,6 +2,7 @@ pub mod authentication {
     pub const COMPONENT: u16 = 1;
 
     pub const AUTHENTICATE: u16 = 10;
+    pub const LIST_ENTITLEMENTS_2: u16 = 29;
 }
 
 pub mod game_manager {

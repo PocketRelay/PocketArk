@@ -1,5 +1,6 @@
 use std::future::ready;
 
+use crate::blaze::pk::packet::PacketDebug;
 use crate::blaze::pk::reader::TdfReader;
 use futures::{SinkExt, StreamExt};
 use hyper::upgrade::Upgraded;
@@ -51,22 +52,9 @@ impl Session {
 }
 
 pub fn debug_log_packet(dir: &str, packet: &Packet) {
-    let mut reader = TdfReader::new(&packet.body);
-    let mut out = String::new();
-
-    out.push_str("{\n");
-
-    // Stringify the content or append error instead
-    if let Err(err) = reader.stringify(&mut out) {
-        // return Ok("Failed to decode".to_string());
-    }
-
-    if out.len() == 2 {
-        // Remove new line if nothing else was appended
-        out.pop();
-    }
-
-    out.push('}');
-
-    debug!("{}: {:?}\nContent:{}\n\n", dir, packet, out);
+    let out = PacketDebug {
+        packet,
+        minified: false,
+    };
+    debug!("{}: {:?}", dir, out);
 }

@@ -7,8 +7,8 @@ use crate::blaze::{
     session::Session,
 };
 
-pub async fn auth(state: &mut Session, req: AuthRequest) -> AuthResponse {
-    state
+pub async fn auth(session: &mut Session, req: AuthRequest) -> AuthResponse {
+    let _ = session
         .io
         .send(Packet::notify(
             components::user_sessions::COMPONENT,
@@ -19,3 +19,5 @@ pub async fn auth(state: &mut Session, req: AuthRequest) -> AuthResponse {
 
     AuthResponse
 }
+
+pub async fn list_entitlements_2(session: &mut Session) {}
