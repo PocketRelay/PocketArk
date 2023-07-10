@@ -3,7 +3,7 @@ use futures::SinkExt;
 use crate::blaze::{
     components,
     models::auth::{AuthNotify, AuthRequest, AuthResponse},
-    packet::Packet,
+    pk::packet::Packet,
     session::Session,
 };
 

@@ -1,6 +1,6 @@
 use std::future::ready;
 
-use blaze_pk::reader::TdfReader;
+use crate::blaze::pk::reader::TdfReader;
 use futures::{SinkExt, StreamExt};
 use hyper::upgrade::Upgraded;
 use log::{debug, error};
@@ -9,11 +9,12 @@ use uuid::Uuid;
 
 use crate::http::middleware::upgrade::UpgradedTarget;
 
-use super::{
+use crate::blaze::pk::{
     packet::{Packet, PacketCodec},
     router::HandleError,
-    routes::router,
 };
+
+use super::routes::router;
 
 pub struct Session {
     pub host_target: UpgradedTarget,

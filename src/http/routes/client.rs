@@ -12,7 +12,7 @@ use serde::Serialize;
 use tokio_util::codec::Framed;
 
 use crate::{
-    blaze::{packet::PacketCodec, session::Session},
+    blaze::{pk::packet::PacketCodec, session::Session},
     http::middleware::upgrade::BlazeUpgrade,
 };
 

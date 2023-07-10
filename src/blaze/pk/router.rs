@@ -1,10 +1,9 @@
 //! Router implementation for routing packet components to different functions
 //! and automatically decoding the packet contents to the function type
 
-use blaze_pk::{
-    codec::{Decodable, Encodable},
+use super::{
     error::{DecodeError, DecodeResult},
-    reader::TdfReader,
+    packet::{FromRequest, IntoResponse, Packet},
 };
 use std::{
     collections::HashMap,
@@ -14,53 +13,23 @@ use std::{
     task::{ready, Context, Poll},
 };
 
-use super::packet::Packet;
-
-/// Trait implementing by structures which can be created from a request
-/// packet and is used for the arguments on routing functions
-pub trait FromRequest: Sized + Send + 'static {
-    /// Takes the value from the request returning a decode result of
-    /// whether the value could be created
-    ///
-    /// `req` The request packet
-    fn from_request(req: &Packet) -> DecodeResult<Self>;
-}
-
-impl<D: Decodable + Send + 'static> FromRequest for D {
-    fn from_request(req: &Packet) -> DecodeResult<Self> {
-        let mut reader = TdfReader::new(&req.body);
-        D::decode(&mut reader)
-    }
-}
-
 /// Wrapper over the [FromRequest] type to support the unit type
 /// to differentiate
 pub trait FromRequestInternal: Sized + 'static {
     fn from_request(req: &Packet) -> DecodeResult<Self>;
 }
 
+/// Unit type implementation for handlers that don't take a req type
+impl FromRequestInternal for () {
+    fn from_request(_req: &Packet) -> DecodeResult<Self> {
+        Ok(())
+    }
+}
+
 /// Implementation for normal [FromRequest] implementations
 impl<F: FromRequest> FromRequestInternal for F {
     fn from_request(req: &Packet) -> DecodeResult<Self> {
         F::from_request(req)
-    }
-}
-
-/// Trait for a type that can be converted into a packet
-/// response using the header from the request packet
-pub trait IntoResponse: 'static {
-    /// Into packet conversion
-    fn into_response(self, req: &Packet) -> Packet;
-}
-
-/// Into response imeplementation for encodable responses
-/// which just calls res.respond
-impl<E> IntoResponse for E
-where
-    E: Encodable + 'static,
-{
-    fn into_response(self, req: &Packet) -> Packet {
-        req.respond(self)
     }
 }
 
@@ -109,6 +78,29 @@ where
 {
     fn handle(&self, state: &'a mut State, req: Req) -> BoxFuture<'a, Res> {
         Box::pin(self(state, req))
+    }
+}
+
+/// Handler implementation for async functions that take the state with no
+/// request type
+///
+/// ```
+/// struct State;
+/// struct Res;
+///
+/// async fn test(state: &mut State) -> Res {
+///     Res {}
+/// }
+/// ```
+impl<'a, State, Fun, Fut, Res> Handler<'a, State, (), Res> for Fun
+where
+    Fun: Fn(&'a mut State) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Res> + Send + 'a,
+    Res: IntoResponse,
+    State: Send + 'static,
+{
+    fn handle(&self, state: &'a mut State, _: ()) -> BoxFuture<'a, Res> {
+        Box::pin(self(state))
     }
 }
 
@@ -208,22 +200,16 @@ where
         Self::default()
     }
 
-    /// Adds a new route to the router where the route is something that implements
-    /// the handler type with any lifetime. The value is wrapped with a HandlerRoute
-    /// and stored boxed in the routes map under the component key
-    ///
-    /// `component` The component key for the route
-    /// `route`     The actual route handler function
     pub fn route<Req, Res>(
         &mut self,
-        component: (u16, u16),
+        target: (u16, u16),
         route: impl for<'a> Handler<'a, S, Req, Res>,
     ) where
         Req: FromRequestInternal,
         Res: IntoResponse,
     {
         self.routes.insert(
-            component,
+            target,
             Box::new(HandlerRoute {
                 handler: route,
                 _marker: PhantomData,
@@ -243,7 +229,6 @@ where
         packet: Packet,
     ) -> Result<PacketFuture<'a>, HandleError> {
         let target = (packet.header.component, packet.header.command);
-
         let route = match self.routes.get(&target) {
             Some(value) => value,
             None => return Err(HandleError::MissingHandler(packet)),

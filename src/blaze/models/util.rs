@@ -1,4 +1,4 @@
-use blaze_pk::{
+use crate::blaze::pk::{
     codec::{Decodable, Encodable},
     error::DecodeResult,
     reader::TdfReader,

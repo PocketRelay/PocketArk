@@ -1,6 +1,6 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use blaze_pk::types::TdfMap;
+use crate::blaze::pk::types::TdfMap;
 
 use crate::blaze::{
     models::util::{
@@ -9,15 +9,13 @@ use crate::blaze::{
     session::Session,
 };
 
-use super::EmptyData;
-
-pub async fn pre_auth(session: &mut Session, _req: EmptyData) -> PreAuthResponse {
+pub async fn pre_auth(session: &mut Session) -> PreAuthResponse {
     PreAuthResponse {
         target: session.host_target.clone(),
     }
 }
 
-pub async fn post_auth(_session: &mut Session, _req: EmptyData) -> PostAuthResponse {
+pub async fn post_auth(_session: &mut Session) -> PostAuthResponse {
     PostAuthResponse
 }
 
@@ -38,7 +36,7 @@ pub async fn fetch_client_config(
     ClientConfigResponse { config }
 }
 
-pub async fn ping(_session: &mut Session, _req: EmptyData) -> PingResponse {
+pub async fn ping(_session: &mut Session) -> PingResponse {
     let time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards")

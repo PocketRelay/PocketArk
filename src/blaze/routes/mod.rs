@@ -1,6 +1,5 @@
-use super::models::EmptyData;
-use super::router::Router;
 use super::{components, session::Session};
+use crate::blaze::pk::router::Router;
 
 mod auth;
 mod util;
@@ -39,9 +38,7 @@ pub fn router() -> Router<Session> {
     router
 }
 
-async fn keep_alive(_state: &mut Session, req: EmptyData) -> EmptyData {
-    EmptyData
-}
+async fn keep_alive(_state: &mut Session) {}
 
 #[test]
 fn test() {
