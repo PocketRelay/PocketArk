@@ -6,14 +6,19 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use blaze_pk::packet::PacketCodec;
 use hyper::{header, http::HeaderValue, StatusCode};
 use log::{debug, error};
 use serde::Serialize;
 use tokio::io::split;
-use tokio_util::codec::{FramedRead, FramedWrite};
+use tokio_util::codec::{Framed, FramedRead, FramedWrite};
 
-use crate::http::{middleware::upgrade::BlazeUpgrade, models::client::*};
+use crate::{
+    blaze::{
+        packet::PacketCodec,
+        routes::{handle_session, Session},
+    },
+    http::{middleware::upgrade::BlazeUpgrade, models::client::*},
+};
 
 #[derive(Serialize)]
 pub struct ServerDetails {
@@ -49,12 +54,15 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
         // Obtain a session ID
         let session_id = uuid::Uuid::new_v4();
 
-        // Attach reader and writers to the session context
-        let (read, write) = split(socket.upgrade);
-        let read = FramedRead::new(read, PacketCodec);
-        let write = FramedWrite::new(write, PacketCodec);
+        let session = Session {
+            io: Framed::new(socket.upgrade, PacketCodec),
+            id: session_id,
+            host_target: socket.host_target,
+        };
 
         debug!("New session: {}", session_id);
+
+        handle_session(session).await;
     });
 
     let mut response = Empty::new().into_response();

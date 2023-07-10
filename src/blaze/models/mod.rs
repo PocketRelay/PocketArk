@@ -21,7 +21,7 @@ pub mod user_sessions {
 }
 
 pub struct PreAuthResponse {
-    target: UpgradedTarget,
+    pub target: UpgradedTarget,
 }
 
 impl Encodable for PreAuthResponse {

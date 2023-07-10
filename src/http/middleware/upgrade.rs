@@ -144,6 +144,7 @@ const HEADER_AUTH: &str = "X-Pocket-Ark-Auth";
 
 /// Represents the information used when upgrading a connection
 /// this is used as server knowledge on how to form new connections
+#[derive(Clone)]
 pub struct UpgradedTarget {
     pub scheme: BlazeScheme,
     pub host: Box<str>,

@@ -1,6 +1,7 @@
 use std::{io, sync::Arc};
 
 use bitflags::bitflags;
+use blaze_pk::codec::Encodable;
 use bytes::{Buf, BufMut, BytesMut};
 use hyper::body::Bytes;
 use tokio_util::codec::{Decoder, Encoder};
@@ -25,10 +26,45 @@ pub struct PacketHeader {
     pub unused: u8,
 }
 
+impl PacketHeader {
+    pub fn response(&self) -> Self {
+        Self {
+            component: self.component,
+            command: self.command,
+            seq: self.seq,
+            flags: self.flags | PacketFlags::FLAG_RESPONSE,
+            notify: 0,
+            unused: 0,
+        }
+    }
+
+    pub fn notify(component: u16, command: u16) -> Self {
+        Self {
+            component,
+            command,
+            seq: 0,
+            flags: PacketFlags::FLAG_NOTIFY,
+            notify: 1,
+            unused: 0,
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Packet {
     pub header: PacketHeader,
     pre_msg: Bytes,
     body: Bytes,
+}
+
+impl Packet {
+    pub fn respond<C: Encodable>(&self, contents: C) -> Self {
+        Self {
+            header: self.header.response(),
+            pre_msg: Bytes::new(),
+            body: Bytes::from(contents.encode_bytes()),
+        }
+    }
 }
 
 impl Packet {
