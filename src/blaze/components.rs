@@ -20,9 +20,10 @@ pub mod util {
 pub mod user_sessions {
     pub const COMPONENT: u16 = 30722;
 
-    pub const USER_UPDATED: u16 = 1;
-    pub const USER_ADDED: u16 = 2;
-    pub const UPDATE_AUTH: u16 = 8;
+    pub const UPDATE_HARDWARE_FLAGS: u16 = 8;
     pub const UPDATE_NETWORK_INFO: u16 = 20;
-    pub const UPDATE_HARDWARE_FLAGS: u16 = 20;
+
+    pub const NOTIFY_USER_UPDATED: u16 = 1;
+    pub const NOTIFY_USER_ADDED: u16 = 2;
+    pub const NOTIFY_UPDATE_AUTH: u16 = 8;
 }

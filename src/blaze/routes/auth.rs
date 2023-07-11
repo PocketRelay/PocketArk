@@ -15,7 +15,7 @@ pub async fn auth(session: &mut Session, _req: AuthRequest) -> AuthResponse {
         .io
         .send(Packet::notify(
             components::user_sessions::COMPONENT,
-            components::user_sessions::UPDATE_AUTH,
+            components::user_sessions::NOTIFY_UPDATE_AUTH,
             AuthNotify,
         ))
         .await;
@@ -23,7 +23,7 @@ pub async fn auth(session: &mut Session, _req: AuthRequest) -> AuthResponse {
         .io
         .send(Packet::notify(
             components::user_sessions::COMPONENT,
-            components::user_sessions::USER_ADDED,
+            components::user_sessions::NOTIFY_USER_ADDED,
             UserAdded {
                 player_id: 1,
                 name: "Jacobtread".to_string(),

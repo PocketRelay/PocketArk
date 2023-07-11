@@ -138,30 +138,30 @@ impl Encodable for UserAdded {
 
 #[derive(Debug, Clone, Default)]
 pub struct QosNetworkData {
-    pub bwhr: u16,
-    pub dbps: u16,
-    pub nahr: u16,
+    pub bwhr: u32,
+    pub dbps: u32,
+    pub nahr: u32,
     pub natt: u8,
-    pub ubps: u16,
+    pub ubps: u32,
 }
 impl Encodable for QosNetworkData {
     fn encode(&self, w: &mut TdfWriter) {
-        w.tag_u16(b"BWHR", self.bwhr);
-        w.tag_u16(b"DBPS", self.dbps);
-        w.tag_u16(b"NAHR", self.nahr);
+        w.tag_u32(b"BWHR", self.bwhr);
+        w.tag_u32(b"DBPS", self.dbps);
+        w.tag_u32(b"NAHR", self.nahr);
         w.tag_u8(b"NATT", self.natt);
-        w.tag_u16(b"UBPS", self.ubps);
+        w.tag_u32(b"UBPS", self.ubps);
         w.tag_group_end();
     }
 }
 
 impl Decodable for QosNetworkData {
     fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
-        let bwhr: u16 = r.tag(b"BWHR")?;
-        let dbps: u16 = r.tag(b"DBPS")?;
-        let nahr: u16 = r.tag(b"NAHR")?;
+        let bwhr: u32 = r.tag(b"BWHR")?;
+        let dbps: u32 = r.tag(b"DBPS")?;
+        let nahr: u32 = r.tag(b"NAHR")?;
         let natt: u8 = r.tag(b"NATT")?;
-        let ubps: u16 = r.tag(b"UBPS")?;
+        let ubps: u32 = r.tag(b"UBPS")?;
         r.read_byte()?;
         Ok(Self {
             bwhr,
@@ -207,6 +207,7 @@ impl Decodable for IpPairAddress {
         let external = r.tag(b"EXIP")?;
         let internal = r.tag(b"INIP")?;
         let maci = r.tag(b"MACI")?;
+        r.read_byte()?;
         Ok(Self {
             external,
             internal,
@@ -267,6 +268,7 @@ pub struct UpdateNetworkInfo {
 
 impl Decodable for UpdateNetworkInfo {
     fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        r.until_tag(b"INFO", TdfType::Group)?;
         let addr = match r.tag::<Union<IpPairAddress>>(b"ADDR")? {
             Union::Set { value, .. } => Some(value),
             Union::Unset => None,
