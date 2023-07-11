@@ -2,6 +2,7 @@ use super::{components, session::Session};
 use crate::blaze::pk::router::Router;
 
 mod auth;
+mod user_sessions;
 mod util;
 
 pub fn router() -> Router<Session> {
@@ -34,6 +35,21 @@ pub fn router() -> Router<Session> {
         util::fetch_client_config,
     );
     router.route((0, 0), keep_alive);
+
+    router.route(
+        (
+            components::user_sessions::COMPONENT,
+            components::user_sessions::UPDATE_NETWORK_INFO,
+        ),
+        user_sessions::update_network_info,
+    );
+    router.route(
+        (
+            components::user_sessions::COMPONENT,
+            components::user_sessions::UPDATE_HARDWARE_FLAGS,
+        ),
+        user_sessions::update_hardware_flags,
+    );
 
     router
 }

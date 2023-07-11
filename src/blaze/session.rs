@@ -15,15 +15,32 @@ use crate::blaze::pk::{
     router::HandleError,
 };
 
+use super::models::user_sessions::NetData;
 use super::routes::router;
 
 pub struct Session {
     pub host_target: UpgradedTarget,
     pub io: Framed<Upgraded, PacketCodec>,
     pub id: Uuid,
+    pub data: SessionData,
+}
+
+#[derive(Debug, Default)]
+pub struct SessionData {
+    pub net: NetData,
+    pub game: Option<u32>,
 }
 
 impl Session {
+    pub fn new(io: Framed<Upgraded, PacketCodec>, target: UpgradedTarget) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            io,
+            host_target: target,
+            data: SessionData::default(),
+        }
+    }
+
     pub async fn handle(mut self) {
         // TODO: static router impl
         let router = router();

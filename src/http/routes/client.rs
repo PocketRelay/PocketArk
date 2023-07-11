@@ -47,16 +47,9 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
         };
         // TODO: Validate authentication
 
-        // Obtain a session ID
-        let session_id = uuid::Uuid::new_v4();
+        let session = Session::new(Framed::new(socket.upgrade, PacketCodec), socket.host_target);
 
-        let session = Session {
-            io: Framed::new(socket.upgrade, PacketCodec),
-            id: session_id,
-            host_target: socket.host_target,
-        };
-
-        debug!("New session: {}", session_id);
+        debug!("New session: {}", &session.id);
 
         session.handle().await;
     });

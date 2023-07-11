@@ -10,7 +10,7 @@ pub trait Decodable: Sized {
     /// cannot be decoded
     ///
     /// `reader` The reader to decode from
-    fn decode(reader: &mut TdfReader) -> DecodeResult<Self>;
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self>;
 }
 
 /// Trait for something that can be encoded onto a TdfWriter
@@ -19,7 +19,7 @@ pub trait Encodable: Sized {
     /// provided vec of bytes
     ///
     /// `writer` The output to encode to
-    fn encode(&self, writer: &mut TdfWriter);
+    fn encode(&self, w: &mut TdfWriter);
 
     /// Shortcut function for encoding self directly to
     /// a Vec of bytes

@@ -6,6 +6,5 @@ use crate::blaze::pk::{
 };
 
 pub mod auth;
+pub mod user_sessions;
 pub mod util;
-
-pub struct UpdateNetworkInfo {}
