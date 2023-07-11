@@ -1,0 +1,456 @@
+{
+	"sku": {
+		"title": "mec.game",
+		"platform": "origin"
+	},
+	"name": "60462684",
+	"durationSec": 746,
+	"percentComplete": 57,
+	"wavesEncountered": 5,
+	"extractionState": "EXTRACTION_FAILED",
+	"enemyType": "outlaw",
+	"difficulty": "bronze",
+	"map": "MPAqua",
+	"start": "2023-07-07T01:31:32.095+0000",
+	"end": "2023-07-07T01:44:12.186+0000",
+	"processed": "2023-07-07T01:44:12.318+0000",
+	"playerInfos": [
+		{
+			"activitiesProcessed": true,
+			"bonuses": [],
+			"activities": [],
+			"badges": [
+				{
+					"count": 22,
+					"levelName": "Bronze",
+					"rewardedLevels": [
+						"Bronze"
+					],
+					"name": "a2012277-2e5b-495c-89de-2edb5a1195a9"
+				},
+				{
+					"count": 72,
+					"levelName": "Gold",
+					"rewardedLevels": [
+						"Bronze",
+						"Silver",
+						"Gold"
+					],
+					"name": "fe3100a9-b9d7-4fd6-8cce-95ef87065cd2"
+				},
+				{
+					"count": 1700,
+					"levelName": "Bronze",
+					"rewardedLevels": [
+						"Bronze"
+					],
+					"name": "2f64c15d-d43c-4cb4-97ee-8904fe7c5be8"
+				},
+				{
+					"count": 110,
+					"levelName": "Gold",
+					"rewardedLevels": [
+						"Bronze",
+						"Silver",
+						"Gold"
+					],
+					"name": "e87b4532-d85d-499c-b88e-ec2fe753c872"
+				},
+				{
+					"count": 38,
+					"levelName": "Gold",
+					"rewardedLevels": [
+						"Bronze",
+						"Silver",
+						"Gold"
+					],
+					"name": "f4a9b99a-f09b-4531-9e37-b3244e670355"
+				}
+			],
+			"stats": {
+				"reloadCount": 96,
+				"damage": 13783,
+				"shieldBreak": 19,
+				"playerDowned": 3,
+				"consumableUse_Medigel": 2,
+				"consumableUse_SurvivalPack": 1,
+				"percentageImmortal": 0.050833,
+				"meleeWeapon": {
+					"meleeWeaponName": "game/melee/meleeweapons/bioticpunch/meleeweapon_bioticpunch_mp"
+				},
+				"rangedWeapon1": {
+					"rangedWeaponName": "game/weapons/assaultrifles/logitech/gun_assaultrifle_mws_logitech_01",
+					"weaponUseCount": 234
+				},
+				"rangedWeapon2": {
+					"rangedWeaponName": "game/weapons/smgs/hornet/gun_smg_mws_hornet_01",
+					"weaponUseCount": 1004
+				},
+				"power1": {
+					"powerMeanCooldown": 24.064516,
+					"powerName": "Game/Powers/Throw/Power_Throw",
+					"powerUseCount": 31
+				},
+				"power2": {
+					"powerCellCountUsed": 9,
+					"powerMeanCooldown": 82.888885,
+					"powerName": "game/powers/stealthgrid/power_stealthgrid",
+					"powerUseCount": 9
+				},
+				"power3": {
+					"powerMeanCooldown": 31.083334,
+					"powerName": "Game/Powers/Lance/Power_Lance",
+					"powerUseCount": 24
+				}
+			},
+			"result": {
+				"challengesUpdated": {
+					"1": {
+						"challengeId": "d0f5551d-1644-40a5-837c-c6f666016095",
+						"counters": [
+							{
+								"name": "Biotic_Combos_Progress",
+								"currentCount": 3
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"2": {
+						"challengeId": "888698e4-2d60-4a4b-afc0-afb9aa84fd64",
+						"counters": [
+							{
+								"name": "Pistol_Hornet_Progress",
+								"currentCount": 10151
+							}
+						],
+						"statusChange": "NOTIFY"
+					},
+					"3": {
+						"challengeId": "8a4dc9a0-962e-496d-bb9b-efc116dd01e3",
+						"counters": [
+							{
+								"name": "AssaultRifle_Halberd_Progress",
+								"currentCount": 13312
+							}
+						],
+						"statusChange": "NOTIFY"
+					},
+					"4": {
+						"challengeId": "b57747cc-c263-4c9e-801e-d33fbf20ad41",
+						"counters": [
+							{
+								"name": "Outlaw_Mastery_Silver",
+								"currentCount": 30593
+							}
+						],
+						"statusChange": "NOTIFY"
+					},
+					"5": {
+						"challengeId": "9dc562ae-4134-4f78-b7f9-6663a4edd4db",
+						"counters": [
+							{
+								"name": "Waves_Completed_MPYellow_Bronze_Progress",
+								"currentCount": 4
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"6": {
+						"challengeId": "77ddde4f-5a64-470f-a430-efb53e5feb80",
+						"counters": [
+							{
+								"name": "Waves_Completed_Progress",
+								"currentCount": 13
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"7": {
+						"challengeId": "85e2a729-e0bc-4b95-bd50-35af0dc07b5c",
+						"counters": [
+							{
+								"name": "Assault_Rifle_Medals",
+								"currentCount": 4
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"8": {
+						"challengeId": "1efa9019-0041-4de1-bf90-8e22c8eddcf3",
+						"counters": [
+							{
+								"name": "Tech_StealthField_Progress",
+								"currentCount": 540
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"9": {
+						"challengeId": "f13d84e3-473e-45eb-9a51-9b95719331ac",
+						"counters": [
+							{
+								"name": "Biotic_Combos_Progress",
+								"currentCount": 3
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"10": {
+						"challengeId": "f8b2b001-15db-4ae8-99ff-4f3ab80cf06b",
+						"counters": [
+							{
+								"name": "Points_Earned_Progress",
+								"currentCount": 63234
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"11": {
+						"challengeId": "90327569-a575-4fa4-9229-dd3a45217d03",
+						"counters": [
+							{
+								"name": "Outlaw_Mastery_Gold",
+								"currentCount": 30593
+							}
+						],
+						"statusChange": "NOTIFY"
+					},
+					"12": {
+						"challengeId": "3ee41168-c625-4bb4-96a0-2a85207c3f3f",
+						"counters": [
+							{
+								"name": "Biotic_Throw_Progress",
+								"currentCount": 3487
+							}
+						],
+						"statusChange": "NOTIFY"
+					},
+					"13": {
+						"challengeId": "7aeed4cc-1581-410e-a2f6-b6c936675ab2",
+						"counters": [
+							{
+								"name": "Medals_Earned_Progress",
+								"currentCount": 33
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"14": {
+						"challengeId": "d66ffeb4-78f8-4d1e-9dc2-6b598516ac7a",
+						"counters": [
+							{
+								"name": "Pistol_Medals",
+								"currentCount": 8
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"15": {
+						"challengeId": "67ad8481-6599-469b-ad63-d0d8eec06a12",
+						"counters": [
+							{
+								"name": "Outlaw_Mastery_Bronze",
+								"currentCount": 30593
+							}
+						],
+						"statusChange": "NOTIFY"
+					},
+					"16": {
+						"challengeId": "60d888c7-c2f4-40a4-af17-091d6ed8d28b",
+						"counters": [
+							{
+								"name": "Biotic_Combos_Progress",
+								"currentCount": 3
+							}
+						],
+						"statusChange": "CHANGED"
+					},
+					"17": {
+						"challengeId": "8113cb49-1b8a-450c-961e-76b7809c66af",
+						"counters": [
+							{
+								"name": "Biotic_Lance_Progress",
+								"currentCount": 3718
+							}
+						],
+						"statusChange": "NOTIFY"
+					}
+				},
+				"itemsEarned": [],
+				"xpEarned": 21586,
+				"previousXp": 41270,
+				"currentXp": 62856,
+				"previousLevel": 3,
+				"level": 3,
+				"leveledUp": false,
+				"score": 18086,
+				"totalScore": 21586,
+				"characterClassName": "f4b28480-c5c4-4eb0-bc8e-7433d22c5de1",
+				"totalCurrenciesEarned": [
+					{
+						"name": "GrindCurrency",
+						"value": 4000
+					}
+				],
+				"rewardSources": [
+					{
+						"name": "base",
+						"xp": 18086,
+						"currencies": {}
+					},
+					{
+						"name": "a2012277-2e5b-495c-89de-2edb5a1195a9",
+						"xp": 250,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "fe3100a9-b9d7-4fd6-8cce-95ef87065cd2",
+						"xp": 1000,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "2f64c15d-d43c-4cb4-97ee-8904fe7c5be8",
+						"xp": 250,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "e87b4532-d85d-499c-b88e-ec2fe753c872",
+						"xp": 1000,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "f4a9b99a-f09b-4531-9e37-b3244e670355",
+						"xp": 1000,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "other_badge_rewards",
+						"xp": 0,
+						"currencies": {}
+					},
+					{
+						"name": "level",
+						"xp": 0,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "difficulty",
+						"xp": 0,
+						"currencies": {
+							"GrindCurrency": 4000
+						}
+					},
+					{
+						"name": "enemytype",
+						"xp": 0,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "level_multiplier",
+						"xp": 0,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "difficulty_multiplier",
+						"xp": 0,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					},
+					{
+						"name": "enemytype_multiplier",
+						"xp": 0,
+						"currencies": {
+							"GrindCurrency": 0
+						}
+					}
+				],
+				"prestigeProgression": {
+					"before": {
+						"64797bfa-f62f-48fb-a8b1-34fced9a8394": {
+							"name": "64797bfa-f62f-48fb-a8b1-34fced9a8394",
+							"level": 0,
+							"xp": 385
+						},
+						"32dae141-cdfa-49c8-bc88-49b8146b4565": {
+							"name": "32dae141-cdfa-49c8-bc88-49b8146b4565",
+							"level": 0,
+							"xp": 0
+						},
+						"22891f91-5c62-4ac0-aea4-32efb80299ce": {
+							"name": "22891f91-5c62-4ac0-aea4-32efb80299ce",
+							"level": 0,
+							"xp": 0
+						},
+						"fd9c153a-a530-4012-a59c-56e8ff1f15b0": {
+							"name": "fd9c153a-a530-4012-a59c-56e8ff1f15b0",
+							"level": 0,
+							"xp": 41270
+						}
+					},
+					"after": {
+						"64797bfa-f62f-48fb-a8b1-34fced9a8394": {
+							"name": "64797bfa-f62f-48fb-a8b1-34fced9a8394",
+							"level": 0,
+							"xp": 385
+						},
+						"32dae141-cdfa-49c8-bc88-49b8146b4565": {
+							"name": "32dae141-cdfa-49c8-bc88-49b8146b4565",
+							"level": 0,
+							"xp": 0
+						},
+						"22891f91-5c62-4ac0-aea4-32efb80299ce": {
+							"name": "22891f91-5c62-4ac0-aea4-32efb80299ce",
+							"level": 0,
+							"xp": 0
+						},
+						"fd9c153a-a530-4012-a59c-56e8ff1f15b0": {
+							"name": "fd9c153a-a530-4012-a59c-56e8ff1f15b0",
+							"level": 0,
+							"xp": 62856
+						}
+					}
+				}
+			},
+			"pid": 1000279946559,
+			"personaId": 978651371,
+			"personaDisplayName": "Jacobtread",
+			"characterId": "4a4a90f7-c661-4276-bc79-dd0018b45d7c",
+			"characterClass": "f4b28480-c5c4-4eb0-bc8e-7433d22c5de1",
+			"modifiers": [],
+			"sessionId": "d1f0c61c-34b7-4862-8841-ff26da236cac",
+			"waveParticipation": 5,
+			"presentAtEnd": true
+		}
+	],
+	"modifiers": [
+		{
+			"name": "level",
+			"value": "MPAqua"
+		},
+		{
+			"name": "difficulty",
+			"value": "bronze"
+		},
+		{
+			"name": "enemytype",
+			"value": "outlaw"
+		}
+	]
+}

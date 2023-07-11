@@ -1,0 +1,1992 @@
+{
+	"totalCount": 11,
+	"list": [
+		{
+			"name": "f41f17d8-c2ce-32e4-b635-f1004e4c56ac",
+			"descriptor": {
+				"name": "a59a4d3b-3849-4f30-84fd-f3e2dd7d0fa7",
+				"i18nName": "216937",
+				"locName": "RECOVER STOLEN HABITATION DATA",
+				"i18nDesc": "216900",
+				"locDesc": "Enemy forces stole our data on possible habitation sites, then corrupted our local copies. Hit their site and get us that data back.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Single_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [],
+			"tags": [
+				{
+					"name": "hrt",
+					"i18nName": "135558",
+					"locName": "Hostage Situation",
+					"i18nDesc": ""
+				},
+				{
+					"name": "kett",
+					"i18nName": "211956",
+					"locName": "Kett"
+				},
+				{
+					"name": "risky",
+					"i18nName": "135555",
+					"locName": "High-Risk, High-Reward",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "gold"
+				},
+				{
+					"name": "enemyType",
+					"value": "kett"
+				},
+				{
+					"name": "level",
+					"value": "MPBlack"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "5c4330cf-277a-46f3-957e-d41978d8261e",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 5
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"9860be4d-b3b2-445f-aa7d-1728fc163ddb": 1,
+					"61d3f563-ad29-4f97-9c80-71c72549a5fe": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "9860be4d-b3b2-445f-aa7d-1728fc163ddb",
+						"i18nName": "215301",
+						"i18nDescription": "215304",
+						"locName": "Gold Credit Loot Box",
+						"locDescription": "A cache of credits found during a Gold difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Gold_Credits": "40"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Gold"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "2",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "61d3f563-ad29-4f97-9c80-71c72549a5fe",
+						"i18nName": "215502",
+						"i18nDescription": "215504",
+						"locName": "Gold Material Loot Box",
+						"locDescription": "A collection of materials discovered during a Gold difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Gold_Materials": "43"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Gold"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "2",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": false,
+			"customAttributes": {},
+			"startSeconds": 1688648400,
+			"endSeconds": 1688734800,
+			"spLengthSeconds": 17120,
+			"completed": false
+		},
+		{
+			"name": "3d05d09b-500a-3d3c-9b4d-ea41184bfa01",
+			"descriptor": {
+				"name": "2041cea6-6e2a-4671-af87-bf20b5231819",
+				"i18nName": "216944",
+				"locName": "DESTROY ENEMY WARSHIPS",
+				"i18nDesc": "216904",
+				"locDesc": "Enemy warships have been wreaking havoc in the area. Ground those ships before they can do any more damage.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Single_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [],
+			"tags": [
+				{
+					"name": "dark",
+					"i18nName": "135554",
+					"locName": "Nighttime Mission",
+					"i18nDesc": ""
+				},
+				{
+					"name": "outlaw",
+					"i18nName": "211955",
+					"locName": "Outlaw"
+				},
+				{
+					"name": "bribe",
+					"i18nName": "135560",
+					"locName": "Bribe Attempt",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "bronze"
+				},
+				{
+					"name": "enemyType",
+					"value": "outlaw"
+				},
+				{
+					"name": "level",
+					"value": "MPAqua"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "97621f83-b9f3-48df-b327-fd2e3d200ab4",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 5
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"e300500e-885e-4ee5-bbdc-f706b30b362a": 1,
+					"1440d464-0245-49f9-8533-4930b9283d78": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+						"i18nName": "215300",
+						"i18nDescription": "215305",
+						"locName": "Bronze Credit Loot Box",
+						"locDescription": "A cache of credits found during a Bronze difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Bronze_Credits": "36"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "1440d464-0245-49f9-8533-4930b9283d78",
+						"i18nName": "215506",
+						"i18nDescription": "215501",
+						"locName": "Bronze Material Loot Box",
+						"locDescription": "A collection of materials discovered during a Bronze difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Bronze_Materials": "41"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": true,
+			"customAttributes": {},
+			"startSeconds": 1688662800,
+			"endSeconds": 1688749200,
+			"spLengthSeconds": 4941,
+			"completed": false
+		},
+		{
+			"name": "136e4fe3-afb4-364e-bd98-d23535d49140",
+			"descriptor": {
+				"name": "c82d0897-22d8-49c2-aae0-4878640d7c61",
+				"i18nName": "160746",
+				"locName": "TUTORIAL MISSION",
+				"i18nDesc": "215329",
+				"locDesc": "Learn the basics of Multiplayer Missions",
+				"customAttributes": {}
+			},
+			"missionType": {
+				"name": "042a14d5-da99-4b7d-ad24-03a641253667",
+				"descriptor": {
+					"name": "c82d0897-22d8-49c2-aae0-4878640d7c61",
+					"i18nName": "160746",
+					"locName": "TUTORIAL MISSION",
+					"i18nDesc": "215329",
+					"locDesc": "Learn the basics of Multiplayer Missions",
+					"customAttributes": {}
+				},
+				"giveCurrency": false,
+				"giveXp": true
+			},
+			"accessibility": "Multi_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [
+				{
+					"name": "78e4c84e-3482-4922-b004-9daced6750d9",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 17",
+						"iWaveType_Wave1": "4"
+					}
+				},
+				{
+					"name": "54c223a7-440d-4f42-90ca-e02ddac3e7f3",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 19",
+						"i_OVE_Bronze_Wave02_CreatureNumActive1": "2",
+						"i_OVE_Bronze_Wave02_CreatureNumActive2": "-1",
+						"i_OVE_Bronze_Wave02_CreatureNumActive3": "-1",
+						"i_OVE_Bronze_Wave02_CreatureIndex2": "-1",
+						"i_OVE_Bronze_Wave02_CreatureIndex3": "-1",
+						"i_OVE_Bronze_Wave02_Cooldown1": "2",
+						"iWaveType_Wave2": "4"
+					}
+				},
+				{
+					"name": "cb1dec26-417f-4deb-9e1b-c6e8cc28f05d",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 21",
+						"i_OVE_Bronze_Wave03_CreatureNumActive1": "2",
+						"i_OVE_Bronze_Wave03_CreatureIndex2": "-1",
+						"i_OVE_Bronze_Wave03_CreatureNumActive2": "-1",
+						"i_OVE_Bronze_Wave03_CreatureIndex3": "-1",
+						"i_OVE_Bronze_Wave03_CreatureNumActive3": "-1",
+						"i_OVE_Bronze_Wave03_Cooldown1": "2",
+						"iWaveType_Wave3": "4"
+					}
+				}
+			],
+			"tags": [],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "bronze"
+				},
+				{
+					"name": "enemyType",
+					"value": "kett"
+				},
+				{
+					"name": "level",
+					"value": "MPBlack"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "8d8c4dc3-d44c-4bd1-840b-9344c60f5bf6",
+				"mpItemRewards": {},
+				"spItemRewards": {}
+			},
+			"seen": false,
+			"customAttributes": {
+				"iNumWaves": "3"
+			},
+			"startSeconds": 1484265600,
+			"endSeconds": 0,
+			"spLengthSeconds": 20,
+			"completed": false
+		},
+		{
+			"name": "698830de-94df-303f-8579-28859e292e59",
+			"descriptor": {
+				"name": "403f9d23-f648-4e77-99ee-30414739ae5a",
+				"i18nName": "216925",
+				"locName": "SABOTAGE ENEMY OPERATIONS",
+				"i18nDesc": "216891",
+				"locDesc": "Hostile forces are resisting our attempts to gain a foothold in the area. Hit their base and sabotage their operations while we prepare an offensive.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Single_Player",
+			"userMissionState": "PENDING_RESOLVE",
+			"waves": [],
+			"tags": [
+				{
+					"name": "xenophobe",
+					"i18nName": "135549",
+					"locName": "Alien Presence",
+					"i18nDesc": ""
+				},
+				{
+					"name": "bribe",
+					"i18nName": "135560",
+					"locName": "Bribe Attempt",
+					"i18nDesc": ""
+				},
+				{
+					"name": "outlaw",
+					"i18nName": "211955",
+					"locName": "Outlaw"
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "bronze"
+				},
+				{
+					"name": "enemyType",
+					"value": "outlaw"
+				},
+				{
+					"name": "level",
+					"value": "MPTower"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "97621f83-b9f3-48df-b327-fd2e3d200ab4",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 5
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"e300500e-885e-4ee5-bbdc-f706b30b362a": 1,
+					"1440d464-0245-49f9-8533-4930b9283d78": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+						"i18nName": "215300",
+						"i18nDescription": "215305",
+						"locName": "Bronze Credit Loot Box",
+						"locDescription": "A cache of credits found during a Bronze difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Bronze_Credits": "36"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "1440d464-0245-49f9-8533-4930b9283d78",
+						"i18nName": "215506",
+						"i18nDescription": "215501",
+						"locName": "Bronze Material Loot Box",
+						"locDescription": "A collection of materials discovered during a Bronze difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Bronze_Materials": "41"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": true,
+			"customAttributes": {},
+			"startSeconds": 1688619600,
+			"endSeconds": 1688706000,
+			"spLengthSeconds": 6158,
+			"completed": false
+		},
+		{
+			"name": "5b1c8954-ccb4-3e45-9546-eb241c5ffcb8",
+			"descriptor": {
+				"name": "59758c55-eec1-40a4-9ac1-875fb86a4306",
+				"i18nName": "216942",
+				"locName": "OBTAIN ENCRYPTION KEY",
+				"i18nDesc": "216889",
+				"locDesc": "We've been unable to break the enemy's recent encryption protocols. Hit their listening post and obtain an encryption key before they can destroy their own data.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Single_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [],
+			"tags": [
+				{
+					"name": "poorintelligence",
+					"i18nName": "135556",
+					"locName": "Key Intelligence Component",
+					"i18nDesc": ""
+				},
+				{
+					"name": "remnant",
+					"i18nName": "211954",
+					"locName": "Remnant"
+				},
+				{
+					"name": "herocomplex",
+					"i18nName": "135552",
+					"locName": "We Need a Hero",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "silver"
+				},
+				{
+					"name": "enemyType",
+					"value": "remnant"
+				},
+				{
+					"name": "level",
+					"value": "MPOrange"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "e7710d3d-d76b-4dc0-aa40-e4edc59eb39c",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 5
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"e4556800-5eef-d487-182f-5044f0f2d534": 1,
+					"004f85aa-f7ac-4262-8109-e7e7d6d94bd5": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "e4556800-5eef-d487-182f-5044f0f2d534",
+						"i18nName": "215302",
+						"i18nDescription": "215303",
+						"locName": "Silver Credit Loot Box",
+						"locDescription": "A cache of credits found during a Silver difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Silver_Credits": "39"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Silver"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "1",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "004f85aa-f7ac-4262-8109-e7e7d6d94bd5",
+						"i18nName": "215503",
+						"i18nDescription": "215505",
+						"locName": "Silver Material Loot Box",
+						"locDescription": "A collection of materials discovered during a Silver difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Silver_Materials": "42"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Silver"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "1",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": false,
+			"customAttributes": {},
+			"startSeconds": 1688634000,
+			"endSeconds": 1688720400,
+			"spLengthSeconds": 7873,
+			"completed": false
+		},
+		{
+			"name": "9686a56d-a146-3d09-9f54-02b38df0647e",
+			"descriptor": {
+				"name": "1d582096-80cf-42aa-82b8-70e5c3273c6a",
+				"i18nName": "216913",
+				"locName": "OBTAIN ENEMY SHIP LOCATIONS",
+				"i18nDesc": "216894",
+				"locDesc": "Enemies have been catching us by surprise, and we've been unable to locate their strike ship. Hit their resupply center and find out where that ship is.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Single_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [],
+			"tags": [
+				{
+					"name": "scary",
+					"i18nName": "135561",
+					"locName": "Scary",
+					"i18nDesc": ""
+				},
+				{
+					"name": "dark",
+					"i18nName": "135554",
+					"locName": "Nighttime Mission",
+					"i18nDesc": ""
+				},
+				{
+					"name": "kett",
+					"i18nName": "211956",
+					"locName": "Kett"
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "gold"
+				},
+				{
+					"name": "enemyType",
+					"value": "kett"
+				},
+				{
+					"name": "level",
+					"value": "MPYellow"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "5c4330cf-277a-46f3-957e-d41978d8261e",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 5
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"9860be4d-b3b2-445f-aa7d-1728fc163ddb": 1,
+					"61d3f563-ad29-4f97-9c80-71c72549a5fe": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "9860be4d-b3b2-445f-aa7d-1728fc163ddb",
+						"i18nName": "215301",
+						"i18nDescription": "215304",
+						"locName": "Gold Credit Loot Box",
+						"locDescription": "A cache of credits found during a Gold difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Gold_Credits": "40"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Gold"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "2",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "61d3f563-ad29-4f97-9c80-71c72549a5fe",
+						"i18nName": "215502",
+						"i18nDescription": "215504",
+						"locName": "Gold Material Loot Box",
+						"locDescription": "A collection of materials discovered during a Gold difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Gold_Materials": "43"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Gold"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "2",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": false,
+			"customAttributes": {},
+			"startSeconds": 1688691600,
+			"endSeconds": 1688778000,
+			"spLengthSeconds": 12859,
+			"completed": false
+		},
+		{
+			"name": "bda6fd38-026b-395d-83c7-d510eff91ae3",
+			"descriptor": {
+				"name": "6918fd44-b643-475a-a3a9-91091f67de6d",
+				"i18nName": "216922",
+				"locName": "INVESTIGATE FACILITY",
+				"i18nDesc": "216885",
+				"locDesc": "We received reports of a new facility, and it's not clear who is running or what their goal is. Investigate and determine if the facility presents a threat.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Single_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [],
+			"tags": [
+				{
+					"name": "outlaw",
+					"i18nName": "211955",
+					"locName": "Outlaw"
+				},
+				{
+					"name": "poorintelligence",
+					"i18nName": "135556",
+					"locName": "Key Intelligence Component",
+					"i18nDesc": ""
+				},
+				{
+					"name": "precise",
+					"i18nName": "135550",
+					"locName": "No Room for Error",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "silver"
+				},
+				{
+					"name": "enemyType",
+					"value": "outlaw"
+				},
+				{
+					"name": "level",
+					"value": "MPGrey"
+				}
+			],
+			"dynamicModifiers": [],
+			"rewards": {
+				"name": "e7710d3d-d76b-4dc0-aa40-e4edc59eb39c",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 5
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"e4556800-5eef-d487-182f-5044f0f2d534": 1,
+					"004f85aa-f7ac-4262-8109-e7e7d6d94bd5": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "e4556800-5eef-d487-182f-5044f0f2d534",
+						"i18nName": "215302",
+						"i18nDescription": "215303",
+						"locName": "Silver Credit Loot Box",
+						"locDescription": "A cache of credits found during a Silver difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Silver_Credits": "39"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Silver"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "1",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "004f85aa-f7ac-4262-8109-e7e7d6d94bd5",
+						"i18nName": "215503",
+						"i18nDescription": "215505",
+						"locName": "Silver Material Loot Box",
+						"locDescription": "A collection of materials discovered during a Silver difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_Silver_Materials": "42"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Silver"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "1",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": false,
+			"customAttributes": {},
+			"startSeconds": 1688677200,
+			"endSeconds": 1688763600,
+			"spLengthSeconds": 5746,
+			"completed": false
+		},
+		{
+			"name": "0c9f76b5-734a-3d1d-ae86-63c8085e3d01",
+			"descriptor": {
+				"name": "069283fe-33eb-4aa7-b71e-2d51c5353abd",
+				"i18nName": "216930",
+				"locName": "RETAKE AN OCCUPIED FACILITY",
+				"i18nDesc": "216901",
+				"locDesc": "One of our key facilities was taken by enemy forces, costing us supplies and intel. Retake the facility before the enemy can lock it down.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Multi_Player",
+			"userMissionState": "AVAILABLE",
+			"waves": [
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "6274b1df-f155-4e33-ac8d-4006e1c3c613",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "6274b1df-f155-4e33-ac8d-4006e1c3c613",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "6274b1df-f155-4e33-ac8d-4006e1c3c613",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "6274b1df-f155-4e33-ac8d-4006e1c3c613",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "6274b1df-f155-4e33-ac8d-4006e1c3c613",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1"
+					}
+				},
+				{
+					"name": "9587ad79-daf7-4960-a0bc-202180bbd9a8",
+					"waveType": "WaveType_Extraction",
+					"customAttributes": {
+						"iWaveType_Wave1": "2",
+						"iWaveType_Wave2": "2",
+						"iWaveType_Wave3": "2",
+						"iWaveType_Wave4": "2",
+						"iWaveType_Wave5": "2",
+						"iWaveType_Wave6": "2",
+						"iWaveType_Wave7": "2",
+						"iWaveType_Wave8": "2",
+						"iWaveType_Wave9": "2",
+						"iWaveType_Wave10": "2",
+						"iWaveType_Wave11": "2"
+					}
+				}
+			],
+			"tags": [
+				{
+					"name": "bloodthirsty",
+					"i18nName": "135562",
+					"locName": "Enemies Everywhere",
+					"i18nDesc": ""
+				},
+				{
+					"name": "kett",
+					"i18nName": "211956",
+					"locName": "Kett"
+				},
+				{
+					"name": "precise",
+					"i18nName": "135550",
+					"locName": "No Room for Error",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "platinum"
+				},
+				{
+					"name": "enemyType",
+					"value": "kett"
+				},
+				{
+					"name": "level",
+					"value": "MPGreen"
+				}
+			],
+			"dynamicModifiers": [
+				{
+					"name": "matchModifiers",
+					"value": "Modifier_Empty_Resupply"
+				}
+			],
+			"rewards": {
+				"name": "7921f5ce-6b7b-4153-a444-43a34a3402de",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 15
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"58383d3f-d74d-4518-b27e-988f56ade54c": 1,
+					"71c483fd-371f-4dd4-b9a1-11f189322972": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "58383d3f-d74d-4518-b27e-988f56ade54c",
+						"i18nName": "215511",
+						"i18nDescription": "215508",
+						"locName": "Gold Item Loot Box",
+						"locDescription": "A salvaged item recovered during a Gold difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_MWS_Items_Rare": "46"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Gold"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "2",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "71c483fd-371f-4dd4-b9a1-11f189322972",
+						"i18nName": "218687",
+						"i18nDescription": "218688",
+						"locName": "Research Data Loot Box",
+						"locDescription": "A set of research data acquired during a mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_ResearchData": "47"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Common"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": false,
+			"customAttributes": {},
+			"startSeconds": 1688688000,
+			"endSeconds": 1688774400,
+			"spLengthSeconds": 10995,
+			"completed": false
+		},
+		{
+			"name": "c243475f-7186-362b-8de9-613943898d60",
+			"descriptor": {
+				"name": "6fca269d-46fc-443b-9ac0-2f1698fc09a4",
+				"i18nName": "114940",
+				"locName": "GATHER RESOURCES",
+				"i18nDesc": "144438",
+				"locDesc": "We received intel on a hidden cache of resources. Send a team to recover it—we need every advantage we can get.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Any",
+			"userMissionState": "AVAILABLE",
+			"waves": [
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "b84435d1-3e79-4ab8-9d22-ab8330f59b8a",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1",
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave4": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave5": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave6": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave7": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave8": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave9": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave10": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave11": "R MEMPObjectiveTag_Complexity 27"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "b84435d1-3e79-4ab8-9d22-ab8330f59b8a",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1",
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave4": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave5": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave6": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave7": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave8": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave9": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave10": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave11": "R MEMPObjectiveTag_Complexity 27"
+					}
+				},
+				{
+					"name": "9587ad79-daf7-4960-a0bc-202180bbd9a8",
+					"waveType": "WaveType_Extraction",
+					"customAttributes": {
+						"iWaveType_Wave1": "2",
+						"iWaveType_Wave2": "2",
+						"iWaveType_Wave3": "2",
+						"iWaveType_Wave4": "2",
+						"iWaveType_Wave5": "2",
+						"iWaveType_Wave6": "2",
+						"iWaveType_Wave7": "2",
+						"iWaveType_Wave8": "2",
+						"iWaveType_Wave9": "2",
+						"iWaveType_Wave10": "2",
+						"iWaveType_Wave11": "2"
+					}
+				}
+			],
+			"tags": [
+				{
+					"name": "poorintelligence",
+					"i18nName": "135556",
+					"locName": "Key Intelligence Component",
+					"i18nDesc": ""
+				},
+				{
+					"name": "outlaw",
+					"i18nName": "211955",
+					"locName": "Outlaw"
+				},
+				{
+					"name": "weather",
+					"i18nName": "135557",
+					"locName": "Poor Weather Conditions",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "gold"
+				},
+				{
+					"name": "enemyType",
+					"value": "outlaw"
+				},
+				{
+					"name": "level",
+					"value": "MPYellow"
+				}
+			],
+			"dynamicModifiers": [
+				{
+					"name": "matchModifiers",
+					"value": "Modifier_Pistol_Skirmish"
+				}
+			],
+			"rewards": {
+				"name": "1c4b6826-a287-4908-ae26-384732cedc97",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 10
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"58383d3f-d74d-4518-b27e-988f56ade54c": 1,
+					"71c483fd-371f-4dd4-b9a1-11f189322972": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "58383d3f-d74d-4518-b27e-988f56ade54c",
+						"i18nName": "215511",
+						"i18nDescription": "215508",
+						"locName": "Gold Item Loot Box",
+						"locDescription": "A salvaged item recovered during a Gold difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_MWS_Items_Rare": "46"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Gold"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "2",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "71c483fd-371f-4dd4-b9a1-11f189322972",
+						"i18nName": "218687",
+						"i18nDescription": "218688",
+						"locName": "Research Data Loot Box",
+						"locDescription": "A set of research data acquired during a mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_ResearchData": "47"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Common"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": true,
+			"customAttributes": {},
+			"startSeconds": 1688677200,
+			"endSeconds": 1688763600,
+			"spLengthSeconds": 21005,
+			"completed": false
+		},
+		{
+			"name": "5dae4343-e1fe-3597-a258-9e4ff7541ae2",
+			"descriptor": {
+				"name": "bc381786-e4f6-4d6a-a553-122da24810f4",
+				"i18nName": "216917",
+				"locName": "DISTRACT ENEMY FORCES",
+				"i18nDesc": "216878",
+				"locDesc": "We need the enemy to pay attention to something other than our planned activity. Hit them as loudly as possible to draw their attention so that we can deploy forces covertly.",
+				"customAttributes": {
+					"Icon": "SpecDefence",
+					"SelectorIcon": "SpecDefenceSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Any",
+			"userMissionState": "AVAILABLE",
+			"waves": [
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "b84435d1-3e79-4ab8-9d22-ab8330f59b8a",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1",
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave4": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave5": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave6": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave7": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave8": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave9": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave10": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave11": "R MEMPObjectiveTag_Complexity 27"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "3be8ad2a-a580-4704-9426-6773b75a2e78",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1",
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave4": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave5": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave6": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave7": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave8": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave9": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave10": "R MEMPObjectiveTag_Complexity 1",
+						"sObjectiveOverride_Wave11": "R MEMPObjectiveTag_Complexity 1"
+					}
+				},
+				{
+					"name": "9587ad79-daf7-4960-a0bc-202180bbd9a8",
+					"waveType": "WaveType_Extraction",
+					"customAttributes": {
+						"iWaveType_Wave1": "2",
+						"iWaveType_Wave2": "2",
+						"iWaveType_Wave3": "2",
+						"iWaveType_Wave4": "2",
+						"iWaveType_Wave5": "2",
+						"iWaveType_Wave6": "2",
+						"iWaveType_Wave7": "2",
+						"iWaveType_Wave8": "2",
+						"iWaveType_Wave9": "2",
+						"iWaveType_Wave10": "2",
+						"iWaveType_Wave11": "2"
+					}
+				}
+			],
+			"tags": [
+				{
+					"name": "poorintelligence",
+					"i18nName": "135556",
+					"locName": "Key Intelligence Component",
+					"i18nDesc": ""
+				},
+				{
+					"name": "stealthy",
+					"i18nName": "135559",
+					"locName": "Silent and Deadly",
+					"i18nDesc": ""
+				},
+				{
+					"name": "remnant",
+					"i18nName": "211954",
+					"locName": "Remnant"
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "bronze"
+				},
+				{
+					"name": "enemyType",
+					"value": "remnant"
+				},
+				{
+					"name": "level",
+					"value": "MPAqua"
+				}
+			],
+			"dynamicModifiers": [
+				{
+					"name": "matchModifiers",
+					"value": "Modifier_Hyper_Shields"
+				}
+			],
+			"rewards": {
+				"name": "0175f30a-fc72-de81-d1a8-0bb917eb7a46",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 10
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"14d5e5ba-dbb5-4336-ad07-607eb39409bb": 1,
+					"71c483fd-371f-4dd4-b9a1-11f189322972": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "14d5e5ba-dbb5-4336-ad07-607eb39409bb",
+						"i18nName": "215510",
+						"i18nDescription": "215507",
+						"locName": "Bronze Item Loot Box",
+						"locDescription": "A salvaged item recovered during a Bronze difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_MWS_Items_Common": "44"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "71c483fd-371f-4dd4-b9a1-11f189322972",
+						"i18nName": "218687",
+						"i18nDescription": "218688",
+						"locName": "Research Data Loot Box",
+						"locDescription": "A set of research data acquired during a mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_ResearchData": "47"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Common"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": true,
+			"customAttributes": {},
+			"startSeconds": 1688619600,
+			"endSeconds": 1688706000,
+			"spLengthSeconds": 10803,
+			"completed": false
+		},
+		{
+			"name": "e0ee51ad-25ba-3a13-9bbb-900870a2901f",
+			"descriptor": {
+				"name": "2ade8e9e-3313-4bee-99a8-4e0ce1cf380e",
+				"i18nName": "212504",
+				"locName": "ELIMINATE ARMS SMUGGLER",
+				"i18nDesc": "212441",
+				"locDesc": "We need a team to eliminate a target that's smuggling arms to a nasty outlaw group.",
+				"customAttributes": {
+					"Icon": "SpecAssault",
+					"SelectorIcon": "SpecAssaultSmall"
+				}
+			},
+			"missionType": {
+				"name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+				"descriptor": {
+					"name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+					"i18nName": "12028",
+					"locName": "Normal",
+					"customAttributes": {}
+				},
+				"giveCurrency": true,
+				"giveXp": true
+			},
+			"accessibility": "Any",
+			"userMissionState": "AVAILABLE",
+			"waves": [
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "b84435d1-3e79-4ab8-9d22-ab8330f59b8a",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1",
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave4": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave5": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave6": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave7": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave8": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave9": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave10": "R MEMPObjectiveTag_Complexity 27",
+						"sObjectiveOverride_Wave11": "R MEMPObjectiveTag_Complexity 27"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "545383d7-a01e-8c13-3cae-375802f99735",
+					"waveType": "WaveType_Hoard",
+					"customAttributes": {
+						"iWaveType_Wave1": "0",
+						"iWaveType_Wave2": "0",
+						"iWaveType_Wave3": "0",
+						"iWaveType_Wave4": "0",
+						"iWaveType_Wave5": "0",
+						"iWaveType_Wave6": "0",
+						"iWaveType_Wave7": "0",
+						"iWaveType_Wave8": "0",
+						"iWaveType_Wave9": "0",
+						"iWaveType_Wave10": "0",
+						"iWaveType_Wave11": "0"
+					}
+				},
+				{
+					"name": "0a39e8fe-3e83-4ab4-a107-0481235cc8cf",
+					"waveType": "WaveType_Objective",
+					"customAttributes": {
+						"iWaveType_Wave1": "1",
+						"iWaveType_Wave2": "1",
+						"iWaveType_Wave3": "1",
+						"iWaveType_Wave4": "1",
+						"iWaveType_Wave5": "1",
+						"iWaveType_Wave6": "1",
+						"iWaveType_Wave7": "1",
+						"iWaveType_Wave8": "1",
+						"iWaveType_Wave9": "1",
+						"iWaveType_Wave10": "1",
+						"iWaveType_Wave11": "1",
+						"sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave4": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave5": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave6": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave7": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave8": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave9": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave10": "R MEMPObjectiveTag_Complexity 2",
+						"sObjectiveOverride_Wave11": "R MEMPObjectiveTag_Complexity 2"
+					}
+				},
+				{
+					"name": "9587ad79-daf7-4960-a0bc-202180bbd9a8",
+					"waveType": "WaveType_Extraction",
+					"customAttributes": {
+						"iWaveType_Wave1": "2",
+						"iWaveType_Wave2": "2",
+						"iWaveType_Wave3": "2",
+						"iWaveType_Wave4": "2",
+						"iWaveType_Wave5": "2",
+						"iWaveType_Wave6": "2",
+						"iWaveType_Wave7": "2",
+						"iWaveType_Wave8": "2",
+						"iWaveType_Wave9": "2",
+						"iWaveType_Wave10": "2",
+						"iWaveType_Wave11": "2"
+					}
+				}
+			],
+			"tags": [
+				{
+					"name": "herocomplex",
+					"i18nName": "135552",
+					"locName": "We Need a Hero",
+					"i18nDesc": ""
+				},
+				{
+					"name": "remnant",
+					"i18nName": "211954",
+					"locName": "Remnant"
+				},
+				{
+					"name": "stealthy",
+					"i18nName": "135559",
+					"locName": "Silent and Deadly",
+					"i18nDesc": ""
+				}
+			],
+			"staticModifiers": [
+				{
+					"name": "difficulty",
+					"value": "silver"
+				},
+				{
+					"name": "enemyType",
+					"value": "remnant"
+				},
+				{
+					"name": "level",
+					"value": "MPTower"
+				}
+			],
+			"dynamicModifiers": [
+				{
+					"name": "matchModifiers",
+					"value": "Modifier_Hyper_Shields"
+				}
+			],
+			"rewards": {
+				"name": "1e868c70-ca85-4e50-9f52-69521dba1ac1",
+				"currencyReward": {
+					"name": "MissionCurrency",
+					"value": 10
+				},
+				"mpItemRewards": {},
+				"spItemRewards": {
+					"a7d46d7a-1f42-4eac-b106-c2fb96aa3e7a": 1,
+					"71c483fd-371f-4dd4-b9a1-11f189322972": 1
+				},
+				"itemDefinitions": [
+					{
+						"name": "a7d46d7a-1f42-4eac-b106-c2fb96aa3e7a",
+						"i18nName": "215509",
+						"i18nDescription": "215512",
+						"locName": "Silver Item Loot Box",
+						"locDescription": "A salvaged item recovered during a Silver difficulty mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_MWS_Items_Uncommon": "45"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Silver"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "1",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					},
+					{
+						"name": "71c483fd-371f-4dd4-b9a1-11f189322972",
+						"i18nName": "218687",
+						"i18nDescription": "218688",
+						"locName": "Research Data Loot Box",
+						"locDescription": "A set of research data acquired during a mission.",
+						"customAttributes": {
+							"LootTags": {
+								"StrikeTeams_ResearchData": "47"
+							},
+							"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Common"
+						},
+						"category": "11",
+						"attachableCategories": [],
+						"rarity": "0",
+						"consumable": true,
+						"droppable": false,
+						"onConsume": [],
+						"onAdd": [],
+						"onRemove": [],
+						"defaultNamespace": "striketeams"
+					}
+				]
+			},
+			"seen": false,
+			"customAttributes": {},
+			"startSeconds": 1688691600,
+			"endSeconds": 1688778000,
+			"spLengthSeconds": 15341,
+			"completed": false
+		}
+	]
+}

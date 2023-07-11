@@ -1,0 +1,358 @@
+{
+	"activities": [
+		{
+			"name": "b58ac722-9a90-02a4-a682-89b02b6a7cb4",
+			"generatedSource": 0,
+			"description": "",
+			"attributeList": []
+		},
+		{
+			"name": "e78d9f1a-4d3f-49d3-bcac-c81931730e42",
+			"generatedSource": 0,
+			"description": "OnCombo",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "level",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "enemy",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "count",
+					"attributeType": "type_int32",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "a061f903-4275-fd6f-a72e-63f23a85d30a",
+			"generatedSource": 0,
+			"description": "OnExtraction",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "level",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "enemyType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "333e2214-d748-43fb-b6f0-48582c3f6330",
+			"generatedSource": 0,
+			"description": "Wave Cleared",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "levelName",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "enemyType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "8af42413-111f-46d4-80ec-d805078cfb47",
+			"generatedSource": 0,
+			"description": "OnBoost",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "level",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "enemyType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "047c14b1-471e-f942-0de5-a13f9d61a0bd",
+			"generatedSource": 0,
+			"description": "On Match Hosting",
+			"attributeList": []
+		},
+		{
+			"name": "4d308c5c-d37d-2f83-a599-b972ab77a830",
+			"generatedSource": 0,
+			"description": "On Quick Match",
+			"attributeList": []
+		},
+		{
+			"name": "ff975e5c-04b7-4312-befa-666abc4fa91f",
+			"generatedSource": 0,
+			"description": "OnPower",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "currentPower",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "powerType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
+			"generatedSource": 0,
+			"description": "OnPointsEarned",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "level",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "powerName",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "enemyType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "weaponName",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "scoreType",
+					"attributeType": "type_int32",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "score",
+					"attributeType": "type_int32",
+					"minValue": 0,
+					"maxValue": 1000000
+				},
+				{
+					"description": null,
+					"name": "powerType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "8a9a9db9-a4ec-c032-8563-842495527d19",
+			"generatedSource": 0,
+			"description": "OnKill",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "level",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "weaponType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "weaponName",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "comboDamageType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "count",
+					"attributeType": "type_int32",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "killedByMelee",
+					"attributeType": "type_bool",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "killedByWeakpoint",
+					"attributeType": "type_bool",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "powerType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "powerName",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "5ffafc58-1e29-0ee7-ef6b-bb00a49d9cc1",
+			"generatedSource": 0,
+			"description": "On Revive Teammate",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "scoreType",
+					"attributeType": "type_int32",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "levelName",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "difficulty",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "enemyType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		},
+		{
+			"name": "25156450-df2f-4f8a-9214-cd0a322b200e",
+			"generatedSource": 0,
+			"description": "OnCombo",
+			"attributeList": [
+				{
+					"description": null,
+					"name": "comboDamageType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				},
+				{
+					"description": null,
+					"name": "powerType",
+					"attributeType": "type_string",
+					"minValue": 0,
+					"maxValue": 0
+				}
+			]
+		}
+	]
+}

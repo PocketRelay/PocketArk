@@ -1,0 +1,32 @@
+{
+    "previousXp": 0,
+    "xp": 0,
+    "xpGained": 0,
+    "previousLevel": 0,
+    "level": 0,
+    "levelUp": false,
+    "challengesUpdatedCount": 0,
+    "challengesCompletedCount": 0,
+    "challengesUpdated": [],
+    "updatedChallengeIds": [],
+    "newsTriggered": 0,
+    "currencies": [
+        {
+            "name": "MTXCurrency",
+            "balance": 1200
+        },
+        {
+            "name": "GrindCurrency",
+            "balance": 33000
+        },
+        {
+            "name": "MissionCurrency",
+            "balance": 5
+        }
+    ],
+    "currencyEarned": [],
+    "itemsEarned": [],
+    "itemDefinitions": [],
+    "entitlementsGranted": [],
+    "prestigeProgressionMap": {}
+}

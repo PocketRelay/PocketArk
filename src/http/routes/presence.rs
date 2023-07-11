@@ -1,2 +1,7 @@
+use axum::response::{IntoResponse, Response};
+use hyper::StatusCode;
+
 /// PUT /presence/session
-async fn update_session() {}
+pub async fn update_session() -> Response {
+    StatusCode::NO_CONTENT.into_response()
+}

@@ -1,0 +1,16 @@
+{
+	"list": [
+		{
+			"name": "MTXCurrency",
+			"balance": 1200
+		},
+		{
+			"name": "GrindCurrency",
+			"balance": 7000
+		},
+		{
+			"name": "MissionCurrency",
+			"balance": 0
+		}
+	]
+}

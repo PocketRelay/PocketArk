@@ -1,0 +1,849 @@
+{
+	"list": [
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 0,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 6400,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 15400,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 27200,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 41900,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 60500,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 84500,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 114500,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 154200,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 200900,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 11,
+					"xp": 257500,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 12,
+					"xp": 321200,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 13,
+					"xp": 392000,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 14,
+					"xp": 471400,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 15,
+					"xp": 569000,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 16,
+					"xp": 704900,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 17,
+					"xp": 866900,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 18,
+					"xp": 1057000,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 19,
+					"xp": 1276700,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 20,
+					"xp": 1526700,
+					"rewards": {
+						"character:points:MEA_skill_points": 0.0
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "5e6f7542-7309-9367-8437-fe83678e5c28",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {}
+		},
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 2127000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 6381000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 12762000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 21270000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 31905000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 44667000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 59556000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 76572000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 95715000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 116985000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Powers/Global/StatMod_CooldownReduction_Powers": 0.009999999776482582
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "fd9c153a-a530-4012-a59c-56e8ff1f15b0",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {
+				"i18nPrestigeStatName": 16609,
+				"i18nPrestigeStatDescription": 174828,
+				"i18nPrestigeStatShortDescription": 174828,
+				"displayAsPercentage": true,
+				"displayDecimals": false,
+				"displaySign": true,
+				"invertUIDisplay": false,
+				"locPrestigeStatName": "All Power Recharge Speeds",
+				"locPrestigeStatDescription": "Improves power recharge speed for all characters",
+				"locPrestigeStatShortDescription": "Improves power recharge speed for all characters"
+			}
+		},
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 2127000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 6381000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 12762000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 21270000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 31905000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 44667000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 59556000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 76572000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 95715000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 116985000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxRegenHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "32dae141-cdfa-49c8-bc88-49b8146b4565",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {
+				"i18nPrestigeStatName": 16606,
+				"i18nPrestigeStatDescription": 217587,
+				"i18nPrestigeStatShortDescription": 217587,
+				"displayAsPercentage": false,
+				"displayDecimals": false,
+				"displaySign": true,
+				"invertUIDisplay": false,
+				"locPrestigeStatName": "Health Regeneration Cap",
+				"locPrestigeStatDescription": "Increases the health regeneration cap for all characters",
+				"locPrestigeStatShortDescription": "Increases the health regeneration cap for all characters"
+			}
+		},
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 2127000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 6381000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 12762000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 21270000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 31905000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 44667000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 59556000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 76572000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 95715000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 116985000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxHealth": 0.009999999776482582
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "a9a8711e-7828-dbc8-af7a-5379a7a4c0ff",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {
+				"i18nPrestigeStatName": 16574,
+				"i18nPrestigeStatDescription": 161082,
+				"i18nPrestigeStatShortDescription": 161082,
+				"displayAsPercentage": true,
+				"displayDecimals": false,
+				"displaySign": true,
+				"invertUIDisplay": false,
+				"locPrestigeStatName": "Max Health",
+				"locPrestigeStatDescription": "Increases the maximum health for all characters",
+				"locPrestigeStatShortDescription": "Increases the maximum health for all characters"
+			}
+		},
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 2127000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 6381000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 12762000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 21270000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 31905000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 44667000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 59556000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 76572000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 95715000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 116985000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_MaxShields": 0.009999999776482582
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "64797bfa-f62f-48fb-a8b1-34fced9a8394",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {
+				"i18nPrestigeStatName": 16578,
+				"i18nPrestigeStatDescription": 161083,
+				"i18nPrestigeStatShortDescription": 161083,
+				"displayAsPercentage": true,
+				"displayDecimals": false,
+				"displaySign": true,
+				"invertUIDisplay": false,
+				"locPrestigeStatName": "Max Shields",
+				"locPrestigeStatDescription": "Increases the maximum shields for all characters",
+				"locPrestigeStatShortDescription": "Increases the maximum shields for all characters"
+			}
+		},
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 2127000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 6381000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 12762000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 21270000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 31905000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 44667000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 59556000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 76572000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 95715000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 116985000,
+					"rewards": {
+						"shared:bonus:Game/Progression/Stats/Defense/StatMod_RegenDelayReduction": 0.009999999776482582
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "22891f91-5c62-4ac0-aea4-32efb80299ce",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {
+				"i18nPrestigeStatName": 16582,
+				"i18nPrestigeStatDescription": 217588,
+				"i18nPrestigeStatShortDescription": 217588,
+				"displayAsPercentage": true,
+				"displayDecimals": false,
+				"displaySign": true,
+				"invertUIDisplay": false,
+				"locPrestigeStatName": "Health & Shield Regeneration Delay Reduction",
+				"locPrestigeStatDescription": "Improves the health and shield regeneration delay for all characters",
+				"locPrestigeStatShortDescription": "Improves the health and shield regeneration delay for all characters"
+			}
+		},
+		{
+			"table": [
+				{
+					"level": 1,
+					"xp": 0,
+					"rewards": {
+						"character:points:MEA_skill_points": 2.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 2,
+					"xp": 11000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 3,
+					"xp": 33000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 4,
+					"xp": 66000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 5,
+					"xp": 111000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 6,
+					"xp": 167000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 7,
+					"xp": 234000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 8,
+					"xp": 312000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 9,
+					"xp": 401000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 10,
+					"xp": 502000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 11,
+					"xp": 614000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 12,
+					"xp": 737000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 13,
+					"xp": 871000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 14,
+					"xp": 1017000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 15,
+					"xp": 1174000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 16,
+					"xp": 1342000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 17,
+					"xp": 1521000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 18,
+					"xp": 1712000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 19,
+					"xp": 1914000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				},
+				{
+					"level": 20,
+					"xp": 2127000,
+					"rewards": {
+						"character:points:MEA_skill_points": 3.0
+					},
+					"customAttributes": {}
+				}
+			],
+			"name": "581c75e4-f0cf-abc5-5890-64c9b50603a3",
+			"i18nName": "",
+			"i18nDescription": "",
+			"locName": null,
+			"locDescription": null,
+			"customAttributes": {}
+		}
+	]
+}

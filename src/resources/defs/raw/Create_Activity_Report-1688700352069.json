@@ -1,0 +1,19 @@
+{
+	"previousXp": 0,
+	"xp": 0,
+	"xpGained": 0,
+	"previousLevel": 0,
+	"level": 0,
+	"levelUp": false,
+	"challengesUpdatedCount": 0,
+	"challengesCompletedCount": 0,
+	"challengesUpdated": [],
+	"updatedChallengeIds": [],
+	"newsTriggered": 0,
+	"currencies": [],
+	"currencyEarned": [],
+	"itemsEarned": [],
+	"itemDefinitions": [],
+	"entitlementsGranted": [],
+	"prestigeProgressionMap": {}
+}
