@@ -7,9 +7,11 @@ use axum::{
     Json,
 };
 use hyper::{header, http::HeaderValue, StatusCode};
+use interlink::service::Service;
 use log::{debug, error};
 use serde::Serialize;
-use tokio_util::codec::Framed;
+use tokio::io::split;
+use tokio_util::codec::{Framed, FramedRead, FramedWrite};
 
 use crate::{
     blaze::{pk::packet::PacketCodec, session::Session},
@@ -47,11 +49,17 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
         };
         // TODO: Validate authentication
 
-        let session = Session::new(Framed::new(socket.upgrade, PacketCodec), socket.host_target);
+        Session::create(|ctx| {
+            // Attach reader and writers to the session context
+            let (read, write) = split(socket.upgrade);
+            let read = FramedRead::new(read, PacketCodec);
+            let write = FramedWrite::new(write, PacketCodec);
 
-        debug!("New session: {}", &session.id);
+            ctx.attach_stream(read, true);
+            let writer = ctx.attach_sink(write);
 
-        session.handle().await;
+            Session::new(writer, socket.host_target)
+        });
     });
 
     let mut response = Empty::new().into_response();

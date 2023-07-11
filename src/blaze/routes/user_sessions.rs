@@ -1,43 +1,19 @@
-use futures::SinkExt;
-
 use crate::blaze::{
-    components,
-    models::user_sessions::{UpdateHardwareFlags, UpdateNetworkInfo, UserUpdated},
-    pk::packet::Packet,
-    session::Session,
+    models::user_sessions::{UpdateHardwareFlags, UpdateNetworkInfo},
+    session::{HardwareFlagsMessage, NetworkInfoMessage, SessionLink},
 };
 
-pub async fn update_network_info(session: &mut Session, req: UpdateNetworkInfo) {
-    session.data.net.addr = req.addr;
-    session.data.net.qos = req.qos;
-
+pub async fn update_network_info(session: &mut SessionLink, req: UpdateNetworkInfo) {
     let _ = session
-        .io
-        .send(Packet::notify(
-            components::user_sessions::COMPONENT,
-            components::user_sessions::NOTIFY_USER_UPDATED,
-            UserUpdated {
-                player_id: 1,
-                game_id: session.data.game,
-                net_data: session.data.net.clone(),
-            },
-        ))
+        .send(NetworkInfoMessage {
+            addr: req.addr,
+            qos: req.qos,
+        })
         .await;
 }
 
-pub async fn update_hardware_flags(session: &mut Session, req: UpdateHardwareFlags) {
-    session.data.net.hwfg = req.flags;
-
+pub async fn update_hardware_flags(session: &mut SessionLink, req: UpdateHardwareFlags) {
     let _ = session
-        .io
-        .send(Packet::notify(
-            components::user_sessions::COMPONENT,
-            components::user_sessions::NOTIFY_USER_UPDATED,
-            UserUpdated {
-                player_id: 1,
-                game_id: session.data.game,
-                net_data: session.data.net.clone(),
-            },
-        ))
+        .send(HardwareFlagsMessage { flags: req.flags })
         .await;
 }

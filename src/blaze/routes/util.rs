@@ -1,26 +1,23 @@
+use crate::blaze::models::util::*;
+use crate::blaze::pk::types::TdfMap;
+use crate::blaze::session::{GetHostTarget, SessionLink};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::blaze::pk::types::TdfMap;
+pub async fn pre_auth(session: &mut SessionLink) -> PreAuthResponse {
+    let target = session
+        .send(GetHostTarget)
+        .await
+        .expect("Session closed before handling");
 
-use crate::blaze::{
-    models::util::{
-        ClientConfigRequest, ClientConfigResponse, PingResponse, PostAuthResponse, PreAuthResponse,
-    },
-    session::Session,
-};
-
-pub async fn pre_auth(session: &mut Session) -> PreAuthResponse {
-    PreAuthResponse {
-        target: session.host_target.clone(),
-    }
+    PreAuthResponse { target }
 }
 
-pub async fn post_auth(_session: &mut Session) -> PostAuthResponse {
+pub async fn post_auth(_session: &mut SessionLink) -> PostAuthResponse {
     PostAuthResponse
 }
 
 pub async fn fetch_client_config(
-    _session: &mut Session,
+    _session: &mut SessionLink,
     req: ClientConfigRequest,
 ) -> ClientConfigResponse {
     let config: TdfMap<String, String> = match req.id.as_str() {
@@ -36,7 +33,7 @@ pub async fn fetch_client_config(
     ClientConfigResponse { config }
 }
 
-pub async fn ping(_session: &mut Session) -> PingResponse {
+pub async fn ping(_session: &mut SessionLink) -> PingResponse {
     let time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards")

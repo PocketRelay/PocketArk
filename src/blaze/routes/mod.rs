@@ -1,4 +1,4 @@
-use super::{components, session::Session};
+use super::{components, session::SessionLink};
 use crate::blaze::pk::router::Router;
 
 mod auth;
@@ -6,7 +6,7 @@ mod game_manager;
 mod user_sessions;
 mod util;
 
-pub fn router() -> Router<Session> {
+pub fn router() -> Router<SessionLink> {
     let mut router = Router::new();
 
     router.route(
@@ -62,7 +62,7 @@ pub fn router() -> Router<Session> {
     router
 }
 
-async fn keep_alive(_state: &mut Session) {}
+async fn keep_alive(_state: &mut SessionLink) {}
 
 #[test]
 fn test() {

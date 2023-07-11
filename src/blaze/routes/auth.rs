@@ -1,37 +1,17 @@
-use futures::SinkExt;
-
 use crate::blaze::{
     components,
-    models::{
-        auth::{AuthNotify, AuthRequest, AuthResponse, Entitlement, ListEntitlementsResponse},
-        user_sessions::UserAdded,
-    },
+    models::auth::*,
     pk::packet::Packet,
-    session::Session,
+    session::{PushExt, Session, SessionLink, UserAddedMessage},
 };
 
-pub async fn auth(session: &mut Session, _req: AuthRequest) -> AuthResponse {
-    let _ = session
-        .io
-        .send(Packet::notify(
-            components::user_sessions::COMPONENT,
-            components::user_sessions::NOTIFY_UPDATE_AUTH,
-            AuthNotify,
-        ))
-        .await;
-    let _ = session
-        .io
-        .send(Packet::notify(
-            components::user_sessions::COMPONENT,
-            components::user_sessions::NOTIFY_USER_ADDED,
-            UserAdded {
-                player_id: 1,
-                name: "Jacobtread".to_string(),
-                game_id: session.data.game,
-                net_data: session.data.net.clone(),
-            },
-        ))
-        .await;
+pub async fn auth(session: &mut SessionLink, _req: AuthRequest) -> AuthResponse {
+    session.push(Packet::notify(
+        components::user_sessions::COMPONENT,
+        components::user_sessions::NOTIFY_UPDATE_AUTH,
+        AuthNotify,
+    ));
+    let _ = session.do_send(UserAddedMessage);
 
     AuthResponse
 }
@@ -57,6 +37,6 @@ static ENTITLEMENTS: &[Entitlement] = &[
     Entitlement::new_pc(1011177546559, "310335", 2, "Origin.OFR.50.0001530", "TRIAL_ONLINE_ACCESS", 1),
 ];
 
-pub async fn list_entitlements_2(session: &mut Session) -> ListEntitlementsResponse {
+pub async fn list_entitlements_2(session: &mut SessionLink) -> ListEntitlementsResponse {
     ListEntitlementsResponse { list: ENTITLEMENTS }
 }
