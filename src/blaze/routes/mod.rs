@@ -29,6 +29,13 @@ pub fn router() -> Router<Session> {
     );
     router.route(
         (
+            components::authentication::COMPONENT,
+            components::authentication::LIST_ENTITLEMENTS_2,
+        ),
+        auth::list_entitlements_2,
+    );
+    router.route(
+        (
             components::util::COMPONENT,
             components::util::FETCH_CLIENT_CONFIG,
         ),

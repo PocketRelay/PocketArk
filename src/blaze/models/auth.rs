@@ -1,7 +1,8 @@
 use crate::blaze::pk::{
-    codec::{Decodable, Encodable},
+    codec::{Decodable, Encodable, ValueType},
     error::DecodeResult,
     reader::TdfReader,
+    tag::TdfType,
     writer::TdfWriter,
 };
 
@@ -62,5 +63,115 @@ impl Encodable for AuthResponse {
         });
         w.tag_u8(b"SPAM", 0);
         w.tag_u8(b"UNDR", 0);
+    }
+}
+
+pub struct Entitlement {
+    pub name: &'static str,
+    pub id: u64,
+    pub pjid: &'static str,
+    pub prca: u8,
+    pub prid: &'static str,
+    pub tag: &'static str,
+    pub ty: u8,
+}
+
+impl Entitlement {
+    pub const TAG_OFFER: &'static str = "ME4PCOffers";
+    pub const TAG_CONTENT: &'static str = "ME4PCContent";
+    pub const TAG_PC: &'static str = "ME4PC";
+
+    pub const fn new_offer(
+        id: u64,
+        pjid: &'static str,
+        prca: u8,
+        prid: &'static str,
+        tag: &'static str,
+        ty: u8,
+    ) -> Self {
+        Self {
+            name: Self::TAG_OFFER,
+            id,
+            pjid,
+            prca,
+            prid,
+            tag,
+            ty,
+        }
+    }
+
+    pub const fn new_content(
+        id: u64,
+        pjid: &'static str,
+        prca: u8,
+        prid: &'static str,
+        tag: &'static str,
+        ty: u8,
+    ) -> Self {
+        Self {
+            name: Self::TAG_CONTENT,
+            id,
+            pjid,
+            prca,
+            prid,
+            tag,
+            ty,
+        }
+    }
+    pub const fn new_pc(
+        id: u64,
+        pjid: &'static str,
+        prca: u8,
+        prid: &'static str,
+        tag: &'static str,
+        ty: u8,
+    ) -> Self {
+        Self {
+            name: Self::TAG_PC,
+            id,
+            pjid,
+            prca,
+            prid,
+            tag,
+            ty,
+        }
+    }
+}
+
+impl Encodable for Entitlement {
+    fn encode(&self, writer: &mut TdfWriter) {
+        writer.tag_str_empty(b"DEVI");
+        writer.tag_str(b"GDAY", "2012-12-15T16:15Z");
+        writer.tag_str(b"GNAM", self.name);
+        writer.tag_u64(b"ID", self.id);
+        writer.tag_u8(b"ISCO", 0);
+        writer.tag_u8(b"PID", 0);
+        writer.tag_str(b"PJID", self.pjid);
+        writer.tag_u8(b"PRCA", self.prca);
+        writer.tag_str(b"PRID", self.prid);
+        writer.tag_u8(b"STAT", 1);
+        writer.tag_u8(b"STRC", 0);
+        writer.tag_str(b"TAG", self.tag);
+        writer.tag_str_empty(b"TDAY");
+        writer.tag_u8(b"TTYPE", self.ty);
+        writer.tag_u8(b"UCNT", 0);
+        writer.tag_u8(b"VER", 0);
+        writer.tag_group_end();
+    }
+}
+
+impl ValueType for Entitlement {
+    fn value_type() -> TdfType {
+        TdfType::Group
+    }
+}
+
+pub struct ListEntitlementsResponse {
+    pub list: &'static [Entitlement],
+}
+
+impl Encodable for ListEntitlementsResponse {
+    fn encode(&self, writer: &mut TdfWriter) {
+        writer.tag_slice_list(b"NLST", self.list);
     }
 }
