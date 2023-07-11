@@ -15,7 +15,7 @@ pub async fn update_network_info(session: &mut Session, req: UpdateNetworkInfo) 
         .io
         .send(Packet::notify(
             components::user_sessions::COMPONENT,
-            components::user_sessions::USER_ADDED,
+            components::user_sessions::USER_UPDATED,
             UserUpdated {
                 player_id: 1,
                 game_id: session.data.game,
@@ -32,7 +32,7 @@ pub async fn update_hardware_flags(session: &mut Session, req: UpdateHardwareFla
         .io
         .send(Packet::notify(
             components::user_sessions::COMPONENT,
-            components::user_sessions::USER_ADDED,
+            components::user_sessions::USER_UPDATED,
             UserUpdated {
                 player_id: 1,
                 game_id: session.data.game,
