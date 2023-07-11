@@ -2,6 +2,7 @@ use super::{components, session::Session};
 use crate::blaze::pk::router::Router;
 
 mod auth;
+mod game_manager;
 mod user_sessions;
 mod util;
 

@@ -6,5 +6,6 @@ use crate::blaze::pk::{
 };
 
 pub mod auth;
+pub mod game_manager;
 pub mod user_sessions;
 pub mod util;
