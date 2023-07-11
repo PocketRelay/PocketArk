@@ -14,7 +14,10 @@ use tokio::io::split;
 use tokio_util::codec::{Framed, FramedRead, FramedWrite};
 
 use crate::{
-    blaze::{pk::packet::PacketCodec, session::Session},
+    blaze::{
+        pk::packet::PacketCodec,
+        session::{Session, User},
+    },
     http::middleware::upgrade::BlazeUpgrade,
 };
 
@@ -47,7 +50,6 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
                 return;
             }
         };
-        // TODO: Validate authentication
 
         Session::create(|ctx| {
             // Attach reader and writers to the session context
@@ -58,7 +60,13 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
             ctx.attach_stream(read, true);
             let writer = ctx.attach_sink(write);
 
-            Session::new(writer, socket.host_target)
+            // TODO: Validate authentication to obtain player deets
+            let user = User {
+                id: 1,
+                name: "Jacobtread".to_string(),
+            };
+
+            Session::new(writer, socket.host_target, user)
         });
     });
 

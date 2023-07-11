@@ -19,32 +19,37 @@ pub struct Session {
     pub uuid: Uuid,
     pub writer: SinkLink<Packet>,
     pub host_target: UpgradedTarget,
-    pub data: SessionData,
+    pub user: User,
+    pub net: NetData,
+    pub game: Option<u32>,
+}
+
+pub struct User {
+    pub id: u32,
+    pub name: String,
 }
 
 pub type SessionLink = Link<Session>;
 
 impl Service for Session {
-    fn started(&mut self, _ctx: &mut ServiceContext<Self>) {}
+    fn started(&mut self, _ctx: &mut ServiceContext<Self>) {
+        debug!("Session started {}", &self.uuid);
+    }
 
     fn stopping(&mut self) {
-        debug!("Session stopped {}", self.uuid)
+        debug!("Session stopped {}", &self.uuid)
     }
 }
 
-#[derive(Debug, Default)]
-pub struct SessionData {
-    pub net: NetData,
-    pub game: Option<u32>,
-}
-
 impl Session {
-    pub fn new(writer: SinkLink<Packet>, host_target: UpgradedTarget) -> Self {
+    pub fn new(writer: SinkLink<Packet>, host_target: UpgradedTarget, user: User) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             writer,
             host_target,
-            data: SessionData::default(),
+            user,
+            net: NetData::default(),
+            game: None,
         }
     }
 
@@ -138,8 +143,8 @@ impl Handler<NetworkInfoMessage> for Session {
         msg: NetworkInfoMessage,
         ctx: &mut ServiceContext<Self>,
     ) -> Self::Response {
-        self.data.net.addr = msg.addr;
-        self.data.net.qos = msg.qos;
+        self.net.addr = msg.addr;
+        self.net.qos = msg.qos;
         let _ = ctx.shared_link().do_send(UpdateUserMessage);
     }
 }
@@ -157,7 +162,7 @@ impl Handler<HardwareFlagsMessage> for Session {
         msg: HardwareFlagsMessage,
         ctx: &mut ServiceContext<Self>,
     ) -> Self::Response {
-        self.data.net.hwfg = msg.flags;
+        self.net.hwfg = msg.flags;
         let _ = ctx.shared_link().do_send(UpdateUserMessage);
     }
 }
@@ -178,8 +183,8 @@ impl Handler<UpdateUserMessage> for Session {
             components::user_sessions::NOTIFY_USER_UPDATED,
             UserUpdated {
                 player_id: 1,
-                game_id: self.data.game,
-                net_data: self.data.net.clone(),
+                game_id: self.game,
+                net_data: self.net.clone(),
             },
         ));
     }
@@ -214,8 +219,8 @@ impl Handler<UserAddedMessage> for Session {
             UserAdded {
                 player_id: 1,
                 name: "Jacobtread".to_string(),
-                game_id: self.data.game,
-                net_data: self.data.net.clone(),
+                game_id: self.game,
+                net_data: self.net.clone(),
             },
         ));
     }
