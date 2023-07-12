@@ -1,0 +1,332 @@
+{
+    "teams": {
+        "totalCount": 2,
+        "list": [
+            {
+                "id": "07f353b2-3f13-419c-aa52-53f287e3f057",
+                "name": "Romeo",
+                "icon": {
+                    "name": "icon3",
+                    "image": "Team03"
+                },
+                "level": 1,
+                "xp": {
+                    "current": 0,
+                    "last": 0,
+                    "next": 6400
+                },
+                "positiveTraits": [
+                    {
+                        "name": "Outlaw Specialist",
+                        "i18nName": "211953",
+                        "locName": "Outlaw Specialist",
+                        "i18nDescription": "216464",
+                        "locDescription": "+10 to Effectiveness against outlaws",
+                        "tag": "outlaw",
+                        "effectiveness": 10
+                    }
+                ],
+                "negativeTraits": [],
+                "mission": {
+                    "name": "740947b9-126b-361b-a45f-abbdd6e2b42d",
+                    "liveMission": {
+                        "name": "740947b9-126b-361b-a45f-abbdd6e2b42d",
+                        "descriptor": {
+                            "name": "b1e13971-15d3-4b52-9ba1-16da76ccea8d",
+                            "i18nName": "216305",
+                            "locName": "IDENTIFY THE SPY",
+                            "i18nDesc": "216883",
+                            "locDesc": "We have reason to believe one of our people is giving intel to the enemy. Hit an enemy communication center and get us a name.",
+                            "customAttributes": {
+                                "Icon": "SpecAssault",
+                                "SelectorIcon": "SpecAssaultSmall"
+                            }
+                        },
+                        "missionType": {
+                            "name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+                            "descriptor": {
+                                "name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+                                "i18nName": "12028",
+                                "locName": "Normal",
+                                "customAttributes": {}
+                            },
+                            "giveCurrency": true,
+                            "giveXp": true
+                        },
+                        "accessibility": "Single_Player",
+                        "userMissionState": "PENDING_RESOLVE",
+                        "waves": [],
+                        "tags": [
+                            {
+                                "name": "risky",
+                                "i18nName": "135555",
+                                "locName": "High-Risk, High-Reward",
+                                "i18nDesc": ""
+                            },
+                            {
+                                "name": "remnant",
+                                "i18nName": "211954",
+                                "locName": "Remnant"
+                            },
+                            {
+                                "name": "hrt",
+                                "i18nName": "135558",
+                                "locName": "Hostage Situation",
+                                "i18nDesc": ""
+                            }
+                        ],
+                        "staticModifiers": [
+                            {
+                                "name": "difficulty",
+                                "value": "bronze"
+                            },
+                            {
+                                "name": "enemyType",
+                                "value": "remnant"
+                            },
+                            {
+                                "name": "level",
+                                "value": "MPOrange"
+                            }
+                        ],
+                        "dynamicModifiers": [],
+                        "rewards": {
+                            "name": "97621f83-b9f3-48df-b327-fd2e3d200ab4",
+                            "currencyReward": {
+                                "name": "MissionCurrency",
+                                "value": 5
+                            },
+                            "mpItemRewards": {},
+                            "spItemRewards": {
+                                "e300500e-885e-4ee5-bbdc-f706b30b362a": 1,
+                                "1440d464-0245-49f9-8533-4930b9283d78": 1
+                            },
+                            "itemDefinitions": [
+                                {
+                                    "name": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+                                    "i18nName": "215300",
+                                    "i18nDescription": "215305",
+                                    "locName": "Bronze Credit Loot Box",
+                                    "locDescription": "A cache of credits found during a Bronze difficulty mission.",
+                                    "customAttributes": {
+                                        "LootTags": {
+                                            "StrikeTeams_Bronze_Credits": "36"
+                                        },
+                                        "UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+                                    },
+                                    "category": "11",
+                                    "attachableCategories": [],
+                                    "rarity": "0",
+                                    "consumable": true,
+                                    "droppable": false,
+                                    "onConsume": [],
+                                    "onAdd": [],
+                                    "onRemove": [],
+                                    "defaultNamespace": "striketeams"
+                                },
+                                {
+                                    "name": "1440d464-0245-49f9-8533-4930b9283d78",
+                                    "i18nName": "215506",
+                                    "i18nDescription": "215501",
+                                    "locName": "Bronze Material Loot Box",
+                                    "locDescription": "A collection of materials discovered during a Bronze difficulty mission.",
+                                    "customAttributes": {
+                                        "LootTags": {
+                                            "StrikeTeams_Bronze_Materials": "41"
+                                        },
+                                        "UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+                                    },
+                                    "category": "11",
+                                    "attachableCategories": [],
+                                    "rarity": "0",
+                                    "consumable": true,
+                                    "droppable": false,
+                                    "onConsume": [],
+                                    "onAdd": [],
+                                    "onRemove": [],
+                                    "defaultNamespace": "striketeams"
+                                }
+                            ]
+                        },
+                        "seen": false,
+                        "customAttributes": {},
+                        "startSeconds": 1644570877,
+                        "endSeconds": 1644575565,
+                        "spLengthSeconds": 4688,
+                        "completed": false
+                    },
+                    "finishTime": "2022-02-11T10:32:45.000+0000",
+                    "successful": true,
+                    "earnNegativeTrait": false
+                },
+                "outOfDate": false
+            },
+            {
+                "id": "fb8be136-0247-4cad-92c5-596be760bd4d",
+                "name": "November",
+                "icon": {
+                    "name": "icon3",
+                    "image": "Team03"
+                },
+                "level": 1,
+                "xp": {
+                    "current": 0,
+                    "last": 0,
+                    "next": 6400
+                },
+                "positiveTraits": [
+                    {
+                        "name": "Outlaw Specialist",
+                        "i18nName": "211953",
+                        "locName": "Outlaw Specialist",
+                        "i18nDescription": "216464",
+                        "locDescription": "+10 to Effectiveness against outlaws",
+                        "tag": "outlaw",
+                        "effectiveness": 10
+                    }
+                ],
+                "negativeTraits": [],
+                "mission": {
+                    "name": "698830de-94df-303f-8579-28859e292e59",
+                    "liveMission": {
+                        "name": "698830de-94df-303f-8579-28859e292e59",
+                        "descriptor": {
+                            "name": "403f9d23-f648-4e77-99ee-30414739ae5a",
+                            "i18nName": "216925",
+                            "locName": "SABOTAGE ENEMY OPERATIONS",
+                            "i18nDesc": "216891",
+                            "locDesc": "Hostile forces are resisting our attempts to gain a foothold in the area. Hit their base and sabotage their operations while we prepare an offensive.",
+                            "customAttributes": {
+                                "Icon": "SpecAssault",
+                                "SelectorIcon": "SpecAssaultSmall"
+                            }
+                        },
+                        "missionType": {
+                            "name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+                            "descriptor": {
+                                "name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+                                "i18nName": "12028",
+                                "locName": "Normal",
+                                "customAttributes": {}
+                            },
+                            "giveCurrency": true,
+                            "giveXp": true
+                        },
+                        "accessibility": "Single_Player",
+                        "userMissionState": "PENDING_RESOLVE",
+                        "waves": [],
+                        "tags": [
+                            {
+                                "name": "outlaw",
+                                "i18nName": "211955",
+                                "locName": "Outlaw"
+                            },
+                            {
+                                "name": "bribe",
+                                "i18nName": "135560",
+                                "locName": "Bribe Attempt",
+                                "i18nDesc": ""
+                            },
+                            {
+                                "name": "xenophobe",
+                                "i18nName": "135549",
+                                "locName": "Alien Presence",
+                                "i18nDesc": ""
+                            }
+                        ],
+                        "staticModifiers": [
+                            {
+                                "name": "difficulty",
+                                "value": "bronze"
+                            },
+                            {
+                                "name": "enemyType",
+                                "value": "outlaw"
+                            },
+                            {
+                                "name": "level",
+                                "value": "MPTower"
+                            }
+                        ],
+                        "dynamicModifiers": [],
+                        "rewards": {
+                            "name": "97621f83-b9f3-48df-b327-fd2e3d200ab4",
+                            "currencyReward": {
+                                "name": "MissionCurrency",
+                                "value": 5
+                            },
+                            "mpItemRewards": {},
+                            "spItemRewards": {
+                                "e300500e-885e-4ee5-bbdc-f706b30b362a": 1,
+                                "1440d464-0245-49f9-8533-4930b9283d78": 1
+                            },
+                            "itemDefinitions": [
+                                {
+                                    "name": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+                                    "i18nName": "215300",
+                                    "i18nDescription": "215305",
+                                    "locName": "Bronze Credit Loot Box",
+                                    "locDescription": "A cache of credits found during a Bronze difficulty mission.",
+                                    "customAttributes": {
+                                        "LootTags": {
+                                            "StrikeTeams_Bronze_Credits": "36"
+                                        },
+                                        "UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+                                    },
+                                    "category": "11",
+                                    "attachableCategories": [],
+                                    "rarity": "0",
+                                    "consumable": true,
+                                    "droppable": false,
+                                    "onConsume": [],
+                                    "onAdd": [],
+                                    "onRemove": [],
+                                    "defaultNamespace": "striketeams"
+                                },
+                                {
+                                    "name": "1440d464-0245-49f9-8533-4930b9283d78",
+                                    "i18nName": "215506",
+                                    "i18nDescription": "215501",
+                                    "locName": "Bronze Material Loot Box",
+                                    "locDescription": "A collection of materials discovered during a Bronze difficulty mission.",
+                                    "customAttributes": {
+                                        "LootTags": {
+                                            "StrikeTeams_Bronze_Materials": "41"
+                                        },
+                                        "UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+                                    },
+                                    "category": "11",
+                                    "attachableCategories": [],
+                                    "rarity": "0",
+                                    "consumable": true,
+                                    "droppable": false,
+                                    "onConsume": [],
+                                    "onAdd": [],
+                                    "onRemove": [],
+                                    "defaultNamespace": "striketeams"
+                                }
+                            ]
+                        },
+                        "seen": false,
+                        "customAttributes": {},
+                        "startSeconds": 1688685969,
+                        "endSeconds": 1688692127,
+                        "spLengthSeconds": 6158,
+                        "completed": false
+                    },
+                    "finishTime": "2023-07-07T01:08:47.000+0000",
+                    "successful": true,
+                    "earnNegativeTrait": false
+                },
+                "outOfDate": false
+            }
+        ],
+        "cap": 6
+    },
+    "minSpecializationLevel": 15,
+    "nextPurchaseCosts": {
+        "MissionCurrency": 80
+    },
+    "inventoryItemLimit": 200,
+    "inventoryItemCount": 0
+}

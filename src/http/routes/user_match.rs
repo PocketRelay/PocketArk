@@ -1,27 +1,23 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
-use hyper::{header::CONTENT_TYPE, http::HeaderValue};
+use crate::http::models::RawJson;
+
+/// Definition file for the available match badges
+static MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
 
 /// GET /user/match/badges
-pub async fn get_badges() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Get_User_Match_Badges-1688700344615.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Obtains a list of badge definitions for badges that can
+/// be awarded during a multiplayer match
+pub async fn get_badges() -> RawJson {
+    RawJson(MATCH_BADGE_DEFINITIONS)
 }
 
-/// GET /user/match/modifiers
-pub async fn get_modifiers() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Get_User_Match_Modifiers-1688700322703.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+/// Definition file for the available match modifiers
+static MATCH_MODIFIER_DEFINITIONS: &str = include_str!("../../resources/data/matchModifiers.json");
 
-    resp
+/// GET /user/match/modifiers
+///
+/// Obtains a list of modifier definitions that can be applied
+/// to a match
+pub async fn get_modifiers() -> RawJson {
+    RawJson(MATCH_MODIFIER_DEFINITIONS)
 }

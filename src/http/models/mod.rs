@@ -1,9 +1,13 @@
-use axum::{response::IntoResponse, Json};
-use hyper::StatusCode;
+use axum::{
+    response::{IntoResponse, Response},
+    Json,
+};
+use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
 use serde::Serialize;
 
 pub mod auth;
 pub mod client;
+pub mod store;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,5 +23,17 @@ pub struct HttpError {
 impl IntoResponse for HttpError {
     fn into_response(self) -> axum::response::Response {
         (self.status, Json(self)).into_response()
+    }
+}
+
+/// Raw pre encoded JSON string response
+pub struct RawJson(pub &'static str);
+
+impl IntoResponse for RawJson {
+    fn into_response(self) -> Response {
+        let mut res = self.0.into_response();
+        res.headers_mut()
+            .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        res
     }
 }
