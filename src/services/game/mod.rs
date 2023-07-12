@@ -60,8 +60,8 @@ impl Handler<UpdateStateMessage> for Game {
 
 #[derive(Message)]
 pub struct UpdatePlayerAttr {
-    attr: AttrMap,
-    pid: u32,
+    pub attr: AttrMap,
+    pub pid: u32,
 }
 
 impl Handler<UpdatePlayerAttr> for Game {
@@ -92,6 +92,30 @@ impl Handler<UpdatePlayerAttr> for Game {
     }
 }
 
+#[derive(Message)]
+pub struct UpdateGameAttrMessage {
+    pub attr: AttrMap,
+}
+
+impl Handler<UpdateGameAttrMessage> for Game {
+    type Response = ();
+    fn handle(
+        &mut self,
+        msg: UpdateGameAttrMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        self.notify_all(
+            4,
+            80,
+            NotifyGameAttr {
+                attr: msg.attr.clone(),
+                gid: self.id,
+            },
+        );
+        self.attributes.extend(msg.attr);
+    }
+}
+
 pub struct NotifyPlayerAttr {
     attr: AttrMap,
     pid: u32,
@@ -103,6 +127,18 @@ impl Encodable for NotifyPlayerAttr {
         w.tag_value(b"ATTR", &self.attr);
         w.tag_u32(b"GID", self.gid);
         w.tag_u32(b"PID", self.pid);
+    }
+}
+
+pub struct NotifyGameAttr {
+    attr: AttrMap,
+    gid: u32,
+}
+
+impl Encodable for NotifyGameAttr {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.tag_value(b"ATTR", &self.attr);
+        w.tag_u32(b"GID", self.gid);
     }
 }
 

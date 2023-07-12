@@ -8,7 +8,7 @@ use crate::{
         router::HandleError,
     },
     http::middleware::upgrade::UpgradedTarget,
-    services::game::GameID,
+    services::game::{GameID, Player},
     state::App,
 };
 use interlink::prelude::*;
@@ -25,12 +25,25 @@ pub struct Session {
     pub game: Option<u32>,
 }
 
+#[derive(Clone)]
 pub struct User {
     pub id: u32,
     pub name: String,
 }
 
 pub type SessionLink = Link<Session>;
+
+#[derive(Message)]
+#[msg(rtype = "Player")]
+pub struct GetPlayerMessage;
+
+impl Handler<GetPlayerMessage> for Session {
+    type Response = Mr<GetPlayerMessage>;
+    fn handle(&mut self, msg: GetPlayerMessage, ctx: &mut ServiceContext<Self>) -> Self::Response {
+        let player = Player::new(self.uuid, self.user.clone(), ctx.link(), self.net.clone());
+        Mr(player)
+    }
+}
 
 impl Service for Session {
     fn started(&mut self, _ctx: &mut ServiceContext<Self>) {

@@ -14,7 +14,7 @@ mod state;
 async fn main() {
     utils::logging::setup(LevelFilter::Debug);
 
-    App::init();
+    App::init().await;
 
     select! {
         _ = http::start_server() => {
