@@ -6,6 +6,7 @@ use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
 use serde::Serialize;
 
 pub mod auth;
+pub mod character;
 pub mod client;
 pub mod inventory;
 pub mod store;

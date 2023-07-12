@@ -12,7 +12,7 @@ pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
     Json(AuthResponse {
         session_id: Uuid::new_v4(),
         user: AuthUser {
-            roles: vec![
+            roles: &[
                 "GameSettings.Anonymous",
                 "Telemetry.User",
                 "User",
@@ -43,10 +43,7 @@ pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
                 "Notification.User",
                 "Store.User",
                 "Character.User",
-            ]
-            .into_iter()
-            .map(|value| value.to_string())
-            .collect(),
+            ],
             pid: 1000279946559,
             persona_id: 978651371,
             sku: req.sku,

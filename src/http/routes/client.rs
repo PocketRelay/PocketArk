@@ -19,6 +19,7 @@ use crate::{
         session::{Session, User},
     },
     http::middleware::upgrade::BlazeUpgrade,
+    state::VERSION,
 };
 
 #[derive(Serialize)]
@@ -33,7 +34,7 @@ pub struct ServerDetails {
 pub async fn details() -> Json<ServerDetails> {
     Json(ServerDetails {
         ident: "POCKET_ARK_SERVER",
-        version: env!("CARGO_PKG_VERSION"),
+        version: VERSION,
     })
 }
 

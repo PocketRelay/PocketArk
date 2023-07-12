@@ -15,6 +15,8 @@ pub async fn get_characters() -> Response {
 }
 
 /// GET /character/:id
+///
+/// Gets the defintion and details for the character of the provided ID
 pub async fn get_character() -> Response {
     let mut resp =
         include_str!("../../resources/defs/raw/Get_Character_-1689039081314.json").into_response();
@@ -25,6 +27,8 @@ pub async fn get_character() -> Response {
 }
 
 /// POST /character/:id/active
+///
+/// Sets the currently active character
 pub async fn set_active() -> Response {
     StatusCode::NO_CONTENT.into_response()
 }

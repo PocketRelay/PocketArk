@@ -1,5 +1,9 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{
+    de::{DeserializeOwned, Visitor},
+    ser::SerializeStruct,
+    Deserialize, Serialize,
+};
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -29,7 +33,7 @@ pub struct AuthResponse {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthUser {
-    pub roles: Vec<String>,
+    pub roles: &'static [&'static str],
     #[serde(rename = "pid")]
     pub pid: u64,
     pub persona_id: u64,
