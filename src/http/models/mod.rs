@@ -9,6 +9,7 @@ pub mod auth;
 pub mod character;
 pub mod client;
 pub mod inventory;
+pub mod mission;
 pub mod store;
 pub mod telemetry;
 

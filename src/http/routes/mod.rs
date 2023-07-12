@@ -1,6 +1,6 @@
 use axum::{
     response::{IntoResponse, Response},
-    routing::{any, get, post, put, Route},
+    routing::{any, get, post, put},
     Router,
 };
 use hyper::StatusCode;
@@ -32,7 +32,7 @@ pub fn router() -> Router {
         )
         .route("/auth", post(auth::authenticate))
         .route("/configuration", get(configuration::get_configuration))
-        .route("/mission/current", get(mission::current_mission))
+        .route("/mission/current", get(mission::current_missions))
         .nest(
             "/striketeams",
             Router::new()

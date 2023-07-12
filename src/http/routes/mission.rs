@@ -1,40 +1,38 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
-use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
+use axum::extract::Path;
+use hyper::StatusCode;
+
+use crate::http::models::RawJson;
+
+static CURRENT_MISSIONS_DEFINITION: &str =
+    include_str!("../../resources/data/currentMissions.json");
 
 /// GET /mission/current
-pub async fn current_mission() -> Response {
-    let mut resp = include_str!("../../resources/defs/raw/Get_Current_Mission-1688700356655.json")
-        .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Obtains a list of currently avaiable missions
+pub async fn current_missions() -> RawJson {
+    RawJson(CURRENT_MISSIONS_DEFINITION)
 }
 
 /// GET /user/mission/:id
-pub async fn get_mission() -> Response {
-    let mut resp = include_str!("../../resources/defs/raw/Get_Mission_Details-1688700361289.json")
-        .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Obtains the details about a specific mission
+pub async fn get_mission(Path(mission_id): Path<u32>) -> RawJson {
+    static RESP: &str =
+        include_str!("../../resources/defs/raw/Get_Mission_Details-1688700361289.json");
+    RawJson(RESP)
 }
 
 /// POST /user/mission/:id/start
-pub async fn start_mission() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Start_Mission-1688700366125.json").into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Starts a mission
+pub async fn start_mission(Path(mission_id): Path<u32>) -> RawJson {
+    static RESP: &str = include_str!("../../resources/defs/raw/Start_Mission-1688700366125.json");
+    RawJson(RESP)
 }
 
 /// POST /user/mission/:id/finish
-pub async fn finish_mission() -> Response {
-    StatusCode::NO_CONTENT.into_response()
+///
+/// Submits the details of a mission that has been finished
+pub async fn finish_mission(Path(mission_id): Path<u32>) -> StatusCode {
+    StatusCode::NO_CONTENT
 }
