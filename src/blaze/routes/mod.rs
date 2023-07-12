@@ -61,8 +61,9 @@ pub fn router() -> Router<SessionLink> {
 
     router.route((4, 16), game_manager::create_game);
     router.route((4, 8), game_manager::update_player_attr);
-    router.route((4, 100), game_manager::update_game_state);
+    router.route((4, 3), game_manager::update_game_state);
     router.route((4, 80), game_manager::update_game_attr);
+    router.route((4, 19), game_manager::replay_game);
 
     router
 }

@@ -26,10 +26,15 @@ pub async fn get_mission() -> Response {
 
 /// POST /user/mission/:id/start
 pub async fn start_mission() -> Response {
-    StatusCode::OK.into_response()
+    let mut resp =
+        include_str!("../../resources/defs/raw/Start_Mission-1688700366125.json").into_response();
+    resp.headers_mut()
+        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+    resp
 }
 
 /// POST /user/mission/:id/finish
 pub async fn finish_mission() -> Response {
-    StatusCode::OK.into_response()
+    StatusCode::NO_CONTENT.into_response()
 }

@@ -102,3 +102,14 @@ pub async fn update_game_state(session: &mut SessionLink, req: UpdateStateReques
         .expect("Unknown game");
     let _ = game.send(UpdateStateMessage { state: req.state }).await;
 }
+
+pub async fn replay_game(session: &mut SessionLink, req: UpdateStateRequest) {
+    let services = App::services();
+    let game = services
+        .games
+        .send(GetGameMessage { game_id: req.gid })
+        .await
+        .expect("Failed to create")
+        .expect("Unknown game");
+    let _ = game.send(UpdateStateMessage { state: 130 }).await;
+}

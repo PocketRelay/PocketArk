@@ -374,7 +374,7 @@ impl Encodable for GameDetails<'_> {
 
             w.tag_u64(b"GPVH", 3788120962);
             w.tag_u32(b"GSET", game.setting);
-            w.tag_u64(b"GSID", 60474918);
+            w.tag_u64(b"GSID", 60474918); // SHOULD MATCH START MISSION RESPONSE ID
             w.tag_value(b"GSTA", &game.state);
 
             w.tag_str_empty(b"GTYP");

@@ -31,9 +31,9 @@ pub fn router() -> Router {
         .route("/user/match/badges", get(user_match::get_badges))
         .route("/user/match/modifiers", get(user_match::get_modifiers))
         .route("/mission/current", get(mission::current_mission))
-        .route("/mission/:id", get(mission::get_mission))
-        .route("/mission/:id/start", post(mission::start_mission))
-        .route("/mission/:id/finish", post(mission::finish_mission))
+        .route("/user/mission/:id", get(mission::get_mission))
+        .route("/user/mission/:id/start", post(mission::start_mission))
+        .route("/user/mission/:id/finish", post(mission::finish_mission))
         .route("/striketeams", get(strike_teams::get))
         .route(
             "/striketeams/successRate",
