@@ -89,3 +89,27 @@ pub struct SharedEquipmentItem {
     pub name: String,
     pub attachments: Vec<Uuid>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct CharacterLevelTables {
+    pub list: Vec<LevelTable>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct LevelTable {
+    pub table: Vec<LevelTableEntry>,
+    pub name: Uuid,
+    pub i18n_name: String,
+    pub i18n_description: String,
+    pub loc_name: Option<String>,
+    pub loc_description: Option<String>,
+    pub custom_attributes: HashMap<String, Value>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct LevelTableEntry {
+    pub level: u32,
+    pub xp: u32,
+    pub rewards: HashMap<String, f64>,
+    pub custom_attributes: HashMap<String, Value>,
+}
