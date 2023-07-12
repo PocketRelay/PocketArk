@@ -36,7 +36,7 @@ pub async fn start_mission(
     debug!("Mission started: {} {:?}", mission_id, req);
 
     let res = StartMissionResponse {
-        match_id: "60474918".to_string(),
+        match_id: mission_id.to_string(),
     };
     Json(res)
 }
