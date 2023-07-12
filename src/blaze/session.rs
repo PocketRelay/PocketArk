@@ -8,6 +8,7 @@ use crate::{
         router::HandleError,
     },
     http::middleware::upgrade::UpgradedTarget,
+    services::game::GameID,
     state::App,
 };
 use interlink::prelude::*;
@@ -223,5 +224,20 @@ impl Handler<UserAddedMessage> for Session {
                 net_data: self.net.clone(),
             },
         ));
+    }
+}
+
+#[derive(Message)]
+pub struct SetGameMessage {
+    pub game: Option<GameID>,
+}
+
+impl Handler<SetGameMessage> for Session {
+    type Response = ();
+
+    fn handle(&mut self, msg: SetGameMessage, ctx: &mut ServiceContext<Self>) {
+        self.game = msg.game;
+
+        let _ = ctx.shared_link().do_send(UpdateUserMessage);
     }
 }

@@ -1,4 +1,7 @@
-use interlink::{prelude::Link, service::Service};
+use interlink::{
+    prelude::{Handler, Link, Message},
+    service::Service,
+};
 use uuid::Uuid;
 
 use crate::blaze::{
@@ -6,19 +9,21 @@ use crate::blaze::{
         user_sessions::{IpPairAddress, NetData},
         PlayerState,
     },
-    pk::{codec::Encodable, tag::TdfType, types::TdfMap, writer::TdfWriter},
-    session::{SessionLink, User},
+    pk::{codec::Encodable, packet::Packet, tag::TdfType, types::TdfMap, writer::TdfWriter},
+    session::{PushExt, SessionLink, SetGameMessage, User},
 };
 
 pub mod manager;
 
+pub type GameID = u32;
+
 pub struct Game {
     /// Unique ID for this game
-    pub id: u32,
+    pub id: GameID,
     /// The current game state
     pub state: u8,
     /// The current game setting
-    pub setting: u16,
+    pub setting: u32,
     /// The game attributes
     pub attributes: AttrMap,
     /// The list of players in this game
@@ -64,6 +69,54 @@ impl Game {
     }
 }
 
+/// Message to add a new player to this game
+#[derive(Message)]
+pub struct AddPlayerMessage {
+    /// The player to add to the game
+    pub player: Player,
+}
+
+/// Handler for adding a player to the game
+impl Handler<AddPlayerMessage> for Game {
+    type Response = ();
+    fn handle(
+        &mut self,
+        msg: AddPlayerMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        let slot = self.players.len();
+
+        self.players.push(msg.player);
+
+        // Obtain the player that was just added
+        let player = self
+            .players
+            .last()
+            .expect("Player was added but is missing from players");
+        let packet = Packet::notify(
+            4,
+            20,
+            GameDetails {
+                game: self,
+                player_id: player.user.id,
+            },
+        );
+
+        player.link.push(packet);
+        player.link.push(Packet::notify(
+            4,
+            11,
+            PostJoinMsg {
+                game_id: self.id,
+                player_id: player.user.id,
+            },
+        ));
+
+        // Set current game of this player
+        player.set_game(Some(self.id));
+    }
+}
+
 /// Attributes map type
 pub type AttrMap = TdfMap<String, String>;
 
@@ -76,6 +129,12 @@ pub struct Player {
     pub attr: AttrMap,
 }
 
+impl Drop for Player {
+    fn drop(&mut self) {
+        self.set_game(None);
+    }
+}
+
 impl Player {
     pub fn new(uuid: Uuid, user: User, link: SessionLink, net: NetData) -> Self {
         Self {
@@ -86,6 +145,10 @@ impl Player {
             state: PlayerState::ActiveConnecting,
             attr: AttrMap::default(),
         }
+    }
+
+    pub fn set_game(&self, game: Option<GameID>) {
+        let _ = self.link.do_send(SetGameMessage { game });
     }
 
     pub fn encode(&self, game_id: u32, slot: usize, w: &mut TdfWriter) {
@@ -176,7 +239,7 @@ impl Encodable for GameDetails<'_> {
             w.tag_str_empty(b"GNAM");
 
             w.tag_u64(b"GPVH", 3788120962);
-            w.tag_u16(b"GSET", game.setting);
+            w.tag_u32(b"GSET", game.setting);
             w.tag_u64(b"GSID", 60474918);
             w.tag_value(b"GSTA", &game.state);
 
@@ -194,11 +257,11 @@ impl Encodable for GameDetails<'_> {
             w.tag_u8(b"MNCP", 1);
             w.tag_str_empty(b"NPSI");
             w.group(b"NQOS", |w| {
-                w.tag_u16(b"BWHR", 0);
-                w.tag_u16(b"DBPS", 24000000);
-                w.tag_u16(b"NAHR", 0);
-                w.tag_u16(b"NATT", 0);
-                w.tag_u16(b"UBPS", 8000000);
+                w.tag_u32(b"BWHR", 0);
+                w.tag_u32(b"DBPS", 24000000);
+                w.tag_u32(b"NAHR", 0);
+                w.tag_u32(b"NATT", 0);
+                w.tag_u32(b"UBPS", 8000000);
             });
 
             w.tag_zero(b"NRES");
@@ -207,7 +270,7 @@ impl Encodable for GameDetails<'_> {
             w.tag_empty_blob(b"PGSR");
 
             w.group(b"PHST", |w| {
-                w.tag_u32(b"CONG", 1052279530202);
+                w.tag_u64(b"CONG", 1052279530202);
                 w.tag_u32(b"CSID", 0);
                 w.tag_u32(b"HPID", host_player.user.id);
                 w.tag_zero(b"HSLT");
@@ -279,5 +342,27 @@ impl Encodable for GameDetails<'_> {
             // SESSION_ERROR_GAME_SETUP_FAILED = 6
             writer.tag_u32(b"USID", self.player_id);
         });
+    }
+}
+
+pub struct PostJoinMsg {
+    pub player_id: u32,
+    pub game_id: u32,
+}
+
+impl Encodable for PostJoinMsg {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.group(b"CONV", |w| {
+            w.tag_zero(b"FCNT");
+            w.tag_zero(b"NTOP");
+            w.tag_zero(b"TIER");
+        });
+        w.tag_u8(b"DISP", 1);
+        w.tag_u32(b"GID", self.game_id);
+        w.tag_triple(b"GRID", (0, 0, 0));
+        w.tag_u32(b"MSCD", self.player_id);
+        w.tag_u32(b"MSID", self.player_id);
+        w.tag_u32(b"QSVR", 0);
+        w.tag_u32(b"USID", self.player_id);
     }
 }
