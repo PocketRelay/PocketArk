@@ -6,7 +6,7 @@ use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 use uuid::Uuid;
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct CharactersResponse {
     pub active_character_id: Uuid,
@@ -16,7 +16,7 @@ pub struct CharactersResponse {
     pub shared_progression: Vec<SharedProgression>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct SharedProgression {
     pub name: Uuid,
@@ -26,7 +26,7 @@ pub struct SharedProgression {
     pub xp: Xp,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct Character {
     pub character_id: Uuid,
@@ -50,14 +50,14 @@ pub struct Character {
     pub promotable: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Xp {
     pub current: u32,
     pub last: u32,
     pub next: u32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SkillTreeEntry {
     pub name: Uuid,
     pub tree: Vec<SkillTreeTier>,
@@ -65,20 +65,20 @@ pub struct SkillTreeEntry {
     pub obsolete: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SkillTreeTier {
     pub tier: u32,
     pub skills: HashMap<String, u8>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CharacterEquipment {
     pub slot: String,
     pub name: MaybeUuid,
     pub attachments: Vec<Uuid>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct CustomizationEntry {
     pub value_x: String,
@@ -90,17 +90,17 @@ pub struct CustomizationEntry {
     pub param_id: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CharacterSharedEquipment {
     pub list: Vec<CharacterEquipment>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CharacterLevelTables {
     pub list: Vec<LevelTable>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct LevelTable {
     pub table: Vec<LevelTableEntry>,
@@ -112,7 +112,7 @@ pub struct LevelTable {
     pub custom_attributes: HashMap<String, Value>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct LevelTableEntry {
     pub level: u32,
@@ -121,11 +121,12 @@ pub struct LevelTableEntry {
     pub custom_attributes: HashMap<String, Value>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CharacterEquipmentList {
     pub list: Vec<CharacterEquipment>,
 }
 
+#[derive(Debug)]
 pub struct MaybeUuid(Option<Uuid>);
 
 impl Serialize for MaybeUuid {
