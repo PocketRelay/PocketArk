@@ -103,7 +103,17 @@ pub async fn update_game_state(session: &mut SessionLink, req: UpdateStateReques
     let _ = game.send(UpdateStateMessage { state: req.state }).await;
 }
 
-pub async fn replay_game(session: &mut SessionLink, req: UpdateStateRequest) {
+pub struct ReplyGameRequest {
+    gid: u32,
+}
+impl Decodable for ReplyGameRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let gid = r.tag(b"GID")?;
+        Ok(Self { gid })
+    }
+}
+
+pub async fn replay_game(session: &mut SessionLink, req: ReplyGameRequest) {
     let services = App::services();
     let game = services
         .games
