@@ -41,6 +41,71 @@ impl Service for Game {
     }
 }
 
+#[derive(Message)]
+pub struct UpdateStateMessage {
+    pub state: u8,
+}
+
+impl Handler<UpdateStateMessage> for Game {
+    type Response = ();
+    fn handle(
+        &mut self,
+        msg: UpdateStateMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        self.state = msg.state;
+        self.notify_state();
+    }
+}
+
+#[derive(Message)]
+pub struct UpdatePlayerAttr {
+    attr: AttrMap,
+    pid: u32,
+}
+
+impl Handler<UpdatePlayerAttr> for Game {
+    type Response = ();
+    fn handle(
+        &mut self,
+        msg: UpdatePlayerAttr,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        self.notify_all(
+            4,
+            90,
+            NotifyPlayerAttr {
+                attr: msg.attr.clone(),
+                pid: msg.pid,
+                gid: self.id,
+            },
+        );
+
+        let player = self
+            .players
+            .iter_mut()
+            .find(|player| player.user.id == msg.pid);
+
+        if let Some(player) = player {
+            player.attr.extend(msg.attr);
+        }
+    }
+}
+
+pub struct NotifyPlayerAttr {
+    attr: AttrMap,
+    pid: u32,
+    gid: u32,
+}
+
+impl Encodable for NotifyPlayerAttr {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.tag_value(b"ATTR", &self.attr);
+        w.tag_u32(b"GID", self.gid);
+        w.tag_u32(b"PID", self.pid);
+    }
+}
+
 impl Game {
     pub fn new(id: u32) -> Link<Game> {
         let this = Self {
@@ -66,6 +131,39 @@ impl Game {
             players: Vec::with_capacity(4),
         };
         this.start()
+    }
+
+    /// Writes the provided packet to all connected sessions.
+    /// Does not wait for the write to complete just waits for
+    /// it to be placed into each sessions write buffers.
+    ///
+    /// `packet` The packet to write
+    fn push_all(&self, packet: &Packet) {
+        self.players
+            .iter()
+            .for_each(|value| value.link.push(packet.clone()));
+    }
+
+    /// Sends a notification packet to all the connected session
+    /// with the provided component and contents
+    ///
+    /// `component` The packet component
+    /// `contents`  The packet contents
+    fn notify_all<C: Encodable>(&self, component: u16, command: u16, contents: C) {
+        let packet = Packet::notify(component, command, contents);
+        self.push_all(&packet);
+    }
+
+    /// Notifies all players of the current game state
+    fn notify_state(&self) {
+        self.notify_all(
+            4,
+            100,
+            NotifyStateUpdate {
+                game_id: self.id,
+                state: self.state,
+            },
+        );
     }
 }
 
@@ -364,5 +462,17 @@ impl Encodable for PostJoinMsg {
         w.tag_u32(b"MSID", self.player_id);
         w.tag_u32(b"QSVR", 0);
         w.tag_u32(b"USID", self.player_id);
+    }
+}
+
+struct NotifyStateUpdate {
+    state: u8,
+    game_id: u32,
+}
+
+impl Encodable for NotifyStateUpdate {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.tag_u32(b"GID", self.game_id);
+        w.tag_u8(b"GSTA", self.state)
     }
 }
