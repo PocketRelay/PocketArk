@@ -1,14 +1,14 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
-use hyper::{header::CONTENT_TYPE, http::HeaderValue};
+use crate::http::models::telemetry::PinResponse;
+use axum::Json;
 
 /// POST /pinEvents
-pub async fn pin_events() -> Response {
-    let mut resp = include_str!("../../resources/defs/raw/Pin-1689040402347.json").into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Recieves telemetry messages from the client always responding
+/// with an ok status
+///
+/// TODO: Log / save the messages sent to this endpoint
+pub async fn pin_events() -> Json<PinResponse> {
+    Json(PinResponse {
+        status: "ok".to_string(),
+    })
 }

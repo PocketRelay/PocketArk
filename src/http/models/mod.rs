@@ -7,7 +7,9 @@ use serde::Serialize;
 
 pub mod auth;
 pub mod client;
+pub mod inventory;
 pub mod store;
+pub mod telemetry;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

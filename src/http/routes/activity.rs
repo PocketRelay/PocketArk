@@ -1,26 +1,26 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
-use hyper::{header::CONTENT_TYPE, http::HeaderValue};
+use crate::http::models::RawJson;
+
+/// Definition of different activities that can happen within a game.
+static ACTIVITY_REPORT_RESULT: &str =
+    include_str!("../../resources/data/activityReportResult.json");
 
 /// POST /activity
-pub async fn create_report() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Create_Activity_Report-1688700352069.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// This endpoint recieves requests whenever in game activities
+/// from the activity metadata definitions are completed. The request
+/// contains details about the activity
+pub async fn create_report() -> RawJson {
+    RawJson(ACTIVITY_REPORT_RESULT)
 }
 
-/// GET /activity/metadata
-pub async fn get_metadata() -> Response {
-    let mut resp = include_str!("../../resources/defs/raw/Get_Activity_Meta-1688700317788.json")
-        .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+/// Definition of different activities that can happen within a game.
+static ACTIVITY_METADATA_DEFINITION: &str =
+    include_str!("../../resources/data/activityMetadata.json");
 
-    resp
+/// GET /activity/metadata
+///
+/// Obtains the definitions of activities that can happen within a game.
+/// When these activities happen a report is posted to `create_report`
+pub async fn get_metadata() -> RawJson {
+    RawJson(ACTIVITY_METADATA_DEFINITION)
 }

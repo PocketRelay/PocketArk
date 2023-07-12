@@ -1,16 +1,11 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
-use hyper::{header::CONTENT_TYPE, http::HeaderValue};
+use crate::http::models::RawJson;
 
-static CONFIGURATION: &str = include_str!("../../resources/defs/min/configuration.json");
+/// Overall configuration for multiplayer
+static CONFIGURATION: &str = include_str!("../../resources/data/configuration.json");
 
 /// GET /configuration
-pub async fn get_configuration() -> Response {
-    let mut resp = CONFIGURATION.into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Obtains the configuration definition
+pub async fn get_configuration() -> RawJson {
+    RawJson(CONFIGURATION)
 }

@@ -4,17 +4,23 @@ use axum::{
 };
 use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
 
-use crate::http::models::store::{Currency, UserCurrenciesResponse};
+use crate::http::models::{
+    store::{Currency, UserCurrenciesResponse},
+    RawJson,
+};
+
+/// Definition file for the contents of the in-game store
+static STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
 
 /// GET /store/catalogs
-pub async fn get_catalogs() -> Response {
-    let mut resp = include_str!("../../resources/defs/raw/Get_Store_Catalog-1688700275563.json")
-        .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Obtains the definitions for the store catalogs. Responds with
+/// the store catalog definitions along with all the articles within
+/// each catalog
+pub async fn get_catalogs() -> RawJson {
+    RawJson(STORE_CATALOG_DEFINITION)
 }
+
 /// POST /store/article
 pub async fn obtain_article() -> Response {
     let mut resp =
@@ -53,7 +59,7 @@ pub async fn get_currencies() -> Json<UserCurrenciesResponse> {
             balance,
         },
         Currency {
-            name: "GrindCurrency".to_string(),
+            name: "MissionCurrency".to_string(),
             balance,
         },
     ];
