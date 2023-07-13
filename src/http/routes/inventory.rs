@@ -9,7 +9,7 @@ use serde_json::Map;
 use crate::{
     http::models::{
         inventory::{
-            InventoryConsumeRequest, InventoryConsumeResponse, InventoryDefinitions, InventoryItem,
+            ActivityResult, InventoryConsumeRequest, InventoryDefinitions, InventoryItem,
             InventoryResponse, InventorySeenList, ItemDefinition,
         },
         store::Currency,
@@ -73,7 +73,7 @@ pub async fn update_inventory_seen(Json(req): Json<InventorySeenList>) -> Respon
 /// within the game.
 pub async fn consume_inventory(
     Json(req): Json<InventoryConsumeRequest>,
-) -> Result<Json<InventoryConsumeResponse>, HttpError> {
+) -> Result<Json<ActivityResult>, HttpError> {
     debug!("Consume inventory items: {:?}", req);
 
     // Replace with actual database lookup
@@ -105,7 +105,7 @@ pub async fn consume_inventory(
         },
     ];
 
-    let resp = InventoryConsumeResponse {
+    let activity = ActivityResult {
         previous_xp: 0,
         xp: 0,
         xp_gained: 0,
@@ -125,5 +125,5 @@ pub async fn consume_inventory(
         prestige_progression_map: serde_json::Value::Object(Map::new()),
     };
 
-    Ok(Json(resp))
+    Ok(Json(activity))
 }

@@ -625,5 +625,27 @@
         "lastGrant": "2023-07-07T01:28:36.563+0000",
         "earndBy": "granted",
         "restricted": false
+    },
+    {
+        "itemId": "4453909b-105f-4fab-8cb3-5e1e383ec711",
+        "definitionName": "088efa63-ebdf-4fe5-a52c-0eefa0c92852",
+        "stackSize": 1,
+        "seen": false,
+        "instanceAttributes": {},
+        "created": "2023-07-07T01:28:36.563+0000",
+        "lastGrant": "2023-07-07T01:28:36.563+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "531dfd9c-edf7-4ca0-a3d7-e7eaab12d17f",
+        "definitionName": "00deb555-5cb5-4473-ac9a-22e9d1ac2328",
+        "stackSize": 1,
+        "seen": false,
+        "instanceAttributes": {},
+        "created": "2023-07-07T01:28:36.563+0000",
+        "lastGrant": "2023-07-07T01:28:36.563+0000",
+        "earndBy": "granted",
+        "restricted": false
     }
 ]

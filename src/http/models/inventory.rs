@@ -14,7 +14,6 @@ pub struct InventoryResponse {
 }
 
 #[derive(Debug, Serialize)]
-
 pub struct InventoryDefinitions {
     pub total_count: usize,
     pub list: Vec<&'static ItemDefinition>,
@@ -63,7 +62,7 @@ pub struct ItemDefinition {
     pub default_namespace: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InventoryItem {
     pub item_id: Uuid,
@@ -79,7 +78,7 @@ pub struct InventoryItem {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct InventoryConsumeResponse {
+pub struct ActivityResult {
     pub previous_xp: u32,
     pub xp: u32,
     pub xp_gained: u32,
@@ -94,7 +93,7 @@ pub struct InventoryConsumeResponse {
     pub currencies: Vec<Currency>,
     pub currency_earned: Vec<Currency>,
     pub items_earned: Vec<InventoryItem>,
-    pub item_definitions: Vec<ItemDefinition>,
+    pub item_definitions: Vec<&'static ItemDefinition>,
     pub entitlements_granted: Vec<Value>,
     pub prestige_progression_map: Value,
 }
