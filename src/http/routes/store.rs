@@ -100,7 +100,8 @@ pub async fn obtain_article(
         items_earned: items.clone(),
         item_definitions: definitions.clone(),
         entitlements_granted: vec![],
-        prestige_progression_map: serde_json::Value::Object(Map::new()),
+        prestige_progression_map: Map::new(),
+        character_class_name: None,
     };
 
     Json(ObtainStoreItemResponse {

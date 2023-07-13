@@ -124,7 +124,8 @@ pub async fn consume_inventory(
         items_earned: vec![],
         item_definitions: vec![],
         entitlements_granted: vec![],
-        prestige_progression_map: serde_json::Value::Object(Map::new()),
+        prestige_progression_map: Map::new(),
+        character_class_name: None,
     };
 
     Ok(Json(activity))
