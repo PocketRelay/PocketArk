@@ -13,7 +13,7 @@ use crate::{
         character::{
             Character, CharacterClasses, CharacterEquipment, CharacterEquipmentList,
             CharacterResponse, CharactersResponse, Class, MaybeUuid, SkillDefinition,
-            UnlockedCharacters, UpdateCustomizationRequest,
+            UnlockedCharacters, UpdateCustomizationRequest, UpdateSkillTreesRequest,
         },
         HttpError, RawJson,
     },
@@ -185,7 +185,10 @@ pub async fn get_character_equip_history(
 /// PUT /character/:id/skillTrees
 pub async fn update_skill_tree(
     Path(character_id): Path<Uuid>,
+    Json(req): Json<UpdateSkillTreesRequest>,
 ) -> Result<Json<Character>, HttpError> {
+    debug!("Req update skill tree: {} {:?}", character_id, req);
+
     let ls: CharactersResponse = serde_json::from_str(include_str!(
         "../../resources/data/placeholderCharacters.json"
     ))

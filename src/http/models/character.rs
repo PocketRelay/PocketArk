@@ -32,6 +32,12 @@ pub struct UpdateCustomizationRequest {
     pub customization: HashMap<String, Value>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateSkillTreesRequest {
+    pub skill_trees: Vec<SkillTreeEntry>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Character {
