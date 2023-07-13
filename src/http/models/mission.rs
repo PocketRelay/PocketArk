@@ -35,7 +35,7 @@ pub struct MissionPlayerData {
     pub activity_report: MissionActivityReport,
     pub stats: HashMap<String, Value>,
     pub present_at_end: bool,
-    pub waves_complete: u8,
+    pub waves_completed: u8,
     pub waves_in_match: u8,
 }
 

@@ -3907,13 +3907,13 @@
                         {
                             "tier": 3,
                             "skills": {
-                                "game/progression/singleplayer/skills/biotics/skill_throw3": 0
+                                "game/progression/singleplayer/skills/biotics/skill_throw3": 1
                             }
                         },
                         {
                             "tier": 4,
                             "skills": {
-                                "game/progression/singleplayer/skills/biotics/skill_throw4_damageforce": 0,
+                                "game/progression/singleplayer/skills/biotics/skill_throw4_damageforce": 1,
                                 "game/progression/singleplayer/skills/biotics/skill_throw4_radius": 0
                             }
                         },
@@ -3921,14 +3921,14 @@
                             "tier": 5,
                             "skills": {
                                 "game/progression/singleplayer/skills/biotics/skill_throw5_duration": 0,
-                                "game/progression/singleplayer/skills/biotics/skill_throw5_cooldown": 0
+                                "game/progression/singleplayer/skills/biotics/skill_throw5_cooldown": 1
                             }
                         },
                         {
                             "tier": 6,
                             "skills": {
                                 "game/progression/singleplayer/skills/biotics/skill_throw6_doublethrow": 0,
-                                "game/progression/singleplayer/skills/biotics/skill_throw6_detonating": 0
+                                "game/progression/singleplayer/skills/biotics/skill_throw6_detonating": 1
                             }
                         }
                     ],
@@ -3953,13 +3953,13 @@
                         {
                             "tier": 3,
                             "skills": {
-                                "game/progression/multiplayer/skills/powers/skill_stealthgrid3": 0
+                                "game/progression/multiplayer/skills/powers/skill_stealthgrid3": 1
                             }
                         },
                         {
                             "tier": 4,
                             "skills": {
-                                "game/progression/multiplayer/skills/powers/skill_stealthgrid4_powercells": 0,
+                                "game/progression/multiplayer/skills/powers/skill_stealthgrid4_powercells": 1,
                                 "game/progression/multiplayer/skills/powers/skill_stealthgrid4_radius": 0
                             }
                         },
@@ -3967,14 +3967,14 @@
                             "tier": 5,
                             "skills": {
                                 "game/progression/multiplayer/skills/powers/skill_stealthgrid5_duration": 0,
-                                "game/progression/multiplayer/skills/powers/skill_stealthgrid5_shieldgrid": 0
+                                "game/progression/multiplayer/skills/powers/skill_stealthgrid5_shieldgrid": 1
                             }
                         },
                         {
                             "tier": 6,
                             "skills": {
                                 "game/progression/multiplayer/skills/powers/skill_stealthgrid6_escapegrid": 0,
-                                "game/progression/multiplayer/skills/powers/skill_stealthgrid6_damagebonus": 0
+                                "game/progression/multiplayer/skills/powers/skill_stealthgrid6_damagebonus": 1
                             }
                         }
                     ],
@@ -3999,13 +3999,13 @@
                         {
                             "tier": 3,
                             "skills": {
-                                "game/progression/singleplayer/skills/biotics/skill_lance3": 0
+                                "game/progression/singleplayer/skills/biotics/skill_lance3": 1
                             }
                         },
                         {
                             "tier": 4,
                             "skills": {
-                                "game/progression/singleplayer/skills/biotics/skill_lance4_damageforce": 0,
+                                "game/progression/singleplayer/skills/biotics/skill_lance4_damageforce": 1,
                                 "game/progression/singleplayer/skills/biotics/skill_lance4_radius": 0
                             }
                         },
@@ -4013,13 +4013,13 @@
                             "tier": 5,
                             "skills": {
                                 "game/progression/singleplayer/skills/biotics/skill_lance5_focusedblast": 0,
-                                "game/progression/singleplayer/skills/biotics/skill_lance5_antishield": 0
+                                "game/progression/singleplayer/skills/biotics/skill_lance5_antishield": 1
                             }
                         },
                         {
                             "tier": 6,
                             "skills": {
-                                "game/progression/singleplayer/skills/biotics/skill_lance6_knockdown": 0,
+                                "game/progression/singleplayer/skills/biotics/skill_lance6_knockdown": 1,
                                 "game/progression/singleplayer/skills/biotics/skill_lance6_shieldpowered": 0
                             }
                         }
@@ -4045,27 +4045,27 @@
                         {
                             "tier": 3,
                             "skills": {
-                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics3_melee_mp": 0
+                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics3_melee_mp": 1
                             }
                         },
                         {
                             "tier": 4,
                             "skills": {
                                 "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics4_powerenhancement_mp": 0,
-                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics4_cooldowns_mp": 0
+                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics4_cooldowns_mp": 1
                             }
                         },
                         {
                             "tier": 5,
                             "skills": {
-                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics5_weapons&melee_mp": 0,
+                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics5_weapons&melee_mp": 1,
                                 "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics5_detonation_mp": 0
                             }
                         },
                         {
                             "tier": 6,
                             "skills": {
-                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics6_bioticexpert_mp": 0,
+                                "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics6_bioticexpert_mp": 1,
                                 "game/progression/multiplayer/skills/offensive/offensivebiotics/skill_offensivebiotics6_bioticwarrior_mp": 0
                             }
                         }
@@ -4091,20 +4091,20 @@
                         {
                             "tier": 3,
                             "skills": {
-                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier3_mp": 0
+                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier3_mp": 1
                             }
                         },
                         {
                             "tier": 4,
                             "skills": {
                                 "game/progression/multiplayer/skills/defensive/barrier/skill_barrier4_unyielding_mp": 0,
-                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier4_recuperative_mp": 0
+                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier4_recuperative_mp": 1
                             }
                         },
                         {
                             "tier": 5,
                             "skills": {
-                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier5_bioticalacrity_huntress_mp": 0,
+                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier5_bioticalacrity_huntress_mp": 1,
                                 "game/progression/multiplayer/skills/defensive/barrier/skill_barrier5_barrierdrain_mp": 0
                             }
                         },
@@ -4112,7 +4112,7 @@
                             "tier": 6,
                             "skills": {
                                 "game/progression/multiplayer/skills/defensive/barrier/skill_barrier6_activebarrier_mp": 0,
-                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier6_savingbarrier_mp": 0
+                                "game/progression/multiplayer/skills/defensive/barrier/skill_barrier6_savingbarrier_mp": 1
                             }
                         }
                     ],
