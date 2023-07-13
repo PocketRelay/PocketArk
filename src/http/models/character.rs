@@ -127,7 +127,7 @@ pub struct CharacterEquipmentList {
 }
 
 #[derive(Debug)]
-pub struct MaybeUuid(Option<Uuid>);
+pub struct MaybeUuid(pub Option<Uuid>);
 
 impl Serialize for MaybeUuid {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
