@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
+use super::store::Currency;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use serde_with::skip_serializing_none;
 use uuid::Uuid;
-
-use super::store::Currency;
 
 #[derive(Debug, Serialize)]
 pub struct InventoryResponse {
@@ -39,30 +39,26 @@ pub struct ConsumeTarget {
     pub target_id: String,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ItemDefinition {
     pub name: String,
     pub i18n_name: String,
-    pub i18n_description: String,
-    pub loc_name: String,
-    pub loc_description: String,
+    pub i18n_description: Option<String>,
+    pub loc_name: Option<String>,
+    pub loc_description: Option<String>,
     pub custom_attributes: HashMap<String, Value>,
+    #[serialize_always]
     pub secret: Option<Value>,
     pub category: String,
     pub attachable_categories: Vec<String>,
-    pub rarity: String,
-    #[serde(default)]
+    pub rarity: Option<String>,
     pub droppable: Option<bool>,
-    #[serde(default)]
     pub cap: Option<u32>,
-    #[serde(default)]
     pub on_consume: Option<Vec<Value>>,
-    #[serde(default)]
     pub on_add: Option<Vec<Value>>,
-    #[serde(default)]
     pub on_remove: Option<Vec<Value>>,
-    #[serde(default)]
     pub restrictions: Option<String>,
     pub default_namespace: String,
 }
