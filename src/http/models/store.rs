@@ -40,5 +40,5 @@ pub struct ClaimUncalimedResponse {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateSeenArticles {
-    pub list: Vec<Uuid>,
+    pub article_names: Vec<Uuid>,
 }

@@ -74,7 +74,7 @@ pub fn router() -> Router {
             Router::new()
                 .route("/catalogs", get(store::get_catalogs))
                 .route("/article", post(store::obtain_article))
-                .route("/article/seen", post(store::update_seen_articles))
+                .route("/article/seen", put(store::update_seen_articles))
                 .route("/unclaimed/claimAll", post(store::claim_unclaimed)),
         )
         .nest(
