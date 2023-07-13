@@ -7,6 +7,19 @@ use uuid::Uuid;
 
 use super::store::Currency;
 
+#[derive(Debug, Serialize)]
+pub struct InventoryResponse {
+    pub items: Vec<InventoryItem>,
+    pub definitions: Vec<&'static InventoryItemDefinition>,
+}
+
+#[derive(Debug, Serialize)]
+
+pub struct InventoryDefinitions {
+    pub total_count: usize,
+    pub list: Vec<&'static InventoryItemDefinition>,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct InventorySeenList {
     pub list: Vec<Uuid>,
@@ -26,22 +39,23 @@ pub struct ConsumeTarget {
     pub target_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct InventoryItemDefinition {
-    pub name: Uuid,
+    pub name: String,
     pub i18n_name: String,
     pub i18n_description: String,
     pub loc_name: String,
     pub loc_description: String,
     pub custom_attributes: HashMap<String, Value>,
-    #[serde(default)]
     pub secret: Option<Value>,
     pub category: String,
     pub attachable_categories: Vec<String>,
     pub rarity: String,
-    pub droppable: bool,
-    pub cap: u32,
+    #[serde(default)]
+    pub droppable: Option<bool>,
+    #[serde(default)]
+    pub cap: Option<u32>,
     #[serde(default)]
     pub on_consume: Option<Vec<Value>>,
     #[serde(default)]
@@ -57,7 +71,7 @@ pub struct InventoryItemDefinition {
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct InventoryItem {
     pub item_id: Uuid,
-    pub definition_name: Uuid,
+    pub definition_name: String,
     pub stack_size: u32,
     pub seen: bool,
     pub instance_attributes: Vec<Value>,

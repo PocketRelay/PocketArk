@@ -2,36 +2,58 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
+use hyper::StatusCode;
 use log::debug;
 use serde_json::Map;
 
-use crate::http::models::{
-    inventory::{InventoryConsumeResponse, InventorySeenList},
-    store::Currency,
-    HttpError, RawJson,
+use crate::{
+    http::models::{
+        inventory::{
+            InventoryConsumeRequest, InventoryConsumeResponse, InventoryDefinitions, InventoryItem,
+            InventoryItemDefinition, InventoryResponse, InventorySeenList,
+        },
+        store::Currency,
+        HttpError,
+    },
+    state::App,
 };
 
+static PLACEHOLDER_INVENTORY: &str = include_str!("../../resources/data/placeholderInventory.json");
+
 /// GET /inventory
-pub async fn get_inventory() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Get_Inventory_With_Definitions-1688700307239.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+///
+/// Responds with a list of all the players inventory items along
+/// with the definitions for the items
+pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
+    let services = App::services();
+    let items: Vec<InventoryItem> =
+        serde_json::from_str(PLACEHOLDER_INVENTORY).map_err(|e| HttpError {
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+            reason: "Failed to load placeholder items".to_string(),
+            cause: None,
+            stack_trace: None,
+            trace_id: None,
+        })?;
+    let definitions: Vec<&'static InventoryItemDefinition> = items
+        .iter()
+        .filter_map(|item| services.defs.inventory.get(&item.definition_name))
+        .collect();
 
-    resp
+    Ok(Json(InventoryResponse { items, definitions }))
 }
-
-/// Definitions for all the items
-static INVENTORY_DEFINITIONS: &str = include_str!("../../resources/data/inventoryDefinitions.json");
 
 /// GET /inventory/definitions
 ///
 /// Obtains the definitions for all the inventory items this includes things
 /// like lootboxes, characters, weapons, etc.
-pub async fn get_definitions() -> RawJson {
-    RawJson(INVENTORY_DEFINITIONS)
+pub async fn get_definitions() -> Json<InventoryDefinitions> {
+    let services = App::services();
+    let list: Vec<&'static InventoryItemDefinition> = services.defs.inventory.values().collect();
+
+    Json(InventoryDefinitions {
+        total_count: list.len(),
+        list,
+    })
 }
 
 /// PUT /inventory/seen
@@ -48,7 +70,11 @@ pub async fn update_inventory_seen(Json(req): Json<InventorySeenList>) -> Respon
 /// Consumes an item from the inventory providing details about the changes to
 /// the inventory. Used when lootboxes are opened and when consumables are used
 /// within the game.
-pub async fn consume_inventory() -> Result<Json<InventoryConsumeResponse>, HttpError> {
+pub async fn consume_inventory(
+    Json(req): Json<InventoryConsumeRequest>,
+) -> Result<Json<InventoryConsumeResponse>, HttpError> {
+    debug!("Consume inventory items: {:?}", req);
+
     // Replace with actual database lookup
     let exists: bool = true;
 

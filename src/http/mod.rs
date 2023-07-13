@@ -15,7 +15,7 @@ use openssl::{
 use crate::utils::constants::SERVER_PORT;
 
 pub mod middleware;
-mod models;
+pub mod models;
 mod routes;
 
 const CERTIFICATE: &[u8] = include_bytes!("../resources/identity/cert.der");

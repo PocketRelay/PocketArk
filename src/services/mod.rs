@@ -1,17 +1,19 @@
 use interlink::prelude::Link;
 
-use self::game::manager::GameManager;
+use self::{defs::Definitions, game::manager::GameManager};
 
+pub mod defs;
 pub mod game;
 
 pub struct Services {
     pub games: Link<GameManager>,
+    pub defs: Definitions,
 }
 
 impl Services {
     pub async fn init() -> Self {
         let games = GameManager::start();
-
-        Self { games }
+        let defs = Definitions::load().await;
+        Self { games, defs }
     }
 }
