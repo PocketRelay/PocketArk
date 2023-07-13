@@ -137,6 +137,7 @@ pub fn router() -> Router {
                 .route("/", get(leaderboard::get_leaderboards))
                 .route("/:id", get(leaderboard::get_leaderboard)),
         )
+        .route("/wv/playthrough/0", put(activity::update_playthrough))
         .layer(TraceLayer::new_for_http())
 }
 

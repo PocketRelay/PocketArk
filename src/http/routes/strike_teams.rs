@@ -43,3 +43,6 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
     static DEFS: &str = include_str!("../../resources/data/placeholderStMissionResolve.json");
     RawJson(DEFS)
 }
+
+/// POST /striketeams/purchase?currency=MissionCurrency
+pub async fn purchase() {}

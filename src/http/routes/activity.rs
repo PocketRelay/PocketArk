@@ -1,3 +1,7 @@
+use axum::Json;
+use log::debug;
+use serde_json::Value;
+
 use crate::http::models::RawJson;
 
 /// Definition of different activities that can happen within a game.
@@ -23,4 +27,12 @@ static ACTIVITY_METADATA_DEFINITION: &str =
 /// When these activities happen a report is posted to `create_report`
 pub async fn get_metadata() -> RawJson {
     RawJson(ACTIVITY_METADATA_DEFINITION)
+}
+
+/// PUT /wv/playthrough/0
+///
+/// Server recieves updates about the players
+/// singleplayer playthrough choices
+pub async fn update_playthrough(Json(req): Json<Value>) {
+    debug!("Update playthrough {:?}", req);
 }
