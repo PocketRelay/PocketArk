@@ -49,7 +49,6 @@ pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
     let list: Vec<&'static ItemDefinition> = services.defs.inventory.values().collect();
-
     Json(InventoryDefinitions {
         total_count: list.len(),
         list,

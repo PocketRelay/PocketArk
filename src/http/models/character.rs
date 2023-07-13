@@ -7,7 +7,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct CharactersResponse {
     pub active_character_id: Uuid,
     pub list: Vec<Character>,
@@ -17,7 +17,7 @@ pub struct CharactersResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct SharedProgression {
     pub name: Uuid,
     pub i18n_name: String,
@@ -27,7 +27,7 @@ pub struct SharedProgression {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct Character {
     pub character_id: Uuid,
     pub sku: Sku,
@@ -79,7 +79,7 @@ pub struct CharacterEquipment {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct CustomizationEntry {
     pub value_x: String,
     pub value_y: String,
@@ -101,7 +101,7 @@ pub struct CharacterLevelTables {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct LevelTable {
     pub table: Vec<LevelTableEntry>,
     pub name: Uuid,
@@ -113,7 +113,7 @@ pub struct LevelTable {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct LevelTableEntry {
     pub level: u32,
     pub xp: u32,

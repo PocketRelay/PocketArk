@@ -8,7 +8,7 @@ use uuid::Uuid;
 use super::{auth::Sku, store::Currency};
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct FinishMissionRequest {
     pub duration_sec: u64,
     pub percent_complete: u8,
@@ -26,7 +26,7 @@ pub struct MissionModifier {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct MissionPlayerData {
     pub persona_id: u32,
     pub nucleus_id: u32,
@@ -58,13 +58,13 @@ pub struct StartMissionRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct StartMissionResponse {
     pub match_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct MissionDetails {
     pub sku: Sku,
     pub name: String, // is just match ID
@@ -83,7 +83,7 @@ pub struct MissionDetails {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct MissionPlayerInfo {
     pub activities_processed: bool,
     pub bonuses: Vec<Value>,
@@ -103,7 +103,7 @@ pub struct MissionPlayerInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct PlayerInfoBadge {
     pub count: u32,
     pub level_name: String,
@@ -112,7 +112,7 @@ pub struct PlayerInfoBadge {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct PlayerInfoResult {
     pub challenges_updated: HashMap<String, ChallengeUpdate>,
     pub items_earned: Vec<Value>,
@@ -131,7 +131,7 @@ pub struct PlayerInfoResult {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct ChallengeUpdate {
     pub challenge_id: Uuid,
     pub counters: Vec<Value>,
@@ -139,7 +139,7 @@ pub struct ChallengeUpdate {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct RewardSource {
     pub name: String,
     pub xp: u32,
@@ -147,14 +147,14 @@ pub struct RewardSource {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct PrestigeProgression {
     pub before: HashMap<Uuid, PrestigeData>,
     pub after: HashMap<Uuid, PrestigeData>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct PrestigeData {
     pub name: Uuid,
     pub level: u32,

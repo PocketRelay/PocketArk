@@ -26,21 +26,21 @@ pub struct InventorySeenList {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct InventoryConsumeRequest {
     pub items: Vec<ConsumeTarget>,
     pub namespace: String,
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct ConsumeTarget {
     pub item_id: Uuid,
     pub target_id: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct ItemDefinition {
     pub name: String,
     pub i18n_name: String,
@@ -68,7 +68,7 @@ pub struct ItemDefinition {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct InventoryItem {
     pub item_id: Uuid,
     pub definition_name: String,
@@ -82,7 +82,7 @@ pub struct InventoryItem {
 }
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all(serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct InventoryConsumeResponse {
     pub previous_xp: u32,
     pub xp: u32,
