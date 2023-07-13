@@ -118,6 +118,14 @@ pub async fn update_character_equip(
     StatusCode::NO_CONTENT
 }
 
+/// PUT /character/equipment/shared
+///
+/// Updates share character equipment
+pub async fn update_shared_equip(Json(req): Json<CharacterEquipmentList>) -> StatusCode {
+    debug!("Update shared equipment: {:?}", req);
+    StatusCode::NO_CONTENT
+}
+
 /// PUT /character/:id/customization
 ///
 /// Updates the customization settings for a character

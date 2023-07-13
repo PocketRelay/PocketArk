@@ -64,6 +64,7 @@ pub fn router() -> Router {
                         )
                         .route("/skillTrees", put(character::update_skill_tree)),
                 )
+                .route("/equipment/shared", put(character::update_shared_equip))
                 .route("/unlocked", post(character::character_unlocked))
                 .route("/classes", get(character::get_classes))
                 .route("/levelTables", get(character::get_level_tables)),

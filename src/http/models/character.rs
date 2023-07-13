@@ -29,7 +29,7 @@ pub struct SharedProgression {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateCustomizationRequest {
-    pub customization: HashMap<String, CustomizationEntry>,
+    pub customization: HashMap<String, Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

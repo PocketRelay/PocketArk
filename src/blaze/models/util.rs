@@ -20,7 +20,7 @@ impl Encodable for PreAuthResponse {
         let secure = &matches!(self.target.scheme, BlazeScheme::Https).to_string();
 
         let host_alt = format!(
-            "{}{}:{}",
+            "{}{}:{}/",
             self.target.scheme.value(),
             self.target.host,
             self.target.port
