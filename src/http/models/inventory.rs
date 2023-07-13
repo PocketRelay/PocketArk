@@ -10,14 +10,14 @@ use super::store::Currency;
 #[derive(Debug, Serialize)]
 pub struct InventoryResponse {
     pub items: Vec<InventoryItem>,
-    pub definitions: Vec<&'static InventoryItemDefinition>,
+    pub definitions: Vec<&'static ItemDefinition>,
 }
 
 #[derive(Debug, Serialize)]
 
 pub struct InventoryDefinitions {
     pub total_count: usize,
-    pub list: Vec<&'static InventoryItemDefinition>,
+    pub list: Vec<&'static ItemDefinition>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -41,7 +41,7 @@ pub struct ConsumeTarget {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
-pub struct InventoryItemDefinition {
+pub struct ItemDefinition {
     pub name: String,
     pub i18n_name: String,
     pub i18n_description: String,
@@ -98,7 +98,7 @@ pub struct InventoryConsumeResponse {
     pub currencies: Vec<Currency>,
     pub currency_earned: Vec<Currency>,
     pub items_earned: Vec<InventoryItem>,
-    pub item_definitions: Vec<InventoryItemDefinition>,
+    pub item_definitions: Vec<ItemDefinition>,
     pub entitlements_granted: Vec<Value>,
     pub prestige_progression_map: Value,
 }

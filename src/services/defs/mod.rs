@@ -1,6 +1,6 @@
 use std::{collections::HashMap, process::exit};
 
-use crate::http::models::inventory::InventoryItemDefinition;
+use crate::http::models::inventory::ItemDefinition;
 use log::{debug, error};
 
 /// Definitions for all the items
@@ -8,13 +8,13 @@ pub static INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
 
 pub struct Definitions {
-    pub inventory: HashMap<String, InventoryItemDefinition>,
+    pub inventory: HashMap<String, ItemDefinition>,
 }
 
 impl Definitions {
     pub async fn load() -> Self {
         debug!("Loading definitions");
-        let data: Vec<InventoryItemDefinition> = match serde_json::from_str(INVENTORY_DEFINITIONS) {
+        let data: Vec<ItemDefinition> = match serde_json::from_str(INVENTORY_DEFINITIONS) {
             Ok(value) => value,
             Err(err) => {
                 error!("Failed to load inventory definitions: {}", err);
@@ -24,7 +24,7 @@ impl Definitions {
 
         debug!("Loaded {} inventory item definition(s)", data.len());
 
-        let inventory: HashMap<String, InventoryItemDefinition> = data
+        let inventory: HashMap<String, ItemDefinition> = data
             .into_iter()
             .map(|value| (value.name.clone(), value))
             .collect();

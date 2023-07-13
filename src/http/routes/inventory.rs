@@ -10,7 +10,7 @@ use crate::{
     http::models::{
         inventory::{
             InventoryConsumeRequest, InventoryConsumeResponse, InventoryDefinitions, InventoryItem,
-            InventoryItemDefinition, InventoryResponse, InventorySeenList,
+            InventoryResponse, InventorySeenList, ItemDefinition,
         },
         store::Currency,
         HttpError,
@@ -34,7 +34,7 @@ pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
             stack_trace: None,
             trace_id: None,
         })?;
-    let definitions: Vec<&'static InventoryItemDefinition> = items
+    let definitions: Vec<&'static ItemDefinition> = items
         .iter()
         .filter_map(|item| services.defs.inventory.get(&item.definition_name))
         .collect();
@@ -48,7 +48,7 @@ pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
-    let list: Vec<&'static InventoryItemDefinition> = services.defs.inventory.values().collect();
+    let list: Vec<&'static ItemDefinition> = services.defs.inventory.values().collect();
 
     Json(InventoryDefinitions {
         total_count: list.len(),
