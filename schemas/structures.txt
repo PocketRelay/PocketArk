@@ -1,19 +1,38 @@
-Players:
-    Id: u64
-    OriginId: u64,
-    Name: String,
-    MtxCurrency: u64
-    GrindCurrency: u64
-    MissionCurrency: u64
+# Users
+Users:
+    id: u64
+    username: String,
+    password: String
 
+# Currenies associated with users
+Currency:
+    id: u64
+    user_id: u64  # Relation to user
+    name: String
+    balance: u32
+
+# Item within an inventory
 InventoryItem:
-    PlayerId: u64
-    ItemId: UUID
-    DefinitionName: UUID
-    StackSize: u16
-    Seen: bool
-    InstanceAttributes: map of string -> string maybe?
-    Created: Date
-    LastGrant: Date
-    EarnedBy: String
-    Restricted: bool
+    id: UUID
+    user_id: u64  # Relation to user
+    definition_name: UUID
+    stack_size: u16
+    seen: bool
+    instance_attributes: json map of string to value
+    created: Date
+    last_grant: Date
+    earned_by: String
+    restricted: bool
+
+SeenArticles:
+    id: UUID
+    user_id: u64  # Relation to user
+
+Character:
+    id: UUID
+    user_id: u64  # Relation to user
+
+    class_name: UUID
+    name: UUID
+    level: u32
+    xp: JSON

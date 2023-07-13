@@ -1,3 +1,4 @@
+use sea_orm::DatabaseConnection;
 use tokio::join;
 
 use crate::{
@@ -14,7 +15,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub struct App {
     /// Global session router
     pub router: Router<SessionLink>,
-
+    pub database: DatabaseConnection,
     pub services: Services,
 }
 
@@ -26,9 +27,14 @@ impl App {
         // Initialize session router
         let router = blaze::routes::router();
         let services = Services::init().await;
+        let database = crate::database::init().await;
 
         unsafe {
-            GLOBAL_STATE = Some(App { router, services });
+            GLOBAL_STATE = Some(App {
+                router,
+                services,
+                database,
+            });
         }
     }
 
@@ -43,6 +49,12 @@ impl App {
     pub fn services() -> &'static Services {
         match unsafe { &GLOBAL_STATE } {
             Some(value) => &value.services,
+            None => panic!("Global state not initialized"),
+        }
+    }
+    pub fn database() -> &'static DatabaseConnection {
+        match unsafe { &GLOBAL_STATE } {
+            Some(value) => &value.database,
             None => panic!("Global state not initialized"),
         }
     }

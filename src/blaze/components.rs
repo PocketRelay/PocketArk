@@ -7,6 +7,12 @@ pub mod authentication {
 
 pub mod game_manager {
     pub const COMPONENT: u16 = 4;
+
+    pub const UPDATE_GAME_STATE: u16 = 3;
+    pub const UPDATE_PLAYER_ATTR: u16 = 8;
+    pub const START_MATCHMAKING: u16 = 16;
+    pub const REPLY_GAME: u16 = 19;
+    pub const UPDATE_GAME_ATTR: u16 = 80;
 }
 pub mod util {
     pub const COMPONENT: u16 = 9;

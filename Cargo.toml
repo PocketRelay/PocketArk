@@ -39,7 +39,23 @@ jsonwebtoken = "8.3.0"
 interlink = "0.1"
 serde_with = "3.0.0"
 
+# Password hashing
+argon2 = { version = "0.5", features = ["std"] }
+
+
 [dependencies.log4rs]
 version = "1.2.0"
 default-features = false
 features = ["console_appender", "file_appender"]
+
+# SeaORM 
+[dependencies.sea-orm]
+version = "^0"
+default-features = false
+features = ["runtime-tokio-rustls", "macros", "with-chrono", "sqlx-sqlite"]
+
+# SeaORM Migration 
+[dependencies.sea-orm-migration]
+version = "^0"
+default-features = false
+features = ["runtime-tokio-rustls", "sqlx-sqlite"]

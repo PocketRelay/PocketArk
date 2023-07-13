@@ -4,6 +4,7 @@ use tokio::{select, signal};
 use crate::state::App;
 
 mod blaze;
+mod database;
 mod http;
 mod services;
 mod utils;

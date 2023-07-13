@@ -1,3 +1,5 @@
+use std::future::ready;
+
 use super::{components, session::SessionLink};
 use crate::blaze::pk::router::Router;
 
@@ -42,7 +44,6 @@ pub fn router() -> Router<SessionLink> {
         ),
         util::fetch_client_config,
     );
-    router.route((0, 0), keep_alive);
 
     router.route(
         (
@@ -59,19 +60,43 @@ pub fn router() -> Router<SessionLink> {
         user_sessions::update_hardware_flags,
     );
 
-    router.route((4, 16), game_manager::create_game);
-    router.route((4, 8), game_manager::update_player_attr);
-    router.route((4, 3), game_manager::update_game_state);
-    router.route((4, 80), game_manager::update_game_attr);
-    router.route((4, 19), game_manager::replay_game);
+    router.route(
+        (
+            components::game_manager::COMPONENT,
+            components::game_manager::START_MATCHMAKING,
+        ),
+        game_manager::create_game,
+    );
+    router.route(
+        (
+            components::game_manager::COMPONENT,
+            components::game_manager::UPDATE_PLAYER_ATTR,
+        ),
+        game_manager::update_player_attr,
+    );
+    router.route(
+        (
+            components::game_manager::COMPONENT,
+            components::game_manager::UPDATE_GAME_STATE,
+        ),
+        game_manager::update_game_state,
+    );
+    router.route(
+        (
+            components::game_manager::COMPONENT,
+            components::game_manager::UPDATE_GAME_ATTR,
+        ),
+        game_manager::update_game_attr,
+    );
+    router.route(
+        (
+            components::game_manager::COMPONENT,
+            components::game_manager::REPLY_GAME,
+        ),
+        game_manager::replay_game,
+    );
+
+    router.route((0, 0), move |_: &'_ mut SessionLink| ready(()));
 
     router
-}
-
-async fn keep_alive(_state: &mut SessionLink) {}
-
-#[test]
-fn test() {
-    let s = "\x17CON".as_bytes();
-    println!("{}", s[0])
 }
