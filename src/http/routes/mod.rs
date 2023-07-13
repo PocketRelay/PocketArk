@@ -50,7 +50,7 @@ pub fn router() -> Router {
                         .route("/active", post(character::set_active))
                         .route(
                             "/customization",
-                            post(character::update_character_customization),
+                            put(character::update_character_customization),
                         )
                         .nest(
                             "/equipment",
