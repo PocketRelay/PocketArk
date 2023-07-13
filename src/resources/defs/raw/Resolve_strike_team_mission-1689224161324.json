@@ -1,0 +1,54 @@
+{
+	"team": {
+		"id": "07f353b2-3f13-419c-aa52-53f287e3f057",
+		"name": "Romeo",
+		"icon": {
+			"name": "icon3",
+			"image": "Team03"
+		},
+		"level": 2,
+		"xp": {
+			"current": 11700,
+			"last": 6400,
+			"next": 15400
+		},
+		"positiveTraits": [
+			{
+				"name": "Outlaw Specialist",
+				"i18nName": "211953",
+				"locName": "Outlaw Specialist",
+				"i18nDescription": "216464",
+				"locDescription": "+10 to Effectiveness against outlaws",
+				"tag": "outlaw",
+				"effectiveness": 10
+			}
+		],
+		"negativeTraits": [],
+		"outOfDate": false
+	},
+	"missionSuccessful": true,
+	"traitsAcquired": [],
+	"activityResponse": {
+		"previousXp": 0,
+		"xp": 11700,
+		"xpGained": 11700,
+		"previousLevel": 1,
+		"level": 2,
+		"levelUp": true,
+		"characterClassName": "370d4d91-4a2b-b107-127b-45df970a7012",
+		"challengesUpdatedCount": 0,
+		"challengesCompletedCount": 0,
+		"challengesUpdated": [],
+		"updatedChallengeIds": [],
+		"newsTriggered": 0,
+		"currencies": [],
+		"currencyEarned": [],
+		"itemsEarned": [],
+		"itemDefinitions": [],
+		"entitlementsGranted": [],
+		"prestigeProgressionMap": {
+			"before": {},
+			"after": {}
+		}
+	}
+}

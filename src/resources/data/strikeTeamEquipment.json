@@ -1,0 +1,545 @@
+{
+    "totalCount": 30,
+    "list": [
+        {
+            "name": "Adrenaline_Shots",
+            "i18nName": "153371",
+            "locName": "Adrenaline Shots",
+            "i18nDescription": "217979",
+            "locDescription": "+2 to Effectiveness",
+            "levelRequired": 1,
+            "effectiveness": 2,
+            "costByCurrency": {
+                "MissionCurrency": 25
+            },
+            "customAttributes": {
+                "Icon": "AdrenalineShots",
+                "SmallIcon": "AdrenalineShots"
+            }
+        },
+        {
+            "name": "Crate_of_Specialized_Ammo",
+            "i18nName": "153372",
+            "locName": "Crate of Specialized Ammo",
+            "i18nDescription": "217983",
+            "locDescription": "+4 to Effectiveness",
+            "levelRequired": 2,
+            "effectiveness": 4,
+            "costByCurrency": {
+                "MissionCurrency": 50
+            },
+            "customAttributes": {
+                "Icon": "CrateSpecAmmo",
+                "SmallIcon": "CrateSpecAmmo"
+            }
+        },
+        {
+            "name": "Weapon_Rail_Amps",
+            "i18nName": "153382",
+            "locName": "Weapon Rail Amps",
+            "i18nDescription": "217986",
+            "locDescription": "+6 to Effectiveness",
+            "levelRequired": 3,
+            "effectiveness": 6,
+            "costByCurrency": {
+                "MissionCurrency": 75
+            },
+            "customAttributes": {
+                "Icon": "WeaponRailAmps",
+                "SmallIcon": "WeaponRailAmps"
+            }
+        },
+        {
+            "name": "Amplifier_Modules",
+            "i18nName": "153393",
+            "locName": "Amplifier Modules",
+            "i18nDescription": "217975",
+            "locDescription": "+8 to Effectiveness",
+            "levelRequired": 4,
+            "effectiveness": 8,
+            "costByCurrency": {
+                "MissionCurrency": 100
+            },
+            "customAttributes": {
+                "Icon": "AmplifierModules",
+                "SmallIcon": "AmplifierModules"
+            }
+        },
+        {
+            "name": "N7_Armor",
+            "i18nName": "153397",
+            "locName": "N7 Armor",
+            "i18nDescription": "217981",
+            "locDescription": "+10 to Effectiveness",
+            "levelRequired": 5,
+            "effectiveness": 10,
+            "costByCurrency": {
+                "MissionCurrency": 125
+            },
+            "customAttributes": {
+                "Icon": "N7Armor",
+                "SmallIcon": "N7Armor"
+            }
+        },
+        {
+            "name": "Recovered_Remnant_Tech",
+            "i18nName": "153383",
+            "locName": "Recovered Remnant Tech",
+            "i18nDescription": "217984",
+            "locDescription": "+12 to Effectiveness",
+            "levelRequired": 6,
+            "effectiveness": 12,
+            "costByCurrency": {
+                "MissionCurrency": 150
+            },
+            "customAttributes": {
+                "Icon": "RecoveredRemnantTech",
+                "SmallIcon": "RecoveredRemnantTech"
+            }
+        },
+        {
+            "name": "Black_Widows",
+            "i18nName": "153396",
+            "locName": "Black Widows",
+            "i18nDescription": "217977",
+            "locDescription": "+18 to Effectiveness",
+            "levelRequired": 9,
+            "effectiveness": 18,
+            "costByCurrency": {
+                "MissionCurrency": 225
+            },
+            "customAttributes": {
+                "Icon": "BlackWidows",
+                "SmallIcon": "BlackWidows"
+            }
+        },
+        {
+            "name": "Exceptional_HUMINT",
+            "i18nName": "153389",
+            "locName": "Exceptional Human Intelligence",
+            "i18nDescription": "217988",
+            "locDescription": "+20 to Effectiveness",
+            "levelRequired": 10,
+            "effectiveness": 20,
+            "costByCurrency": {
+                "MissionCurrency": 250
+            },
+            "customAttributes": {
+                "Icon": "ExceptionalHumanInt",
+                "SmallIcon": "ExceptionalHumanInt"
+            }
+        },
+        {
+            "name": "Night_Vision_I",
+            "i18nName": "153373",
+            "locName": "Night Vision I",
+            "i18nDescription": "217982",
+            "locDescription": "+10 to Effectiveness during Nighttime Missions",
+            "levelRequired": 5,
+            "effectiveness": 10,
+            "tags": [
+                "dark"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 50
+            },
+            "customAttributes": {
+                "Icon": "NightVision_I",
+                "SmallIcon": "NightVision_I"
+            }
+        },
+        {
+            "name": "Night_Vision_II",
+            "i18nName": "153374",
+            "locName": "Night Vision II",
+            "i18nDescription": "218000",
+            "locDescription": "+20 to Effectiveness during Nighttime Missions",
+            "levelRequired": 5,
+            "effectiveness": 20,
+            "tags": [
+                "dark"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 75
+            },
+            "customAttributes": {
+                "Icon": "NightVision_II",
+                "SmallIcon": "NightVision_II"
+            }
+        },
+        {
+            "name": "Night_Vision_III",
+            "i18nName": "153378",
+            "locName": "Night Vision III",
+            "i18nDescription": "217998",
+            "locDescription": "+30 to Effectiveness during Nighttime Missions",
+            "levelRequired": 10,
+            "effectiveness": 30,
+            "tags": [
+                "dark"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 100
+            },
+            "customAttributes": {
+                "Icon": "NightVision_III",
+                "SmallIcon": "NightVision_III"
+            }
+        },
+        {
+            "name": "Night_Vision_IV",
+            "i18nName": "153399",
+            "locName": "Night Vision IV",
+            "i18nDescription": "217972",
+            "locDescription": "+40 to Effectiveness during Nighttime Missions",
+            "levelRequired": 10,
+            "effectiveness": 40,
+            "tags": [
+                "dark"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 125
+            },
+            "customAttributes": {
+                "Icon": "NightVision_IV",
+                "SmallIcon": "NightVision_IV"
+            }
+        },
+        {
+            "name": "All_Weather_Gear_I",
+            "i18nName": "153377",
+            "locName": "All Weather Gear I",
+            "i18nDescription": "217985",
+            "locDescription": "+10 to Effectiveness during Poor Weather Conditions",
+            "levelRequired": 5,
+            "effectiveness": 10,
+            "tags": [
+                "weather"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 50
+            },
+            "customAttributes": {
+                "Icon": "AllWeatherGear_I",
+                "SmallIcon": "AllWeatherGear_I"
+            }
+        },
+        {
+            "name": "All_Weather_Gear_II",
+            "i18nName": "153380",
+            "locName": "All Weather Gear II",
+            "i18nDescription": "217971",
+            "locDescription": "+20 to Effectiveness during Poor Weather Conditions",
+            "levelRequired": 5,
+            "effectiveness": 20,
+            "tags": [
+                "weather"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 75
+            },
+            "customAttributes": {
+                "Icon": "AllWeatherGear_II",
+                "SmallIcon": "AllWeatherGear_II"
+            }
+        },
+        {
+            "name": "All_Weather_Gear_III",
+            "i18nName": "153381",
+            "locName": "All Weather Gear III",
+            "i18nDescription": "217990",
+            "locDescription": "+30 to Effectiveness during Poor Weather Conditions",
+            "levelRequired": 10,
+            "effectiveness": 30,
+            "tags": [
+                "weather"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 100
+            },
+            "customAttributes": {
+                "Icon": "AllWeatherGear_III",
+                "SmallIcon": "AllWeatherGear_III"
+            }
+        },
+        {
+            "name": "All_Weather_Gear_IV",
+            "i18nName": "153385",
+            "locName": "All Weather Gear IV",
+            "i18nDescription": "217991",
+            "locDescription": "+40 to Effectiveness during Poor Weather Conditions",
+            "levelRequired": 10,
+            "effectiveness": 40,
+            "tags": [
+                "weather"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 125
+            },
+            "customAttributes": {
+                "Icon": "AllWeatherGear_IV",
+                "SmallIcon": "AllWeatherGear_IV"
+            }
+        },
+        {
+            "name": "Breaching_Charges_I",
+            "i18nName": "153388",
+            "locName": "Breaching Charges I",
+            "i18nDescription": "217997",
+            "locDescription": "+10 to Effectiveness during High-Risk, High-Reward",
+            "levelRequired": 5,
+            "effectiveness": 10,
+            "tags": [
+                "risky"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 50
+            },
+            "customAttributes": {
+                "Icon": "BreachingCharges_I",
+                "SmallIcon": "BreachingCharges_I"
+            }
+        },
+        {
+            "name": "Breaching_Charges_II",
+            "i18nName": "153379",
+            "locName": "Breaching Charges II",
+            "i18nDescription": "217987",
+            "locDescription": "+20 to Effectiveness during High-Risk, High-Reward",
+            "levelRequired": 5,
+            "effectiveness": 20,
+            "tags": [
+                "risky"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 75
+            },
+            "customAttributes": {
+                "Icon": "BreachingCharges_II",
+                "SmallIcon": "BreachingCharges_II"
+            }
+        },
+        {
+            "name": "Breaching_Charges_III",
+            "i18nName": "153395",
+            "locName": "Breaching Charges III",
+            "i18nDescription": "217992",
+            "locDescription": "+30 to Effectiveness during High-Risk, High-Reward",
+            "levelRequired": 10,
+            "effectiveness": 30,
+            "tags": [
+                "risky"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 100
+            },
+            "customAttributes": {
+                "Icon": "BreachingCharges_III",
+                "SmallIcon": "BreachingCharges_III"
+            }
+        },
+        {
+            "name": "Breaching_Charges_IV",
+            "i18nName": "153392",
+            "locName": "Breaching Charges IV",
+            "i18nDescription": "217996",
+            "locDescription": "+40 to Effectiveness during High-Risk, High-Reward",
+            "levelRequired": 10,
+            "effectiveness": 40,
+            "tags": [
+                "risky"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 125
+            },
+            "customAttributes": {
+                "Icon": "BreachingCharges_IV",
+                "SmallIcon": "BreachingCharges_IV"
+            }
+        },
+        {
+            "name": "Empowered_Shields_I",
+            "i18nName": "153390",
+            "locName": "Empowered Shields I",
+            "i18nDescription": "217993",
+            "locDescription": "+10 to Effectiveness during We Need a Hero",
+            "levelRequired": 5,
+            "effectiveness": 10,
+            "tags": [
+                "herocomplex"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 50
+            },
+            "customAttributes": {
+                "Icon": "EmpoweredShields_I",
+                "SmallIcon": "EmpoweredShields_I"
+            }
+        },
+        {
+            "name": "Empowered_Shields_II",
+            "i18nName": "153391",
+            "locName": "Empowered Shields II",
+            "i18nDescription": "217994",
+            "locDescription": "+20 to Effectiveness during We Need a Hero",
+            "levelRequired": 5,
+            "effectiveness": 20,
+            "tags": [
+                "herocomplex"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 75
+            },
+            "customAttributes": {
+                "Icon": "EmpoweredShields_II",
+                "SmallIcon": "EmpoweredShields_II"
+            }
+        },
+        {
+            "name": "Empowered_Shields_III",
+            "i18nName": "153375",
+            "locName": "Empowered Shields III",
+            "i18nDescription": "217989",
+            "locDescription": "+30 to Effectiveness during We Need a Hero",
+            "levelRequired": 10,
+            "effectiveness": 30,
+            "tags": [
+                "herocomplex"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 100
+            },
+            "customAttributes": {
+                "Icon": "EmpoweredShields_III",
+                "SmallIcon": "EmpoweredShields_III"
+            }
+        },
+        {
+            "name": "Empowered_Shields_IV",
+            "i18nName": "153384",
+            "locName": "Empowered Shields IV",
+            "i18nDescription": "217974",
+            "locDescription": "+40 to Effectiveness during We Need a Hero",
+            "levelRequired": 10,
+            "effectiveness": 40,
+            "tags": [
+                "herocomplex"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 125
+            },
+            "customAttributes": {
+                "Icon": "EmpoweredShields_IV",
+                "SmallIcon": "EmpoweredShields_IV"
+            }
+        },
+        {
+            "name": "Quick_Response_Vehicle_I",
+            "i18nName": "153376",
+            "locName": "Quick Response Vehicle I",
+            "i18nDescription": "217995",
+            "locDescription": "+10 to Effectiveness during A Hostage Situation",
+            "levelRequired": 5,
+            "effectiveness": 10,
+            "tags": [
+                "hrt"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 50
+            },
+            "customAttributes": {
+                "Icon": "QuickResponseVehicle_I",
+                "SmallIcon": "QuickResponseVehicle_I"
+            }
+        },
+        {
+            "name": "Quick_Response_Vehicle_II",
+            "i18nName": "153398",
+            "locName": "Quick Response Vehicle II",
+            "i18nDescription": "217976",
+            "locDescription": "+20 to Effectiveness during A Hostage Situation",
+            "levelRequired": 5,
+            "effectiveness": 20,
+            "tags": [
+                "hrt"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 75
+            },
+            "customAttributes": {
+                "Icon": "QuickResponseVehicle_II",
+                "SmallIcon": "QuickResponseVehicle_II"
+            }
+        },
+        {
+            "name": "Quick_Response_Vehicle_III",
+            "i18nName": "153394",
+            "locName": "Quick Response Vehicle III",
+            "i18nDescription": "217973",
+            "locDescription": "+30 to Effectiveness during A Hostage Situation",
+            "levelRequired": 10,
+            "effectiveness": 30,
+            "tags": [
+                "hrt"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 100
+            },
+            "customAttributes": {
+                "Icon": "QuickResponseVehicle_III",
+                "SmallIcon": "QuickResponseVehicle_III"
+            }
+        },
+        {
+            "name": "Quick_Response_Vehicle_IV",
+            "i18nName": "153400",
+            "locName": "Quick Response Vehicle IV",
+            "i18nDescription": "217978",
+            "locDescription": "+40 to Effectiveness during A Hostage Situation",
+            "levelRequired": 10,
+            "effectiveness": 40,
+            "tags": [
+                "hrt"
+            ],
+            "costByCurrency": {
+                "MissionCurrency": 125
+            },
+            "customAttributes": {
+                "Icon": "QuickResponseVehicle_IV",
+                "SmallIcon": "QuickResponseVehicle_IV"
+            }
+        },
+        {
+            "name": "Electronic_Countermeasures",
+            "i18nName": "153387",
+            "locName": "Electronic Countermeasures",
+            "i18nDescription": "217999",
+            "locDescription": "+14 to Effectiveness",
+            "levelRequired": 7,
+            "effectiveness": 14,
+            "costByCurrency": {
+                "MissionCurrency": 175
+            },
+            "customAttributes": {
+                "Icon": "ElectronicCountermeasures",
+                "SmallIcon": "ElectronicCountermeasures"
+            }
+        },
+        {
+            "name": "EMP_Device",
+            "i18nName": "153386",
+            "locName": "Electromagnetic Pulse Device",
+            "i18nDescription": "217980",
+            "locDescription": "+16 to Effectiveness",
+            "levelRequired": 8,
+            "effectiveness": 16,
+            "costByCurrency": {
+                "MissionCurrency": 200
+            },
+            "customAttributes": {
+                "Icon": "EMPDevice",
+                "SmallIcon": "EMPDevice"
+            }
+        }
+    ]
+}

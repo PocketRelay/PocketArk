@@ -1,0 +1,14 @@
+{
+    "difficultyModifierName": "difficulty",
+    "successXpByDifficulty": {
+        "bronze": 150,
+        "gold": 900,
+        "silver": 300
+    },
+    "effectivenessByDifficulty": {
+        "bronze": -5,
+        "gold": 120,
+        "silver": 50,
+        "platinum": 150
+    }
+}

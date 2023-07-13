@@ -32,12 +32,21 @@ pub fn router() -> Router {
         )
         .route("/auth", post(auth::authenticate))
         .route("/configuration", get(configuration::get_configuration))
-        .route("/mission/current", get(mission::current_missions))
+        .nest(
+            "/mission",
+            Router::new()
+                .route("/current", get(mission::current_missions))
+                .route("/seen", put(mission::update_seen)),
+        )
         .nest(
             "/striketeams",
             Router::new()
                 .route("/", get(strike_teams::get))
-                .route("/successRate", get(strike_teams::get_success_rate)),
+                .route("/successRate", get(strike_teams::get_success_rate))
+                .route("/missionConfig", get(strike_teams::get_mission_config))
+                .route("/specializations", get(strike_teams::get_specializations))
+                .route("/equipment", get(strike_teams::get_equipment))
+                .route("/:id/mission/resolve", post(strike_teams::resolve_mission)),
         )
         .route("/characters", get(character::get_characters))
         .nest(

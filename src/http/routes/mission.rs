@@ -1,6 +1,7 @@
 use axum::{extract::Path, Json};
 use hyper::StatusCode;
 use log::debug;
+use serde_json::Value;
 
 use crate::http::models::{
     mission::{FinishMissionRequest, StartMissionRequest, StartMissionResponse},
@@ -50,5 +51,11 @@ pub async fn finish_mission(
 ) -> StatusCode {
     debug!("Mission finished: {} {:?}", mission_id, req);
 
+    StatusCode::NO_CONTENT
+}
+
+/// PUT /mission/seen
+pub async fn update_seen(Json(req): Json<Value>) -> StatusCode {
+    debug!("Update mission seen: {:?}", req);
     StatusCode::NO_CONTENT
 }
