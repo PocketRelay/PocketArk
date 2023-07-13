@@ -38,7 +38,7 @@ pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
     })?;
     let definitions: Vec<&'static ItemDefinition> = items
         .iter()
-        .filter_map(|item| services.defs.inventory.get(&item.definition_name))
+        .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
         .collect();
 
     Ok(Json(InventoryResponse { items, definitions }))
@@ -50,7 +50,7 @@ pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
-    let list: Vec<&'static ItemDefinition> = services.defs.inventory.values().collect();
+    let list: &'static [ItemDefinition] = &services.defs.inventory.list;
     Json(InventoryDefinitions {
         total_count: list.len(),
         list,

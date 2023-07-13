@@ -16,7 +16,7 @@ pub struct InventoryResponse {
 #[derive(Debug, Serialize)]
 pub struct InventoryDefinitions {
     pub total_count: usize,
-    pub list: Vec<&'static ItemDefinition>,
+    pub list: &'static [ItemDefinition],
 }
 
 #[derive(Debug, Deserialize)]

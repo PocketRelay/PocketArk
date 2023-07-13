@@ -3,7 +3,7 @@ use chrono::Utc;
 
 use hyper::StatusCode;
 use log::debug;
-use serde_json::{Map, Value};
+use serde_json::Map;
 
 use crate::{
     http::models::{
@@ -80,7 +80,7 @@ pub async fn obtain_article(
     }];
     let definitions: Vec<&'static ItemDefinition> = items
         .iter()
-        .filter_map(|item| services.defs.inventory.get(&item.definition_name))
+        .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
         .collect();
 
     let activity = ActivityResult {

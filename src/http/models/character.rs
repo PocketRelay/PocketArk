@@ -3,7 +3,7 @@ use std::{collections::HashMap, fmt};
 use super::auth::Sku;
 use chrono::{DateTime, Utc};
 use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -174,4 +174,47 @@ impl<'de> Deserialize<'de> for MaybeUuid {
 
         deserializer.deserialize_str(EmptyOrUuid)
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillDefinition {
+    pub i18n_name: String,
+    pub i18n_description: String,
+    pub custom_attributes: Map<String, Value>,
+    pub tiers: Vec<SkillDefinitionTier>,
+    pub name: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub loc_name: String,
+    pub loc_description: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillDefinitionTier {
+    pub tier: u8,
+    pub custom_attributes: Map<String, Value>,
+    pub unlock_conditions: Vec<Value>,
+    pub skills: Vec<SkillItem>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillItem {
+    pub name: String,
+    pub i18n_name: String,
+    pub custom_attributes: Map<String, Value>,
+    pub unlock_conditions: Vec<Value>,
+    pub levels: Vec<SkillItemLevel>,
+    pub loc_name: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillItemLevel {
+    pub level: u8,
+    pub custom_attributes: Map<String, Value>,
+    pub unlock_conditions: Vec<Value>,
+    pub cost: Map<String, Value>,
+    pub bonus: Map<String, Value>,
 }

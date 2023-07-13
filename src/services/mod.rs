@@ -13,7 +13,7 @@ pub struct Services {
 impl Services {
     pub async fn init() -> Self {
         let games = GameManager::start();
-        let defs = Definitions::load().await;
+        let defs = Definitions::load();
         Self { games, defs }
     }
 }
