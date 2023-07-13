@@ -1,5 +1,4 @@
 use axum::{extract::Path, Json};
-use hyper::StatusCode;
 use log::debug;
 use serde_json::Value;
 use uuid::Uuid;
@@ -37,10 +36,11 @@ pub async fn get_equipment() -> RawJson {
 }
 
 /// POST /striketeams/:id/mission/resolve
-pub async fn resolve_mission(Path(id): Path<Uuid>) -> StatusCode {
+pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
     debug!("Strike team mission resolve: {}", id);
 
     // TODO: Randomize outcome
 
-    StatusCode::NOT_FOUND
+    static DEFS: &str = include_str!("../../resources/data/placeholderStMissionResolve.json");
+    RawJson(DEFS)
 }

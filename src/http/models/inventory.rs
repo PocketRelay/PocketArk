@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::store::Currency;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
@@ -85,6 +85,7 @@ pub struct ActivityResult {
     pub previous_level: u32,
     pub level: u32,
     pub level_up: bool,
+    pub character_class_name: Option<Uuid>,
     pub challenges_updated_count: u32,
     pub challenges_completed_count: u32,
     pub challenges_updated: Vec<Value>,
@@ -95,5 +96,5 @@ pub struct ActivityResult {
     pub items_earned: Vec<InventoryItem>,
     pub item_definitions: Vec<&'static ItemDefinition>,
     pub entitlements_granted: Vec<Value>,
-    pub prestige_progression_map: Value,
+    pub prestige_progression_map: Map<String, Value>,
 }

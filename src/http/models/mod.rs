@@ -12,6 +12,7 @@ pub mod inventory;
 pub mod leaderboard;
 pub mod mission;
 pub mod store;
+pub mod strike_teams;
 pub mod telemetry;
 
 #[derive(Debug, Serialize)]
