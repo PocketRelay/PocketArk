@@ -1,15 +1,16 @@
 use axum::Json;
 use chrono::Utc;
 
+use hyper::StatusCode;
 use log::debug;
-use serde_json::Map;
+use serde_json::{Map, Value};
 
 use crate::{
     http::models::{
         inventory::{ActivityResult, InventoryItem, ItemDefinition},
         store::{
             ClaimUncalimedResponse, Currency, ObtainStoreItemRequest, ObtainStoreItemResponse,
-            UserCurrenciesResponse,
+            UpdateSeenArticles, UserCurrenciesResponse,
         },
         RawJson,
     },
@@ -26,6 +27,14 @@ static STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/store
 /// each catalog
 pub async fn get_catalogs() -> RawJson {
     RawJson(STORE_CATALOG_DEFINITION)
+}
+
+/// PUT /store/article/seen
+///
+/// Updates the seen status of a specific store article
+pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> StatusCode {
+    debug!("Update seen articles: {:?}", req);
+    StatusCode::NO_CONTENT
 }
 
 /// POST /store/article
