@@ -1,0 +1,135 @@
+{
+	"team": {
+		"id": "fb8be136-0247-4cad-92c5-596be760bd4d",
+		"name": "November",
+		"icon": {
+			"name": "icon3",
+			"image": "Team03"
+		},
+		"level": 2,
+		// Last and next can be found by looking up the level and next level in the character level tables
+		"xp": {
+			"current": 15300,
+			"last": 6400,
+			"next": 15400
+		},
+		"positiveTraits": [
+			{
+				"name": "Outlaw Specialist",
+				"i18nName": "211953",
+				"locName": "Outlaw Specialist",
+				"i18nDescription": "216464",
+				"locDescription": "+10 to Effectiveness against outlaws",
+				"tag": "outlaw",
+				"effectiveness": 10
+			}
+		],
+		"negativeTraits": [],
+		"outOfDate": false
+	},
+	"missionSuccessful": true,
+	"traitsAcquired": [],
+	"activityResponse": {
+		// Just store these values when computing the result
+		"previousXp": 0,
+		"xp": 15300,
+		"xpGained": 15300,
+		"previousLevel": 1,
+		"level": 2,
+		// level > prev level
+		"levelUp": true,
+		"characterClassName": "370d4d91-4a2b-b107-127b-45df970a7012",
+		"challengesUpdatedCount": 0,
+		"challengesCompletedCount": 0,
+		"challengesUpdated": [],
+		"updatedChallengeIds": [],
+		"newsTriggered": 0,
+		"currencies": [
+			{
+				"name": "MissionCurrency",
+				"balance": 10
+			}
+		],
+		"currencyEarned": [
+			{
+				"name": "MissionCurrency",
+				"balance": 5
+			}
+		],
+		"itemsEarned": [
+			{
+				"itemId": "5b1e5b01-7ffc-4bc1-9465-313ea7a7115b",
+				"definitionName": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+				"stackSize": 1,
+				"seen": false,
+				"instanceAttributes": {},
+				"created": "2023-07-13T05:10:44.341+0000",
+				"lastGrant": "2023-07-13T05:10:44.342+0000",
+				"earndBy": "granted",
+				"restricted": false
+			},
+			{
+				"itemId": "8b6ed287-6e70-4d22-b559-874e748fc6a3",
+				"definitionName": "1440d464-0245-49f9-8533-4930b9283d78",
+				"stackSize": 1,
+				"seen": false,
+				"instanceAttributes": {},
+				"created": "2023-07-13T05:10:44.342+0000",
+				"lastGrant": "2023-07-13T05:10:44.342+0000",
+				"earndBy": "granted",
+				"restricted": false
+			}
+		],
+		"itemDefinitions": [
+			{
+				"name": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+				"i18nName": "215300",
+				"i18nDescription": "215305",
+				"locName": "Bronze Credit Loot Box",
+				"locDescription": "A cache of credits found during a Bronze difficulty mission.",
+				"customAttributes": {
+					"LootTags": {
+						"StrikeTeams_Bronze_Credits": "36"
+					},
+					"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+				},
+				"category": "11",
+				"attachableCategories": [],
+				"rarity": "0",
+				"consumable": true,
+				"droppable": false,
+				"onConsume": [],
+				"onAdd": [],
+				"onRemove": [],
+				"defaultNamespace": "striketeams"
+			},
+			{
+				"name": "1440d464-0245-49f9-8533-4930b9283d78",
+				"i18nName": "215506",
+				"i18nDescription": "215501",
+				"locName": "Bronze Material Loot Box",
+				"locDescription": "A collection of materials discovered during a Bronze difficulty mission.",
+				"customAttributes": {
+					"LootTags": {
+						"StrikeTeams_Bronze_Materials": "41"
+					},
+					"UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+				},
+				"category": "11",
+				"attachableCategories": [],
+				"rarity": "0",
+				"consumable": true,
+				"droppable": false,
+				"onConsume": [],
+				"onAdd": [],
+				"onRemove": [],
+				"defaultNamespace": "striketeams"
+			}
+		],
+		"entitlementsGranted": [],
+		"prestigeProgressionMap": {
+			"before": {},
+			"after": {}
+		}
+	}
+}
