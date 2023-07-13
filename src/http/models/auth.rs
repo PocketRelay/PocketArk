@@ -44,6 +44,6 @@ pub struct AuthUser {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Sku {
-    pub title: String,
-    pub platform: String,
+    pub title: String,    // always: mec.game
+    pub platform: String, // always: origin
 }

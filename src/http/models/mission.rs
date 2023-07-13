@@ -67,7 +67,7 @@ pub struct StartMissionResponse {
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct MissionDetails {
     pub sku: Sku,
-    pub name: String,
+    pub name: String, // is just match ID
     pub duration_sec: u64,
     pub percent_complete: u8,
     pub waves_encountered: u8,
@@ -127,6 +127,7 @@ pub struct PlayerInfoResult {
     pub character_class_name: Uuid,
     pub total_currencies_earned: Vec<Currency>,
     pub reward_sources: Vec<RewardSource>,
+    pub prestige_progression: PrestigeProgression,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
