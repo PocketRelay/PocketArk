@@ -3,7 +3,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
+use hyper::StatusCode;
 use log::debug;
 use serde_json::Value;
 use uuid::{uuid, Uuid};

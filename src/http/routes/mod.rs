@@ -121,6 +121,12 @@ pub fn router() -> Router {
         .route("//em/v3/*path", any(ok))
         .route("/presence/session", put(presence::update_session))
         .route("/pinEvents", post(telemetry::pin_events))
+        .nest(
+            "/leaderboards",
+            Router::new()
+                .route("/", get(leaderboard::get_leaderboards))
+                .route("/:id", get(leaderboard::get_leaderboard)),
+        )
         .layer(TraceLayer::new_for_http())
 }
 
