@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use super::inventory::{ActivityResult, InventoryItem, ItemDefinition};
 
@@ -26,4 +27,11 @@ pub struct ObtainStoreItemResponse {
     pub generated_activity_result: ActivityResult,
     pub items: Vec<InventoryItem>,
     pub definitions: Vec<&'static ItemDefinition>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaimUncalimedResponse {
+    pub claim_results: Vec<Value>,
+    pub results_complete: bool,
 }

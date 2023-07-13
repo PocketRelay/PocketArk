@@ -89,6 +89,8 @@ pub async fn consume_inventory(
         });
     }
 
+    // TODO: Handle pack opening, consuming etc
+
     let balance = u32::MAX / 2;
     let currencies = vec![
         Currency {

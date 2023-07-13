@@ -1,9 +1,6 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
+use axum::Json;
 use chrono::Utc;
-use hyper::{header::CONTENT_TYPE, http::HeaderValue};
+
 use log::debug;
 use serde_json::Map;
 
@@ -11,7 +8,8 @@ use crate::{
     http::models::{
         inventory::{ActivityResult, InventoryItem, ItemDefinition},
         store::{
-            Currency, ObtainStoreItemRequest, ObtainStoreItemResponse, UserCurrenciesResponse,
+            ClaimUncalimedResponse, Currency, ObtainStoreItemRequest, ObtainStoreItemResponse,
+            UserCurrenciesResponse,
         },
         RawJson,
     },
@@ -104,14 +102,13 @@ pub async fn obtain_article(
 }
 
 /// POST /store/unclaimed/claimAll
-pub async fn claim_unclaimed() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Store_claim_unclaimed-1688700288596.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-    resp
+///
+/// Possibly claims earned items from end of match?
+pub async fn claim_unclaimed() -> Json<ClaimUncalimedResponse> {
+    Json(ClaimUncalimedResponse {
+        claim_results: vec![],
+        results_complete: true,
+    })
 }
 
 /// GET /user/currencies
