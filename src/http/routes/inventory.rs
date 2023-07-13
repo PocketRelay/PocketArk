@@ -3,7 +3,7 @@ use axum::{
     Json,
 };
 use hyper::StatusCode;
-use log::debug;
+use log::{debug, error};
 use serde_json::Map;
 
 use crate::{
@@ -26,14 +26,16 @@ static PLACEHOLDER_INVENTORY: &str = include_str!("../../resources/data/placehol
 /// with the definitions for the items
 pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
     let services = App::services();
-    let items: Vec<InventoryItem> =
-        serde_json::from_str(PLACEHOLDER_INVENTORY).map_err(|e| HttpError {
+    let items: Vec<InventoryItem> = serde_json::from_str(PLACEHOLDER_INVENTORY).map_err(|e| {
+        error!("Failed to load placeholder items: {}", e);
+        HttpError {
             status: StatusCode::INTERNAL_SERVER_ERROR,
             reason: "Failed to load placeholder items".to_string(),
             cause: None,
             stack_trace: None,
             trace_id: None,
-        })?;
+        }
+    })?;
     let definitions: Vec<&'static ItemDefinition> = items
         .iter()
         .filter_map(|item| services.defs.inventory.get(&item.definition_name))

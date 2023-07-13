@@ -70,10 +70,10 @@ pub struct InventoryItem {
     pub definition_name: String,
     pub stack_size: u32,
     pub seen: bool,
-    pub instance_attributes: Vec<Value>,
+    pub instance_attributes: Value,
     pub created: DateTime<Utc>,
     pub last_grant: DateTime<Utc>,
-    pub earned_by: String,
+    pub earnd_by: String,
     pub restricted: bool,
 }
 
