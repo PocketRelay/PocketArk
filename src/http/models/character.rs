@@ -4,9 +4,10 @@ use super::auth::Sku;
 use chrono::{DateTime, Utc};
 use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::{Map, Value};
+use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CharactersResponse {
     pub active_character_id: Uuid,
@@ -24,6 +25,11 @@ pub struct SharedProgression {
     pub i18n_description: String,
     pub level: u32,
     pub xp: Xp,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateCustomizationRequest {
+    pub customization: HashMap<String, CustomizationEntry>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,6 +56,16 @@ pub struct Character {
     pub promotable: bool,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CharacterResponse {
+    #[serde(flatten)]
+    pub character: Character,
+    pub shared_stats: HashMap<String, Value>,
+    pub shared_equipment: CharacterSharedEquipment,
+    pub shared_progression: Vec<SharedProgression>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Xp {
     pub current: u32,
@@ -57,21 +73,22 @@ pub struct Xp {
     pub next: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillTreeEntry {
     pub name: Uuid,
     pub tree: Vec<SkillTreeTier>,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: Option<DateTime<Utc>>,
     pub obsolete: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillTreeTier {
     pub tier: u32,
     pub skills: HashMap<String, u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CharacterEquipment {
     pub slot: String,
     pub name: MaybeUuid,
@@ -126,7 +143,7 @@ pub struct CharacterEquipmentList {
     pub list: Vec<CharacterEquipment>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MaybeUuid(pub Option<Uuid>);
 
 impl Serialize for MaybeUuid {
@@ -217,4 +234,46 @@ pub struct SkillItemLevel {
     pub unlock_conditions: Vec<Value>,
     pub cost: Map<String, Value>,
     pub bonus: Map<String, Value>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CharacterClasses {
+    pub list: Vec<Class>,
+    pub skill_definitions: &'static [SkillDefinition],
+}
+
+// Everyone contains their own instance
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Class {
+    pub i18n_name: String,
+    pub i18n_description: String,
+    pub level_name: Uuid,
+    pub prestige_level_name: Uuid,
+    pub points: Map<String, Value>,
+    // Default skill trees to clone from
+    pub skill_trees: Vec<SkillTreeEntry>,
+    pub attributes: Map<String, Value>,
+    pub bonus: Map<String, Value>,
+    pub custom_attributes: Map<String, Value>,
+    pub unlocked: bool,
+    pub default_equipments: Vec<CharacterEquipment>,
+    pub default_customization: Map<String, Value>,
+    pub name: Uuid,
+    pub inventory_namespace: String,
+    pub autogenerate_inventory_namespace: bool,
+    pub initial_active_candidate: bool,
+    pub item_link: String, //0:{ITEM_ID}
+    pub default_namespace: String,
+    pub loc_name: String,
+    pub loc_description: String,
+}
+
+// Everyone contains their own instance
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnlockedCharacters {
+    pub active_character_id: Uuid,
+    pub list: Vec<Character>,
 }

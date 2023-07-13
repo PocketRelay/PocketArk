@@ -48,6 +48,10 @@ pub fn router() -> Router {
                     Router::new()
                         .route("/", get(character::get_character))
                         .route("/active", post(character::set_active))
+                        .route(
+                            "/customization",
+                            post(character::update_character_customization),
+                        )
                         .nest(
                             "/equipment",
                             Router::new()
@@ -60,6 +64,7 @@ pub fn router() -> Router {
                         )
                         .route("/skillTrees", put(character::update_skill_tree)),
                 )
+                .route("/unlocked", post(character::character_unlocked))
                 .route("/classes", get(character::get_classes))
                 .route("/levelTables", get(character::get_level_tables)),
         )

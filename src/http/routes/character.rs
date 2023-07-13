@@ -5,33 +5,60 @@ use axum::{
 };
 use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
 use log::debug;
+use serde_json::Value;
 use uuid::{uuid, Uuid};
 
-use crate::http::models::{
-    character::{CharacterEquipment, CharacterEquipmentList, MaybeUuid},
-    RawJson,
+use crate::{
+    http::models::{
+        character::{
+            Character, CharacterClasses, CharacterEquipment, CharacterEquipmentList,
+            CharacterResponse, CharactersResponse, Class, MaybeUuid, SkillDefinition,
+            UnlockedCharacters, UpdateCustomizationRequest,
+        },
+        HttpError, RawJson,
+    },
+    state::App,
 };
 
 /// GET /characters
-pub async fn get_characters() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Get_Characters-1689039048546.json").into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+pub async fn get_characters() -> Result<Json<CharactersResponse>, HttpError> {
+    let ls: CharactersResponse = serde_json::from_str(include_str!(
+        "../../resources/data/placeholderCharacters.json"
+    ))
+    .expect("Failed to parse characters");
 
-    resp
+    Ok(Json(ls))
 }
 
 /// GET /character/:id
 ///
 /// Gets the defintion and details for the character of the provided ID
-pub async fn get_character(Path(character_id): Path<Uuid>) -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Get_Character_-1689039081314.json").into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+pub async fn get_character(
+    Path(character_id): Path<Uuid>,
+) -> Result<Json<CharacterResponse>, HttpError> {
+    let ls: CharactersResponse = serde_json::from_str(include_str!(
+        "../../resources/data/placeholderCharacters.json"
+    ))
+    .expect("Failed to parse characters");
 
-    resp
+    let character: Character = ls
+        .list
+        .into_iter()
+        .find(|value| value.character_id == character_id)
+        .ok_or_else(|| HttpError {
+            status: StatusCode::NOT_FOUND,
+            reason: "Character not found".to_string(),
+            cause: None,
+            stack_trace: None,
+            trace_id: None,
+        })?;
+
+    Ok(Json(CharacterResponse {
+        character,
+        shared_stats: ls.shared_stats,
+        shared_equipment: ls.shared_equipment,
+        shared_progression: ls.shared_progression,
+    }))
 }
 
 /// POST /character/:id/active
@@ -85,10 +112,25 @@ pub async fn get_character_equip(Path(character_id): Path<Uuid>) -> Json<Charact
 pub async fn update_character_equip(
     Path(character_id): Path<Uuid>,
     Json(req): Json<CharacterEquipmentList>,
-) -> Response {
-    debug!("Update charcter equipment: {} - {:?}", character_id, req);
+) -> StatusCode {
+    debug!("Update character equipment: {} - {:?}", character_id, req);
 
-    StatusCode::NO_CONTENT.into_response()
+    StatusCode::NO_CONTENT
+}
+
+/// PUT /character/:id/customization
+///
+/// Updates the customization settings for a character
+pub async fn update_character_customization(
+    Path(character_id): Path<Uuid>,
+    Json(req): Json<UpdateCustomizationRequest>,
+) -> StatusCode {
+    debug!(
+        "Update character customization: {} - {:?}",
+        character_id, req
+    );
+
+    StatusCode::NO_CONTENT
 }
 
 /// GET /character/:id/equipment/history
@@ -133,25 +175,42 @@ pub async fn get_character_equip_history(
 }
 
 /// PUT /character/:id/skillTrees
-pub async fn update_skill_tree(Path(character_id): Path<Uuid>) -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Update_Character_Skill_Trees-1688700262159.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+pub async fn update_skill_tree(
+    Path(character_id): Path<Uuid>,
+) -> Result<Json<Character>, HttpError> {
+    let ls: CharactersResponse = serde_json::from_str(include_str!(
+        "../../resources/data/placeholderCharacters.json"
+    ))
+    .expect("Failed to parse characters");
 
-    resp
+    let character: Character = ls
+        .list
+        .into_iter()
+        .find(|value| value.character_id == character_id)
+        .ok_or_else(|| HttpError {
+            status: StatusCode::NOT_FOUND,
+            reason: "Character not found".to_string(),
+            cause: None,
+            stack_trace: None,
+            trace_id: None,
+        })?;
+
+    Ok(Json(character))
 }
 
 /// GET /character/classes
-pub async fn get_classes() -> Response {
-    let mut resp =
-        include_str!("../../resources/defs/raw/Get_Character_Classes-1688700203514.json")
-            .into_response();
-    resp.headers_mut()
-        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+pub async fn get_classes() -> Json<CharacterClasses> {
+    let services = App::services();
+    let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list;
 
-    resp
+    let list: Vec<Class> =
+        serde_json::from_str(include_str!("../../resources/data/characterClasses.json"))
+            .expect("Failed to parse characters");
+
+    Json(CharacterClasses {
+        list,
+        skill_definitions,
+    })
 }
 
 /// Definitions for rewards at each character level
@@ -164,4 +223,15 @@ static CHARACTER_LEVEL_TABLES: &str =
 /// progression
 pub async fn get_level_tables() -> RawJson {
     RawJson(CHARACTER_LEVEL_TABLES)
+}
+
+/// POST /character/unlocked
+///
+/// Returns a list of unlocked characters?
+pub async fn character_unlocked() -> Json<UnlockedCharacters> {
+    debug!("Unlocked request");
+    Json(UnlockedCharacters {
+        active_character_id: uuid!("4a4a90f7-c661-4276-bc79-dd0018b45d7c"),
+        list: vec![],
+    })
 }
