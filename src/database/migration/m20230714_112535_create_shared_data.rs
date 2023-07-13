@@ -11,21 +11,33 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Currency::Table)
+                    .table(SharedData::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Currency::Id)
+                        ColumnDef::new(SharedData::UserId)
                             .unsigned()
                             .not_null()
-                            .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Currency::Name).string().not_null())
-                    .col(ColumnDef::new(Currency::UserId).unsigned().not_null())
-                    .col(ColumnDef::new(Currency::Balance).unsigned().not_null())
+                    .col(
+                        ColumnDef::new(SharedData::ActiveCharacterId)
+                            .uuid()
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(SharedData::SharedStats).json().not_null())
+                    .col(
+                        ColumnDef::new(SharedData::SharedEquipment)
+                            .json()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(SharedData::SharedProgression)
+                            .json()
+                            .not_null(),
+                    )
                     .foreign_key(
                         ForeignKey::create()
-                            .from(Currency::Table, Currency::UserId)
+                            .from(SharedData::Table, SharedData::UserId)
                             .to(Users::Table, Users::Id)
                             .on_delete(ForeignKeyAction::Cascade),
                     )
@@ -36,17 +48,18 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Currency::Table).to_owned())
+            .drop_table(Table::drop().table(SharedData::Table).to_owned())
             .await
     }
 }
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum Currency {
+enum SharedData {
     Table,
-    Id,
-    Name,
     UserId,
-    Balance,
+    ActiveCharacterId,
+    SharedStats,
+    SharedEquipment,
+    SharedProgression,
 }

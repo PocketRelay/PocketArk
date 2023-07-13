@@ -11,21 +11,21 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Currency::Table)
+                    .table(ClassData::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Currency::Id)
+                        ColumnDef::new(ClassData::Id)
                             .unsigned()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Currency::Name).string().not_null())
-                    .col(ColumnDef::new(Currency::UserId).unsigned().not_null())
-                    .col(ColumnDef::new(Currency::Balance).unsigned().not_null())
+                    .col(ColumnDef::new(ClassData::UserId).unsigned().not_null())
+                    .col(ColumnDef::new(ClassData::Name).uuid().not_null())
+                    .col(ColumnDef::new(ClassData::Unlocked).boolean().not_null())
                     .foreign_key(
                         ForeignKey::create()
-                            .from(Currency::Table, Currency::UserId)
+                            .from(ClassData::Table, ClassData::UserId)
                             .to(Users::Table, Users::Id)
                             .on_delete(ForeignKeyAction::Cascade),
                     )
@@ -36,17 +36,17 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Currency::Table).to_owned())
+            .drop_table(Table::drop().table(ClassData::Table).to_owned())
             .await
     }
 }
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum Currency {
+pub enum ClassData {
     Table,
     Id,
-    Name,
     UserId,
-    Balance,
+    Name,
+    Unlocked,
 }
