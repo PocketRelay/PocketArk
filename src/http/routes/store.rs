@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use axum::Json;
 use chrono::Utc;
 
@@ -6,8 +8,9 @@ use log::debug;
 use serde_json::Map;
 
 use crate::{
+    database::entity::{InventoryItem, ValueMap},
     http::models::{
-        inventory::{ActivityResult, InventoryItem, ItemDefinition},
+        inventory::{ActivityResult, ItemDefinition},
         store::{
             ClaimUncalimedResponse, Currency, ObtainStoreItemRequest, ObtainStoreItemResponse,
             UpdateSeenArticles, UserCurrenciesResponse,
@@ -67,15 +70,19 @@ pub async fn obtain_article(
         },
     ];
 
+    let now = Utc::now();
+
     let items: Vec<InventoryItem> = vec![InventoryItem {
+        id: 0,
+        user_id: 1,
         item_id: uuid::uuid!("ac948017-beb4-459d-8861-fab0b950d5da"),
         definition_name: "c5b3d9e6-7932-4579-ba8a-fd469ed43fda".to_string(),
         stack_size: 1,
         seen: false,
-        instance_attributes: serde_json::Value::Object(Map::new()),
-        created: Utc::now(),
-        last_grant: Utc::now(),
-        earnd_by: "granted".to_string(),
+        instance_attributes: ValueMap(HashMap::new()),
+        created: now,
+        last_grant: now,
+        earned_by: "granted".to_string(),
         restricted: false,
     }];
     let definitions: Vec<&'static ItemDefinition> = items

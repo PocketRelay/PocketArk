@@ -52,7 +52,14 @@ features = ["console_appender", "file_appender"]
 [dependencies.sea-orm]
 version = "^0"
 default-features = false
-features = ["runtime-tokio-rustls", "macros", "with-chrono", "sqlx-sqlite"]
+features = [
+    "runtime-tokio-rustls",
+    "macros",
+    "with-chrono",
+    "with-uuid",
+    "with-json",
+    "sqlx-sqlite",
+]
 
 # SeaORM Migration 
 [dependencies.sea-orm-migration]

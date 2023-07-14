@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Currency::Name).string().not_null())
                     .col(ColumnDef::new(Currency::UserId).unsigned().not_null())
-                    .col(ColumnDef::new(Currency::Balance).unsigned().not_null())
+                    .col(ColumnDef::new(Currency::Balance).big_integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .from(Currency::Table, Currency::UserId)

@@ -14,11 +14,13 @@ impl MigrationTrait for Migration {
                     .table(SharedData::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(SharedData::UserId)
+                        ColumnDef::new(SharedData::Id)
                             .unsigned()
                             .not_null()
-                            .primary_key(),
+                            .primary_key()
+                            .auto_increment(),
                     )
+                    .col(ColumnDef::new(SharedData::UserId).unsigned().not_null())
                     .col(
                         ColumnDef::new(SharedData::ActiveCharacterId)
                             .uuid()
@@ -57,6 +59,7 @@ impl MigrationTrait for Migration {
 #[derive(Iden)]
 enum SharedData {
     Table,
+    Id,
     UserId,
     ActiveCharacterId,
     SharedStats,

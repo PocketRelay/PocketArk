@@ -1,6 +1,6 @@
-use log::{error, info};
+use log::{debug, error, info};
 use migration::{Migrator, MigratorTrait};
-use sea_orm::Database as SeaDatabase;
+use sea_orm::{ActiveValue, Database as SeaDatabase, EntityTrait, IntoActiveModel};
 use std::{
     fs::{create_dir_all, File},
     path::Path,
@@ -12,6 +12,8 @@ mod migration;
 // Re-exports of database types
 pub use sea_orm::DatabaseConnection;
 pub use sea_orm::DbErr;
+
+use crate::database::entity::{inventory_items::ActiveModel, InventoryItem};
 
 /// Database error result type
 pub type DbResult<T> = Result<T, DbErr>;
@@ -45,6 +47,48 @@ pub async fn init() -> DatabaseConnection {
     Migrator::up(&connection, None)
         .await
         .expect("Unable to run database migrations");
-
+    fill_items(&connection).await;
     connection
 }
+
+// pub async fn fill_items(c: &DatabaseConnection) {
+//     static PLACEHOLDER_INVENTORY: &str =
+//         include_str!("../resources/data/placeholderInventory.json");
+//     let mut items: Vec<InventoryItem> = serde_json::from_str(PLACEHOLDER_INVENTORY).unwrap();
+//     items.iter_mut().for_each(|item| {
+//         item.user_id = 1;
+//     });
+//     let items = items
+//         .into_iter()
+//         .map(|value| value.into_active_model())
+//         .map(|value| ActiveModel {
+//             id: ActiveValue::NotSet,
+//             ..value
+//         });
+//     entity::inventory_items::Entity::insert_many(items)
+//         .exec(c)
+//         .await
+//         .unwrap();
+//     debug!("Inserted all player inventory data")
+// }
+
+// pub async fn fill_characters(c: &DatabaseConnection) {
+//     static PLACEHOLDER_INVENTORY: &str =
+//         include_str!("../resources/data/placeholderInventory.json");
+//     let mut items: Vec<InventoryItem> = serde_json::from_str(PLACEHOLDER_INVENTORY).unwrap();
+//     items.iter_mut().for_each(|item| {
+//         item.user_id = 1;
+//     });
+//     let items = items
+//         .into_iter()
+//         .map(|value| value.into_active_model())
+//         .map(|value| ActiveModel {
+//             id: ActiveValue::NotSet,
+//             ..value
+//         });
+//     entity::inventory_items::Entity::insert_many(items)
+//         .exec(c)
+//         .await
+//         .unwrap();
+//     debug!("Inserted all player inventory data")
+// }

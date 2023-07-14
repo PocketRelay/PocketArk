@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-
 use super::store::Currency;
-use chrono::{DateTime, Utc};
+use crate::database::entity::InventoryItem;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -60,20 +59,6 @@ pub struct ItemDefinition {
     pub on_remove: Option<Vec<Value>>,
     pub restrictions: Option<String>,
     pub default_namespace: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InventoryItem {
-    pub item_id: Uuid,
-    pub definition_name: String,
-    pub stack_size: u32,
-    pub seen: bool,
-    pub instance_attributes: Value,
-    pub created: DateTime<Utc>,
-    pub last_grant: DateTime<Utc>,
-    pub earnd_by: String,
-    pub restricted: bool,
 }
 
 #[skip_serializing_none]

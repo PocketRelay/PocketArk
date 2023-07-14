@@ -7,10 +7,11 @@ use log::{debug, error};
 use serde_json::Map;
 
 use crate::{
+    database::entity::InventoryItem,
     http::models::{
         inventory::{
-            ActivityResult, InventoryConsumeRequest, InventoryDefinitions, InventoryItem,
-            InventoryResponse, InventorySeenList, ItemDefinition,
+            ActivityResult, InventoryConsumeRequest, InventoryDefinitions, InventoryResponse,
+            InventorySeenList, ItemDefinition,
         },
         store::Currency,
         HttpError,

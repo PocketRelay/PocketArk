@@ -1,9 +1,5 @@
 use chrono::{DateTime, Utc};
-use serde::{
-    de::{DeserializeOwned, Visitor},
-    ser::SerializeStruct,
-    Deserialize, Serialize,
-};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -42,8 +38,17 @@ pub struct AuthUser {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Sku {
     pub title: String,    // always: mec.game
     pub platform: String, // always: origin
+}
+
+impl Default for Sku {
+    fn default() -> Self {
+        Self {
+            title: "mec.game".to_string(),
+            platform: "origin".to_string(),
+        }
+    }
 }

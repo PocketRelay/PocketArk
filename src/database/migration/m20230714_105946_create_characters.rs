@@ -11,45 +11,47 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Character::Table)
+                    .table(Characters::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Character::Id)
-                            .uuid()
+                        ColumnDef::new(Characters::Id)
+                            .unsigned()
                             .not_null()
-                            .primary_key(),
+                            .primary_key()
+                            .auto_increment(),
                     )
-                    .col(ColumnDef::new(Character::UserId).unsigned().not_null())
-                    .col(ColumnDef::new(Character::ClassName).uuid().not_null())
-                    .col(ColumnDef::new(Character::Name).uuid().not_null())
-                    .col(ColumnDef::new(Character::Level).unsigned().not_null())
-                    .col(ColumnDef::new(Character::Xp).json().not_null())
-                    .col(ColumnDef::new(Character::Promotion).unsigned().not_null())
-                    .col(ColumnDef::new(Character::Points).json().not_null())
-                    .col(ColumnDef::new(Character::PointsSpent).json().not_null())
-                    .col(ColumnDef::new(Character::PointsGranted).json().not_null())
-                    .col(ColumnDef::new(Character::SkillTrees).json().not_null())
-                    .col(ColumnDef::new(Character::Attributes).json().not_null())
-                    .col(ColumnDef::new(Character::Bonus).json().not_null())
-                    .col(ColumnDef::new(Character::Equipments).json().not_null())
-                    .col(ColumnDef::new(Character::Customization).json().not_null())
-                    .col(ColumnDef::new(Character::PlayStats).json().not_null())
+                    .col(ColumnDef::new(Characters::CharacterId).uuid().not_null())
+                    .col(ColumnDef::new(Characters::UserId).unsigned().not_null())
+                    .col(ColumnDef::new(Characters::ClassName).uuid().not_null())
+                    .col(ColumnDef::new(Characters::Name).uuid().not_null())
+                    .col(ColumnDef::new(Characters::Level).unsigned().not_null())
+                    .col(ColumnDef::new(Characters::Xp).json().not_null())
+                    .col(ColumnDef::new(Characters::Promotion).unsigned().not_null())
+                    .col(ColumnDef::new(Characters::Points).json().not_null())
+                    .col(ColumnDef::new(Characters::PointsSpent).json().not_null())
+                    .col(ColumnDef::new(Characters::PointsGranted).json().not_null())
+                    .col(ColumnDef::new(Characters::SkillTrees).json().not_null())
+                    .col(ColumnDef::new(Characters::Attributes).json().not_null())
+                    .col(ColumnDef::new(Characters::Bonus).json().not_null())
+                    .col(ColumnDef::new(Characters::Equipments).json().not_null())
+                    .col(ColumnDef::new(Characters::Customization).json().not_null())
+                    .col(ColumnDef::new(Characters::PlayStats).json().not_null())
                     .col(
-                        ColumnDef::new(Character::InventoryNamespace)
+                        ColumnDef::new(Characters::InventoryNamespace)
                             .string()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(Character::LastUsed).date_time().null())
-                    .col(ColumnDef::new(Character::Promotable).boolean().not_null())
+                    .col(ColumnDef::new(Characters::LastUsed).date_time().null())
+                    .col(ColumnDef::new(Characters::Promotable).boolean().not_null())
                     .foreign_key(
                         ForeignKey::create()
-                            .from(Character::Table, Character::UserId)
+                            .from(Characters::Table, Characters::UserId)
                             .to(Users::Table, Users::Id)
                             .on_delete(ForeignKeyAction::Cascade),
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .from(Character::Table, Character::ClassName)
+                            .from(Characters::Table, Characters::ClassName)
                             .to(ClassData::Table, ClassData::Name),
                     )
                     .to_owned(),
@@ -59,16 +61,17 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Character::Table).to_owned())
+            .drop_table(Table::drop().table(Characters::Table).to_owned())
             .await
     }
 }
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum Character {
+enum Characters {
     Table,
     Id,
+    CharacterId,
     UserId,
     ClassName,
     Name,

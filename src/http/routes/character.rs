@@ -1,3 +1,15 @@
+use crate::{
+    database::entity::Character,
+    http::models::{
+        character::{
+            CharacterClasses, CharacterEquipment, CharacterEquipmentList, CharacterResponse,
+            CharactersResponse, Class, MaybeUuid, SkillDefinition, UnlockedCharacters,
+            UpdateCustomizationRequest, UpdateSkillTreesRequest,
+        },
+        HttpError, RawJson,
+    },
+    state::App,
+};
 use axum::{
     extract::Path,
     response::{IntoResponse, Response},
@@ -5,20 +17,7 @@ use axum::{
 };
 use hyper::StatusCode;
 use log::debug;
-use serde_json::Value;
 use uuid::{uuid, Uuid};
-
-use crate::{
-    http::models::{
-        character::{
-            Character, CharacterClasses, CharacterEquipment, CharacterEquipmentList,
-            CharacterResponse, CharactersResponse, Class, MaybeUuid, SkillDefinition,
-            UnlockedCharacters, UpdateCustomizationRequest, UpdateSkillTreesRequest,
-        },
-        HttpError, RawJson,
-    },
-    state::App,
-};
 
 /// GET /characters
 pub async fn get_characters() -> Result<Json<CharactersResponse>, HttpError> {
@@ -55,9 +54,7 @@ pub async fn get_character(
 
     Ok(Json(CharacterResponse {
         character,
-        shared_stats: ls.shared_stats,
-        shared_equipment: ls.shared_equipment,
-        shared_progression: ls.shared_progression,
+        shared_data: ls.shared_data,
     }))
 }
 
