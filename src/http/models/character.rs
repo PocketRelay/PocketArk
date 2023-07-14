@@ -19,7 +19,7 @@ pub struct CharactersResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateCustomizationRequest {
-    pub customization: HashMap<String, Value>,
+    pub customization: HashMap<String, CustomizationEntry>,
 }
 
 #[derive(Debug, Deserialize)]

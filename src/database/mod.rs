@@ -54,9 +54,9 @@ pub async fn init() -> DatabaseConnection {
     Migrator::up(&connection, None)
         .await
         .expect("Unable to run database migrations");
-    fill_users(&connection).await;
-    fill_items(&connection).await;
-    fill_characters(&connection).await;
+    // fill_users(&connection).await;
+    // fill_items(&connection).await;
+    // fill_characters(&connection).await;
     connection
 }
 

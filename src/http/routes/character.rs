@@ -1,24 +1,26 @@
 use crate::{
-    database::entity::{Character, CharacterEntity, UserEntity},
+    database::entity::{
+        characters::{CustomizationMap, EquipmentList},
+        Character, UserEntity,
+    },
     http::models::{
         character::{
-            CharacterClasses, CharacterEquipment, CharacterEquipmentList, CharacterResponse,
-            CharactersResponse, Class, MaybeUuid, SkillDefinition, UnlockedCharacters,
-            UpdateCustomizationRequest, UpdateSkillTreesRequest,
+            CharacterClasses, CharacterEquipmentList, CharacterResponse, CharactersResponse, Class,
+            SkillDefinition, UnlockedCharacters, UpdateCustomizationRequest,
+            UpdateSkillTreesRequest,
         },
         HttpError, RawJson,
     },
     state::App,
 };
-use axum::{
-    extract::Path,
-    response::{IntoResponse, Response},
-    Json,
-};
+use axum::{extract::Path, Json};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter};
-use uuid::{uuid, Uuid};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait,
+    QueryFilter,
+};
+use uuid::Uuid;
 
 /// GET /characters
 pub async fn get_characters() -> Result<Json<CharactersResponse>, HttpError> {
@@ -130,18 +132,59 @@ pub async fn get_character_equip(
 pub async fn update_character_equip(
     Path(character_id): Path<Uuid>,
     Json(req): Json<CharacterEquipmentList>,
-) -> StatusCode {
+) -> Result<StatusCode, HttpError> {
     debug!("Update character equipment: {} - {:?}", character_id, req);
 
-    StatusCode::NO_CONTENT
+    let db = App::database();
+    // TODO: user should be found from session
+    let user = UserEntity::find_by_id(1u32)
+        .one(db)
+        .await?
+        .ok_or(HttpError::new(
+            "Server error",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        ))?;
+
+    let character = user
+        .find_related(crate::database::entity::characters::Entity)
+        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .one(db)
+        .await?
+        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+
+    let mut character = character.into_active_model();
+    character.equipments = ActiveValue::Set(EquipmentList(req.list));
+    let _ = character.update(db).await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// PUT /character/equipment/shared
 ///
 /// Updates share character equipment
-pub async fn update_shared_equip(Json(req): Json<CharacterEquipmentList>) -> StatusCode {
+pub async fn update_shared_equip(
+    Json(req): Json<CharacterEquipmentList>,
+) -> Result<StatusCode, HttpError> {
     debug!("Update shared equipment: {:?}", req);
-    StatusCode::NO_CONTENT
+
+    let db = App::database();
+
+    let user = UserEntity::find_by_id(1u32)
+        .one(db)
+        .await?
+        .ok_or(HttpError::new(
+            "Server error",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        ))?;
+    let shared_data = user.get_shared_data(db).await?;
+
+    let mut shared_data = shared_data.into_active_model();
+    shared_data.shared_equipment = ActiveValue::Set(
+        crate::database::entity::shared_data::CharacterSharedEquipment { list: req.list },
+    );
+    let _ = shared_data.update(db).await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// PUT /character/:id/customization
@@ -150,13 +193,34 @@ pub async fn update_shared_equip(Json(req): Json<CharacterEquipmentList>) -> Sta
 pub async fn update_character_customization(
     Path(character_id): Path<Uuid>,
     Json(req): Json<UpdateCustomizationRequest>,
-) -> StatusCode {
+) -> Result<StatusCode, HttpError> {
     debug!(
         "Update character customization: {} - {:?}",
         character_id, req
     );
 
-    StatusCode::NO_CONTENT
+    let db = App::database();
+    // TODO: user should be found from session
+    let user = UserEntity::find_by_id(1u32)
+        .one(db)
+        .await?
+        .ok_or(HttpError::new(
+            "Server error",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        ))?;
+
+    let character = user
+        .find_related(crate::database::entity::characters::Entity)
+        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .one(db)
+        .await?
+        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+
+    let mut character = character.into_active_model();
+    character.customization = ActiveValue::Set(CustomizationMap(req.customization));
+    let _ = character.update(db).await;
+
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// GET /character/:id/equipment/history
@@ -208,31 +272,74 @@ pub async fn update_skill_tree(
             StatusCode::INTERNAL_SERVER_ERROR,
         ))?;
 
-    let character = user
+    let mut character = user
         .find_related(crate::database::entity::characters::Entity)
         .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
 
-    // TODO: Update skilltree and save
+    // TODO: Clean this up and properly diff the trees
+    req.skill_trees.into_iter().for_each(|tree| {
+        let par = character
+            .skill_trees
+            .0
+            .iter_mut()
+            .find(|value| value.name == tree.name);
+        if let Some(par) = par {
+            for entry in tree.tree {
+                let par = par.tree.iter_mut().find(|value| value.tier == entry.tier);
+                if let Some(par) = par {
+                    par.skills = entry.skills;
+                }
+            }
+        }
+    });
+
+    let mut character = character.into_active_model();
+    character.skill_trees =
+        ActiveValue::Set(character.skill_trees.take().expect("Skill tree missing"));
+    let character = character.update(db).await?;
 
     Ok(Json(character))
 }
 
 /// GET /character/classes
-pub async fn get_classes() -> Json<CharacterClasses> {
+pub async fn get_classes() -> Result<Json<CharacterClasses>, HttpError> {
     let services = App::services();
     let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list;
 
-    let list: Vec<Class> =
+    let mut list: Vec<Class> =
         serde_json::from_str(include_str!("../../resources/data/characterClasses.json"))
             .expect("Failed to parse characters");
 
-    Json(CharacterClasses {
+    let db = App::database();
+    // TODO: user should be found from session
+    let user = UserEntity::find_by_id(1u32)
+        .one(db)
+        .await?
+        .ok_or(HttpError::new(
+            "Server error",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        ))?;
+
+    let class_data = user
+        .find_related(crate::database::entity::class_data::Entity)
+        .all(db)
+        .await?;
+
+    // Updating unlocks from classdata
+    list.iter_mut().for_each(|value| {
+        let data = class_data.iter().find(|v| v.name == value.name);
+        if let Some(data) = data {
+            value.unlocked = data.unlocked;
+        }
+    });
+
+    Ok(Json(CharacterClasses {
         list,
         skill_definitions,
-    })
+    }))
 }
 
 /// Definitions for rewards at each character level
