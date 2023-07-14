@@ -3,6 +3,7 @@ use axum::{
     Json,
 };
 use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
+use sea_orm::DbErr;
 use serde::Serialize;
 
 pub mod auth;
@@ -24,6 +25,24 @@ pub struct HttpError {
     pub cause: Option<String>,
     pub stack_trace: Option<String>,
     pub trace_id: Option<String>,
+}
+
+impl HttpError {
+    pub fn new(reason: &str, status: StatusCode) -> Self {
+        Self {
+            status,
+            reason: reason.to_string(),
+            cause: None,
+            stack_trace: None,
+            trace_id: None,
+        }
+    }
+}
+
+impl From<DbErr> for HttpError {
+    fn from(_: DbErr) -> Self {
+        Self::new("Server error", StatusCode::INTERNAL_SERVER_ERROR)
+    }
 }
 
 impl IntoResponse for HttpError {

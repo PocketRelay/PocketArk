@@ -1,12 +1,16 @@
 use std::collections::HashMap;
 
-use sea_orm::entity::prelude::*;
+use sea_orm::{entity::prelude::*, ActiveValue, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 
-use crate::http::models::character::{CharacterEquipment, Xp};
+use crate::{
+    database::DbResult,
+    http::models::character::{CharacterEquipment, Xp},
+};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "shared_data")]
+#[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key)]
     #[serde(skip)]
@@ -60,3 +64,16 @@ impl Related<super::users::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl Model {
+    pub async fn set_active_character(
+        self,
+        character_id: Uuid,
+        db: &DatabaseConnection,
+    ) -> DbResult<Self> {
+        let mut model = self.into_active_model();
+        model.active_character_id = ActiveValue::Set(character_id);
+        let value = model.update(db).await?;
+        Ok(value)
+    }
+}

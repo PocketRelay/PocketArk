@@ -12,9 +12,19 @@ pub mod shared_data;
 pub mod users;
 
 pub type Character = characters::Model;
+pub type CharacterEntity = characters::Entity;
+
 pub type Currency = currency::Model;
+pub type CurrencyEnitty = currency::Entity;
+
 pub type SharedData = shared_data::Model;
+pub type SharedDataEntity = shared_data::Entity;
+
 pub type InventoryItem = inventory_items::Model;
+pub type InventoryItemEntity = inventory_items::Entity;
+
+pub type User = users::Model;
+pub type UserEntity = users::Entity;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]

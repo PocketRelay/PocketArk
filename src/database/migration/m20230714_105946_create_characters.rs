@@ -1,6 +1,6 @@
 use sea_orm_migration::prelude::*;
 
-use super::{m20230714_105755_create_users::Users, m20230714_113455_class_data::ClassData};
+use super::m20230714_105755_create_users::Users;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -48,11 +48,6 @@ impl MigrationTrait for Migration {
                             .from(Characters::Table, Characters::UserId)
                             .to(Users::Table, Users::Id)
                             .on_delete(ForeignKeyAction::Cascade),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .from(Characters::Table, Characters::ClassName)
-                            .to(ClassData::Table, ClassData::Name),
                     )
                     .to_owned(),
             )

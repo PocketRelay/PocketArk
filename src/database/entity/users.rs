@@ -1,5 +1,9 @@
 use sea_orm::entity::prelude::*;
 
+use crate::database::DbResult;
+
+use super::SharedData;
+
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {
@@ -58,3 +62,20 @@ impl Related<super::shared_data::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl Model {
+    pub async fn get_shared_data(&self, db: &DatabaseConnection) -> DbResult<SharedData> {
+        let data = self
+            .find_related(super::shared_data::Entity)
+            .one(db)
+            .await?;
+        if let Some(data) = data {
+            return Ok(data);
+        }
+
+        let new_data = super::shared_data::ActiveModel {
+            ..Default::default()
+        };
+        new_data.insert(db).await
+    }
+}
