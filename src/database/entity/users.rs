@@ -1,8 +1,6 @@
-use sea_orm::entity::prelude::*;
-
-use crate::database::DbResult;
-
-use super::{Currency, SharedData};
+use super::{shared_data::CharacterSharedEquipment, Currency, SharedData};
+use crate::{database::DbResult, http::models::character::CharacterEquipment};
+use sea_orm::{entity::prelude::*, IntoActiveModel};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
@@ -64,6 +62,8 @@ impl Related<super::shared_data::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
+    pub async fn create_user() {}
+
     pub async fn get_shared_data(&self, db: &DatabaseConnection) -> DbResult<SharedData> {
         let data = self
             .find_related(super::shared_data::Entity)
@@ -77,6 +77,27 @@ impl Model {
             ..Default::default()
         };
         new_data.insert(db).await
+    }
+
+    pub async fn set_shared_equipment(
+        &self,
+        list: Vec<CharacterEquipment>,
+        db: &DatabaseConnection,
+    ) -> DbResult<SharedData> {
+        let shared_data = self.get_shared_data(db).await?;
+        let mut shared_data = shared_data.into_active_model();
+        shared_data.shared_equipment = sea_orm::ActiveValue::Set(CharacterSharedEquipment { list });
+        shared_data.update(db).await
+    }
+    pub async fn set_active_character(
+        &self,
+        uuid: Uuid,
+        db: &DatabaseConnection,
+    ) -> DbResult<SharedData> {
+        let shared_data = self.get_shared_data(db).await?;
+        let mut shared_data = shared_data.into_active_model();
+        shared_data.active_character_id = sea_orm::ActiveValue::Set(uuid);
+        shared_data.update(db).await
     }
 
     pub async fn get_currencies(&self, db: &DatabaseConnection) -> DbResult<Vec<Currency>> {

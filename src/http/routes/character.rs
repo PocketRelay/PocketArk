@@ -1,7 +1,7 @@
 use crate::{
     database::entity::{
-        characters::{CustomizationMap, EquipmentList},
-        Character,
+        characters::{self, CustomizationMap, EquipmentList},
+        shared_data, Character,
     },
     http::{
         middleware::user::Auth,
@@ -28,10 +28,7 @@ use uuid::Uuid;
 pub async fn get_characters(Auth(user): Auth) -> Result<Json<CharactersResponse>, HttpError> {
     let db = App::database();
 
-    let list = user
-        .find_related(crate::database::entity::characters::Entity)
-        .all(db)
-        .await?;
+    let list = user.find_related(characters::Entity).all(db).await?;
 
     let shared_data = user.get_shared_data(db).await?;
 
@@ -48,8 +45,8 @@ pub async fn get_character(
     let db = App::database();
 
     let character = user
-        .find_related(crate::database::entity::characters::Entity)
-        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .find_related(characters::Entity)
+        .filter(characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -72,9 +69,8 @@ pub async fn set_active(
     debug!("Requested set active character: {}", character_id);
     let db = App::database();
 
-    let shared_data = user.get_shared_data(db).await?;
     // TODO: validate the character is actually owned
-    let _ = shared_data.set_active_character(character_id, db).await?;
+    let _ = user.set_active_character(character_id, db).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -90,8 +86,8 @@ pub async fn get_character_equip(
     let db = App::database();
 
     let character = user
-        .find_related(crate::database::entity::characters::Entity)
-        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .find_related(characters::Entity)
+        .filter(characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -115,8 +111,8 @@ pub async fn update_character_equip(
     let db = App::database();
 
     let character = user
-        .find_related(crate::database::entity::characters::Entity)
-        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .find_related(characters::Entity)
+        .filter(characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -138,15 +134,7 @@ pub async fn update_shared_equip(
     debug!("Update shared equipment: {:?}", req);
 
     let db = App::database();
-
-    let shared_data = user.get_shared_data(db).await?;
-
-    let mut shared_data = shared_data.into_active_model();
-    shared_data.shared_equipment = ActiveValue::Set(
-        crate::database::entity::shared_data::CharacterSharedEquipment { list: req.list },
-    );
-    let _ = shared_data.update(db).await?;
-
+    let _ = user.set_shared_equipment(req.list, db).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -166,8 +154,8 @@ pub async fn update_character_customization(
     let db = App::database();
 
     let character = user
-        .find_related(crate::database::entity::characters::Entity)
-        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .find_related(characters::Entity)
+        .filter(characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -199,8 +187,8 @@ pub async fn get_character_equip_history(
     let db = App::database();
 
     let character = user
-        .find_related(crate::database::entity::characters::Entity)
-        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .find_related(characters::Entity)
+        .filter(characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -221,8 +209,8 @@ pub async fn update_skill_tree(
     let db = App::database();
 
     let mut character = user
-        .find_related(crate::database::entity::characters::Entity)
-        .filter(crate::database::entity::characters::Column::CharacterId.eq(character_id))
+        .find_related(characters::Entity)
+        .filter(characters::Column::CharacterId.eq(character_id))
         .one(db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
