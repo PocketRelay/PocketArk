@@ -5,10 +5,12 @@ use chrono::Utc;
 
 use hyper::StatusCode;
 use log::debug;
+use sea_orm::{ActiveModelTrait, EntityTrait};
 use serde_json::Map;
+use uuid::Uuid;
 
 use crate::{
-    database::entity::{InventoryItem, ValueMap},
+    database::entity::{characters, Character, InventoryItem, InventoryItemEntity, ValueMap},
     http::{
         middleware::user::Auth,
         models::{
@@ -68,23 +70,57 @@ pub async fn obtain_article(
 
     let now = Utc::now();
 
-    let items: Vec<InventoryItem> = vec![InventoryItem {
-        id: 0,
-        user_id: 1,
-        item_id: uuid::uuid!("ac948017-beb4-459d-8861-fab0b950d5da"),
-        definition_name: "c5b3d9e6-7932-4579-ba8a-fd469ed43fda".to_string(),
-        stack_size: 1,
-        seen: false,
-        instance_attributes: ValueMap(Map::new()),
-        created: now,
-        last_grant: now,
-        earned_by: "granted".to_string(),
-        restricted: false,
-    }];
-    let definitions: Vec<&'static ItemDefinition> = items
+    // categories:
+    // 0 = characters
+    // 12 = store pack
+
+    let ids = [
+        "00deb555-5cb5-4473-ac9a-22e9d1ac2328",
+        "088efa63-ebdf-4fe5-a52c-0eefa0c92852",
+    ];
+
+    let items = ids
+        .into_iter()
+        .map(|id| InventoryItem::create_item(&user, id.to_string(), 1));
+
+    let mut items_out = Vec::with_capacity(items.len());
+    for item in items {
+        let value = item.insert(db).await?;
+        items_out.push(value);
+    }
+
+    let definitions: Vec<&'static ItemDefinition> = items_out
         .iter()
         .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
         .collect();
+
+    for item in &items_out {
+        let def = definitions
+            .iter()
+            .find(|value| item.definition_name == value.name);
+        if let Some(def) = def {
+            if def.category.eq("0") {
+                let uuid = Uuid::parse_str(&def.name);
+                if let Ok(uuid) = uuid {
+                    Character::create_from_item(&user, uuid, db).await?;
+                }
+            }
+        }
+    }
+
+    // let items: Vec<InventoryItem> = vec![InventoryItem {
+    //     id: 0,
+    //     user_id: 1,
+    //     item_id: uuid::uuid!("ac948017-beb4-459d-8861-fab0b950d5da"),
+    //     definition_name: "c5b3d9e6-7932-4579-ba8a-fd469ed43fda".to_string(),
+    //     stack_size: 1,
+    //     seen: false,
+    //     instance_attributes: ValueMap(Map::new()),
+    //     created: now,
+    //     last_grant: now,
+    //     earned_by: "granted".to_string(),
+    //     restricted: false,
+    // }];
 
     let activity = ActivityResult {
         previous_xp: 0,
@@ -100,7 +136,7 @@ pub async fn obtain_article(
         news_triggered: 0,
         currencies,
         currency_earned: vec![],
-        items_earned: items.clone(),
+        items_earned: items_out.clone(),
         item_definitions: definitions.clone(),
         entitlements_granted: vec![],
         prestige_progression_map: Map::new(),
@@ -109,7 +145,7 @@ pub async fn obtain_article(
 
     Ok(Json(ObtainStoreItemResponse {
         generated_activity_result: activity,
-        items,
+        items: items_out,
         definitions,
     }))
 }

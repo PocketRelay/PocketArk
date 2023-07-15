@@ -47,8 +47,24 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
+    pub fn create_item(user: &User, definition_name: String, stack_size: u32) -> ActiveModel {
         let now = Utc::now();
+        ActiveModel {
+            id: ActiveValue::NotSet,
+            user_id: ActiveValue::Set(user.id),
+            item_id: ActiveValue::Set(Uuid::new_v4()),
+            definition_name: ActiveValue::Set(definition_name),
+            stack_size: ActiveValue::Set(stack_size),
+            seen: ActiveValue::Set(false),
+            instance_attributes: ActiveValue::Set(ValueMap::default()),
+            created: ActiveValue::Set(now),
+            last_grant: ActiveValue::Set(now),
+            earned_by: ActiveValue::Set("granted".to_string()),
+            restricted: ActiveValue::Set(false),
+        }
+    }
+
+    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
         // Create models from initial item defs
         let items = [
             "79f3511c-55da-67f0-5002-359c370015d8", // HUMAN FEMALE SOLDIER
@@ -68,19 +84,7 @@ impl Model {
             "ca7d0f24-fc19-4a78-9d25-9c84eb01e3a5", // M-23 KATANA
         ]
         .into_iter()
-        .map(|definition_name| ActiveModel {
-            id: ActiveValue::NotSet,
-            user_id: ActiveValue::Set(user.id),
-            item_id: ActiveValue::Set(Uuid::new_v4()),
-            definition_name: ActiveValue::Set(definition_name.to_string()),
-            stack_size: ActiveValue::Set(1),
-            seen: ActiveValue::Set(false),
-            instance_attributes: ActiveValue::Set(ValueMap::default()),
-            created: ActiveValue::Set(now),
-            last_grant: ActiveValue::Set(now),
-            earned_by: ActiveValue::Set("granted".to_string()),
-            restricted: ActiveValue::Set(false),
-        });
+        .map(|definition_name| Self::create_item(user, definition_name.to_string(), 1));
         Entity::insert_many(items)
             .exec_without_returning(db)
             .await?;
