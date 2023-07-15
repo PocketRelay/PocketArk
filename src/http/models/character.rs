@@ -19,7 +19,7 @@ pub struct CharactersResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateCustomizationRequest {
-    pub customization: HashMap<String, CustomizationEntry>,
+    pub customization: HashMap<String, CustomizationEntryUpdate>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -62,11 +62,36 @@ pub struct SkillTreeTier {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CharacterEquipment {
     pub slot: String,
-    pub name: MaybeUuid,
-    pub attachments: Vec<Uuid>,
+    pub name: String,
+    pub attachments: Vec<String>,
 }
 
 use serde_with::DisplayFromStr;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomizationEntryUpdate {
+    pub value_x: f32,
+    pub value_y: f32,
+    pub value_z: f32,
+    pub value_w: f32,
+    #[serde(rename = "type")]
+    pub ty: u32,
+    pub param_id: u32,
+}
+
+impl From<CustomizationEntryUpdate> for CustomizationEntry {
+    fn from(value: CustomizationEntryUpdate) -> Self {
+        Self {
+            value_x: value.value_x,
+            value_y: value.value_y,
+            value_z: value.value_z,
+            value_w: value.value_w,
+            ty: value.ty,
+            param_id: value.param_id,
+        }
+    }
+}
 
 #[serde_as]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -116,56 +141,6 @@ pub struct LevelTableEntry {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CharacterEquipmentList {
     pub list: Vec<CharacterEquipment>,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct MaybeUuid(pub Option<Uuid>);
-
-impl Serialize for MaybeUuid {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        if let Some(value) = &self.0 {
-            value.serialize(serializer)
-        } else {
-            serializer.serialize_str("")
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for MaybeUuid {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        struct EmptyOrUuid;
-
-        impl<'de> Visitor<'de> for EmptyOrUuid {
-            type Value = MaybeUuid;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("empty string or UUID")
-            }
-
-            fn visit_str<E>(self, value: &str) -> Result<MaybeUuid, E>
-            where
-                E: serde::de::Error,
-            {
-                if value.is_empty() {
-                    Ok(MaybeUuid(None))
-                } else {
-                    Uuid::parse_str(value)
-                        .map_err(|e| {
-                            serde::de::Error::custom(format_args!("UUID parsing failed: {}", e))
-                        })
-                        .map(|value| MaybeUuid(Some(value)))
-                }
-            }
-        }
-
-        deserializer.deserialize_str(EmptyOrUuid)
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

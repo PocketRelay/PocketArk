@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     database::entity::{
         characters::{CustomizationMap, EquipmentList},
@@ -125,7 +127,7 @@ pub async fn get_character_equip(
     }))
 }
 
-/// PUT /character/:id/equipment'
+/// PUT /character/:id/equipment
 ///
 /// Updates the equipment for the provided character using
 /// the provided equipment list
@@ -216,8 +218,14 @@ pub async fn update_character_customization(
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
 
+    let map = req
+        .customization
+        .into_iter()
+        .map(|(key, value)| (key, value.into()))
+        .collect();
+
     let mut character = character.into_active_model();
-    character.customization = ActiveValue::Set(CustomizationMap(req.customization));
+    character.customization = ActiveValue::Set(CustomizationMap(map));
     let _ = character.update(db).await;
 
     Ok(StatusCode::NO_CONTENT)

@@ -4,13 +4,16 @@ use interlink::{
 };
 use uuid::Uuid;
 
-use crate::blaze::{
-    models::{
-        user_sessions::{IpPairAddress, NetData},
-        PlayerState,
+use crate::{
+    blaze::{
+        models::{
+            user_sessions::{IpPairAddress, NetData},
+            PlayerState,
+        },
+        pk::{codec::Encodable, packet::Packet, tag::TdfType, types::TdfMap, writer::TdfWriter},
+        session::{PushExt, SessionLink, SetGameMessage},
     },
-    pk::{codec::Encodable, packet::Packet, tag::TdfType, types::TdfMap, writer::TdfWriter},
-    session::{PushExt, SessionLink, SetGameMessage, User},
+    database::entity::User,
 };
 
 pub mod manager;
@@ -296,7 +299,7 @@ impl Player {
         w.tag_u8(b"JFPS", 1);
         w.tag_u8(b"JVMM", 1);
         w.tag_u32(b"LOC", 0x64654445);
-        w.tag_str(b"NAME", &self.user.name);
+        w.tag_str(b"NAME", &self.user.username);
         w.tag_str(b"NASP", "cem_ea_id");
         w.tag_u32(b"PID", self.user.id);
         IpPairAddress::tag(self.net.addr.as_ref(), b"PNET", w);

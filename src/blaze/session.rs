@@ -7,6 +7,7 @@ use crate::{
         packet::{Packet, PacketDebug},
         router::HandleError,
     },
+    database::entity::User,
     http::middleware::upgrade::UpgradedTarget,
     services::game::{GameID, Player},
     state::App,
@@ -25,13 +26,18 @@ pub struct Session {
     pub game: Option<u32>,
 }
 
-#[derive(Clone)]
-pub struct User {
-    pub id: u32,
-    pub name: String,
-}
-
 pub type SessionLink = Link<Session>;
+
+#[derive(Message)]
+#[msg(rtype = "User")]
+pub struct GetUserMessage;
+
+impl Handler<GetUserMessage> for Session {
+    type Response = Mr<GetUserMessage>;
+    fn handle(&mut self, msg: GetUserMessage, ctx: &mut ServiceContext<Self>) -> Self::Response {
+        Mr(self.user.clone())
+    }
+}
 
 #[derive(Message)]
 #[msg(rtype = "Player")]

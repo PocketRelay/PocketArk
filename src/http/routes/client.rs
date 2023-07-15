@@ -14,10 +14,8 @@ use tokio::io::split;
 use tokio_util::codec::{Framed, FramedRead, FramedWrite};
 
 use crate::{
-    blaze::{
-        pk::packet::PacketCodec,
-        session::{Session, User},
-    },
+    blaze::{pk::packet::PacketCodec, session::Session},
+    database::entity::User,
     http::middleware::upgrade::BlazeUpgrade,
     state::VERSION,
 };
@@ -64,7 +62,8 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
             // TODO: Validate authentication to obtain player deets
             let user = User {
                 id: 1,
-                name: "Jacobtread".to_string(),
+                username: "Jacobtread".to_string(),
+                password: "".to_string(),
             };
 
             Session::new(writer, socket.host_target, user)

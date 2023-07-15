@@ -19,7 +19,7 @@ pub struct AuthRequest {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthResponse {
-    pub session_id: Uuid,
+    pub session_id: String,
     pub user: AuthUser,
     pub pid: String,
     pub server_time: DateTime<Utc>,

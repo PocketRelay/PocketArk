@@ -10,7 +10,7 @@ pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
     Json(AuthResponse {
-        session_id: Uuid::new_v4(),
+        session_id: "abc-123".to_string(),
         user: AuthUser {
             roles: &[
                 "GameSettings.Anonymous",
