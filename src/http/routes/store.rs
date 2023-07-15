@@ -1,16 +1,5 @@
-use std::collections::HashMap;
-
-use axum::Json;
-use chrono::Utc;
-
-use hyper::StatusCode;
-use log::debug;
-use sea_orm::{ActiveModelTrait, EntityTrait};
-use serde_json::Map;
-use uuid::Uuid;
-
 use crate::{
-    database::entity::{characters, Character, InventoryItem, InventoryItemEntity, ValueMap},
+    database::entity::{Character, InventoryItem},
     http::{
         middleware::user::Auth,
         models::{
@@ -24,6 +13,13 @@ use crate::{
     },
     state::App,
 };
+use axum::Json;
+use chrono::Utc;
+use hyper::StatusCode;
+use log::debug;
+use sea_orm::ActiveModelTrait;
+use serde_json::Map;
+use uuid::Uuid;
 
 /// Definition file for the contents of the in-game store
 static STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
@@ -91,7 +87,7 @@ pub async fn obtain_article(
 
     let definitions: Vec<&'static ItemDefinition> = items_out
         .iter()
-        .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
+        .filter_map(|item| services.defs.inventory.lookup(&item.definition_name))
         .collect();
 
     for item in &items_out {

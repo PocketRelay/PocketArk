@@ -1,4 +1,4 @@
-use std::{collections::HashMap, process::exit};
+use std::{collections::HashMap, hash::Hash, process::exit};
 
 use crate::http::models::{
     character::{Class, LevelTable, SkillDefinition},
@@ -50,13 +50,7 @@ impl Definitions {
         };
 
         debug!("Loaded {} inventory item definition(s)", list.len());
-
-        let map: HashMap<String, ItemDefinition> = list
-            .iter()
-            .map(|value| (value.name.clone(), value.clone()))
-            .collect();
-
-        LookupList { map, list }
+        LookupList::create(list, |value| value.name.to_string())
     }
 
     fn load_skills() -> LookupList<Uuid, SkillDefinition> {
@@ -70,12 +64,7 @@ impl Definitions {
 
         debug!("Loaded {} skill definition(s)", list.len());
 
-        let map: HashMap<Uuid, SkillDefinition> = list
-            .iter()
-            .map(|value| (value.name.clone(), value.clone()))
-            .collect();
-
-        LookupList { map, list }
+        LookupList::create(list, |value| value.name)
     }
     fn load_classes() -> LookupList<Uuid, Class> {
         let list: Vec<Class> = match serde_json::from_str(CLASS_DEFINITIONS) {
@@ -88,17 +77,14 @@ impl Definitions {
 
         debug!("Loaded {} class definition(s)", list.len());
 
-        let map: HashMap<Uuid, Class> = list
-            .iter()
-            .filter_map(|value| {
-                let (_left, right) = value.item_link.split_once(':')?;
-                let uuid = Uuid::try_parse(right).ok()?;
+        LookupList::create(list, |value| {
+            let (_left, right) = value
+                .item_link
+                .split_once(':')
+                .expect("Failed to parse class");
 
-                Some((uuid, value.clone()))
-            })
-            .collect();
-
-        LookupList { map, list }
+            Uuid::try_parse(right).expect("Failed to parse class UUID")
+        })
     }
     fn load_level_tables() -> LookupList<Uuid, LevelTable> {
         let list: Vec<LevelTable> = match serde_json::from_str(LEVEL_TABLE_DEFINITIONS) {
@@ -111,17 +97,38 @@ impl Definitions {
 
         debug!("Loaded {} level table definition(s)", list.len());
 
-        let map: HashMap<Uuid, LevelTable> = list
-            .iter()
-            .map(|value| (value.name.clone(), value.clone()))
-            .collect();
-
-        LookupList { map, list }
+        LookupList::create(list, |value| value.name)
     }
 }
 
-/// Map and list combined
 pub struct LookupList<K, V> {
-    pub map: HashMap<K, V>,
-    pub list: Vec<V>,
+    lookup: HashMap<K, usize>,
+    list: Vec<V>,
+}
+
+impl<K, V> LookupList<K, V>
+where
+    K: Hash + PartialEq + Eq,
+{
+    pub fn create<F>(list: Vec<V>, key_fn: F) -> LookupList<K, V>
+    where
+        F: Fn(&V) -> K,
+    {
+        let mut lookup = HashMap::with_capacity(list.len());
+        list.iter().enumerate().for_each(|(index, value)| {
+            let key = key_fn(value);
+            lookup.insert(key, index);
+        });
+        LookupList { lookup, list }
+    }
+
+    pub fn list(&self) -> &[V] {
+        &self.list
+    }
+
+    pub fn lookup(&self, key: &K) -> Option<&V> {
+        let index = self.lookup.get(key)?;
+        let value = &self.list[*index];
+        Some(value)
+    }
 }

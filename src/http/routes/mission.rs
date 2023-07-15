@@ -1,5 +1,4 @@
 use axum::{extract::Path, Json};
-use bytes::Bytes;
 use hyper::StatusCode;
 use log::debug;
 use serde_json::Value;
@@ -27,6 +26,8 @@ pub async fn current_missions() -> RawJson {
 ///
 /// Obtains the details about a specific mission
 pub async fn get_mission(Path(mission_id): Path<u32>) -> RawJson {
+    debug!("Requested mission details: {}", mission_id);
+
     static RESP: &str =
         include_str!("../../resources/defs/raw/Get_Mission_Details-1688700361289.json");
     RawJson(RESP)

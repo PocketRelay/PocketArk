@@ -1,9 +1,7 @@
 use axum::Json;
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{
-    sea_query::Expr, ActiveModelTrait, ColumnTrait, EntityTrait, ModelTrait, QueryFilter, Value,
-};
+use sea_orm::{sea_query::Expr, ColumnTrait, EntityTrait, ModelTrait, QueryFilter, Value};
 use serde_json::Map;
 use uuid::Uuid;
 
@@ -34,7 +32,7 @@ pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, 
 
     let definitions: Vec<&'static ItemDefinition> = items
         .iter()
-        .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
+        .filter_map(|item| services.defs.inventory.lookup(&item.definition_name))
         .collect();
 
     Ok(Json(InventoryResponse { items, definitions }))
@@ -46,7 +44,7 @@ pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, 
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
-    let list: &'static [ItemDefinition] = &services.defs.inventory.list;
+    let list: &'static [ItemDefinition] = &services.defs.inventory.list();
     Json(InventoryDefinitions {
         total_count: list.len(),
         list,
@@ -119,7 +117,7 @@ pub async fn consume_inventory(
 
     let definitions: Vec<&'static ItemDefinition> = items
         .iter()
-        .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
+        .filter_map(|item| services.defs.inventory.lookup(&item.definition_name))
         .collect();
 
     // TODO: Ha: u32ndle pack opening, consuming etc

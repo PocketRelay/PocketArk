@@ -54,7 +54,7 @@ impl Handler<UpdateStateMessage> for Game {
     fn handle(
         &mut self,
         msg: UpdateStateMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.state = msg.state;
         self.notify_state();
@@ -72,7 +72,7 @@ impl Handler<UpdatePlayerAttr> for Game {
     fn handle(
         &mut self,
         msg: UpdatePlayerAttr,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.notify_all(
             4,
@@ -105,7 +105,7 @@ impl Handler<UpdateGameAttrMessage> for Game {
     fn handle(
         &mut self,
         msg: UpdateGameAttrMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.notify_all(
             4,
@@ -215,8 +215,8 @@ impl Handler<GameFinishMessage> for Game {
 
     fn handle(
         &mut self,
-        msg: GameFinishMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _msg: GameFinishMessage,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.notify_all(4, 100, NotifyGameFinish { game_id: self.id })
     }
@@ -235,9 +235,9 @@ impl Handler<AddPlayerMessage> for Game {
     fn handle(
         &mut self,
         msg: AddPlayerMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
-        let slot = self.players.len();
+        let _slot = self.players.len();
 
         self.players.push(msg.player);
 

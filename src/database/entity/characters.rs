@@ -106,7 +106,7 @@ impl Model {
     fn xp_from_level(level_name: Uuid, level: u32) -> Xp {
         let services = App::services();
         let defs = &services.defs;
-        let level_table = match defs.level_tables.map.get(&level_name) {
+        let level_table = match defs.level_tables.lookup(&level_name) {
             Some(value) => value,
             None => {
                 return Xp {
@@ -153,7 +153,7 @@ impl Model {
 
         let services = App::services();
         let defs = &services.defs;
-        let class_def = defs.classes.map.get(&uuid);
+        let class_def = defs.classes.lookup(&uuid);
         if let Some(class_def) = class_def {
             let mut point_map = HashMap::new();
             point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);

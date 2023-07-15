@@ -7,9 +7,7 @@ use axum::{
 use hyper::StatusCode;
 use tower::ServiceBuilder;
 use tower_http::{
-    compression::CompressionLayer,
-    decompression::{DecompressionLayer, RequestDecompressionLayer},
-    trace::TraceLayer,
+    compression::CompressionLayer, decompression::RequestDecompressionLayer, trace::TraceLayer,
 };
 
 mod activity;

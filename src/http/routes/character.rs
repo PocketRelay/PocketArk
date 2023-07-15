@@ -245,9 +245,9 @@ pub async fn update_skill_tree(
 /// GET /character/classes
 pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, HttpError> {
     let services = App::services();
-    let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list;
+    let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list();
 
-    let mut list: Vec<Class> = services.defs.classes.list.clone();
+    let mut list: Vec<Class> = services.defs.classes.list().to_vec();
 
     let db = App::database();
 
@@ -277,7 +277,7 @@ pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, Htt
 pub async fn get_level_tables() -> Json<CharacterLevelTables> {
     let services = App::services();
     Json(CharacterLevelTables {
-        list: &services.defs.level_tables.list,
+        list: services.defs.level_tables.list(),
     })
 }
 
