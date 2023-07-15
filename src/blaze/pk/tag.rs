@@ -76,6 +76,8 @@ pub enum TdfType {
     Triple = 0x9,
     /// f32 value
     Float = 0xA,
+    // Not yet properly decoded
+    // U = 0xC,
 }
 
 /// Convert bytes back to tdf types

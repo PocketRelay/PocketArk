@@ -147,6 +147,7 @@ impl Encodable for NotifyGameAttr {
 
 impl Game {
     pub fn new(id: u32) -> Link<Game> {
+        // TODO: Take attributes provided by client matchmaking
         let this = Self {
             id,
             state: 1,
@@ -203,6 +204,21 @@ impl Game {
                 state: self.state,
             },
         );
+    }
+}
+
+#[derive(Message)]
+pub struct GameFinishMessage;
+
+impl Handler<GameFinishMessage> for Game {
+    type Response = ();
+
+    fn handle(
+        &mut self,
+        msg: GameFinishMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        self.notify_all(4, 100, NotifyGameFinish { game_id: self.id })
     }
 }
 
@@ -377,7 +393,7 @@ impl Encodable for GameDetails<'_> {
 
             w.tag_u64(b"GPVH", 3788120962);
             w.tag_u32(b"GSET", game.setting);
-            w.tag_u64(b"GSID", 60474918); // SHOULD MATCH START MISSION RESPONSE ID
+            w.tag_u32(b"GSID", game.id); // SHOULD MATCH START MISSION RESPONSE ID
             w.tag_value(b"GSTA", &game.state);
 
             w.tag_str_empty(b"GTYP");
@@ -513,5 +529,15 @@ impl Encodable for NotifyStateUpdate {
     fn encode(&self, w: &mut TdfWriter) {
         w.tag_u32(b"GID", self.game_id);
         w.tag_u8(b"GSTA", self.state)
+    }
+}
+struct NotifyGameFinish {
+    game_id: u32,
+}
+
+impl Encodable for NotifyGameFinish {
+    fn encode(&self, w: &mut TdfWriter) {
+        w.tag_u32(b"GID", self.game_id);
+        w.tag_u32(b"GRID", self.game_id)
     }
 }
