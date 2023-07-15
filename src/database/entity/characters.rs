@@ -158,6 +158,7 @@ impl Model {
             let mut point_map = HashMap::new();
             point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
 
+            // Insert chracter
             let model = ActiveModel {
                 id: ActiveValue::NotSet,
                 character_id: ActiveValue::Set(Uuid::new_v4()),
@@ -183,6 +184,15 @@ impl Model {
                 promotable: ActiveValue::Set(false),
             };
             let _ = model.insert(db).await?;
+
+            // Insert unlocked
+            let class_data = super::class_data::ActiveModel {
+                id: ActiveValue::NotSet,
+                name: ActiveValue::Set(class_def.name),
+                unlocked: ActiveValue::Set(true),
+                user_id: ActiveValue::Set(user.id),
+            };
+            let _ = class_data.insert(db).await?;
         }
         Ok(())
     }
