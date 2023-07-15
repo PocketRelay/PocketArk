@@ -1,5 +1,9 @@
-use sea_orm::entity::prelude::*;
+use sea_orm::{entity::prelude::*, ActiveValue};
 use serde::{Deserialize, Serialize};
+
+use crate::database::DbResult;
+
+use super::User;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "currency")]
@@ -30,3 +34,21 @@ impl Related<super::users::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl Model {
+    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
+        // Create models for initial currency values
+        let items = ["MTXCurrency", "GrindCurrency", "MissionCurrency"]
+            .into_iter()
+            .map(|name| ActiveModel {
+                id: ActiveValue::NotSet,
+                user_id: ActiveValue::Set(user.id),
+                name: ActiveValue::Set(name.to_string()),
+                balance: ActiveValue::Set(0),
+            });
+        Entity::insert_many(items)
+            .exec_without_returning(db)
+            .await?;
+        Ok(())
+    }
+}

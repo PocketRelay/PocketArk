@@ -26,6 +26,6 @@ pub type InventoryItemEntity = inventory_items::Entity;
 pub type User = users::Model;
 pub type UserEntity = users::Entity;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
 pub struct ValueMap(pub HashMap<String, serde_json::Value>);

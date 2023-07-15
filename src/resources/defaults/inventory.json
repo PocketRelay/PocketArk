@@ -1,0 +1,178 @@
+[
+    {
+        "itemId": "1805b5c8-d507-4b71-abf0-71fcf024fb78",
+        "definitionName": "79f3511c-55da-67f0-5002-359c370015d8",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "80759d15-633f-45f9-b98b-257bca241b78",
+        "definitionName": "a3960123-3625-4126-82e4-1f9a127d33aa",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "d823a749-e8f9-494c-85c3-ddbd443aa16f",
+        "definitionName": "baae0381-8690-4097-ae6d-0c16473519b4",
+        "stackSize": 2,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2023-07-05T01:50:47.767+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "b9c052e8-a7c2-42ea-be53-ef5e4c864d13",
+        "definitionName": "c756c741-1bc8-47a8-9f35-b7ca943ba034",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "40c9b2b3-5c67-4153-9cd3-6981a407b61c",
+        "definitionName": "cae8a2f3-fdaf-471c-9391-c29f6d4308c3",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "675f2104-173c-4e38-883e-3daa91c76bf4",
+        "definitionName": "e4357633-93bc-4596-99c3-4cc0a49b2277",
+        "stackSize": 2,
+        "seen": false,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2023-07-05T01:50:05.586+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "0171ce21-fd9f-4c6b-9a99-9981880be3d7",
+        "definitionName": "7fd30824-e20c-473e-b906-f4f30ebc4bb0",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "93e6012a-033f-4204-8b2d-51f10588ed8e",
+        "definitionName": "96fa16c5-9f2b-46f8-a491-a4b0a24a1089",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "7eb23547-dd73-455e-aca0-dd313dddc7d7",
+        "definitionName": "34aeef66-a030-445e-98e2-1513c0c78df4",
+        "stackSize": 1,
+        "seen": false,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "421f53f2-1d1e-4c24-aa83-6e9540beef6f",
+        "definitionName": "af3a2cf0-dff7-4ca8-9199-73ce546c3e7b",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "6820f552-de48-4432-afdf-a7ec8f247e6b",
+        "definitionName": "319ffe5d-f8fb-4217-bd2f-2e8af4f53fc8",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "96b33c3d-eece-4220-ab6a-dbfeb24ac7ae",
+        "definitionName": "e2f76cf1-4b42-4dba-9751-f2add5c3f654",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:37.985+0000",
+        "lastGrant": "2022-02-09T12:19:37.985+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "2aea15eb-49f9-4eff-bd65-aa3e43570dd2",
+        "definitionName": "4ccc7f54-791c-4b66-954b-a0bd6496f210",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:38.106+0000",
+        "lastGrant": "2022-02-09T12:19:38.106+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "ea23607a-8141-4204-b3da-18d4c762b564",
+        "definitionName": "d5bf2213-d2d2-f892-7310-c39a15fb2ef3",
+        "stackSize": 3,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:38.106+0000",
+        "lastGrant": "2023-07-06T22:24:06.777+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "6c60657e-cae2-4900-a82e-cb1b6ed963aa",
+        "definitionName": "38e07595-764b-4d9c-b466-f26c7c416860",
+        "stackSize": 3,
+        "seen": false,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:38.106+0000",
+        "lastGrant": "2023-07-05T01:50:55.033+0000",
+        "earndBy": "granted",
+        "restricted": false
+    },
+    {
+        "itemId": "3abaab9d-7a6d-4b80-8f79-dfe9b82f6204",
+        "definitionName": "ca7d0f24-fc19-4a78-9d25-9c84eb01e3a5",
+        "stackSize": 1,
+        "seen": true,
+        "instanceAttributes": {},
+        "created": "2022-02-09T12:19:38.106+0000",
+        "lastGrant": "2022-02-09T12:19:38.106+0000",
+        "earndBy": "granted",
+        "restricted": false
+    }
+]
