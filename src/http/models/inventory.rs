@@ -1,5 +1,4 @@
-use super::store::Currency;
-use crate::database::entity::InventoryItem;
+use crate::database::entity::{Currency, InventoryItem};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;

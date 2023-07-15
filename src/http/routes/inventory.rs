@@ -1,42 +1,37 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
+use axum::Json;
 use hyper::StatusCode;
-use log::{debug, error};
+use log::debug;
+use sea_orm::{
+    sea_query::Expr, ActiveModelTrait, ColumnTrait, EntityTrait, ModelTrait, QueryFilter, Value,
+};
 use serde_json::Map;
+use uuid::Uuid;
 
 use crate::{
-    database::entity::InventoryItem,
-    http::models::{
-        inventory::{
-            ActivityResult, InventoryConsumeRequest, InventoryDefinitions, InventoryResponse,
-            InventorySeenList, ItemDefinition,
+    database::entity::{inventory_items, InventoryItem, InventoryItemEntity},
+    http::{
+        middleware::user::Auth,
+        models::{
+            inventory::{
+                ActivityResult, InventoryConsumeRequest, InventoryDefinitions, InventoryResponse,
+                InventorySeenList, ItemDefinition,
+            },
+            HttpError,
         },
-        store::Currency,
-        HttpError,
     },
     state::App,
 };
-
-static PLACEHOLDER_INVENTORY: &str = include_str!("../../resources/data/placeholderInventory.json");
 
 /// GET /inventory
 ///
 /// Responds with a list of all the players inventory items along
 /// with the definitions for the items
-pub async fn get_inventory() -> Result<Json<InventoryResponse>, HttpError> {
+pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, HttpError> {
     let services = App::services();
-    let items: Vec<InventoryItem> = serde_json::from_str(PLACEHOLDER_INVENTORY).map_err(|e| {
-        error!("Failed to load placeholder items: {}", e);
-        HttpError {
-            status: StatusCode::INTERNAL_SERVER_ERROR,
-            reason: "Failed to load placeholder items".to_string(),
-            cause: None,
-            stack_trace: None,
-            trace_id: None,
-        }
-    })?;
+    let db = App::database();
+
+    let items = user.find_related(inventory_items::Entity).all(db).await?;
+
     let definitions: Vec<&'static ItemDefinition> = items
         .iter()
         .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
@@ -61,10 +56,27 @@ pub async fn get_definitions() -> Json<InventoryDefinitions> {
 /// PUT /inventory/seen
 ///
 /// Updates the seen status of a list of inventory item IDs
-pub async fn update_inventory_seen(Json(req): Json<InventorySeenList>) -> Response {
+pub async fn update_inventory_seen(
+    Auth(user): Auth,
+    Json(req): Json<InventorySeenList>,
+) -> Result<StatusCode, HttpError> {
     debug!("Inventory seen change requested: {:?}", req);
+
+    let db = App::database();
+
+    // Updates all the matching items seen state
+    InventoryItemEntity::update_many()
+        .col_expr(
+            inventory_items::Column::Seen,
+            Expr::value(Value::Bool(Some(true))),
+        )
+        .filter(inventory_items::Column::ItemId.is_in(req.list))
+        .belongs_to(&user)
+        .exec(db)
+        .await?;
+
     // TODO: Actual database call to update the seen status
-    StatusCode::NO_CONTENT.into_response()
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// POST /inventory/consume
@@ -73,6 +85,7 @@ pub async fn update_inventory_seen(Json(req): Json<InventorySeenList>) -> Respon
 /// the inventory. Used when lootboxes are opened and when consumables are used
 /// within the game.
 pub async fn consume_inventory(
+    Auth(user): Auth,
     Json(req): Json<InventoryConsumeRequest>,
 ) -> Result<Json<ActivityResult>, HttpError> {
     debug!("Consume inventory items: {:?}", req);
@@ -90,23 +103,24 @@ pub async fn consume_inventory(
         });
     }
 
-    // TODO: Handle pack opening, consuming etc
+    let services = App::services();
+    let db = App::database();
 
-    let balance = u32::MAX / 2;
-    let currencies = vec![
-        Currency {
-            name: "MTXCurrency".to_string(),
-            balance,
-        },
-        Currency {
-            name: "GrindCurrency".to_string(),
-            balance,
-        },
-        Currency {
-            name: "MissionCurrency".to_string(),
-            balance,
-        },
-    ];
+    // Collect all the items to be consumed
+    let item_ids: Vec<Uuid> = req.items.into_iter().map(|value| value.item_id).collect();
+    let items: Vec<InventoryItem> = user
+        .find_related(inventory_items::Entity)
+        .filter(inventory_items::Column::ItemId.is_in(item_ids))
+        .all(db)
+        .await?;
+
+    let definitions: Vec<&'static ItemDefinition> = items
+        .iter()
+        .filter_map(|item| services.defs.inventory.map.get(&item.definition_name))
+        .collect();
+
+    // TODO: Ha: u32ndle pack opening, consuming etc
+    let currencies = user.get_currencies(db).await?;
 
     let activity = ActivityResult {
         previous_xp: 0,

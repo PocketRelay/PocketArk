@@ -1,13 +1,16 @@
 use sea_orm::entity::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "currency")]
 pub struct Model {
+    #[serde(skip)]
     #[sea_orm(primary_key)]
     pub id: u32,
+    #[serde(skip)]
     pub user_id: u32,
     pub name: String,
-    pub balance: i64,
+    pub balance: u32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

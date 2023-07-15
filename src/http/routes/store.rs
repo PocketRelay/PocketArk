@@ -9,13 +9,16 @@ use serde_json::Map;
 
 use crate::{
     database::entity::{InventoryItem, ValueMap},
-    http::models::{
-        inventory::{ActivityResult, ItemDefinition},
-        store::{
-            ClaimUncalimedResponse, Currency, ObtainStoreItemRequest, ObtainStoreItemResponse,
-            UpdateSeenArticles, UserCurrenciesResponse,
+    http::{
+        middleware::user::Auth,
+        models::{
+            inventory::{ActivityResult, ItemDefinition},
+            store::{
+                ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
+                UpdateSeenArticles, UserCurrenciesResponse,
+            },
+            HttpError, RawJson,
         },
-        RawJson,
     },
     state::App,
 };
@@ -45,8 +48,9 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
 /// Purchases an item from the store returning the results
 /// of the purchase
 pub async fn obtain_article(
+    Auth(user): Auth,
     Json(req): Json<ObtainStoreItemRequest>,
-) -> Json<ObtainStoreItemResponse> {
+) -> Result<Json<ObtainStoreItemResponse>, HttpError> {
     debug!("Requested buy store article: {:?}", req);
 
     // TODO:
@@ -54,21 +58,13 @@ pub async fn obtain_article(
     // - Take balance and give items
 
     let services = App::services();
-    let balance = u32::MAX / 2;
-    let currencies = vec![
-        Currency {
-            name: "MTXCurrency".to_string(),
-            balance,
-        },
-        Currency {
-            name: "GrindCurrency".to_string(),
-            balance,
-        },
-        Currency {
-            name: "MissionCurrency".to_string(),
-            balance,
-        },
-    ];
+    let db = App::database();
+    let currencies = user.get_currencies(db).await?;
+
+    let currency = currencies
+        .iter()
+        .find(|value| value.name == req.currency)
+        .ok_or(HttpError::new("Missing currency", StatusCode::BAD_REQUEST))?;
 
     let now = Utc::now();
 
@@ -111,11 +107,11 @@ pub async fn obtain_article(
         character_class_name: None,
     };
 
-    Json(ObtainStoreItemResponse {
+    Ok(Json(ObtainStoreItemResponse {
         generated_activity_result: activity,
         items,
         definitions,
-    })
+    }))
 }
 
 /// POST /store/unclaimed/claimAll
@@ -132,22 +128,10 @@ pub async fn claim_unclaimed() -> Json<ClaimUncalimedResponse> {
 ///
 /// Response with the balance the user has in each type
 /// of digital currency within the game
-pub async fn get_currencies() -> Json<UserCurrenciesResponse> {
-    let balance = u32::MAX / 2;
-    let list = vec![
-        Currency {
-            name: "MTXCurrency".to_string(),
-            balance,
-        },
-        Currency {
-            name: "GrindCurrency".to_string(),
-            balance,
-        },
-        Currency {
-            name: "MissionCurrency".to_string(),
-            balance,
-        },
-    ];
+pub async fn get_currencies(Auth(user): Auth) -> Result<Json<UserCurrenciesResponse>, HttpError> {
+    let services = App::services();
+    let db = App::database();
+    let currencies = user.get_currencies(db).await?;
 
-    Json(UserCurrenciesResponse { list })
+    Ok(Json(UserCurrenciesResponse { list: currencies }))
 }

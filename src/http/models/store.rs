@@ -2,15 +2,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database::entity::InventoryItem;
+use crate::database::entity::{Currency, InventoryItem};
 
 use super::inventory::{ActivityResult, ItemDefinition};
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Currency {
-    pub name: String,
-    pub balance: u32,
-}
 
 #[derive(Serialize)]
 pub struct UserCurrenciesResponse {

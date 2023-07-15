@@ -2,7 +2,7 @@ use sea_orm::entity::prelude::*;
 
 use crate::database::DbResult;
 
-use super::SharedData;
+use super::{Currency, SharedData};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
@@ -77,5 +77,9 @@ impl Model {
             ..Default::default()
         };
         new_data.insert(db).await
+    }
+
+    pub async fn get_currencies(&self, db: &DatabaseConnection) -> DbResult<Vec<Currency>> {
+        self.find_related(super::currency::Entity).all(db).await
     }
 }

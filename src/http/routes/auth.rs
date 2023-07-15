@@ -12,6 +12,8 @@ use crate::{
 pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
+    // TODO: Actually auth properly
+
     let token = Tokens::service_claim(1);
 
     Json(AuthResponse {

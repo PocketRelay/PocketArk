@@ -22,6 +22,8 @@ use crate::{
     http::models::character::CharactersResponse,
 };
 
+use self::entity::{Currency, CurrencyEnitty};
+
 /// Database error result type
 pub type DbResult<T> = Result<T, DbErr>;
 
@@ -57,6 +59,7 @@ pub async fn init() -> DatabaseConnection {
     // fill_users(&connection).await;
     // fill_items(&connection).await;
     // fill_characters(&connection).await;
+    // fill_currencies(&connection).await;
     connection
 }
 
@@ -88,6 +91,37 @@ pub async fn fill_items(c: &DatabaseConnection) {
         .await
         .unwrap();
     debug!("Inserted all player inventory data")
+}
+
+pub async fn fill_currencies(c: &DatabaseConnection) {
+    let balance = u32::MAX / 2;
+
+    let currencies = vec![
+        entity::Currency {
+            id: 1,
+            user_id: 1,
+            name: "MTXCurrency".to_string(),
+            balance,
+        },
+        entity::Currency {
+            id: 2,
+            user_id: 1,
+            name: "GrindCurrency".to_string(),
+            balance,
+        },
+        entity::Currency {
+            id: 3,
+            user_id: 1,
+            name: "MissionCurrency".to_string(),
+            balance,
+        },
+    ];
+
+    let m = currencies
+        .into_iter()
+        .map(|value| value.into_active_model());
+
+    CurrencyEnitty::insert_many(m).exec(c).await.unwrap();
 }
 
 pub async fn fill_characters(c: &DatabaseConnection) {
