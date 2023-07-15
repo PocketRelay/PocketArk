@@ -35,7 +35,9 @@ uuid = { version = "1.4.0", features = ["v4", "serde", "fast-rng"] }
 chrono = { version = "0.4.26", features = ["serde", "alloc"] }
 thiserror = "1"
 dotenvy = "0.15.7"
-jsonwebtoken = "8.3.0"
+ring = "0.16"
+
+base64ct = { version = "1.5", features = ["alloc"] }
 interlink = "0.1"
 serde_with = "3.0.0"
 

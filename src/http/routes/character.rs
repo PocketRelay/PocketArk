@@ -1,17 +1,18 @@
-use std::collections::HashMap;
-
 use crate::{
     database::entity::{
         characters::{CustomizationMap, EquipmentList},
-        Character, UserEntity,
+        Character,
     },
-    http::models::{
-        character::{
-            CharacterClasses, CharacterEquipmentList, CharacterResponse, CharactersResponse, Class,
-            SkillDefinition, UnlockedCharacters, UpdateCustomizationRequest,
-            UpdateSkillTreesRequest,
+    http::{
+        middleware::user::Auth,
+        models::{
+            character::{
+                CharacterClasses, CharacterEquipmentList, CharacterResponse, CharactersResponse,
+                Class, SkillDefinition, UnlockedCharacters, UpdateCustomizationRequest,
+                UpdateSkillTreesRequest,
+            },
+            HttpError, RawJson,
         },
-        HttpError, RawJson,
     },
     state::App,
 };
@@ -19,23 +20,14 @@ use axum::{extract::Path, Json};
 use hyper::StatusCode;
 use log::debug;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait,
-    QueryFilter,
+    ActiveModelTrait, ActiveValue, ColumnTrait, IntoActiveModel, ModelTrait, QueryFilter,
 };
 use uuid::Uuid;
 
 /// GET /characters
-pub async fn get_characters() -> Result<Json<CharactersResponse>, HttpError> {
+pub async fn get_characters(Auth(user): Auth) -> Result<Json<CharactersResponse>, HttpError> {
     let db = App::database();
 
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
     let list = user
         .find_related(crate::database::entity::characters::Entity)
         .all(db)
@@ -51,16 +43,9 @@ pub async fn get_characters() -> Result<Json<CharactersResponse>, HttpError> {
 /// Gets the defintion and details for the character of the provided ID
 pub async fn get_character(
     Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
 ) -> Result<Json<CharacterResponse>, HttpError> {
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let character = user
         .find_related(crate::database::entity::characters::Entity)
@@ -80,17 +65,13 @@ pub async fn get_character(
 /// POST /character/:id/active
 ///
 /// Sets the currently active character
-pub async fn set_active(Path(character_id): Path<Uuid>) -> Result<StatusCode, HttpError> {
+pub async fn set_active(
+    Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
+) -> Result<StatusCode, HttpError> {
     debug!("Requested set active character: {}", character_id);
     let db = App::database();
 
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
     let shared_data = user.get_shared_data(db).await?;
     // TODO: validate the character is actually owned
     let _ = shared_data.set_active_character(character_id, db).await?;
@@ -103,17 +84,10 @@ pub async fn set_active(Path(character_id): Path<Uuid>) -> Result<StatusCode, Ht
 /// Gets the current equipment of the provided character
 pub async fn get_character_equip(
     Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
 ) -> Result<Json<CharacterEquipmentList>, HttpError> {
     debug!("Requested character equip: {}", character_id);
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let character = user
         .find_related(crate::database::entity::characters::Entity)
@@ -133,19 +107,12 @@ pub async fn get_character_equip(
 /// the provided equipment list
 pub async fn update_character_equip(
     Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
     Json(req): Json<CharacterEquipmentList>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Update character equipment: {} - {:?}", character_id, req);
 
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let character = user
         .find_related(crate::database::entity::characters::Entity)
@@ -165,19 +132,13 @@ pub async fn update_character_equip(
 ///
 /// Updates share character equipment
 pub async fn update_shared_equip(
+    Auth(user): Auth,
     Json(req): Json<CharacterEquipmentList>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Update shared equipment: {:?}", req);
 
     let db = App::database();
 
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
     let shared_data = user.get_shared_data(db).await?;
 
     let mut shared_data = shared_data.into_active_model();
@@ -194,6 +155,7 @@ pub async fn update_shared_equip(
 /// Updates the customization settings for a character
 pub async fn update_character_customization(
     Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
     Json(req): Json<UpdateCustomizationRequest>,
 ) -> Result<StatusCode, HttpError> {
     debug!(
@@ -202,14 +164,6 @@ pub async fn update_character_customization(
     );
 
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let character = user
         .find_related(crate::database::entity::characters::Entity)
@@ -237,19 +191,12 @@ pub async fn update_character_customization(
 /// equipment
 pub async fn get_character_equip_history(
     Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
 ) -> Result<Json<CharacterEquipmentList>, HttpError> {
     // TODO: Currently just gives current equip maybe save previous list
 
     debug!("Requested character equip history: {}", character_id);
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let character = user
         .find_related(crate::database::entity::characters::Entity)
@@ -266,19 +213,12 @@ pub async fn get_character_equip_history(
 /// PUT /character/:id/skillTrees
 pub async fn update_skill_tree(
     Path(character_id): Path<Uuid>,
+    Auth(user): Auth,
     Json(req): Json<UpdateSkillTreesRequest>,
 ) -> Result<Json<Character>, HttpError> {
     debug!("Req update skill tree: {} {:?}", character_id, req);
 
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let mut character = user
         .find_related(crate::database::entity::characters::Entity)
@@ -313,7 +253,7 @@ pub async fn update_skill_tree(
 }
 
 /// GET /character/classes
-pub async fn get_classes() -> Result<Json<CharacterClasses>, HttpError> {
+pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, HttpError> {
     let services = App::services();
     let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list;
 
@@ -322,14 +262,6 @@ pub async fn get_classes() -> Result<Json<CharacterClasses>, HttpError> {
             .expect("Failed to parse characters");
 
     let db = App::database();
-    // TODO: user should be found from session
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
 
     let class_data = user
         .find_related(crate::database::entity::class_data::Entity)
@@ -365,17 +297,9 @@ pub async fn get_level_tables() -> RawJson {
 /// POST /character/unlocked
 ///
 /// Returns a list of unlocked characters?
-pub async fn character_unlocked() -> Result<Json<UnlockedCharacters>, HttpError> {
+pub async fn character_unlocked(Auth(user): Auth) -> Result<Json<UnlockedCharacters>, HttpError> {
     debug!("Unlocked request");
     let db = App::database();
-
-    let user = UserEntity::find_by_id(1u32)
-        .one(db)
-        .await?
-        .ok_or(HttpError::new(
-            "Server error",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
     let shared_data = user.get_shared_data(db).await?;
 
     Ok(Json(UnlockedCharacters {

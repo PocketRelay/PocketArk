@@ -3,14 +3,19 @@ use chrono::Utc;
 use log::debug;
 use uuid::Uuid;
 
-use crate::http::models::auth::{AuthRequest, AuthResponse, AuthUser};
+use crate::{
+    http::models::auth::{AuthRequest, AuthResponse, AuthUser},
+    services::tokens::Tokens,
+};
 
 /// POST /auth
 pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
+    let token = Tokens::service_claim(1);
+
     Json(AuthResponse {
-        session_id: "abc-123".to_string(),
+        session_id: token,
         user: AuthUser {
             roles: &[
                 "GameSettings.Anonymous",
