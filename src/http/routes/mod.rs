@@ -150,7 +150,7 @@ pub fn router() -> Router {
                 }))
                 .layer(RequestDecompressionLayer::new()),
         )
-        .layer(CompressionLayer::new())
+    // .layer(CompressionLayer::new())
 }
 
 async fn ok() -> Response {

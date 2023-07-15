@@ -127,6 +127,15 @@ pub struct LevelTable {
     pub custom_attributes: HashMap<String, Value>,
 }
 
+impl LevelTable {
+    pub fn get_entry_xp(&self, level: u32) -> Option<u32> {
+        self.table
+            .iter()
+            .find(|value| value.level == level)
+            .map(|value| value.xp)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelTableEntry {

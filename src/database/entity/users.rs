@@ -1,6 +1,10 @@
-use super::{shared_data::CharacterSharedEquipment, Currency, SharedData};
-use crate::{database::DbResult, http::models::character::CharacterEquipment};
-use sea_orm::{entity::prelude::*, IntoActiveModel};
+use super::{Currency, SharedData};
+use crate::database::{
+    entity::{Character, InventoryItem},
+    DbResult,
+};
+use sea_orm::entity::prelude::*;
+use sea_orm::ActiveValue::{NotSet, Set};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
@@ -62,45 +66,28 @@ impl Related<super::shared_data::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create_user() {}
-
-    pub async fn get_shared_data(&self, db: &DatabaseConnection) -> DbResult<SharedData> {
-        let data = self
-            .find_related(super::shared_data::Entity)
-            .one(db)
-            .await?;
-        if let Some(data) = data {
-            return Ok(data);
+    pub async fn create_user(
+        username: String,
+        password: String,
+        db: &DatabaseConnection,
+    ) -> DbResult<Self> {
+        let user = ActiveModel {
+            id: NotSet,
+            username: Set(username),
+            password: Set(password),
         }
+        .insert(db)
+        .await?;
 
-        let new_data = super::shared_data::ActiveModel {
-            ..Default::default()
-        };
-        new_data.insert(db).await
+        InventoryItem::create_default(&user, db).await?;
+        Character::create_default(&user, db).await?;
+        Currency::create_default(&user, db).await?;
+        SharedData::create_default(&user, db).await?;
+
+        Ok(user)
     }
 
-    pub async fn set_shared_equipment(
-        &self,
-        list: Vec<CharacterEquipment>,
-        db: &DatabaseConnection,
-    ) -> DbResult<SharedData> {
-        let shared_data = self.get_shared_data(db).await?;
-        let mut shared_data = shared_data.into_active_model();
-        shared_data.shared_equipment = sea_orm::ActiveValue::Set(CharacterSharedEquipment { list });
-        shared_data.update(db).await
-    }
-    pub async fn set_active_character(
-        &self,
-        uuid: Uuid,
-        db: &DatabaseConnection,
-    ) -> DbResult<SharedData> {
-        let shared_data = self.get_shared_data(db).await?;
-        let mut shared_data = shared_data.into_active_model();
-        shared_data.active_character_id = sea_orm::ActiveValue::Set(uuid);
-        shared_data.update(db).await
-    }
-
-    pub async fn get_currencies(&self, db: &DatabaseConnection) -> DbResult<Vec<Currency>> {
-        self.find_related(super::currency::Entity).all(db).await
+    pub async fn get_user(id: u32, db: &DatabaseConnection) -> DbResult<Option<Self>> {
+        Entity::find_by_id(id).one(db).await
     }
 }

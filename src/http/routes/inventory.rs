@@ -1,12 +1,11 @@
 use axum::Json;
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{sea_query::Expr, ColumnTrait, EntityTrait, ModelTrait, QueryFilter, Value};
 use serde_json::Map;
 use uuid::Uuid;
 
 use crate::{
-    database::entity::{inventory_items, InventoryItem, InventoryItemEntity},
+    database::entity::{Currency, InventoryItem},
     http::{
         middleware::user::Auth,
         models::{
@@ -20,20 +19,24 @@ use crate::{
     state::App,
 };
 
+fn get_item_definitions(items: &[InventoryItem]) -> Vec<&'static ItemDefinition> {
+    let services = App::services();
+    let defs = &services.defs.inventory;
+
+    items
+        .iter()
+        .filter_map(|item| defs.lookup(&item.definition_name))
+        .collect()
+}
+
 /// GET /inventory
 ///
 /// Responds with a list of all the players inventory items along
 /// with the definitions for the items
 pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, HttpError> {
-    let services = App::services();
     let db = App::database();
-
-    let items = user.find_related(inventory_items::Entity).all(db).await?;
-
-    let definitions: Vec<&'static ItemDefinition> = items
-        .iter()
-        .filter_map(|item| services.defs.inventory.lookup(&item.definition_name))
-        .collect();
+    let items = InventoryItem::get_all_items(db, &user).await?;
+    let definitions = get_item_definitions(&items);
 
     Ok(Json(InventoryResponse { items, definitions }))
 }
@@ -44,7 +47,7 @@ pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, 
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
-    let list: &'static [ItemDefinition] = &services.defs.inventory.list();
+    let list: &'static [ItemDefinition] = services.defs.inventory.list();
     Json(InventoryDefinitions {
         total_count: list.len(),
         list,
@@ -63,18 +66,7 @@ pub async fn update_inventory_seen(
     let db = App::database();
 
     // Updates all the matching items seen state
-    InventoryItemEntity::update_many()
-        .col_expr(
-            inventory_items::Column::Seen,
-            Expr::value(Value::Bool(Some(true))),
-        )
-        .filter(
-            inventory_items::Column::ItemId
-                .is_in(req.list)
-                .and(inventory_items::Column::UserId.eq(user.id)),
-        )
-        .exec(db)
-        .await?;
+    InventoryItem::update_seen(db, &user, req.list).await?;
 
     // TODO: Actual database call to update the seen status
     Ok(StatusCode::NO_CONTENT)
@@ -104,24 +96,16 @@ pub async fn consume_inventory(
         });
     }
 
-    let services = App::services();
     let db = App::database();
 
     // Collect all the items to be consumed
     let item_ids: Vec<Uuid> = req.items.into_iter().map(|value| value.item_id).collect();
-    let items: Vec<InventoryItem> = user
-        .find_related(inventory_items::Entity)
-        .filter(inventory_items::Column::ItemId.is_in(item_ids))
-        .all(db)
-        .await?;
+    let items: Vec<InventoryItem> = InventoryItem::get_items(db, &user, item_ids).await?;
 
-    let definitions: Vec<&'static ItemDefinition> = items
-        .iter()
-        .filter_map(|item| services.defs.inventory.lookup(&item.definition_name))
-        .collect();
+    let _definitions = get_item_definitions(&items);
 
     // TODO: Ha: u32ndle pack opening, consuming etc
-    let currencies = user.get_currencies(db).await?;
+    let currencies = Currency::get_from_user(&user, db).await?;
 
     let activity = ActivityResult {
         previous_xp: 0,

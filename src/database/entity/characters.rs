@@ -1,10 +1,11 @@
 use super::{User, ValueMap};
 use crate::{
-    database::DbResult,
+    database::{entity::ClassData, DbResult},
     http::models::{
         auth::Sku,
         character::{CharacterEquipment, Class, CustomizationEntry, SkillTreeEntry, Xp},
     },
+    services::defs::{Definitions, LevelTables},
     state::App,
 };
 use sea_orm::{entity::prelude::*, ActiveValue};
@@ -79,6 +80,9 @@ impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
     pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
+        let services: &crate::services::Services = App::services();
+        let defs = &services.defs;
+
         // Create models from initial item defs
         let character_items = [
             "79f3511c-55da-67f0-5002-359c370015d8", // HUMAN FEMALE SOLDIER
@@ -96,104 +100,84 @@ impl Model {
 
         for item in character_items {
             if let Ok(uuid) = Uuid::parse_str(item) {
-                Self::create_from_item(user, uuid, db).await?;
+                Self::create_from_item(defs, user, uuid, db).await?;
             }
         }
 
         Ok(())
     }
 
-    fn xp_from_level(level_name: Uuid, level: u32) -> Xp {
-        let services = App::services();
-        let defs = &services.defs;
-        let level_table = match defs.level_tables.lookup(&level_name) {
-            Some(value) => value,
-            None => {
-                return Xp {
-                    current: 0,
-                    last: 0,
-                    next: 0,
-                }
-            }
-        };
-        let current = level_table
-            .table
-            .iter()
-            .find(|value| value.level == level)
-            .map(|value| value.xp)
-            .unwrap_or(0);
-        let last = level_table
-            .table
-            .iter()
-            .find(|value| value.level == level - 1)
-            .map(|value| value.xp)
-            .unwrap_or(0);
+    pub async fn create_from_item(
+        defs: &Definitions,
+        user: &User,
+        uuid: Uuid,
+        db: &DatabaseConnection,
+    ) -> DbResult<()> {
+        use sea_orm::ActiveValue::{NotSet, Set};
 
-        let next = level_table
-            .table
-            .iter()
-            .find(|value| value.level == level + 1)
-            .map(|value| value.xp)
-            .unwrap_or(0);
+        const DEFAULT_LEVEL: u32 = 1;
+        const DEFAULT_SKILL_POINTS: u32 = 2;
+
+        let class_def = match defs.classes.lookup(&uuid) {
+            Some(value) => value,
+            // Class definition for the item is missing (Item wasn't a character?)
+            None => return Ok(()),
+        };
+
+        let mut point_map = HashMap::new();
+        point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
+
+        let xp = Self::xp_from_level(&defs.level_tables, class_def.level_name, DEFAULT_LEVEL);
+
+        // Insert character
+        let model = ActiveModel {
+            id: NotSet,
+            character_id: Set(Uuid::new_v4()),
+            user_id: Set(user.id),
+            class_name: Set(class_def.name),
+            name: Set(class_def.name),
+            level: Set(DEFAULT_LEVEL),
+            xp: Set(xp),
+            promotion: Set(0),
+            points: Set(PointMap(point_map)),
+            points_spent: Set(PointMap::default()),
+            points_granted: Set(PointMap::default()),
+            skill_trees: Set(SkillTree(class_def.skill_trees.clone())),
+            attributes: Set(ValueMap(class_def.attributes.clone())),
+            bonus: Set(ValueMap(class_def.bonus.clone())),
+            equipments: Set(EquipmentList(class_def.default_equipments.clone())),
+            customization: Set(CustomizationMap(class_def.default_customization.clone())),
+            play_stats: Set(ValueMap::default()),
+            inventory_namespace: Set(class_def.default_namespace.clone()),
+            last_used: Set(None),
+            promotable: Set(false),
+        };
+        let _ = model.insert(db).await?;
+
+        ClassData::create(user, class_def.name, true, db).await?;
+
+
+        Ok(())
+    }
+
+    /// Obtains the xp structure which contains the current, next, and last
+    /// xp requirements for the provided level using the level tables
+    fn xp_from_level(tables: &LevelTables, level_name: Uuid, level: u32) -> Xp {
+        let (current, last, next) = match tables.lookup(&level_name) {
+            Some(table) => {
+                let current = table.get_entry_xp(level).unwrap_or(0);
+                let last = table.get_entry_xp(level - 1).unwrap_or(0);
+                let next = table.get_entry_xp(level + 1).unwrap_or(0);
+                (current, last, next)
+            }
+            // Empty values when level table is unknwon
+            None => (0, 0, 0),
+        };
 
         Xp {
             current,
             next,
             last,
         }
-    }
-
-    pub async fn create_from_item(
-        user: &User,
-        uuid: Uuid,
-        db: &DatabaseConnection,
-    ) -> DbResult<()> {
-        const DEFAULT_LEVEL: u32 = 1;
-        const DEFAULT_SKILL_POINTS: u32 = 2;
-
-        let services = App::services();
-        let defs = &services.defs;
-        let class_def = defs.classes.lookup(&uuid);
-        if let Some(class_def) = class_def {
-            let mut point_map = HashMap::new();
-            point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
-
-            // Insert chracter
-            let model = ActiveModel {
-                id: ActiveValue::NotSet,
-                character_id: ActiveValue::Set(Uuid::new_v4()),
-                user_id: ActiveValue::Set(user.id),
-                class_name: ActiveValue::Set(class_def.name),
-                name: ActiveValue::Set(class_def.name),
-                level: ActiveValue::Set(DEFAULT_LEVEL),
-                xp: ActiveValue::Set(Self::xp_from_level(class_def.level_name, DEFAULT_LEVEL)),
-                promotion: ActiveValue::Set(0),
-                points: ActiveValue::Set(PointMap(point_map)),
-                points_spent: ActiveValue::Set(PointMap::default()),
-                points_granted: ActiveValue::Set(PointMap::default()),
-                skill_trees: ActiveValue::Set(SkillTree(class_def.skill_trees.clone())),
-                attributes: ActiveValue::Set(ValueMap(class_def.attributes.clone())),
-                bonus: ActiveValue::Set(ValueMap(class_def.bonus.clone())),
-                equipments: ActiveValue::Set(EquipmentList(class_def.default_equipments.clone())),
-                customization: ActiveValue::Set(CustomizationMap(
-                    class_def.default_customization.clone(),
-                )),
-                play_stats: ActiveValue::Set(ValueMap::default()),
-                inventory_namespace: ActiveValue::Set(class_def.default_namespace.clone()),
-                last_used: ActiveValue::Set(None),
-                promotable: ActiveValue::Set(false),
-            };
-            let _ = model.insert(db).await?;
-
-            // Insert unlocked
-            let class_data = super::class_data::ActiveModel {
-                id: ActiveValue::NotSet,
-                name: ActiveValue::Set(class_def.name),
-                unlocked: ActiveValue::Set(true),
-                user_id: ActiveValue::Set(user.id),
-            };
-            let _ = class_data.insert(db).await?;
-        }
-        Ok(())
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{Character, InventoryItem},
+    database::entity::{Character, Currency, InventoryItem},
     http::{
         middleware::user::Auth,
         models::{
@@ -57,7 +57,7 @@ pub async fn obtain_article(
 
     let services = App::services();
     let db = App::database();
-    let currencies = user.get_currencies(db).await?;
+    let currencies = Currency::get_from_user(&user, db).await?;
 
     let currency = currencies
         .iter()
@@ -98,7 +98,7 @@ pub async fn obtain_article(
             if def.category.eq("0") {
                 let uuid = Uuid::parse_str(&def.name);
                 if let Ok(uuid) = uuid {
-                    Character::create_from_item(&user, uuid, db).await?;
+                    Character::create_from_item(&services.defs, &user, uuid, db).await?;
                 }
             }
         }
@@ -161,9 +161,8 @@ pub async fn claim_unclaimed() -> Json<ClaimUncalimedResponse> {
 /// Response with the balance the user has in each type
 /// of digital currency within the game
 pub async fn get_currencies(Auth(user): Auth) -> Result<Json<UserCurrenciesResponse>, HttpError> {
-    let services = App::services();
     let db = App::database();
-    let currencies = user.get_currencies(db).await?;
+    let currencies = Currency::get_from_user(&user, db).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
 }

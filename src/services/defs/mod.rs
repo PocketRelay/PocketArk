@@ -23,6 +23,8 @@ pub struct Definitions {
     pub level_tables: LookupList<Uuid, LevelTable>,
 }
 
+pub type LevelTables = LookupList<Uuid, LevelTable>;
+
 impl Definitions {
     pub fn load() -> Self {
         debug!("Loading definitions");

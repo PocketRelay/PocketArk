@@ -1,10 +1,10 @@
 use chrono::Utc;
-use sea_orm::{entity::prelude::*, ActiveValue};
+use sea_orm::{entity::prelude::*, sea_query::Expr, ActiveValue};
 use serde::{Deserialize, Serialize};
 
 use crate::database::DbResult;
 
-use super::{User, ValueMap};
+use super::{InventoryItem, User, ValueMap};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "inventory_items")]
@@ -89,5 +89,38 @@ impl Model {
             .exec_without_returning(db)
             .await?;
         Ok(())
+    }
+
+    pub async fn update_seen(
+        db: &DatabaseConnection,
+        user: &User,
+        list: Vec<Uuid>,
+    ) -> DbResult<()> {
+        // Updates all the matching items seen state
+        Entity::update_many()
+            .col_expr(Column::Seen, Expr::value(true))
+            .filter(Column::ItemId.is_in(list).and(Column::UserId.eq(user.id)))
+            .exec(db)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_all_items(
+        db: &DatabaseConnection,
+        user: &User,
+    ) -> DbResult<Vec<InventoryItem>> {
+        user.find_related(Entity).all(db).await
+    }
+
+    pub async fn get_items(
+        db: &DatabaseConnection,
+        user: &User,
+        ids: Vec<Uuid>,
+    ) -> DbResult<Vec<InventoryItem>> {
+        user.find_related(Entity)
+            .filter(Column::ItemId.is_in(ids))
+            .all(db)
+            .await
     }
 }

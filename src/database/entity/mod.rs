@@ -27,6 +27,9 @@ pub type InventoryItemEntity = inventory_items::Entity;
 pub type User = users::Model;
 pub type UserEntity = users::Entity;
 
+pub type ClassData = class_data::Model;
+pub type ClassDataEntity = class_data::Entity;
+
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
 pub struct ValueMap(pub Map<String, serde_json::Value>);

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::database::DbResult;
 
-use super::User;
+use super::{Currency, User};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "currency")]
@@ -50,5 +50,9 @@ impl Model {
             .exec_without_returning(db)
             .await?;
         Ok(())
+    }
+
+    pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Vec<Currency>> {
+        user.find_related(Entity).all(db).await
     }
 }

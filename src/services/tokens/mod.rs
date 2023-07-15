@@ -6,7 +6,7 @@ use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64ct::{Base64UrlUnpadded, Encoding};
 use log::error;
 use ring::hmac::{self, Key, HMAC_SHA256};
-use sea_orm::{DatabaseConnection, EntityTrait};
+use sea_orm::DatabaseConnection;
 use std::{
     path::Path,
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -17,10 +17,7 @@ use tokio::{
     io::{self, AsyncReadExt},
 };
 
-use crate::{
-    database::entity::{User, UserEntity},
-    state::App,
-};
+use crate::{database::entity::User, state::App};
 
 use super::Services;
 
@@ -122,10 +119,9 @@ impl Tokens {
     /// players as invalid tokens.
     pub async fn service_verify(db: &DatabaseConnection, token: &str) -> Result<User, VerifyError> {
         let services: &'static Services = App::services();
-        let player_id: u32 = services.tokens.verify(token)?;
+        let user_id: u32 = services.tokens.verify(token)?;
 
-        UserEntity::find_by_id(player_id)
-            .one(db)
+        User::get_user(user_id, db)
             .await
             .map_err(|_| VerifyError::Server)?
             .ok_or(VerifyError::Invalid)

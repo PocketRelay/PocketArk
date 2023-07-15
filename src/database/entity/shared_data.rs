@@ -1,16 +1,15 @@
 use std::collections::HashMap;
 
-use sea_orm::{entity::prelude::*, ActiveValue, IntoActiveModel};
-use serde::{Deserialize, Serialize};
-use serde_json::Number;
-use uuid::uuid;
-
+use super::User;
 use crate::{
     database::DbResult,
     http::models::character::{CharacterEquipment, Xp},
 };
-
-use super::User;
+use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::{entity::prelude::*, IntoActiveModel};
+use serde::{Deserialize, Serialize};
+use serde_json::Number;
+use uuid::uuid;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "shared_data")]
@@ -81,25 +80,43 @@ impl Model {
         );
 
         let model = ActiveModel {
-            id: ActiveValue::NotSet,
-            user_id: ActiveValue::Set(user.id),
-            active_character_id: ActiveValue::Set(active_character),
-            shared_equipment: ActiveValue::Set(Default::default()),
-            shared_progression: ActiveValue::Set(Default::default()),
-            shared_stats: ActiveValue::Set(SharedStats(shared_stats)),
+            id: NotSet,
+            user_id: Set(user.id),
+            active_character_id: Set(active_character),
+            shared_equipment: Set(Default::default()),
+            shared_progression: Set(Default::default()),
+            shared_stats: Set(SharedStats(shared_stats)),
         };
 
         model.insert(db).await
     }
 
-    pub async fn set_active_character(
-        self,
-        character_id: Uuid,
+    pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Model> {
+        match user.find_related(Entity).one(db).await? {
+            Some(value) => Ok(value),
+            None => Self::create_default(user, db).await,
+        }
+    }
+
+    pub async fn set_shared_equipment(
+        user: &User,
+        list: Vec<CharacterEquipment>,
         db: &DatabaseConnection,
     ) -> DbResult<Self> {
-        let mut model = self.into_active_model();
-        model.active_character_id = ActiveValue::Set(character_id);
-        let value = model.update(db).await?;
-        Ok(value)
+        let shared_data = Self::get_from_user(user, db).await?;
+        let mut shared_data = shared_data.into_active_model();
+        shared_data.shared_equipment = Set(CharacterSharedEquipment { list });
+        shared_data.update(db).await
+    }
+
+    pub async fn set_active_character(
+        user: &User,
+        uuid: Uuid,
+        db: &DatabaseConnection,
+    ) -> DbResult<Self> {
+        let shared_data = Self::get_from_user(user, db).await?;
+        let mut shared_data = shared_data.into_active_model();
+        shared_data.active_character_id = Set(uuid);
+        shared_data.update(db).await
     }
 }

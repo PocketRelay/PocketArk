@@ -1,4 +1,9 @@
 use sea_orm::entity::prelude::*;
+use sea_orm::ActiveValue::{NotSet, Set};
+
+use crate::database::DbResult;
+
+use super::User;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "class_data")]
 pub struct Model {
@@ -25,3 +30,21 @@ impl Related<super::users::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl Model {
+    pub async fn create(
+        user: &User,
+        name: Uuid,
+        unlocked: bool,
+        db: &DatabaseConnection,
+    ) -> DbResult<()> {
+        let model = ActiveModel {
+            id: NotSet,
+            user_id: Set(user.id),
+            name: Set(name),
+            unlocked: Set(unlocked),
+        };
+        let _ = model.insert(db).await?;
+        Ok(())
+    }
+}

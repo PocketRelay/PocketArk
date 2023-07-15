@@ -1,7 +1,7 @@
 use crate::{
     database::entity::{
         characters::{self, CustomizationMap, EquipmentList},
-        Character,
+        Character, SharedData,
     },
     http::{
         middleware::user::Auth,
@@ -29,8 +29,7 @@ pub async fn get_characters(Auth(user): Auth) -> Result<Json<CharactersResponse>
     let db = App::database();
 
     let list = user.find_related(characters::Entity).all(db).await?;
-
-    let shared_data = user.get_shared_data(db).await?;
+    let shared_data = SharedData::get_from_user(&user, db).await?;
 
     Ok(Json(CharactersResponse { list, shared_data }))
 }
@@ -51,7 +50,7 @@ pub async fn get_character(
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
 
-    let shared_data = user.get_shared_data(db).await?;
+    let shared_data = SharedData::get_from_user(&user, db).await?;
 
     Ok(Json(CharacterResponse {
         character,
@@ -70,7 +69,8 @@ pub async fn set_active(
     let db = App::database();
 
     // TODO: validate the character is actually owned
-    let _ = user.set_active_character(character_id, db).await?;
+
+    let _ = SharedData::set_active_character(&user, character_id, db).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -134,7 +134,7 @@ pub async fn update_shared_equip(
     debug!("Update shared equipment: {:?}", req);
 
     let db = App::database();
-    let _ = user.set_shared_equipment(req.list, db).await?;
+    let _ = SharedData::set_shared_equipment(&user, req.list, db).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -245,7 +245,7 @@ pub async fn update_skill_tree(
 /// GET /character/classes
 pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, HttpError> {
     let services = App::services();
-    let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list();
+    let skill_definitions: &'static [SkillDefinition] = services.defs.skills.list();
 
     let mut list: Vec<Class> = services.defs.classes.list().to_vec();
 
@@ -287,7 +287,7 @@ pub async fn get_level_tables() -> Json<CharacterLevelTables> {
 pub async fn character_unlocked(Auth(user): Auth) -> Result<Json<UnlockedCharacters>, HttpError> {
     debug!("Unlocked request");
     let db = App::database();
-    let shared_data = user.get_shared_data(db).await?;
+    let shared_data = SharedData::get_from_user(&user, db).await?;
 
     Ok(Json(UnlockedCharacters {
         active_character_id: shared_data.active_character_id,
