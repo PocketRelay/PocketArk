@@ -3,7 +3,7 @@ use crate::{
     database::DbResult,
     http::models::{
         auth::Sku,
-        character::{CharacterEquipment, CustomizationEntry, SkillTreeEntry, Xp},
+        character::{CharacterEquipment, Class, CustomizationEntry, SkillTreeEntry, Xp},
     },
     state::App,
 };
@@ -103,17 +103,60 @@ impl Model {
         Ok(())
     }
 
+    fn xp_from_level(level_name: Uuid, level: u32) -> Xp {
+        let services = App::services();
+        let defs = &services.defs;
+        let level_table = match defs.level_tables.map.get(&level_name) {
+            Some(value) => value,
+            None => {
+                return Xp {
+                    current: 0,
+                    last: 0,
+                    next: 0,
+                }
+            }
+        };
+        let current = level_table
+            .table
+            .iter()
+            .find(|value| value.level == level)
+            .map(|value| value.xp)
+            .unwrap_or(0);
+        let last = level_table
+            .table
+            .iter()
+            .find(|value| value.level == level - 1)
+            .map(|value| value.xp)
+            .unwrap_or(0);
+
+        let next = level_table
+            .table
+            .iter()
+            .find(|value| value.level == level + 1)
+            .map(|value| value.xp)
+            .unwrap_or(0);
+
+        Xp {
+            current,
+            next,
+            last,
+        }
+    }
+
     pub async fn create_from_item(
         user: &User,
         uuid: Uuid,
         db: &DatabaseConnection,
     ) -> DbResult<()> {
+        const DEFAULT_LEVEL: u32 = 1;
+        const DEFAULT_SKILL_POINTS: u32 = 2;
+
         let services = App::services();
         let defs = &services.defs;
         let class_def = defs.classes.map.get(&uuid);
         if let Some(class_def) = class_def {
             let mut point_map = HashMap::new();
-            point_map.insert("MEA_skill_points".to_string(), 2);
+            point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
 
             let model = ActiveModel {
                 id: ActiveValue::NotSet,
@@ -121,12 +164,8 @@ impl Model {
                 user_id: ActiveValue::Set(user.id),
                 class_name: ActiveValue::Set(class_def.name),
                 name: ActiveValue::Set(class_def.name),
-                level: ActiveValue::Set(1),
-                xp: ActiveValue::Set(Xp {
-                    current: 0,
-                    last: 0,
-                    next: 11000,
-                }),
+                level: ActiveValue::Set(DEFAULT_LEVEL),
+                xp: ActiveValue::Set(Self::xp_from_level(class_def.level_name, DEFAULT_LEVEL)),
                 promotion: ActiveValue::Set(0),
                 points: ActiveValue::Set(PointMap(point_map)),
                 points_spent: ActiveValue::Set(PointMap::default()),

@@ -1,12 +1,10 @@
-use std::{collections::HashMap, fmt, hash::Hash};
-
 use crate::database::entity::{Character, SharedData};
-
 use chrono::{DateTime, Utc};
 use sea_orm::FromJsonQueryResult;
-use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::{serde_as, skip_serializing_none};
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -112,12 +110,12 @@ pub struct CustomizationEntry {
     pub param_id: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct CharacterLevelTables {
-    pub list: Vec<LevelTable>,
+    pub list: &'static [LevelTable],
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelTable {
     pub table: Vec<LevelTableEntry>,
@@ -129,7 +127,7 @@ pub struct LevelTable {
     pub custom_attributes: HashMap<String, Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelTableEntry {
     pub level: u32,

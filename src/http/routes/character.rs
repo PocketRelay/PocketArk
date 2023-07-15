@@ -1,17 +1,17 @@
 use crate::{
     database::entity::{
         characters::{self, CustomizationMap, EquipmentList},
-        shared_data, Character,
+        Character,
     },
     http::{
         middleware::user::Auth,
         models::{
             character::{
-                CharacterClasses, CharacterEquipmentList, CharacterResponse, CharactersResponse,
-                Class, SkillDefinition, UnlockedCharacters, UpdateCustomizationRequest,
-                UpdateSkillTreesRequest,
+                CharacterClasses, CharacterEquipmentList, CharacterLevelTables, CharacterResponse,
+                CharactersResponse, Class, SkillDefinition, UnlockedCharacters,
+                UpdateCustomizationRequest, UpdateSkillTreesRequest,
             },
-            HttpError, RawJson,
+            HttpError,
         },
     },
     state::App,
@@ -245,9 +245,7 @@ pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, Htt
     let services = App::services();
     let skill_definitions: &'static [SkillDefinition] = &services.defs.skills.list;
 
-    let mut list: Vec<Class> =
-        serde_json::from_str(include_str!("../../resources/data/characterClasses.json"))
-            .expect("Failed to parse characters");
+    let mut list: Vec<Class> = services.defs.classes.list.clone();
 
     let db = App::database();
 
@@ -270,16 +268,15 @@ pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, Htt
     }))
 }
 
-/// Definitions for rewards at each character level
-static CHARACTER_LEVEL_TABLES: &str =
-    include_str!("../../resources/data/characterLevelTables.json");
-
 /// GET /character/levelTables
 ///
 /// Contains definitions for rewards at each level of character
 /// progression
-pub async fn get_level_tables() -> RawJson {
-    RawJson(CHARACTER_LEVEL_TABLES)
+pub async fn get_level_tables() -> Json<CharacterLevelTables> {
+    let services = App::services();
+    Json(CharacterLevelTables {
+        list: &services.defs.level_tables.list,
+    })
 }
 
 /// POST /character/unlocked

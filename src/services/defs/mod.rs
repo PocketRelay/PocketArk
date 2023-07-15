@@ -1,7 +1,7 @@
 use std::{collections::HashMap, process::exit};
 
 use crate::http::models::{
-    character::{Class, SkillDefinition},
+    character::{Class, LevelTable, SkillDefinition},
     inventory::ItemDefinition,
 };
 use log::{debug, error};
@@ -13,11 +13,14 @@ pub const INVENTORY_DEFINITIONS: &str =
 
 pub const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
 pub const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
+pub const LEVEL_TABLE_DEFINITIONS: &str =
+    include_str!("../../resources/data/characterLevelTables.json");
 
 pub struct Definitions {
     pub inventory: LookupList<String, ItemDefinition>,
     pub skills: LookupList<Uuid, SkillDefinition>,
     pub classes: LookupList<Uuid, Class>,
+    pub level_tables: LookupList<Uuid, LevelTable>,
 }
 
 impl Definitions {
@@ -27,10 +30,13 @@ impl Definitions {
         let inventory = Self::load_inventory();
         let skills = Self::load_skills();
         let classes = Self::load_classes();
+        let level_tables = Self::load_level_tables();
+
         Self {
             inventory,
             skills,
             classes,
+            level_tables,
         }
     }
 
@@ -90,6 +96,24 @@ impl Definitions {
 
                 Some((uuid, value.clone()))
             })
+            .collect();
+
+        LookupList { map, list }
+    }
+    fn load_level_tables() -> LookupList<Uuid, LevelTable> {
+        let list: Vec<LevelTable> = match serde_json::from_str(LEVEL_TABLE_DEFINITIONS) {
+            Ok(value) => value,
+            Err(err) => {
+                error!("Failed to level table definitions: {}", err);
+                exit(1);
+            }
+        };
+
+        debug!("Loaded {} level table definition(s)", list.len());
+
+        let map: HashMap<Uuid, LevelTable> = list
+            .iter()
+            .map(|value| (value.name.clone(), value.clone()))
             .collect();
 
         LookupList { map, list }
