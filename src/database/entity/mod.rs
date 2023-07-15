@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
+use serde_json::Map;
 
 pub mod characters;
 pub mod class_data;
@@ -28,4 +29,4 @@ pub type UserEntity = users::Entity;
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
-pub struct ValueMap(pub HashMap<String, serde_json::Value>);
+pub struct ValueMap(pub Map<String, serde_json::Value>);

@@ -22,7 +22,7 @@ use crate::{
     http::models::character::CharactersResponse,
 };
 
-use self::entity::{Currency, CurrencyEnitty};
+use self::entity::CurrencyEnitty;
 
 /// Database error result type
 pub type DbResult<T> = Result<T, DbErr>;
@@ -74,7 +74,7 @@ pub async fn fill_users(c: &DatabaseConnection) {
 
 pub async fn fill_items(c: &DatabaseConnection) {
     static PLACEHOLDER_INVENTORY: &str =
-        include_str!("../resources/data/placeholderInventory.json");
+        include_str!("../resources/defaults/placeholderInventory.json");
     let mut items: Vec<InventoryItem> = serde_json::from_str(PLACEHOLDER_INVENTORY).unwrap();
     items.iter_mut().for_each(|item| {
         item.user_id = 1;
@@ -125,9 +125,10 @@ pub async fn fill_currencies(c: &DatabaseConnection) {
 }
 
 pub async fn fill_characters(c: &DatabaseConnection) {
-    let ls: CharactersResponse =
-        serde_json::from_str(include_str!("../resources/data/placeholderCharacters.json"))
-            .expect("Failed to parse characters");
+    let ls: CharactersResponse = serde_json::from_str(include_str!(
+        "../resources/defaults/placeholderCharacters.json"
+    ))
+    .expect("Failed to parse characters");
 
     let mut sh = ls.shared_data.into_active_model();
     sh.user_id = ActiveValue::Set(1);

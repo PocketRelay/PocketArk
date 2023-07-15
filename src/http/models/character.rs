@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt};
+use std::{collections::HashMap, fmt, hash::Hash};
 
 use crate::database::entity::{Character, SharedData};
 
@@ -209,7 +209,7 @@ pub struct Class {
     pub custom_attributes: Map<String, Value>,
     pub unlocked: bool,
     pub default_equipments: Vec<CharacterEquipment>,
-    pub default_customization: Map<String, Value>,
+    pub default_customization: HashMap<String, CustomizationEntry>,
     pub name: Uuid,
     pub inventory_namespace: String,
     pub autogenerate_inventory_namespace: bool,

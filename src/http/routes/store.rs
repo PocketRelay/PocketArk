@@ -75,7 +75,7 @@ pub async fn obtain_article(
         definition_name: "c5b3d9e6-7932-4579-ba8a-fd469ed43fda".to_string(),
         stack_size: 1,
         seen: false,
-        instance_attributes: ValueMap(HashMap::new()),
+        instance_attributes: ValueMap(Map::new()),
         created: now,
         last_grant: now,
         earned_by: "granted".to_string(),
