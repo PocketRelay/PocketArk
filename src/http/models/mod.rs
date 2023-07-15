@@ -3,6 +3,7 @@ use axum::{
     Json,
 };
 use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
+use log::error;
 use sea_orm::DbErr;
 use serde::Serialize;
 
@@ -40,7 +41,8 @@ impl HttpError {
 }
 
 impl From<DbErr> for HttpError {
-    fn from(_: DbErr) -> Self {
+    fn from(err: DbErr) -> Self {
+        error!("Database error: {}", err);
         Self::new("Server error", StatusCode::INTERNAL_SERVER_ERROR)
     }
 }

@@ -70,8 +70,11 @@ pub async fn update_inventory_seen(
             inventory_items::Column::Seen,
             Expr::value(Value::Bool(Some(true))),
         )
-        .filter(inventory_items::Column::ItemId.is_in(req.list))
-        .belongs_to(&user)
+        .filter(
+            inventory_items::Column::ItemId
+                .is_in(req.list)
+                .and(inventory_items::Column::UserId.eq(user.id)),
+        )
         .exec(db)
         .await?;
 
