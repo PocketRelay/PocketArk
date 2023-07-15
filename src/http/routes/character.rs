@@ -1,7 +1,7 @@
 use crate::{
     database::entity::{
         characters::{self, CustomizationMap, EquipmentList},
-        Character, SharedData,
+        Character, ClassData, SharedData,
     },
     http::{
         middleware::user::Auth,
@@ -251,10 +251,7 @@ pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, Htt
 
     let db = App::database();
 
-    let class_data = user
-        .find_related(crate::database::entity::class_data::Entity)
-        .all(db)
-        .await?;
+    let class_data = ClassData::get_from_user(&user, db).await?;
 
     // Updating unlocks from classdata
     list.iter_mut().for_each(|value| {

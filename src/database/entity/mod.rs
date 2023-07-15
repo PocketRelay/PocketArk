@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;

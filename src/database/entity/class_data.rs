@@ -47,4 +47,8 @@ impl Model {
         let _ = model.insert(db).await?;
         Ok(())
     }
+
+    pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Vec<Self>> {
+        user.find_related(Entity).all(db).await
+    }
 }
