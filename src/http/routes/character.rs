@@ -232,6 +232,8 @@ pub async fn update_skill_tree(
         }
     });
 
+    // TODO: Update available skillpoints
+
     let mut character = character.into_active_model();
     character.skill_trees =
         ActiveValue::Set(character.skill_trees.take().expect("Skill tree missing"));

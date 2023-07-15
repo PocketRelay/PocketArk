@@ -1,10 +1,16 @@
 use axum::{
+    error_handling::HandleErrorLayer,
     response::{IntoResponse, Response},
     routing::{any, get, post, put},
-    Router,
+    BoxError, Router,
 };
 use hyper::StatusCode;
-use tower_http::trace::TraceLayer;
+use tower::ServiceBuilder;
+use tower_http::{
+    compression::CompressionLayer,
+    decompression::{DecompressionLayer, RequestDecompressionLayer},
+    trace::TraceLayer,
+};
 
 mod activity;
 mod auth;
@@ -139,6 +145,14 @@ pub fn router() -> Router {
         )
         .route("/wv/playthrough/0", put(activity::update_playthrough))
         .layer(TraceLayer::new_for_http())
+        .layer(
+            ServiceBuilder::new()
+                .layer(HandleErrorLayer::new(|error: BoxError| async move {
+                    (StatusCode::INTERNAL_SERVER_ERROR, "Unhandled server error")
+                }))
+                .layer(RequestDecompressionLayer::new()),
+        )
+        .layer(CompressionLayer::new())
 }
 
 async fn ok() -> Response {

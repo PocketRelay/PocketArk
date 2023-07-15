@@ -1,4 +1,5 @@
 use axum::{extract::Path, Json};
+use bytes::Bytes;
 use hyper::StatusCode;
 use log::debug;
 use serde_json::Value;
@@ -47,9 +48,9 @@ pub async fn start_mission(
 /// Submits the details of a mission that has been finished
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
-    Json(req): Json<FinishMissionRequest>,
+    payload: Json<FinishMissionRequest>,
 ) -> StatusCode {
-    debug!("Mission finished: {} {:?}", mission_id, req);
+    debug!("Mission finished: {} {:?}", mission_id, payload);
 
     StatusCode::NO_CONTENT
 }
@@ -59,3 +60,6 @@ pub async fn update_seen(Json(req): Json<Value>) -> StatusCode {
     debug!("Update mission seen: {:?}", req);
     StatusCode::NO_CONTENT
 }
+
+#[test]
+fn test() {}
