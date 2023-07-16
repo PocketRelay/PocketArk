@@ -1,5 +1,11 @@
 use chrono::Utc;
-use sea_orm::{entity::prelude::*, sea_query::Expr, ActiveValue};
+use openssl::stack;
+use sea_orm::{
+    entity::prelude::*,
+    sea_query::Expr,
+    ActiveValue::{NotSet, Set},
+    IntoActiveModel,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::database::DbResult;
@@ -50,17 +56,49 @@ impl Model {
     pub fn create_item(user: &User, definition_name: String, stack_size: u32) -> ActiveModel {
         let now = Utc::now();
         ActiveModel {
-            id: ActiveValue::NotSet,
-            user_id: ActiveValue::Set(user.id),
-            item_id: ActiveValue::Set(Uuid::new_v4()),
-            definition_name: ActiveValue::Set(definition_name),
-            stack_size: ActiveValue::Set(stack_size),
-            seen: ActiveValue::Set(false),
-            instance_attributes: ActiveValue::Set(ValueMap::default()),
-            created: ActiveValue::Set(now),
-            last_grant: ActiveValue::Set(now),
-            earned_by: ActiveValue::Set("granted".to_string()),
-            restricted: ActiveValue::Set(false),
+            id: NotSet,
+            user_id: Set(user.id),
+            item_id: Set(Uuid::new_v4()),
+            definition_name: Set(definition_name),
+            stack_size: Set(stack_size),
+            seen: Set(false),
+            instance_attributes: Set(ValueMap::default()),
+            created: Set(now),
+            last_grant: Set(now),
+            earned_by: Set("granted".to_string()),
+            restricted: Set(false),
+        }
+    }
+
+    /// Creates a new item if there are no matching item definitions in
+    /// the inventory otherwise appends the stack size to the existing item
+    pub async fn create_or_append(
+        db: &DatabaseConnection,
+        user: &User,
+        definition_name: String,
+        stack_size: u32,
+    ) -> DbResult<Self> {
+        if let Some(existing) = user
+            .find_related(Entity)
+            .filter(Column::DefinitionName.eq(&definition_name))
+            .one(db)
+            .await?
+        {
+            let stack_size = existing
+                .stack_size
+                .checked_add(stack_size)
+                .unwrap_or(u32::MAX);
+
+            // TODO: Max stack size from item definition
+
+            let mut model = existing.into_active_model();
+            model.stack_size = Set(stack_size);
+            model.last_grant = Set(Utc::now());
+            model.update(db).await
+        } else {
+            Self::create_item(user, definition_name, stack_size)
+                .insert(db)
+                .await
         }
     }
 

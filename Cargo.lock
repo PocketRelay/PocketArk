@@ -1493,6 +1493,7 @@ dependencies = [
  "native-tls",
  "openssl",
  "openssl-sys",
+ "rand",
  "reqwest",
  "ring",
  "sea-orm",
