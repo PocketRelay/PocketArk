@@ -216,7 +216,7 @@ pub async fn give_jumbo_supply_pack(user: &User) -> DbResult<Vec<InventoryItem>>
         .filter(|value| value.category.eq(BOOSTERS))
         .choose_multiple(&mut rand, 5);
     for item in boosters {
-        let item = InventoryItem::create_or_append(db, user, item.name.clone(), 1).await?;
+        let mut item = InventoryItem::create_or_append(db, user, item.name.clone(), 1).await?;
         item.stack_size = 1;
         items_out.push(item);
     }
