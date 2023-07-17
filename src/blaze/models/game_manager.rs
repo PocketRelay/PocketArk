@@ -1,4 +1,10 @@
-use crate::blaze::pk::{codec::Encodable, tag::TdfType, writer::TdfWriter};
+use crate::{
+    blaze::pk::{
+        codec::Decodable, codec::Encodable, error::DecodeResult, reader::TdfReader, tag::TdfType,
+        writer::TdfWriter,
+    },
+    services::game::AttrMap,
+};
 
 pub struct CreateGameResp;
 
@@ -9,6 +15,56 @@ impl Encodable for CreateGameResp {
         w.tag_u32(b"MSID", 1);
         w.tag_str_empty(b"SCID");
         w.tag_str_empty(b"STMN");
+    }
+}
+
+pub struct UpdateGameAttrRequest {
+    pub attr: AttrMap,
+    pub gid: u32,
+}
+impl Decodable for UpdateGameAttrRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let attr = r.tag(b"ATTR")?;
+        let gid = r.tag(b"GID")?;
+        Ok(Self { attr, gid })
+    }
+}
+
+pub struct UpdateAttrRequest {
+    pub attr: AttrMap,
+    pub gid: u32,
+    pub pid: u32,
+}
+
+impl Decodable for UpdateAttrRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let attr = r.tag(b"ATTR")?;
+        let gid = r.tag(b"GID")?;
+        let pid = r.tag(b"PID")?;
+        Ok(Self { attr, gid, pid })
+    }
+}
+
+pub struct UpdateStateRequest {
+    pub gid: u32,
+    pub state: u8,
+}
+impl Decodable for UpdateStateRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let gid = r.tag(b"GID")?;
+        let state = r.tag(b"GSTA")?;
+        Ok(Self { gid, state })
+    }
+}
+
+pub struct ReplayGameRequest {
+    pub gid: u32,
+}
+
+impl Decodable for ReplayGameRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let gid = r.tag(b"GID")?;
+        Ok(Self { gid })
     }
 }
 
