@@ -88,10 +88,11 @@ pub fn router() -> Router<SessionLink> {
         ),
         game_manager::update_game_attr,
     );
+
     router.route(
         (
             components::game_manager::COMPONENT,
-            components::game_manager::REPLY_GAME,
+            components::game_manager::REPLAY_GAME,
         ),
         game_manager::replay_game,
     );

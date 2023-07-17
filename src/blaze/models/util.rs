@@ -25,6 +25,7 @@ impl Encodable for PreAuthResponse {
             self.target.host,
             self.target.port
         );
+        let host_alt_2 = format!("{}{}", self.target.scheme.value(), self.target.host,);
 
         w.tag_str(b"ASRC", "310335");
         w.tag_slice_list(
@@ -60,7 +61,7 @@ impl Encodable for PreAuthResponse {
                     ("pingPeriod", "20s"),
                     // TODO: Replace with local telemtry server
                     ("riverEnv", "prod"),
-                    ("riverHost", &host_alt),
+                    ("riverHost", &host_alt_2),
                     ("riverPort", port),
                     ("userManagerMaxCachedUsers", "0"),
                     ("voipHeadsetUpdateRate", "1000"),
@@ -117,6 +118,7 @@ pub struct PostAuthResponse;
 
 impl Encodable for PostAuthResponse {
     fn encode(&self, w: &mut TdfWriter) {
+        // TODO: Update creds with localhost for using client handler
         w.group(b"TELE", |w| {
             w.tag_str(b"ADRS", "https://river.data.ea.com");
             w.tag_zero(b"ANON");
@@ -144,6 +146,7 @@ impl Encodable for PostAuthResponse {
         });
         w.group(b"UROP", |w| {
             w.tag_u8(b"TMOP", 1);
+            // TODO: Update with user id
             w.tag_u32(b"UID", 978651371)
         })
     }

@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::{
     blaze::{
+        components,
         models::{
             user_sessions::{IpPairAddress, NetData},
             PlayerState,
@@ -75,8 +76,8 @@ impl Handler<UpdatePlayerAttr> for Game {
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.notify_all(
-            4,
-            90,
+            components::game_manager::COMPONENT,
+            components::game_manager::NOTIFY_PLAYER_ATTR_UPDATE,
             NotifyPlayerAttr {
                 attr: msg.attr.clone(),
                 pid: msg.pid,
@@ -108,8 +109,8 @@ impl Handler<UpdateGameAttrMessage> for Game {
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.notify_all(
-            4,
-            80,
+            components::game_manager::COMPONENT,
+            components::game_manager::NOTIFY_GAME_ATTR_UPDATE,
             NotifyGameAttr {
                 attr: msg.attr.clone(),
                 gid: self.id,
@@ -197,8 +198,8 @@ impl Game {
     /// Notifies all players of the current game state
     fn notify_state(&self) {
         self.notify_all(
-            4,
-            100,
+            components::game_manager::COMPONENT,
+            components::game_manager::NOTIFY_GAME_STATE_UPDATE,
             NotifyStateUpdate {
                 game_id: self.id,
                 state: self.state,
@@ -218,7 +219,7 @@ impl Handler<GameFinishMessage> for Game {
         _msg: GameFinishMessage,
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
-        self.notify_all(4, 100, NotifyGameFinish { game_id: self.id })
+        self.notify_all(4, 113, NotifyGameFinish { game_id: self.id })
     }
 }
 
