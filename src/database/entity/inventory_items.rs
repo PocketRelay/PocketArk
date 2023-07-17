@@ -72,22 +72,22 @@ impl Model {
 
     /// Creates a new item if there are no matching item definitions in
     /// the inventory otherwise appends the stack size to the existing item
-    pub async fn create_or_append(
-        db: &DatabaseConnection,
+    pub async fn create_or_append<C>(
+        db: &C,
         user: &User,
         definition_name: String,
         stack_size: u32,
-    ) -> DbResult<Self> {
+    ) -> DbResult<Self>
+    where
+        C: ConnectionTrait,
+    {
         if let Some(existing) = user
             .find_related(Entity)
             .filter(Column::DefinitionName.eq(&definition_name))
             .one(db)
             .await?
         {
-            let stack_size = existing
-                .stack_size
-                .checked_add(stack_size)
-                .unwrap_or(u32::MAX);
+            let stack_size = existing.stack_size.saturating_add(stack_size);
 
             // TODO: Max stack size from item definition
 

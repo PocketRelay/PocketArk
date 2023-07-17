@@ -19,7 +19,7 @@ use crate::{
     state::App,
 };
 
-fn get_item_definitions(items: &[InventoryItem]) -> Vec<&'static ItemDefinition> {
+pub fn get_item_definitions(items: &[InventoryItem]) -> Vec<&'static ItemDefinition> {
     let services = App::services();
     let defs = &services.defs.inventory;
 

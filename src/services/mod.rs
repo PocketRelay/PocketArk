@@ -4,6 +4,7 @@ use self::{defs::Definitions, game::manager::GameManager, tokens::Tokens};
 
 pub mod defs;
 pub mod game;
+pub mod items;
 pub mod tokens;
 
 pub struct Services {

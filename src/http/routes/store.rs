@@ -13,6 +13,7 @@ use crate::{
             },
             HttpError, RawJson,
         },
+        routes::inventory::get_item_definitions,
     },
     state::App,
 };
@@ -122,11 +123,7 @@ pub async fn obtain_article(
     // }
 
     let items_out: Vec<InventoryItem> = give_jumbo_supply_pack(&user).await?;
-
-    let definitions: Vec<&'static ItemDefinition> = items_out
-        .iter()
-        .filter_map(|item| services.defs.inventory.lookup(&item.definition_name))
-        .collect();
+    let definitions = get_item_definitions(&items_out);
 
     // for item in &items_out {
     //     let def = definitions
