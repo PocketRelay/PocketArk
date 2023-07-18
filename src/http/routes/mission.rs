@@ -3,13 +3,9 @@ use hyper::StatusCode;
 use log::debug;
 use serde_json::Value;
 
-use crate::{
-    http::models::{
-        mission::{FinishMissionRequest, StartMissionRequest, StartMissionResponse},
-        RawJson,
-    },
-    services::game::{manager::GetGameMessage, NotifyGameReplayMessage},
-    state::App,
+use crate::http::models::{
+    mission::{FinishMissionRequest, StartMissionRequest, StartMissionResponse},
+    RawJson,
 };
 
 static CURRENT_MISSIONS_DEFINITION: &str =
@@ -58,17 +54,17 @@ pub async fn finish_mission(
     Path(mission_id): Path<u32>,
     Json(req): Json<FinishMissionRequest>,
 ) -> StatusCode {
-    debug!("Mission finished: {} {:?}", mission_id, req);
+    debug!("Mission finished: {} {:#?}", mission_id, req);
 
-    let services = App::services();
-    let game = services
-        .games
-        .send(GetGameMessage {
-            game_id: mission_id,
-        })
-        .await
-        .expect("Failed to create")
-        .expect("Unknown game");
+    // let services = App::services();
+    // let game = services
+    //     .games
+    //     .send(GetGameMessage {
+    //         game_id: mission_id,
+    //     })
+    //     .await
+    //     .expect("Failed to create")
+    //     .expect("Unknown game");
     // let _ = game.send(NotifyGameReplayMessage).await;
 
     StatusCode::NO_CONTENT

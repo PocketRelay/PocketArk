@@ -51,7 +51,18 @@ pub struct MissionActivityReport {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MissionActivity {
     pub name: Uuid,
-    pub attributes: HashMap<String, Value>,
+    pub attributes: MissionActivityAttributes,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MissionActivityAttributes {
+    pub count: i32,
+    pub score: i32,
+    pub score_type: i32,
+
+    #[serde(flatten)]
+    pub extra: HashMap<String, Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
