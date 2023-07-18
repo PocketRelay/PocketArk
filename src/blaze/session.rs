@@ -1,6 +1,7 @@
 use super::{
     components,
     models::user_sessions::{IpPairAddress, NetData, QosNetworkData, UserAdded, UserUpdated},
+    pk::{codec::Encodable, packet::PacketFlags},
 };
 use crate::{
     blaze::pk::{
@@ -12,6 +13,7 @@ use crate::{
     services::game::{GameID, Player},
     state::App,
 };
+use bytes::Bytes;
 use interlink::prelude::*;
 use log::{debug, error};
 use std::io;
@@ -73,7 +75,21 @@ impl Session {
         }
     }
 
-    pub fn push(&mut self, packet: Packet) {
+    pub fn push(&mut self, mut packet: Packet) {
+        // sent as premsg for all notifys
+        //  "CNTX": 1053382590009, session id
+        //  "ERRC": 0, error code
+        // "MADR": { (group) unknown
+        // },
+
+        if packet.header.flags.contains(PacketFlags::FLAG_NOTIFY) {
+            let msg = NotifyContext {
+                uid: self.user.id,
+                error: 0,
+            };
+            packet.pre_msg = Bytes::from(msg.encode_bytes());
+        }
+
         self.debug_log_packet("Queued Write", &packet);
         if self.writer.sink(packet).is_err() {
             // TODO: Handle failing to send contents to writer
@@ -86,6 +102,19 @@ impl Session {
             minified: false,
         };
         debug!("{}:\n {:?}", dir, out);
+    }
+}
+
+pub struct NotifyContext {
+    pub uid: u32,
+    pub error: u32,
+}
+
+impl Encodable for NotifyContext {
+    fn encode(&self, w: &mut super::pk::writer::TdfWriter) {
+        w.tag_u32(b"CNTX", self.uid);
+        w.tag_u32(b"ERRC", self.error);
+        w.group(b"MADR", |_| {})
     }
 }
 

@@ -110,12 +110,6 @@ impl Packet {
         }
     }
 
-    /// Creates a packet responding to the provided packet.
-    /// Clones the header of the request packet and changes
-    /// the type to repsonse
-    ///
-    /// `packet`   The packet to respond to
-    /// `contents` The contents to encode for the packet
     pub fn response<C: Encodable>(packet: &Packet, contents: C) -> Self {
         Self {
             header: packet.header.response(),
@@ -124,21 +118,10 @@ impl Packet {
         }
     }
 
-    /// Creates a packet responding to the current packet.
-    /// Clones the header of the request packet and changes
-    /// the type to repsonse
-    ///
-    /// `packet`   The packet to respond to
-    /// `contents` The contents to encode for the packet
     pub fn respond<C: Encodable>(&self, contents: C) -> Self {
         Self::response(self, contents)
     }
 
-    /// Creates a response packet responding to the provided packet
-    /// but with raw contents that have already been encoded.
-    ///
-    /// `packet`   The packet to respond to
-    /// `contents` The raw encoded packet contents
     pub fn response_raw(packet: &Packet, contents: Vec<u8>) -> Self {
         Self {
             header: packet.header.response(),
@@ -147,10 +130,6 @@ impl Packet {
         }
     }
 
-    /// Creates a response packet responding to the provided packet
-    /// but with empty contents.
-    ///
-    /// `packet` The packet to respond to
     pub const fn response_empty(packet: &Packet) -> Self {
         Self {
             header: packet.header.response(),
@@ -159,11 +138,6 @@ impl Packet {
         }
     }
 
-    /// Creates a response packet responding to the provided packet
-    /// but with empty contents.
-    ///
-    /// `packet`   The packet to respond to
-    /// `contents` The contents to encode for the packet
     pub const fn respond_empty(&self) -> Self {
         Self::response_empty(self)
     }
@@ -517,6 +491,31 @@ impl<'a> Debug for PacketDebug<'a> {
         // Skip remaining if the message shouldn't contain its content
         if self.minified {
             return Ok(());
+        }
+
+        if !self.packet.pre_msg.is_empty() {
+            let mut reader = TdfReader::new(&self.packet.pre_msg);
+            let mut out = String::new();
+
+            out.push_str("{\n");
+
+            // Stringify the content or append error instead
+            if let Err(err) = reader.stringify(&mut out) {
+                writeln!(f, "Pre Msg: Content was malformed")?;
+                writeln!(f, "Error: {:?}", err)?;
+                writeln!(f, "Partial Pre Msg: {}", out)?;
+                writeln!(f, "Raw: {:?}", &self.packet.body)?;
+                return Ok(());
+            }
+
+            if out.len() == 2 {
+                // Remove new line if nothing else was appended
+                out.pop();
+            }
+
+            out.push('}');
+
+            writeln!(f, "Pre Message: {}", out)?;
         }
 
         let mut reader = TdfReader::new(&self.packet.body);
