@@ -42,7 +42,7 @@ impl PacketHeader {
             command,
             seq: 0,
             flags: PacketFlags::FLAG_NOTIFY,
-            notify: 1,
+            notify: 0,
             unused: 0,
         }
     }

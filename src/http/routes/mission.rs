@@ -8,7 +8,7 @@ use crate::{
         mission::{FinishMissionRequest, StartMissionRequest, StartMissionResponse},
         RawJson,
     },
-    services::game::{manager::GetGameMessage, GameFinishMessage},
+    services::game::{manager::GetGameMessage, NotifyGameReplayMessage},
     state::App,
 };
 
@@ -66,7 +66,7 @@ pub async fn finish_mission(
         .await
         .expect("Failed to create")
         .expect("Unknown game");
-    let _ = game.send(GameFinishMessage).await;
+    // let _ = game.send(NotifyGameReplayMessage).await;
 
     StatusCode::NO_CONTENT
 }

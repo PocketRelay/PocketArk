@@ -209,17 +209,17 @@ impl Game {
 }
 
 #[derive(Message)]
-pub struct GameFinishMessage;
+pub struct NotifyGameReplayMessage;
 
-impl Handler<GameFinishMessage> for Game {
+impl Handler<NotifyGameReplayMessage> for Game {
     type Response = ();
 
     fn handle(
         &mut self,
-        _msg: GameFinishMessage,
+        _msg: NotifyGameReplayMessage,
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
-        self.notify_all(4, 113, NotifyGameFinish { game_id: self.id })
+        self.notify_all(4, 113, NotifyGameReplay { game_id: self.id })
     }
 }
 
@@ -307,7 +307,7 @@ impl Player {
 
     pub fn encode(&self, game_id: u32, slot: usize, w: &mut TdfWriter) {
         w.tag_empty_blob(b"BLOB");
-        w.tag_u64(b"CONG", 1052287650009);
+        w.tag_u32(b"CONG", self.user.id);
         w.tag_u8(b"CSID", 0);
         w.tag_u8(b"DSUI", 0);
         w.tag_empty_blob(b"EXBL");
@@ -329,7 +329,7 @@ impl Player {
         w.tag_value(b"STAT", &self.state);
         w.tag_u16(b"TIDX", 0);
         w.tag_u8(b"TIME", 0); /* Unix timestamp in millseconds */
-        w.tag_triple(b"UGID", (30722, 2, 1052287650009u64));
+        w.tag_triple(b"UGID", (30722, 2, self.user.id));
         w.tag_u32(b"UID", self.user.id);
         w.tag_str(b"UUID", &self.uuid.to_string());
         w.tag_group_end();
@@ -424,7 +424,7 @@ impl Encodable for GameDetails<'_> {
             w.tag_empty_blob(b"PGSR");
 
             w.group(b"PHST", |w| {
-                w.tag_u64(b"CONG", 1052279530202);
+                w.tag_u32(b"CONG", host_player.user.id);
                 w.tag_u32(b"CSID", 0);
                 w.tag_u32(b"HPID", host_player.user.id);
                 w.tag_zero(b"HSLT");
@@ -445,7 +445,7 @@ impl Encodable for GameDetails<'_> {
             w.tag_str_empty(b"STMN");
 
             w.group(b"THST", |w| {
-                w.tag_u64(b"CONG", 1052279530202);
+                w.tag_u32(b"CONG", host_player.user.id);
                 w.tag_u8(b"CSID", 0x0);
                 w.tag_u32(b"HPID", host_player.user.id);
                 w.tag_u32(b"HSES", host_player.user.id);
@@ -532,11 +532,11 @@ impl Encodable for NotifyStateUpdate {
         w.tag_u8(b"GSTA", self.state)
     }
 }
-struct NotifyGameFinish {
+struct NotifyGameReplay {
     game_id: u32,
 }
 
-impl Encodable for NotifyGameFinish {
+impl Encodable for NotifyGameReplay {
     fn encode(&self, w: &mut TdfWriter) {
         w.tag_u32(b"GID", self.game_id);
         w.tag_u32(b"GRID", self.game_id)

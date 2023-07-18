@@ -1,9 +1,12 @@
-use crate::blaze::pk::{
-    codec::{Decodable, Encodable, ValueType},
-    error::DecodeResult,
-    reader::TdfReader,
-    tag::TdfType,
-    writer::TdfWriter,
+use crate::{
+    blaze::pk::{
+        codec::{Decodable, Encodable, ValueType},
+        error::DecodeResult,
+        reader::TdfReader,
+        tag::TdfType,
+        writer::TdfWriter,
+    },
+    database::entity::User,
 };
 
 pub struct AuthRequest {
@@ -17,26 +20,28 @@ impl Decodable for AuthRequest {
     }
 }
 
-pub struct AuthNotify;
+pub struct AuthNotify {
+    pub user: User,
+}
 
 impl Encodable for AuthNotify {
     fn encode(&self, w: &mut TdfWriter) {
         w.tag_zero(b"\x17CON");
-        w.tag_u32(b"ALOC", 1701727834);
-        w.tag_u32(b"BUID", 978651371);
-        w.tag_triple(b"CGID", (30722u64, 2u64, 1052287650009u64));
-        w.tag_str(b"DSNM", "Jacobtread");
+        w.tag_u32(b"ALOC", 1701727834); // location
+        w.tag_u32(b"BUID", self.user.id);
+        w.tag_triple(b"CGID", (30722u64, 2u64, self.user.id));
+        w.tag_str(b"DSNM", &self.user.username);
         w.tag_zero(b"FRST");
         w.tag_str(b"KEY", "0");
         w.tag_u32(b"LAST", 1688871852);
         w.tag_u32(b"LLOG", 1688871991);
         w.tag_str(b"MAIL", "******@gmail.com");
         w.tag_str(b"NASP", "cem_ea_id");
-        w.tag_u32(b"PID", 978651371);
+        w.tag_u32(b"PID", self.user.id);
         w.tag_u8(b"PLAT", 4);
-        w.tag_u64(b"UID", 1000279946559);
+        w.tag_u32(b"UID", self.user.id);
         w.tag_u8(b"USTP", 0);
-        w.tag_u64(b"XREF", 1000279946559);
+        w.tag_u32(b"XREF", self.user.id); //pid nucleus
     }
 }
 

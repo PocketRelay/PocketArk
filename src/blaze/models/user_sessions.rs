@@ -63,7 +63,7 @@ impl Encodable for UserUpdated {
                 if self.game_id.is_some() { 2 } else { 1 },
             );
 
-            (components::user_sessions::COMPONENT, 2, 1052287650009u64).encode(w);
+            (components::user_sessions::COMPONENT, 2, self.player_id).encode(w);
             if let Some(game_id) = &self.game_id {
                 (components::game_manager::COMPONENT, 1, *game_id).encode(w);
             }
@@ -116,7 +116,7 @@ impl Encodable for UserAdded {
                 if self.game_id.is_some() { 2 } else { 1 },
             );
 
-            (components::user_sessions::COMPONENT, 2, 1052287650009u64).encode(w);
+            (components::user_sessions::COMPONENT, 2, self.player_id).encode(w);
             if let Some(game_id) = &self.game_id {
                 (components::game_manager::COMPONENT, 1, *game_id).encode(w);
             }

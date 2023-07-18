@@ -8,7 +8,7 @@ use crate::{
     },
     services::game::{
         manager::{CreateMessage, GetGameMessage},
-        UpdateGameAttrMessage, UpdatePlayerAttr, UpdateStateMessage,
+        NotifyGameReplayMessage, UpdateGameAttrMessage, UpdatePlayerAttr, UpdateStateMessage,
     },
     state::App,
 };
@@ -75,4 +75,5 @@ pub async fn replay_game(_session: &mut SessionLink, req: ReplayGameRequest) {
         .expect("Failed to create")
         .expect("Unknown game");
     let _ = game.send(UpdateStateMessage { state: 130 }).await;
+    let _ = game.send(NotifyGameReplayMessage).await;
 }
