@@ -1,5 +1,5 @@
 use interlink::{
-    prelude::{Handler, Link, Message},
+    prelude::{Handler, Link, Message, Mr},
     service::Service,
 };
 use uuid::Uuid;
@@ -15,7 +15,7 @@ use crate::{
         session::{PushExt, SessionLink, SetGameMessage},
     },
     database::entity::User,
-    http::models::mission::MissionModifier,
+    http::models::mission::{CompleteMissionData, MissionModifier},
 };
 
 pub mod manager;
@@ -35,6 +35,7 @@ pub struct Game {
     pub players: Vec<Player>,
 
     pub modifiers: Vec<MissionModifier>,
+    pub mission_data: Option<CompleteMissionData>,
 }
 
 impl Service for Game {
@@ -45,6 +46,21 @@ impl Service for Game {
         // let _ = services
         //     .game_manager
         //     .do_send(RemoveGameMessage { game_id: self.id });
+    }
+}
+
+#[derive(Message)]
+#[msg(rtype = "Option<CompleteMissionData>")]
+pub struct GetMissionDataMessage;
+
+impl Handler<GetMissionDataMessage> for Game {
+    type Response = Mr<GetMissionDataMessage>;
+    fn handle(
+        &mut self,
+        msg: GetMissionDataMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        Mr(self.mission_data.clone())
     }
 }
 
@@ -139,6 +155,23 @@ impl Handler<UpdateGameAttrMessage> for Game {
     }
 }
 
+#[derive(Message)]
+pub struct SetCompleteMissionMessage {
+    pub mission_data: CompleteMissionData,
+}
+
+impl Handler<SetCompleteMissionMessage> for Game {
+    type Response = ();
+
+    fn handle(
+        &mut self,
+        msg: SetCompleteMissionMessage,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        self.mission_data = Some(msg.mission_data)
+    }
+}
+
 pub struct NotifyPlayerAttr {
     attr: AttrMap,
     pid: u32,
@@ -190,6 +223,7 @@ impl Game {
             .collect(),
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
+            mission_data: None,
         };
         this.start()
     }

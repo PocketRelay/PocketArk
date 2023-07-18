@@ -9,9 +9,9 @@ use crate::database::entity::Currency;
 
 use super::auth::Sku;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FinishMissionRequest {
+pub struct CompleteMissionData {
     pub duration_sec: u64,
     pub percent_complete: u8,
     pub extraction_state: String,
@@ -21,13 +21,13 @@ pub struct FinishMissionRequest {
     pub version: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MissionModifier {
     pub name: String,
     pub value: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionPlayerData {
     pub persona_id: u32,
@@ -41,20 +41,20 @@ pub struct MissionPlayerData {
     pub waves_in_match: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MissionActivityReport {
     pub name: String,
     pub activities: Vec<MissionActivity>,
     pub options: Value,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MissionActivity {
     pub name: Uuid,
     pub attributes: MissionActivityAttributes,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionActivityAttributes {
     pub count: i32,
@@ -106,7 +106,7 @@ pub struct MissionPlayerInfo {
     pub result: PlayerInfoResult,
     pub pid: u32,
     pub persona_id: u32,
-    pub persona_name: String,
+    pub persona_display_name: String,
     pub character_id: Uuid,
     pub character_class: Uuid,
     pub modifiers: Vec<Value>,
@@ -147,8 +147,24 @@ pub struct PlayerInfoResult {
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeUpdate {
     pub challenge_id: Uuid,
-    pub counters: Vec<Value>,
-    pub status_change: String,
+    pub counters: Vec<ChallengeCounter>,
+    pub status_change: ChallengeStatusChange,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ChallengeStatusChange {
+    Notify,
+    Changed,
+    #[serde(other)]
+    Unknown,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChallengeCounter {
+    pub name: String,
+    pub current_count: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
