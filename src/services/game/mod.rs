@@ -15,6 +15,7 @@ use crate::{
         session::{PushExt, SessionLink, SetGameMessage},
     },
     database::entity::User,
+    http::models::mission::MissionModifier,
 };
 
 pub mod manager;
@@ -32,6 +33,8 @@ pub struct Game {
     pub attributes: AttrMap,
     /// The list of players in this game
     pub players: Vec<Player>,
+
+    pub modifiers: Vec<MissionModifier>,
 }
 
 impl Service for Game {
@@ -42,6 +45,22 @@ impl Service for Game {
         // let _ = services
         //     .game_manager
         //     .do_send(RemoveGameMessage { game_id: self.id });
+    }
+}
+
+#[derive(Message)]
+pub struct SetModifiersMessage {
+    pub modifiers: Vec<MissionModifier>,
+}
+
+impl Handler<SetModifiersMessage> for Game {
+    type Response = ();
+    fn handle(
+        &mut self,
+        msg: SetModifiersMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        self.modifiers = msg.modifiers;
     }
 }
 
@@ -170,6 +189,7 @@ impl Game {
             .into_iter()
             .collect(),
             players: Vec::with_capacity(4),
+            modifiers: Vec::new(),
         };
         this.start()
     }

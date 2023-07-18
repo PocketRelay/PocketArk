@@ -3,9 +3,13 @@ use hyper::StatusCode;
 use log::debug;
 use serde_json::Value;
 
-use crate::http::models::{
-    mission::{FinishMissionRequest, StartMissionRequest, StartMissionResponse},
-    RawJson,
+use crate::{
+    http::models::{
+        mission::{FinishMissionRequest, StartMissionRequest, StartMissionResponse},
+        HttpError, RawJson,
+    },
+    services::game::{manager::GetGameMessage, SetModifiersMessage},
+    state::App,
 };
 
 static CURRENT_MISSIONS_DEFINITION: &str =
@@ -38,13 +42,29 @@ pub async fn get_mission(Path(mission_id): Path<u32>) -> RawJson {
 pub async fn start_mission(
     Path(mission_id): Path<u32>,
     Json(req): Json<StartMissionRequest>,
-) -> Json<StartMissionResponse> {
+) -> Result<Json<StartMissionResponse>, HttpError> {
     debug!("Mission started: {} {:?}", mission_id, req);
+
+    let services = App::services();
+    let game = services
+        .games
+        .send(GetGameMessage {
+            game_id: mission_id,
+        })
+        .await
+        .expect("Failed to create")
+        .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
+
+    game.send(SetModifiersMessage {
+        modifiers: req.modifiers,
+    })
+    .await
+    .map_err(|_| HttpError::new("Failed to set modifiers", StatusCode::INTERNAL_SERVER_ERROR))?;
 
     let res = StartMissionResponse {
         match_id: mission_id.to_string(),
     };
-    Json(res)
+    Ok(Json(res))
 }
 
 /// POST /user/mission/:id/finish
@@ -56,15 +76,15 @@ pub async fn finish_mission(
 ) -> StatusCode {
     debug!("Mission finished: {} {:#?}", mission_id, req);
 
-    // let services = App::services();
-    // let game = services
-    //     .games
-    //     .send(GetGameMessage {
-    //         game_id: mission_id,
-    //     })
-    //     .await
-    //     .expect("Failed to create")
-    //     .expect("Unknown game");
+    let services = App::services();
+    let game = services
+        .games
+        .send(GetGameMessage {
+            game_id: mission_id,
+        })
+        .await
+        .expect("Failed to create")
+        .expect("Unknown game");
     // let _ = game.send(NotifyGameReplayMessage).await;
 
     StatusCode::NO_CONTENT
