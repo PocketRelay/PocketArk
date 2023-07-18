@@ -16,6 +16,7 @@ pub mod mission;
 pub mod store;
 pub mod strike_teams;
 pub mod telemetry;
+pub mod user_match;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

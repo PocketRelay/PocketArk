@@ -1,907 +1,904 @@
-{
-    "totalCount": 20,
-    "list": [
-        {
-            "name": "9a754c9a-7c9e-6022-9c9c-0ad908130b08",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "currency": "GrindCurrency",
-            "activities": [],
-            "levels": [
-                {
-                    "name": "",
-                    "imgURLFull": "",
-                    "targetCount": 0,
-                    "xpReward": 0,
-                    "currencyReward": 0,
-                    "rewards": [
-                        {
-                            "name": "333e2214-d748-43fb-b6f0-48582c3f6330",
-                            "attributes": {}
+[
+    {
+        "name": "9a754c9a-7c9e-6022-9c9c-0ad908130b08",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "currency": "GrindCurrency",
+        "activities": [],
+        "levels": [
+            {
+                "name": "",
+                "imgURLFull": "",
+                "targetCount": 0,
+                "xpReward": 0,
+                "currencyReward": 0,
+                "rewards": [
+                    {
+                        "name": "333e2214-d748-43fb-b6f0-48582c3f6330",
+                        "attributes": {}
+                    }
+                ],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "27e49b98-df0c-aa73-f4dd-dae31afb7c50",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "currency": "GrindCurrency",
+        "activities": [],
+        "levels": [
+            {
+                "name": "",
+                "imgURLFull": "",
+                "targetCount": 0,
+                "xpReward": 0,
+                "currencyReward": 0,
+                "rewards": [
+                    {
+                        "name": "333e2214-d748-43fb-b6f0-48582c3f6330",
+                        "attributes": {
+                            "asdf": "1"
                         }
-                    ],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "27e49b98-df0c-aa73-f4dd-dae31afb7c50",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "currency": "GrindCurrency",
-            "activities": [],
-            "levels": [
-                {
-                    "name": "",
-                    "imgURLFull": "",
-                    "targetCount": 0,
-                    "xpReward": 0,
-                    "currencyReward": 0,
-                    "rewards": [
-                        {
-                            "name": "333e2214-d748-43fb-b6f0-48582c3f6330",
-                            "attributes": {
-                                "asdf": "1"
-                            }
-                        }
-                    ],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "d8cb1b31-e4d8-4df1-8a41-7d9dc22d02ec",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165422",
-            "i18nDescription": "165422",
-            "locTitle": "Assist Score",
-            "locDescription": "Assist Score",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
-                    "filter": {
-                        "scoreType": 1
-                    },
-                    "incrementProgressBy": "score"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Assists_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 250,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                    }
+                ],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "d8cb1b31-e4d8-4df1-8a41-7d9dc22d02ec",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165422",
+        "i18nDescription": "165422",
+        "locTitle": "Assist Score",
+        "locDescription": "Assist Score",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
+                "filter": {
+                    "scoreType": 1
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Assists_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 500,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "score"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Assists_Bronze",
+                "imgURLFull": "",
+                "targetCount": 250,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Assists_Silver",
+                "imgURLFull": "",
+                "targetCount": 500,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Assists_Gold",
+                "imgURLFull": "",
+                "targetCount": 1000,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "a2012277-2e5b-495c-89de-2edb5a1195a9",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113062",
+        "i18nDescription": "113062",
+        "locTitle": "Assault Rifle Kills",
+        "locDescription": "Assault Rifle Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "weaponType": 1
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Assists_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 1000,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "a2012277-2e5b-495c-89de-2edb5a1195a9",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113062",
-            "i18nDescription": "113062",
-            "locTitle": "Assault Rifle Kills",
-            "locDescription": "Assault Rifle Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "weaponType": 1
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Assault_Rifle_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Assault_Rifle_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Assault_Rifle_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Assault_Rifle_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "8f21fe49-b678-4eb9-8818-13ff591c9424",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165439",
+        "i18nDescription": "165439",
+        "locTitle": "Biotic Power Kills",
+        "locDescription": "Biotic Power Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "powerType": 0
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Assault_Rifle_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Biotic_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Biotic_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Biotic_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "fe3100a9-b9d7-4fd6-8cce-95ef87065cd2",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113058",
+        "i18nDescription": "113058",
+        "locTitle": "Pistol Kills",
+        "locDescription": "Pistol Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "weaponType": 0
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Assault_Rifle_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "8f21fe49-b678-4eb9-8818-13ff591c9424",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165439",
-            "i18nDescription": "165439",
-            "locTitle": "Biotic Power Kills",
-            "locDescription": "Biotic Power Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "powerType": 0
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Biotic_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Pistol_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Pistol_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Pistol_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "2f64c15d-d43c-4cb4-97ee-8904fe7c5be8",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165430",
+        "i18nDescription": "165430",
+        "locTitle": "Objective Score",
+        "locDescription": "Objective Score",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
+                "filter": {
+                    "scoreType": 14
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Biotic_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "score"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Objective_Bronze",
+                "imgURLFull": "",
+                "targetCount": 1000,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Objective_Silver",
+                "imgURLFull": "",
+                "targetCount": 2000,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Objective_Gold",
+                "imgURLFull": "",
+                "targetCount": 4000,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "01dc4154-0ea4-4078-817a-2cb7c4bdff1f",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165426",
+        "i18nDescription": "165426",
+        "locTitle": "Support Score",
+        "locDescription": "Support Score",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
+                "filter": {
+                    "scoreType": 13
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Biotic_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "fe3100a9-b9d7-4fd6-8cce-95ef87065cd2",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113058",
-            "i18nDescription": "113058",
-            "locTitle": "Pistol Kills",
-            "locDescription": "Pistol Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "weaponType": 0
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Pistol_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "score"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Support_Bronze",
+                "imgURLFull": "",
+                "targetCount": 800,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Support_Silver",
+                "imgURLFull": "",
+                "targetCount": 1600,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Support_Gold",
+                "imgURLFull": "",
+                "targetCount": 2000,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "463e3576-a49e-40d0-a983-93d15fb774d3",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165438",
+        "i18nDescription": "165438",
+        "locTitle": "Combat Power Kills",
+        "locDescription": "Combat Power Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "powerType": 1
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Pistol_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Combat_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Combat_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Combat_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "e87b4532-d85d-499c-b88e-ec2fe753c872",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113063",
+        "i18nDescription": "113063",
+        "locTitle": "Kills",
+        "locDescription": "Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {},
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 20,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 40,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 60,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "f4a9b99a-f09b-4531-9e37-b3244e670355",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165490",
+        "i18nDescription": "165490",
+        "locTitle": "Weak Point Kills",
+        "locDescription": "Weak Point Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "killedByWeakpoint": true
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Pistol_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "2f64c15d-d43c-4cb4-97ee-8904fe7c5be8",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165430",
-            "i18nDescription": "165430",
-            "locTitle": "Objective Score",
-            "locDescription": "Objective Score",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
-                    "filter": {
-                        "scoreType": 14
-                    },
-                    "incrementProgressBy": "score"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Objective_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 1000,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Headshots_Bronze",
+                "imgURLFull": "",
+                "targetCount": 10,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Headshots_Silver",
+                "imgURLFull": "",
+                "targetCount": 20,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Headshots_Gold",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "daea008e-cdc4-4196-bfd2-84770569cd3b",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113123",
+        "i18nDescription": "113123",
+        "locTitle": "Melee Kills",
+        "locDescription": "Melee Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "killedByMelee": true
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Objective_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 2000,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Melee_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 12,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Melee_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 18,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Melee_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 24,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "3f6dc054-cfaa-4fa1-8726-a0f2ac143ad1",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113057",
+        "i18nDescription": "113057",
+        "locTitle": "Shotgun Kills",
+        "locDescription": "Shotgun Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "weaponType": 2
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Objective_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 4000,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "01dc4154-0ea4-4078-817a-2cb7c4bdff1f",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165426",
-            "i18nDescription": "165426",
-            "locTitle": "Support Score",
-            "locDescription": "Support Score",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "2a2ce920-6daa-473b-b934-4e3f49c89eba",
-                    "filter": {
-                        "scoreType": 13
-                    },
-                    "incrementProgressBy": "score"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Support_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 800,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Shotgun_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Shotgun_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Shotgun_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "e13f568f-38fc-4701-b64b-4152f0d3abaf",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113064",
+        "i18nDescription": "113064",
+        "locTitle": "Sniper Rifle Kills",
+        "locDescription": "Sniper Rifle Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "weaponType": 3
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Support_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 1600,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Sniper_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Sniper_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Sniper_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "d059e178-2aee-4841-b249-74caa1c3eb0f",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165440",
+        "i18nDescription": "165440",
+        "locTitle": "Tech Power Kills",
+        "locDescription": "Tech Power Kills",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
+                "filter": {
+                    "powerType": 2
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Support_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 2000,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "463e3576-a49e-40d0-a983-93d15fb774d3",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165438",
-            "i18nDescription": "165438",
-            "locTitle": "Combat Power Kills",
-            "locDescription": "Combat Power Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "powerType": 1
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Combat_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Tech_Kills_Bronze",
+                "imgURLFull": "",
+                "targetCount": 15,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Tech_Kills_Silver",
+                "imgURLFull": "",
+                "targetCount": 30,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Tech_Kills_Gold",
+                "imgURLFull": "",
+                "targetCount": 45,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "a6103662-8bbb-443a-aa34-eed31c59b02c",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113061",
+        "i18nDescription": "113061",
+        "locTitle": "Bronze Extraction",
+        "locDescription": "Bronze Extraction",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
+                "filter": {
+                    "difficulty": "1"
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Combat_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Extraction_Bronze",
+                "imgURLFull": "",
+                "targetCount": 1,
+                "xpReward": 250,
+                "currencyReward": 500,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "f60ec31c-184e-47dd-a250-8834016b4f19",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113060",
+        "i18nDescription": "113060",
+        "locTitle": "Gold Extraction",
+        "locDescription": "Gold Extraction",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
+                "filter": {
+                    "difficulty": "3"
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Combat_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "e87b4532-d85d-499c-b88e-ec2fe753c872",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113063",
-            "i18nDescription": "113063",
-            "locTitle": "Kills",
-            "locDescription": "Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {},
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 20,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Gold",
+                "imgPath": "Extraction_Gold",
+                "imgURLFull": "",
+                "targetCount": 1,
+                "xpReward": 1000,
+                "currencyReward": 2750,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "967909de-f165-46b8-b939-26692c611abb",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "113059",
+        "i18nDescription": "113059",
+        "locTitle": "Silver Extraction",
+        "locDescription": "Silver Extraction",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
+                "filter": {
+                    "difficulty": "2"
                 },
-                {
-                    "name": "Silver",
-                    "imgPath": "Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 40,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Silver",
+                "imgPath": "Extraction_Silver",
+                "imgURLFull": "",
+                "targetCount": 1,
+                "xpReward": 500,
+                "currencyReward": 1250,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "2b239814-f7ec-4ae2-ab90-99db576ccfb9",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "165489",
+        "i18nDescription": "165489",
+        "locTitle": "Revives",
+        "locDescription": "Revives",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "5ffafc58-1e29-0ee7-ef6b-bb00a49d9cc1",
+                "filter": {},
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Bronze",
+                "imgPath": "Revive_Bronze",
+                "imgURLFull": "",
+                "targetCount": 3,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Silver",
+                "imgPath": "Revive_Silver",
+                "imgURLFull": "",
+                "targetCount": 6,
+                "xpReward": 250,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            },
+            {
+                "name": "Gold",
+                "imgPath": "Revive_Gold",
+                "imgURLFull": "",
+                "targetCount": 10,
+                "xpReward": 500,
+                "currencyReward": 0,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ]
+    },
+    {
+        "name": "572d500f-50b3-42c3-b3d0-9a3b1e54f7ef",
+        "description": "",
+        "customAttributes": {},
+        "enabled": true,
+        "i18nTitle": "221272",
+        "i18nDescription": "221272",
+        "currency": "GrindCurrency",
+        "activities": [
+            {
+                "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
+                "filter": {
+                    "difficulty": "4"
                 },
-                {
-                    "name": "Gold",
-                    "imgPath": "Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 60,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "f4a9b99a-f09b-4531-9e37-b3244e670355",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165490",
-            "i18nDescription": "165490",
-            "locTitle": "Weak Point Kills",
-            "locDescription": "Weak Point Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "killedByWeakpoint": true
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Headshots_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 10,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Silver",
-                    "imgPath": "Headshots_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 20,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Gold",
-                    "imgPath": "Headshots_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "daea008e-cdc4-4196-bfd2-84770569cd3b",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113123",
-            "i18nDescription": "113123",
-            "locTitle": "Melee Kills",
-            "locDescription": "Melee Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "killedByMelee": true
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Melee_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 12,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Silver",
-                    "imgPath": "Melee_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 18,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Gold",
-                    "imgPath": "Melee_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 24,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "3f6dc054-cfaa-4fa1-8726-a0f2ac143ad1",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113057",
-            "i18nDescription": "113057",
-            "locTitle": "Shotgun Kills",
-            "locDescription": "Shotgun Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "weaponType": 2
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Shotgun_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Silver",
-                    "imgPath": "Shotgun_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Gold",
-                    "imgPath": "Shotgun_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "e13f568f-38fc-4701-b64b-4152f0d3abaf",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113064",
-            "i18nDescription": "113064",
-            "locTitle": "Sniper Rifle Kills",
-            "locDescription": "Sniper Rifle Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "weaponType": 3
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Sniper_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Silver",
-                    "imgPath": "Sniper_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Gold",
-                    "imgPath": "Sniper_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "d059e178-2aee-4841-b249-74caa1c3eb0f",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165440",
-            "i18nDescription": "165440",
-            "locTitle": "Tech Power Kills",
-            "locDescription": "Tech Power Kills",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "8a9a9db9-a4ec-c032-8563-842495527d19",
-                    "filter": {
-                        "powerType": 2
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Tech_Kills_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 15,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Silver",
-                    "imgPath": "Tech_Kills_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 30,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Gold",
-                    "imgPath": "Tech_Kills_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 45,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "a6103662-8bbb-443a-aa34-eed31c59b02c",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113061",
-            "i18nDescription": "113061",
-            "locTitle": "Bronze Extraction",
-            "locDescription": "Bronze Extraction",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
-                    "filter": {
-                        "difficulty": "1"
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Extraction_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 1,
-                    "xpReward": 250,
-                    "currencyReward": 500,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "f60ec31c-184e-47dd-a250-8834016b4f19",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113060",
-            "i18nDescription": "113060",
-            "locTitle": "Gold Extraction",
-            "locDescription": "Gold Extraction",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
-                    "filter": {
-                        "difficulty": "3"
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Gold",
-                    "imgPath": "Extraction_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 1,
-                    "xpReward": 1000,
-                    "currencyReward": 2750,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "967909de-f165-46b8-b939-26692c611abb",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "113059",
-            "i18nDescription": "113059",
-            "locTitle": "Silver Extraction",
-            "locDescription": "Silver Extraction",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
-                    "filter": {
-                        "difficulty": "2"
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Silver",
-                    "imgPath": "Extraction_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 1,
-                    "xpReward": 500,
-                    "currencyReward": 1250,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "2b239814-f7ec-4ae2-ab90-99db576ccfb9",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "165489",
-            "i18nDescription": "165489",
-            "locTitle": "Revives",
-            "locDescription": "Revives",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "5ffafc58-1e29-0ee7-ef6b-bb00a49d9cc1",
-                    "filter": {},
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Bronze",
-                    "imgPath": "Revive_Bronze",
-                    "imgURLFull": "",
-                    "targetCount": 3,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Silver",
-                    "imgPath": "Revive_Silver",
-                    "imgURLFull": "",
-                    "targetCount": 6,
-                    "xpReward": 250,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                },
-                {
-                    "name": "Gold",
-                    "imgPath": "Revive_Gold",
-                    "imgURLFull": "",
-                    "targetCount": 10,
-                    "xpReward": 500,
-                    "currencyReward": 0,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ]
-        },
-        {
-            "name": "572d500f-50b3-42c3-b3d0-9a3b1e54f7ef",
-            "description": "",
-            "customAttributes": {},
-            "enabled": true,
-            "i18nTitle": "221272",
-            "i18nDescription": "221272",
-            "currency": "GrindCurrency",
-            "activities": [
-                {
-                    "activityName": "a061f903-4275-fd6f-a72e-63f23a85d30a",
-                    "filter": {
-                        "difficulty": "4"
-                    },
-                    "incrementProgressBy": "count"
-                }
-            ],
-            "levels": [
-                {
-                    "name": "Platinum",
-                    "imgPath": "Extraction_Platinum",
-                    "imgURLFull": "",
-                    "targetCount": 1,
-                    "xpReward": 2000,
-                    "currencyReward": 6250,
-                    "rewards": [],
-                    "customAttributes": {}
-                }
-            ],
-            "locTitle": "Platinum Extraction",
-            "locDescription": "Platinum Extraction"
-        }
-    ]
-}
+                "incrementProgressBy": "count"
+            }
+        ],
+        "levels": [
+            {
+                "name": "Platinum",
+                "imgPath": "Extraction_Platinum",
+                "imgURLFull": "",
+                "targetCount": 1,
+                "xpReward": 2000,
+                "currencyReward": 6250,
+                "rewards": [],
+                "customAttributes": {}
+            }
+        ],
+        "locTitle": "Platinum Extraction",
+        "locDescription": "Platinum Extraction"
+    }
+]

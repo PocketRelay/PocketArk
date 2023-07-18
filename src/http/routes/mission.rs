@@ -156,14 +156,14 @@ async fn process_player_data(
         .lookup(&character.class_name)
         .ok_or(PlayerDataProcessError::MissingClass)?;
 
-    let add_xp = 500;
-    let last_xp = character.xp.current;
-    let new_xp = last_xp + add_xp;
+    let xp_earned = 500;
+    let previous_xp = character.xp.current;
+    let current_xp = previous_xp + xp_earned;
 
     let add_level = 1;
-    let last_level = character.level;
-    let new_level = character.level + add_level;
-    let leveled_up = new_level > last_level;
+    let previous_level = character.level;
+    let level = character.level + add_level;
+    let leveled_up = level > previous_level;
 
     let mut score = 0;
     let mut total_score = 0;
@@ -182,11 +182,11 @@ async fn process_player_data(
     let result = PlayerInfoResult {
         challenges_updated,
         items_earned,
-        xp_earned: add_xp,
-        previous_xp: last_xp,
-        current_xp: new_xp,
-        previous_level: last_level,
-        level: new_level,
+        xp_earned,
+        previous_xp,
+        current_xp,
+        previous_level,
+        level,
         leveled_up,
         score,
         total_score,

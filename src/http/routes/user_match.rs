@@ -1,14 +1,21 @@
-use crate::http::models::RawJson;
+use axum::Json;
 
-/// Definition file for the available match badges
-static MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
+use crate::{
+    http::models::{user_match::MatchBadgesResponse, RawJson},
+    state::App,
+};
 
 /// GET /user/match/badges
 ///
 /// Obtains a list of badge definitions for badges that can
 /// be awarded during a multiplayer match
-pub async fn get_badges() -> RawJson {
-    RawJson(MATCH_BADGE_DEFINITIONS)
+pub async fn get_badges() -> Json<MatchBadgesResponse> {
+    let services = App::services();
+    let list = &services.match_data.badges;
+    Json(MatchBadgesResponse {
+        list,
+        total_count: list.len(),
+    })
 }
 
 /// Definition file for the available match modifiers
