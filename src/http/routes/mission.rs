@@ -25,6 +25,9 @@ pub async fn current_missions() -> RawJson {
 /// GET /user/mission/:id
 ///
 /// Obtains the details about a specific mission
+///
+/// Called at end of game to obtain information about the
+/// game and rewards etc
 pub async fn get_mission(Path(mission_id): Path<u32>) -> RawJson {
     debug!("Requested mission details: {}", mission_id);
 
