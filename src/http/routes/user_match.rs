@@ -1,7 +1,7 @@
 use axum::Json;
 
 use crate::{
-    http::models::{user_match::MatchBadgesResponse, RawJson},
+    http::models::user_match::{MatchBadgesResponse, MatchModifiersResponse},
     state::App,
 };
 
@@ -18,13 +18,15 @@ pub async fn get_badges() -> Json<MatchBadgesResponse> {
     })
 }
 
-/// Definition file for the available match modifiers
-static MATCH_MODIFIER_DEFINITIONS: &str = include_str!("../../resources/data/matchModifiers.json");
-
 /// GET /user/match/modifiers
 ///
 /// Obtains a list of modifier definitions that can be applied
 /// to a match
-pub async fn get_modifiers() -> RawJson {
-    RawJson(MATCH_MODIFIER_DEFINITIONS)
+pub async fn get_modifiers() -> Json<MatchModifiersResponse> {
+    let services = App::services();
+    let list = &services.match_data.modifiers;
+    Json(MatchModifiersResponse {
+        list,
+        total_count: list.len(),
+    })
 }

@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::{collections::HashMap, process::exit};
 
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
@@ -7,15 +7,25 @@ use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
 pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
+pub const MATCH_MODIFIER_DEFINITIONS: &str =
+    include_str!("../../resources/data/matchModifiers.json");
 
 pub struct MatchDataService {
     pub badges: Vec<Badge>,
+    pub modifiers: Vec<MatchModifier>,
 }
 
 impl MatchDataService {
     pub fn load() -> Self {
         debug!("Loading match badges");
-        let list: Vec<Badge> = match serde_json::from_str(MATCH_BADGE_DEFINITIONS) {
+        let badges: Vec<Badge> = match serde_json::from_str(MATCH_BADGE_DEFINITIONS) {
+            Ok(value) => value,
+            Err(err) => {
+                error!("Failed to load match badge definitions: {}", err);
+                exit(1);
+            }
+        };
+        let modifiers: Vec<MatchModifier> = match serde_json::from_str(MATCH_MODIFIER_DEFINITIONS) {
             Ok(value) => value,
             Err(err) => {
                 error!("Failed to load match badge definitions: {}", err);
@@ -23,8 +33,12 @@ impl MatchDataService {
             }
         };
 
-        debug!("Loaded {} inventory item definition(s)", list.len());
-        Self { badges: list }
+        debug!(
+            "Loaded {} badges, {} modifier definition(s)",
+            badges.len(),
+            modifiers.len()
+        );
+        Self { badges, modifiers }
     }
 
     pub fn get_by_activity(&self, activity: Uuid) {}
@@ -71,4 +85,28 @@ pub struct BadgeLevel {
     pub currency_reward: u32,
     pub rewards: Vec<Value>,
     pub custom_attributes: Map<String, Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MatchModifier {
+    pub name: String,
+    pub values: Vec<MatchModifierEntry>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MatchModifierEntry {
+    pub name: String,
+    pub xp_data: Option<ModifierData>,
+    pub currency_data: HashMap<String, ModifierData>,
+    pub custom_attributes: Map<String, Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModifierData {
+    pub flat_amount: u32,
+    pub additive_multiplier: f64,
 }
