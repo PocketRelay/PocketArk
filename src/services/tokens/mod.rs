@@ -121,7 +121,7 @@ impl Tokens {
         let services: &'static Services = App::services();
         let user_id: u32 = services.tokens.verify(token)?;
 
-        User::get_user(user_id, db)
+        User::get_user(db, user_id)
             .await
             .map_err(|_| VerifyError::Server)?
             .ok_or(VerifyError::Invalid)

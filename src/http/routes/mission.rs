@@ -1,4 +1,5 @@
 use crate::{
+    database::entity::{Character, SharedData, User},
     http::models::{
         auth::Sku,
         mission::{
@@ -17,8 +18,11 @@ use axum::{extract::Path, Json};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
+use sea_orm::{DatabaseConnection, DbErr};
 use serde_json::Value;
 use std::collections::HashMap;
+use thiserror::Error;
+use tokio::task::{JoinSet, LocalSet};
 use uuid::Uuid;
 
 static CURRENT_MISSIONS_DEFINITION: &str =
@@ -40,6 +44,7 @@ pub async fn current_missions() -> RawJson {
 pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDetails>, HttpError> {
     debug!("Requested mission details: {}", mission_id);
 
+    let db = App::database();
     let services = App::services();
     let game = services
         .games
@@ -87,11 +92,19 @@ pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDeta
         .map(|value| value.value.clone())
         .unwrap_or_else(|| "outlaw".to_string());
 
-    let players = mission_data
+    let mut task_set = JoinSet::new();
+    let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
+
+    mission_data
         .player_data
         .into_iter()
-        .filter_map(|value| process_player_data(value).ok())
-        .collect();
+        .for_each(|value| _ = task_set.spawn(process_player_data(db, value)));
+
+    while let Some(item) = task_set.join_next().await {
+        if let Ok(Ok(info)) = item {
+            player_infos.push(info);
+        }
+    }
 
     Ok(Json(MissionDetails {
         sku: Sku::default(),
@@ -106,12 +119,55 @@ pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDeta
         start: now,
         end: now,
         processed: now,
-        player_infos: players,
+        player_infos,
         modifiers: mission_data.modifiers,
     }))
 }
 
-pub fn process_player_data(data: MissionPlayerData) -> Result<MissionPlayerInfo, HttpError> {
+#[derive(Debug, Error)]
+enum PlayerDataProcessError {
+    #[error("Unknown user")]
+    UnknownUser,
+    #[error(transparent)]
+    Database(#[from] DbErr),
+    #[error("Missing character")]
+    MissingCharacter,
+    #[error("Missing class")]
+    MissingClass,
+}
+
+async fn process_player_data(
+    db: &'static DatabaseConnection,
+    data: MissionPlayerData,
+) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
+    let services = App::services();
+    let user = User::get_user(db, data.nucleus_id)
+        .await?
+        .ok_or(PlayerDataProcessError::UnknownUser)?;
+    let shared_data = SharedData::get_from_user(&user, db).await?;
+
+    let character = Character::find_by_id_user(db, &user, shared_data.active_character_id)
+        .await?
+        .ok_or(PlayerDataProcessError::MissingCharacter)?;
+
+    let class = services
+        .defs
+        .classes
+        .lookup(&character.class_name)
+        .ok_or(PlayerDataProcessError::MissingClass)?;
+
+    let add_xp = 500;
+    let last_xp = character.xp.current;
+    let new_xp = last_xp + add_xp;
+
+    let add_level = 1;
+    let last_level = character.level;
+    let new_level = character.level + add_level;
+    let leveled_up = new_level > last_level;
+
+    let mut score = 0;
+    let mut total_score = 0;
+
     let badges = Vec::new();
     let items_earned = Vec::new();
     let challenges_updated = HashMap::new();
@@ -126,15 +182,15 @@ pub fn process_player_data(data: MissionPlayerData) -> Result<MissionPlayerInfo,
     let result = PlayerInfoResult {
         challenges_updated,
         items_earned,
-        xp_earned: 0,
-        previous_xp: 0,
-        current_xp: 0,
-        previous_level: 0,
-        level: 0,
-        leveled_up: false,
-        score: 0,
-        total_score: 0,
-        character_class_name: Uuid::new_v4(),
+        xp_earned: add_xp,
+        previous_xp: last_xp,
+        current_xp: new_xp,
+        previous_level: last_level,
+        level: new_level,
+        leveled_up,
+        score,
+        total_score,
+        character_class_name: class.name,
         total_currencies_earned,
         reward_sources,
         prestige_progression,
@@ -147,11 +203,11 @@ pub fn process_player_data(data: MissionPlayerData) -> Result<MissionPlayerInfo,
         badges,
         stats: data.stats,
         result,
-        pid: data.nucleus_id,
-        persona_id: data.persona_id,
-        persona_display_name: "".to_string(),
-        character_id: Uuid::new_v4(),
-        character_class: Uuid::new_v4(),
+        pid: user.id,
+        persona_id: user.id,
+        persona_display_name: user.username,
+        character_id: character.character_id,
+        character_class: character.class_name,
         modifiers: vec![],
         session_id: Uuid::new_v4(),
         wave_participation: data.waves_in_match,

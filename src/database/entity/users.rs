@@ -87,7 +87,7 @@ impl Model {
         Ok(user)
     }
 
-    pub async fn get_user(id: u32, db: &DatabaseConnection) -> DbResult<Option<Self>> {
+    pub async fn get_user(db: &DatabaseConnection, id: u32) -> DbResult<Option<Self>> {
         Entity::find_by_id(id).one(db).await
     }
 }

@@ -156,7 +156,6 @@ impl Model {
 
         ClassData::create(user, class_def.name, true, db).await?;
 
-
         Ok(())
     }
 
@@ -179,5 +178,16 @@ impl Model {
             next,
             last,
         }
+    }
+
+    pub async fn find_by_id_user(
+        db: &DatabaseConnection,
+        user: &User,
+        id: Uuid,
+    ) -> DbResult<Option<Self>> {
+        user.find_related(Entity)
+            .filter(Column::CharacterId.eq(id))
+            .one(db)
+            .await
     }
 }
