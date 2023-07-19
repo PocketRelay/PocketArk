@@ -158,19 +158,6 @@ async fn process_player_data(
         .lookup(&character.class_name)
         .ok_or(PlayerDataProcessError::MissingClass)?;
 
-    // Collect modifiers that apply to this match
-    let modifier_data: Vec<&MatchModifier> = services
-        .match_data
-        .modifiers
-        .iter()
-        .filter(|modif| {
-            mission_data
-                .modifiers
-                .iter()
-                .any(|v| v.name.eq(&modif.name))
-        })
-        .collect();
-
     let mut xp_earned = 0;
 
     let mut score = 0;
@@ -244,6 +231,62 @@ async fn process_player_data(
             level_name: last.name.clone(),
             rewarded_levels: level_names,
             name: badge.name,
+        })
+    }
+
+    for value in &mission_data.modifiers {
+        let modifier = services
+            .match_data
+            .modifiers
+            .iter()
+            .find(|v| v.name.eq(&value.name));
+        let modifier = match modifier {
+            Some(value) => value,
+            None => continue,
+        };
+
+        let modifier_value = match modifier.values.iter().find(|v| v.name.eq(&value.value)) {
+            Some(value) => value,
+            None => continue,
+        };
+
+        let last_xp = xp_earned;
+
+        if let Some(xp_data) = &modifier_value.xp_data {
+            if xp_data.flat_amount > 0 {
+                xp_earned += xp_data.flat_amount;
+            }
+
+            if xp_data.additive_multiplier > 0.0 {
+                xp_earned += (xp_earned as f32 * xp_data.additive_multiplier).trunc() as u32;
+            }
+        }
+
+        let mut currencies = HashMap::new();
+
+        let cur_data = &modifier_value.currency_data;
+        for (curr_key, curr_value) in cur_data {
+            if curr_value.flat_amount > 0 {
+                if let Some(value) = currencies_earned.get_mut(curr_key) {
+                    *value += curr_value.flat_amount;
+                } else {
+                    currencies_earned.insert(curr_key.clone(), curr_value.flat_amount);
+                }
+            }
+
+            if curr_value.additive_multiplier > 0.0 {
+                if let Some(value) = currencies_earned.get_mut(curr_key) {
+                    *value += (*value as f32 * curr_value.additive_multiplier).trunc() as u32;
+                }
+            }
+
+            // TODO: Compute currencies
+        }
+
+        reward_sources.push(RewardSource {
+            name: modifier.name.clone(),
+            xp: xp_earned - last_xp,
+            currencies,
         })
     }
 

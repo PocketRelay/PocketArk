@@ -131,5 +131,5 @@ pub struct MatchModifierEntry {
 #[serde(rename_all = "camelCase")]
 pub struct ModifierData {
     pub flat_amount: u32,
-    pub additive_multiplier: f64,
+    pub additive_multiplier: f32,
 }
