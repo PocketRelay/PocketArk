@@ -26,7 +26,6 @@ use hyper::StatusCode;
 use log::debug;
 use sea_orm::{DatabaseConnection, DbErr};
 use serde_json::Value;
-use serde_with::__private__::duplicate_key_impls::PreventDuplicateInsertsMap;
 use std::collections::HashMap;
 use thiserror::Error;
 use tokio::task::{JoinSet, LocalSet};
@@ -101,7 +100,7 @@ pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDeta
 
     let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
 
-    for value in mission_data.player_data {
+    for value in &mission_data.player_data {
         let info = process_player_data(db, value, &mission_data).await;
         if let Ok(info) = info {
             player_infos.push(info);
@@ -185,7 +184,7 @@ impl RewardBuilder {
 
 async fn process_player_data(
     db: &'static DatabaseConnection,
-    data: MissionPlayerData,
+    data: &MissionPlayerData,
     mission_data: &CompleteMissionData,
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
     let services = App::services();
@@ -214,7 +213,7 @@ async fn process_player_data(
 
     let mut total_currency = CurrencyTracker::default();
 
-    for activity in data.activity_report.activities {
+    for activity in &data.activity_report.activities {
         score += activity.attributes.score;
 
         let badge = match services.match_data.get_by_activity(&activity.name) {
@@ -392,7 +391,7 @@ async fn process_player_data(
         bonuses: vec![],
         activities: vec![],
         badges,
-        stats: data.stats,
+        stats: data.stats.clone(),
         result,
         pid: user.id,
         persona_id: user.id,
