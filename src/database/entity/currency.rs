@@ -1,4 +1,10 @@
-use sea_orm::{entity::prelude::*, ActiveValue};
+use std::f32::consts::E;
+
+use sea_orm::{
+    entity::prelude::*,
+    ActiveValue::{NotSet, Set},
+    IntoActiveModel,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::database::DbResult;
@@ -41,10 +47,10 @@ impl Model {
         let items = ["MTXCurrency", "GrindCurrency", "MissionCurrency"]
             .into_iter()
             .map(|name| ActiveModel {
-                id: ActiveValue::NotSet,
-                user_id: ActiveValue::Set(user.id),
-                name: ActiveValue::Set(name.to_string()),
-                balance: ActiveValue::Set(0),
+                id: NotSet,
+                user_id: Set(user.id),
+                name: Set(name.to_string()),
+                balance: Set(0),
             });
         Entity::insert_many(items)
             .exec_without_returning(db)
@@ -54,5 +60,33 @@ impl Model {
 
     pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Vec<Currency>> {
         user.find_related(Entity).all(db).await
+    }
+
+    pub async fn create_or_update(
+        db: &DatabaseConnection,
+        user: &User,
+        name: String,
+        value: u32,
+    ) -> DbResult<Self> {
+        if let Some(model) = user
+            .find_related(Entity)
+            .filter(Column::Name.eq(&name))
+            .one(db)
+            .await?
+        {
+            let value = model.balance.saturating_add(value);
+            let mut model = model.into_active_model();
+            model.balance = Set(value);
+            model.update(db).await
+        } else {
+            ActiveModel {
+                id: NotSet,
+                user_id: Set(user.id),
+                name: Set(name),
+                balance: Set(value),
+            }
+            .insert(db)
+            .await
+        }
     }
 }

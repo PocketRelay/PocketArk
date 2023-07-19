@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{Character, SharedData, User},
+    database::entity::{Character, Currency, SharedData, User},
     http::models::{
         auth::Sku,
         character::Xp,
@@ -24,7 +24,7 @@ use axum::{extract::Path, Json};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{DatabaseConnection, DbErr};
+use sea_orm::{DatabaseConnection, DbErr, IntoActiveModel};
 use serde_json::Value;
 use std::collections::HashMap;
 use thiserror::Error;
@@ -337,11 +337,11 @@ async fn process_player_data(
 
     let previous_xp = character.xp.current;
     let mut current_xp = previous_xp + xp_earned;
+    let xp_changed = current_xp > previous_xp;
 
     let previous_level = character.level;
     let mut level = character.level;
 
-    // TODO: account for XP multipliers
     while current_xp > character.xp.next {
         let next_lvl = level_table.get_entry_xp(character.level + 1);
         if let Some(next_xp) = next_lvl {
@@ -355,9 +355,14 @@ async fn process_player_data(
             };
         }
     }
-    // TODO: Rewards from modifiers and baselines
+
+    character.xp.current = current_xp;
 
     let leveled_up = level > previous_level;
+
+    if xp_changed || leveled_up {
+        character.update_xp(db).await?;
+    }
 
     let items_earned = Vec::new();
     let challenges_updated = HashMap::new();
@@ -367,7 +372,11 @@ async fn process_player_data(
     };
 
     let mut total_currencies_earned = Vec::new();
-    // TODO: Update currencies in database and output earnings
+    for (key, value) in total_currency.into_inner() {
+        let mut currency = Currency::create_or_update(db, &user, key, value).await?;
+        currency.balance = value;
+        total_currencies_earned.push(currency);
+    }
 
     let result = PlayerInfoResult {
         challenges_updated,

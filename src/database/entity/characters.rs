@@ -8,7 +8,11 @@ use crate::{
     services::defs::{Definitions, LevelTables},
     state::App,
 };
-use sea_orm::{entity::prelude::*, ActiveValue};
+use sea_orm::{
+    entity::prelude::*,
+    ActiveValue::{self, NotSet, Set},
+    IntoActiveModel,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -107,14 +111,21 @@ impl Model {
         Ok(())
     }
 
+    pub async fn update_xp(self, db: &DatabaseConnection) -> DbResult<Self> {
+        let xp = self.xp.clone();
+        let level = self.level;
+        let mut model = self.into_active_model();
+        model.xp = Set(xp);
+        model.level = Set(level);
+        model.update(db).await
+    }
+
     pub async fn create_from_item(
         defs: &Definitions,
         user: &User,
         uuid: Uuid,
         db: &DatabaseConnection,
     ) -> DbResult<()> {
-        use sea_orm::ActiveValue::{NotSet, Set};
-
         const DEFAULT_LEVEL: u32 = 1;
         const DEFAULT_SKILL_POINTS: u32 = 2;
 
