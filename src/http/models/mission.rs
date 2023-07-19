@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use uuid::Uuid;
 
 use crate::database::entity::Currency;
@@ -57,12 +57,11 @@ pub struct MissionActivity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionActivityAttributes {
-    pub count: i32,
-    pub score: i32,
-    pub score_type: i32,
+    pub count: u32,
+    pub score: u32,
 
     #[serde(flatten)]
-    pub extra: HashMap<String, Value>,
+    pub extra: Map<String, Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -41,7 +41,14 @@ impl MatchDataService {
         Self { badges, modifiers }
     }
 
-    pub fn get_by_activity(&self, activity: Uuid) {}
+    pub fn get_by_activity(&self, activity: &Uuid) -> Option<&Badge> {
+        self.badges.iter().find(|value| {
+            value
+                .activities
+                .iter()
+                .any(|value| value.activity_name.eq(activity))
+        })
+    }
 }
 
 #[skip_serializing_none]
@@ -70,6 +77,22 @@ pub struct BadgeActivity {
     pub activity_name: Uuid,
     pub filter: Map<String, Value>,
     pub increment_progress_by: String,
+}
+
+impl BadgeActivity {
+    pub fn matches_filter(&self, attributes: &Map<String, Value>) -> bool {
+        for (key, value) in self.filter.iter() {
+            let right = match attributes.get(key) {
+                Some(value) => value,
+                None => return false,
+            };
+            if value.ne(right) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 #[skip_serializing_none]
