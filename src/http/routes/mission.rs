@@ -26,6 +26,7 @@ use hyper::StatusCode;
 use log::debug;
 use sea_orm::{DatabaseConnection, DbErr};
 use serde_json::Value;
+use serde_with::__private__::duplicate_key_impls::PreventDuplicateInsertsMap;
 use std::collections::HashMap;
 use thiserror::Error;
 use tokio::task::{JoinSet, LocalSet};
@@ -137,6 +138,51 @@ enum PlayerDataProcessError {
     MissingClass,
 }
 
+#[derive(Default)]
+pub struct CurrencyTracker {
+    map: HashMap<String, u32>,
+}
+
+impl CurrencyTracker {
+    pub fn earn_currency(&mut self, name: &str, value: u32) {
+        if let Some(existing) = self.map.get_mut(name) {
+            *existing += value
+        } else {
+            self.map.insert(name.to_string(), value);
+        }
+    }
+
+    pub fn get_currency_adative(&mut self, name: &str, multiplier: f32) -> u32 {
+        let value = self.map.get(name).copied().unwrap_or_default();
+        (value as f32 * multiplier).trunc() as u32
+    }
+
+    pub fn into_inner(self) -> HashMap<String, u32> {
+        self.map
+    }
+}
+
+pub struct RewardBuilder {
+    pub name: String,
+    pub exp: u32,
+    pub currencies: CurrencyTracker,
+}
+
+impl RewardBuilder {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            exp: 0,
+            currencies: CurrencyTracker::default(),
+        }
+    }
+
+    pub fn add_exp(&mut self, value: u32) -> &mut Self {
+        self.exp.saturating_add(value);
+        self
+    }
+}
+
 async fn process_player_data(
     db: &'static DatabaseConnection,
     data: MissionPlayerData,
@@ -165,7 +211,8 @@ async fn process_player_data(
 
     let mut badges = Vec::new();
     let mut reward_sources = Vec::new();
-    let mut currencies_earned = HashMap::new();
+
+    let mut total_currency = CurrencyTracker::default();
 
     for activity in data.activity_report.activities {
         score += activity.attributes.score;
@@ -208,11 +255,7 @@ async fn process_player_data(
             if currency_reward > 0 {
                 currencies.insert(badge.currency.clone(), currency_reward);
 
-                if let Some(value) = currencies_earned.get_mut(&badge.currency) {
-                    *value += currency_reward;
-                } else {
-                    currencies_earned.insert(badge.currency.clone(), currency_reward);
-                }
+                total_currency.earn_currency(&badge.currency, currency_reward);
             }
 
             xp_earned += xp_reward;
@@ -258,35 +301,32 @@ async fn process_player_data(
             }
 
             if xp_data.additive_multiplier > 0.0 {
-                xp_earned += (xp_earned as f32 * xp_data.additive_multiplier).trunc() as u32;
+                let adative = (xp_earned as f32 * xp_data.additive_multiplier).trunc() as u32;
+                xp_earned += adative;
             }
         }
 
-        let mut currencies = HashMap::new();
+        let mut local_earning = CurrencyTracker::default();
 
         let cur_data = &modifier_value.currency_data;
         for (curr_key, curr_value) in cur_data {
             if curr_value.flat_amount > 0 {
-                if let Some(value) = currencies_earned.get_mut(curr_key) {
-                    *value += curr_value.flat_amount;
-                } else {
-                    currencies_earned.insert(curr_key.clone(), curr_value.flat_amount);
-                }
+                total_currency.earn_currency(curr_key, curr_value.flat_amount);
+                local_earning.earn_currency(curr_key, curr_value.flat_amount);
             }
 
             if curr_value.additive_multiplier > 0.0 {
-                if let Some(value) = currencies_earned.get_mut(curr_key) {
-                    *value += (*value as f32 * curr_value.additive_multiplier).trunc() as u32;
-                }
+                let adative_value =
+                    total_currency.get_currency_adative(curr_key, curr_value.additive_multiplier);
+                total_currency.earn_currency(curr_key, adative_value);
+                local_earning.earn_currency(curr_key, adative_value);
             }
-
-            // TODO: Compute currencies
         }
 
         reward_sources.push(RewardSource {
             name: modifier.name.clone(),
             xp: xp_earned - last_xp,
-            currencies,
+            currencies: local_earning.into_inner(),
         })
     }
 
