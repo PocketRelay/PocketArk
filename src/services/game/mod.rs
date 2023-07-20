@@ -345,27 +345,29 @@ async fn process_player_data(
         .iter()
         .filter_map(|activity| services.match_data.get_by_activity(activity))
         .for_each(|(badge, progress, levels)| {
-            let badge_name = badge.name.to_string();
-            let mut xp_reward: u32 = 0;
-            let mut currency_reward = 0;
-            let mut level_names = Vec::with_capacity(levels.len());
-
             let level_name = levels.last().map(|value| value.name.to_string());
-            levels.into_iter().for_each(|badge_level| {
-                xp_reward += badge_level.xp_reward;
-                currency_reward += badge_level.currency_reward;
-                level_names.push(badge_level.name.clone());
-            });
+            if let Some(level_name) = level_name {
+                let badge_name = badge.name.to_string();
+                let mut xp_reward: u32 = 0;
+                let mut currency_reward = 0;
+                let mut level_names = Vec::with_capacity(levels.len());
 
-            data_builder.add_reward_xp(&badge_name, xp_reward);
-            data_builder.add_reward_currency(&badge_name, &badge.currency, currency_reward);
+                levels.into_iter().for_each(|badge_level| {
+                    xp_reward += badge_level.xp_reward;
+                    currency_reward += badge_level.currency_reward;
+                    level_names.push(badge_level.name.clone());
+                });
 
-            data_builder.badges.push(PlayerInfoBadge {
-                count: progress,
-                level_name,
-                rewarded_levels: level_names,
-                name: badge.name,
-            })
+                data_builder.add_reward_xp(&badge_name, xp_reward);
+                data_builder.add_reward_currency(&badge_name, &badge.currency, currency_reward);
+
+                data_builder.badges.push(PlayerInfoBadge {
+                    count: progress,
+                    level_name,
+                    rewarded_levels: level_names,
+                    name: badge.name,
+                });
+            }
         });
 
     // Compute modifier amounts

@@ -118,7 +118,7 @@ pub struct MissionPlayerInfo {
 #[serde(rename_all = "camelCase")]
 pub struct PlayerInfoBadge {
     pub count: u32,
-    pub level_name: Option<String>,
+    pub level_name: String,
     pub rewarded_levels: Vec<String>,
     pub name: Uuid,
 }
