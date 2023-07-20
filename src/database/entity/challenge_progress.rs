@@ -88,7 +88,7 @@ impl Model {
         update: ChallengeProgressUpdate,
     ) -> DbResult<(Self, ChallengeUpdateCounter, ProgressUpdateType)>
     where
-        C: ConnectionTrait,
+        C: ConnectionTrait + Send,
     {
         let mut update_counter = ChallengeUpdateCounter {
             current_count: update.progress,
