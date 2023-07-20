@@ -5,7 +5,7 @@ use interlink::{
     prelude::{Fr, Handler, Link, Message, Mr, Sfr},
     service::Service,
 };
-use log::error;
+use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
 use serde_json::Value;
 use thiserror::Error;
@@ -276,11 +276,17 @@ async fn process_player_data(
     data: &MissionPlayerData,
     mission_data: &CompleteMissionData,
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
+    debug!("Processing player data");
+
     let services = App::services();
     let user = User::get_user(db, data.nucleus_id)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
+
+    debug!("Loaded processing user");
     let mut shared_data = SharedData::get_from_user(&user, db).await?;
+
+    debug!("Loaded shared data");
 
     let mut character = Character::find_by_id_user(db, &user, shared_data.active_character_id)
         .await?
@@ -296,6 +302,8 @@ async fn process_player_data(
 
     let mut data_builder = PlayerDataBuilder::new();
 
+    debug!("Processing score");
+
     // Tally up initial base scores awarded from all activities
     data_builder.score = data
         .activity_report
@@ -304,30 +312,7 @@ async fn process_player_data(
         .map(|value| value.attributes.score)
         .sum();
 
-    // Update changed challenges
-    for (index, challenge_update) in data
-        .activity_report
-        .activities
-        .iter()
-        .filter_map(|activity| services.activity.process_activity(activity))
-        .enumerate()
-    {
-        let (model, update_counter, status_change) =
-            ChallengeProgress::handle_update(db, &user, challenge_update).await?;
-        let status_change = match status_change {
-            ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
-            ProgressUpdateType::Created => ChallengeStatusChange::Notify,
-        };
-
-        data_builder.challenges_updates.insert(
-            (index + 1).to_string(),
-            ChallengeUpdate {
-                challenge_id: model.challenge_id,
-                counters: vec![update_counter],
-                status_change,
-            },
-        );
-    }
+    debug!("Processing badges");
 
     // Gives awards and badges for each activity
     data.activity_report
@@ -360,12 +345,13 @@ async fn process_player_data(
             }
         });
 
+    debug!("Base score reward");
     // Base reward xp is the score earned
     data_builder.add_reward_xp("base", data_builder.score);
 
     // TODO: "other_badge_rewards"
-    // TODO: Uhhhh currency is negative
 
+    debug!("Compute modifiers");
     // Compute modifier amounts
     compute_modifiers(
         &services.match_data,
@@ -373,6 +359,7 @@ async fn process_player_data(
         &mut data_builder,
     );
 
+    debug!("Compute leveling");
     let level_tables = &services.defs.level_tables;
 
     // Character leveling
@@ -389,6 +376,8 @@ async fn process_player_data(
         character.level,
         data_builder.xp_earned,
     );
+
+    debug!("Compute prestige");
 
     // Insert the before change
     data_builder.append_prestige_before(&shared_data);
@@ -425,10 +414,41 @@ async fn process_player_data(
     // Insert after change
     data_builder.append_prestige_after(&shared_data);
 
+    debug!("Process challenges");
+
+    // Update changed challenges
+    for (index, challenge_update) in data
+        .activity_report
+        .activities
+        .iter()
+        .filter_map(|activity| services.activity.process_activity(activity))
+        .enumerate()
+    {
+        let (model, update_counter, status_change) =
+            ChallengeProgress::handle_update(db, &user, challenge_update).await?;
+        let status_change = match status_change {
+            ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
+            ProgressUpdateType::Created => ChallengeStatusChange::Notify,
+        };
+
+        data_builder.challenges_updates.insert(
+            (index + 1).to_string(),
+            ChallengeUpdate {
+                challenge_id: model.challenge_id,
+                counters: vec![update_counter],
+                status_change,
+            },
+        );
+    }
+
+    debug!("Saving character level and xp");
+
     // Update character level and xp
     if new_xp != previous_xp || level > previous_level {
         character = character.update_xp(db, new_xp, level).await?
     }
+
+    debug!("Updating currencies");
 
     // Update currencies
     Currency::create_or_update_many(db, &user, &data_builder.total_currency).await?;
@@ -517,18 +537,20 @@ pub fn compute_leveling(
 ) -> (Xp, u32) {
     xp.current = xp.current.saturating_add(xp_earned);
 
-    while xp.current > xp.next {
-        let next_lvl = level_table.get_entry_xp(level + 1);
-        if let Some(next_xp) = next_lvl {
-            level += 1;
+    while xp.current >= xp.next {
+        let next_xp = match level_table.get_entry_xp(level + 1) {
+            Some(value) => value,
+            None => break,
+        };
 
-            // Subtract the old next amount from earnings
-            xp.current -= xp.next;
+        level += 1;
 
-            // Assign new next and last values
-            xp.last = xp.next;
-            xp.next = next_xp;
-        }
+        // Subtract the old next amount from earnings
+        xp.current -= xp.next;
+
+        // Assign new next and last values
+        xp.last = xp.next;
+        xp.next = next_xp;
     }
 
     (xp, level)

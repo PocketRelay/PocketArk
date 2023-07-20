@@ -84,7 +84,7 @@ impl Model {
             .one(db)
             .await?
         {
-            let value = model.balance.saturating_add(value);
+            let value = model.balance.saturating_add(value).max(0);
             let mut model = model.into_active_model();
             model.balance = Set(value);
             model.update(db).await
@@ -93,7 +93,7 @@ impl Model {
                 id: NotSet,
                 user_id: Set(user.id),
                 name: Set(name.to_string()),
-                balance: Set(value),
+                balance: Set(value.max(0)),
             }
             .insert(db)
             .await
