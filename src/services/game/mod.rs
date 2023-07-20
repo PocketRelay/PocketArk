@@ -219,11 +219,6 @@ impl PlayerDataBuilder {
     }
 
     pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
-        // Ignore adding nothing
-        if xp == 0 {
-            return;
-        }
-
         // Append earned xp
         self.xp_earned += xp;
 
@@ -243,11 +238,6 @@ impl PlayerDataBuilder {
     }
 
     pub fn add_reward_currency(&mut self, name: &str, currency: &str, value: u32) {
-        // Ignore adding nothing
-        if value == 0 {
-            return;
-        }
-
         // Append currencies to total currrency
 
         if let Some(existing) = self.total_currency.get_mut(currency) {
@@ -369,6 +359,12 @@ async fn process_player_data(
                 });
             }
         });
+
+    // Base reward xp is the score earned
+    data_builder.add_reward_xp("base", data_builder.score);
+
+    // TODO: "other_badge_rewards"
+    // TODO: Uhhhh currency is negative
 
     // Compute modifier amounts
     compute_modifiers(
