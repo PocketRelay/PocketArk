@@ -1,0 +1,1098 @@
+[
+    {
+        "challengeId": "4408ecb9-f396-46ce-8328-822cab773865",
+        "counters": [
+            {
+                "name": "Use_Consumable",
+                "timesCompleted": 1,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:56:31.430+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-05T01:56:31.430+0000",
+        "firstCompleted": "2023-07-05T01:56:31.430+0000",
+        "lastChanged": "2023-07-05T01:56:31.430+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "85e2a729-e0bc-4b95-bd50-35af0dc07b5c",
+        "counters": [
+            {
+                "name": "Assault_Rifle_Medals",
+                "timesCompleted": 0,
+                "totalCount": 4,
+                "currentCount": 4,
+                "targetCount": 100,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.297+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.297+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "7aeed4cc-1581-410e-a2f6-b6c936675ab2",
+        "counters": [
+            {
+                "name": "Medals_Earned_Progress",
+                "timesCompleted": 0,
+                "totalCount": 33,
+                "currentCount": 33,
+                "targetCount": 5000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.285+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.285+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "d66ffeb4-78f8-4d1e-9dc2-6b598516ac7a",
+        "counters": [
+            {
+                "name": "Pistol_Medals",
+                "timesCompleted": 0,
+                "totalCount": 8,
+                "currentCount": 8,
+                "targetCount": 100,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.280+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.280+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "f8b2b001-15db-4ae8-99ff-4f3ab80cf06b",
+        "counters": [
+            {
+                "name": "Points_Earned_Progress",
+                "timesCompleted": 0,
+                "totalCount": 63234,
+                "currentCount": 63234,
+                "targetCount": 25000000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.291+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.291+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "0a4d6df5-4222-48fa-b884-e27f88e29845",
+        "counters": [
+            {
+                "name": "FirstBlood_Progress",
+                "timesCompleted": 3,
+                "totalCount": 385,
+                "currentCount": 100,
+                "targetCount": 100,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:47:21.796+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-05T01:47:21.796+0000",
+        "firstCompleted": "2023-07-05T01:47:21.796+0000",
+        "lastChanged": "2023-07-05T01:47:21.796+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "8113cb49-1b8a-450c-961e-76b7809c66af",
+        "counters": [
+            {
+                "name": "Biotic_Lance_Progress",
+                "timesCompleted": 0,
+                "totalCount": 3718,
+                "currentCount": 3718,
+                "targetCount": 50000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.261+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.261+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "3ee41168-c625-4bb4-96a0-2a85207c3f3f",
+        "counters": [
+            {
+                "name": "Biotic_Throw_Progress",
+                "timesCompleted": 0,
+                "totalCount": 3487,
+                "currentCount": 3487,
+                "targetCount": 50000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.285+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.285+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "77ddde4f-5a64-470f-a430-efb53e5feb80",
+        "counters": [
+            {
+                "name": "Waves_Completed_Progress",
+                "timesCompleted": 0,
+                "totalCount": 13,
+                "currentCount": 13,
+                "targetCount": 2500,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "44787c9b-c085-4e68-903b-8d899df76316",
+        "counters": [
+            {
+                "name": "Waves_Completed_MPGray_Bronze_Progress",
+                "timesCompleted": 0,
+                "totalCount": 2,
+                "currentCount": 2,
+                "targetCount": 100,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:23:19.506+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:23:19.506+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "436069b5-e379-4b81-961f-0eb356dfa1fc",
+        "counters": [
+            {
+                "name": "Waves_Completed_MPYellow_Bronze_Progress",
+                "timesCompleted": 0,
+                "totalCount": 7,
+                "currentCount": 7,
+                "targetCount": 100,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:52.661+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:52.661+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "b55be3e5-c72c-49a1-8a12-adcf2a31f166",
+        "counters": [
+            {
+                "name": "Buy_Pack",
+                "timesCompleted": 1,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:24:05.552+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-06T22:24:05.552+0000",
+        "firstCompleted": "2023-07-06T22:24:05.552+0000",
+        "lastChanged": "2023-07-06T22:24:05.552+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "cbf8c56f-b0e8-4b3a-96c4-2da85ea671dd",
+        "counters": [
+            {
+                "name": "Complete_Custom_Match",
+                "timesCompleted": 1,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:45:17.430+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-05T01:45:17.430+0000",
+        "firstCompleted": "2023-07-05T01:45:17.430+0000",
+        "lastChanged": "2023-07-05T01:45:17.430+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "c7faa498-2f8c-4594-8317-45cd6ad0dec0",
+        "counters": [
+            {
+                "name": "Complete_Quickmatch",
+                "timesCompleted": 1,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:15:31.895+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-06T22:15:31.895+0000",
+        "firstCompleted": "2023-07-06T22:15:31.895+0000",
+        "lastChanged": "2023-07-06T22:15:31.895+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "9631cc15-86dc-4b4d-bcbc-5e8c22700ee2",
+        "counters": [
+            {
+                "name": "Equip_Mod",
+                "timesCompleted": 1,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:52:34.193+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-05T01:52:34.193+0000",
+        "firstCompleted": "2023-07-05T01:52:34.193+0000",
+        "lastChanged": "2023-07-05T01:52:34.193+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "8581dcd7-7b7e-41b6-8520-078e38c8f469",
+        "counters": [
+            {
+                "name": "Equip_Weapon",
+                "timesCompleted": 1,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:48:22.126+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-05T01:48:22.126+0000",
+        "firstCompleted": "2023-07-05T01:48:22.126+0000",
+        "lastChanged": "2023-07-05T01:48:22.126+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "1ccad7b2-5ba4-42e6-b19a-200e1eb71ae0",
+        "counters": [
+            {
+                "name": "Spend_Skill_Points",
+                "timesCompleted": 1,
+                "totalCount": 2,
+                "currentCount": 2,
+                "targetCount": 2,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:49:19.638+0000"
+            }
+        ],
+        "state": "COMPLETED",
+        "timesCompleted": 1,
+        "lastCompleted": "2023-07-05T01:49:19.638+0000",
+        "firstCompleted": "2023-07-05T01:49:19.638+0000",
+        "lastChanged": "2023-07-05T01:49:19.638+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "3878db1e-27b4-4394-a218-303bc2c894c0",
+        "counters": [
+            {
+                "name": "Teamwork_Striketeams",
+                "timesCompleted": 0,
+                "totalCount": 2,
+                "currentCount": 2,
+                "targetCount": 6,
+                "resetCount": 0,
+                "lastChanged": "2022-02-11T09:14:58.762+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2022-02-11T09:14:58.762+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "a92db6ac-080d-48cf-9599-9573dcfc8861",
+        "counters": [
+            {
+                "name": "AssaultRifle_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 4,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.304+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.304+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "e32effc1-4807-4260-a11b-29b04ada315e",
+        "counters": [
+            {
+                "name": "AssaultRifle_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 13,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.304+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.304+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "89c3a76e-b44d-439b-94a4-439a272f8d46",
+        "counters": [
+            {
+                "name": "AssaultRifle_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 8,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.304+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.304+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "ef2658b8-1502-44a6-b1af-3464e4ce76c4",
+        "counters": [
+            {
+                "name": "Biotic_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 4,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "955d31a7-8eb0-46ad-9513-3b02b1af9813",
+        "counters": [
+            {
+                "name": "Biotic_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 12,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "e29f63ac-44da-4fe7-9dd6-276aee301655",
+        "counters": [
+            {
+                "name": "Biotic_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 8,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "67ad8481-6599-469b-ad63-d0d8eec06a12",
+        "counters": [
+            {
+                "name": "Outlaw_Mastery_Bronze",
+                "timesCompleted": 0,
+                "totalCount": 30593,
+                "currentCount": 30593,
+                "targetCount": 150000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.274+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.274+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "b57747cc-c263-4c9e-801e-d33fbf20ad41",
+        "counters": [
+            {
+                "name": "Outlaw_Mastery_Silver",
+                "timesCompleted": 0,
+                "totalCount": 30593,
+                "currentCount": 30593,
+                "targetCount": 300000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "d6099082-2ef2-4403-b4b9-f412de1625ab",
+        "counters": [
+            {
+                "name": "Pistol_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 4,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "8f05037c-e26b-4ead-b583-5b37f381c7f0",
+        "counters": [
+            {
+                "name": "Pistol_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 14,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "120308e5-2b88-4042-abae-472e707aacfd",
+        "counters": [
+            {
+                "name": "Pistol_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 8,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "f8d0f466-4a58-40a0-a217-5831ef369a16",
+        "counters": [
+            {
+                "name": "Remnant_Mastery_Bronze",
+                "timesCompleted": 0,
+                "totalCount": 32641,
+                "currentCount": 32641,
+                "targetCount": 150000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:52.697+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:52.697+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "3c0df170-3f71-4de6-9be0-be2b410ea7ed",
+        "counters": [
+            {
+                "name": "Remnant_Mastery_Gold",
+                "timesCompleted": 0,
+                "totalCount": 32641,
+                "currentCount": 32641,
+                "targetCount": 450000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:52.667+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:52.667+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "2779c0aa-7771-457a-a374-373963f1cdeb",
+        "counters": [
+            {
+                "name": "Remnant_Mastery_Silver",
+                "timesCompleted": 0,
+                "totalCount": 32641,
+                "currentCount": 32641,
+                "targetCount": 300000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:52.679+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:52.679+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "b5200fa2-ad3b-4800-b249-f8084a412c16",
+        "counters": [
+            {
+                "name": "Sniper_Rifle_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 4,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:23:19.525+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:23:19.525+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "33bdb03f-40ee-4e4f-aea8-2d597d30587b",
+        "counters": [
+            {
+                "name": "Sniper_Rifle_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 8,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:23:19.525+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:23:19.525+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "aeeee15c-4682-4121-99c6-0bc1dfcb0875",
+        "counters": [
+            {
+                "name": "Tech_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 4,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.297+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.297+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "7cde2e79-8310-4388-9ee0-551cf0d7739d",
+        "counters": [
+            {
+                "name": "Tech_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 13,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.297+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.297+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "2c53432f-32dc-4fd6-aa67-59bc2ee76aac",
+        "counters": [
+            {
+                "name": "Tech_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 8,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.297+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.297+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "cc903d36-a0f8-4d13-a9c2-9a9a6faed5cc",
+        "counters": [
+            {
+                "name": "Sniper_Rifle_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 13,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:23:19.525+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:23:19.525+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "0c2a2585-c95b-4c7a-b740-a23fbcb4d5f7",
+        "counters": [
+            {
+                "name": "Level_Two_Kits",
+                "timesCompleted": 0,
+                "totalCount": 1,
+                "currentCount": 1,
+                "targetCount": 2,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:23:19.544+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:23:19.544+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "d0f5551d-1644-40a5-837c-c6f666016095",
+        "counters": [
+            {
+                "name": "Biotic_Combos_Progress",
+                "timesCompleted": 0,
+                "totalCount": 3,
+                "currentCount": 3,
+                "targetCount": 250,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.310+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.310+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "60d888c7-c2f4-40a4-af17-091d6ed8d28b",
+        "counters": [
+            {
+                "name": "Biotic_Combos_Progress",
+                "timesCompleted": 0,
+                "totalCount": 3,
+                "currentCount": 3,
+                "targetCount": 50,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.268+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.268+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "f13d84e3-473e-45eb-9a51-9b95719331ac",
+        "counters": [
+            {
+                "name": "Biotic_Combos_Progress",
+                "timesCompleted": 0,
+                "totalCount": 3,
+                "currentCount": 3,
+                "targetCount": 500,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.291+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.291+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "9dc562ae-4134-4f78-b7f9-6663a4edd4db",
+        "counters": [
+            {
+                "name": "Waves_Completed_MPYellow_Bronze_Progress",
+                "timesCompleted": 0,
+                "totalCount": 4,
+                "currentCount": 4,
+                "targetCount": 100,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "b1d1578a-1dbc-4797-af7c-cc2cc9f86a84",
+        "counters": [
+            {
+                "name": "Tutorial_Progress",
+                "timesCompleted": 0,
+                "totalCount": 7,
+                "currentCount": 8,
+                "targetCount": 14,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:24:05.552+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:24:05.552+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "f5141f87-9c83-e159-bc62-b736560503e7",
+        "counters": [
+            {
+                "name": "APEX_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 3,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "7d05f678-a391-40b0-af97-605d6cba8aba",
+        "counters": [
+            {
+                "name": "APEX_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 2,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "21e02d22-ac10-4a61-a830-6fc6352a8349",
+        "counters": [
+            {
+                "name": "APEX_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 1,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "34ae991d-7209-40ea-a4a3-882ae76a6b82",
+        "counters": [
+            {
+                "name": "Map_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 15,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "99e11a92-87d5-4f62-873a-a4356ee7d782",
+        "counters": [
+            {
+                "name": "Map_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 10,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "cde374af-728f-4875-b7dc-194beb0a4c56",
+        "counters": [
+            {
+                "name": "Map_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 0,
+                "currentCount": 0,
+                "targetCount": 5,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.298+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.298+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "b6fee211-ce8e-4f13-9ee5-bee455ac64c1",
+        "counters": [
+            {
+                "name": "Pathfinder_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 202,
+                "currentCount": 202,
+                "targetCount": 1500,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:55.113+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:55.113+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "a1aa6df4-471f-4c1e-836d-21c7d8fdd7b5",
+        "counters": [
+            {
+                "name": "Pathfinder_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 202,
+                "currentCount": 202,
+                "targetCount": 4500,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:55.113+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:55.113+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "2abc29d6-1db0-4bd5-873b-b0d79c6a50ae",
+        "counters": [
+            {
+                "name": "Pathfinder_Mastery_Progress",
+                "timesCompleted": 0,
+                "totalCount": 202,
+                "currentCount": 202,
+                "targetCount": 3000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:55.113+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:55.113+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "9af2d9cf-97a4-4c00-8fa6-d88a3454f100",
+        "counters": [
+            {
+                "name": "Sniper_Widow_Progress",
+                "timesCompleted": 0,
+                "totalCount": 2101,
+                "currentCount": 2101,
+                "targetCount": 140000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T22:23:19.519+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T22:23:19.519+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "888698e4-2d60-4a4b-afc0-afb9aa84fd64",
+        "counters": [
+            {
+                "name": "Pistol_Hornet_Progress",
+                "timesCompleted": 0,
+                "totalCount": 10151,
+                "currentCount": 10151,
+                "targetCount": 140000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.304+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.304+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "d89aa49e-131a-453a-bc6f-6cc824e8be20",
+        "counters": [
+            {
+                "name": "Pistol_Talon_Progress",
+                "timesCompleted": 0,
+                "totalCount": 12049,
+                "currentCount": 12049,
+                "targetCount": 140000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-06T23:23:52.653+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-06T23:23:52.653+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "2efdf0f5-7c24-48a7-abe5-f9206ce6e837",
+        "counters": [
+            {
+                "name": "AssaultRifle_Avenger_Progress",
+                "timesCompleted": 0,
+                "totalCount": 385,
+                "currentCount": 385,
+                "targetCount": 140000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-05T01:47:21.797+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-05T01:47:21.797+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "8a4dc9a0-962e-496d-bb9b-efc116dd01e3",
+        "counters": [
+            {
+                "name": "AssaultRifle_Halberd_Progress",
+                "timesCompleted": 0,
+                "totalCount": 13312,
+                "currentCount": 13312,
+                "targetCount": 140000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.304+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.304+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "90327569-a575-4fa4-9229-dd3a45217d03",
+        "counters": [
+            {
+                "name": "Outlaw_Mastery_Gold",
+                "timesCompleted": 0,
+                "totalCount": 30593,
+                "currentCount": 30593,
+                "targetCount": 450000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.286+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.286+0000",
+        "rewarded": false
+    },
+    {
+        "challengeId": "1efa9019-0041-4de1-bf90-8e22c8eddcf3",
+        "counters": [
+            {
+                "name": "Tech_StealthField_Progress",
+                "timesCompleted": 0,
+                "totalCount": 540,
+                "currentCount": 540,
+                "targetCount": 45000,
+                "resetCount": 0,
+                "lastChanged": "2023-07-07T01:44:12.291+0000"
+            }
+        ],
+        "state": "IN_PROGRESS",
+        "timesCompleted": 0,
+        "lastChanged": "2023-07-07T01:44:12.291+0000",
+        "rewarded": false
+    }
+]

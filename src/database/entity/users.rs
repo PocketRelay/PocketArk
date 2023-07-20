@@ -27,6 +27,8 @@ pub enum Relation {
     ClassData,
     #[sea_orm(has_many = "super::seen_articles::Entity")]
     SeenArticles,
+    #[sea_orm(has_many = "super::challenge_progress::Entity")]
+    ChallengeProgress,
     #[sea_orm(has_one = "super::shared_data::Entity")]
     SharedData,
 }
@@ -60,6 +62,11 @@ impl Related<super::seen_articles::Entity> for Entity {
 impl Related<super::shared_data::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SharedData.def()
+    }
+}
+impl Related<super::challenge_progress::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ChallengeProgress.def()
     }
 }
 

@@ -8,6 +8,7 @@ use sea_orm::DbErr;
 use serde::Serialize;
 
 pub mod auth;
+pub mod challenge;
 pub mod character;
 pub mod client;
 pub mod inventory;

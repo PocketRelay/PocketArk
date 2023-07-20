@@ -6,7 +6,8 @@ mod m20230714_105933_create_inventory_item;
 mod m20230714_105940_create_seen_articles;
 mod m20230714_105946_create_characters;
 mod m20230714_112535_create_shared_data;
-mod m20230714_113455_class_data;
+mod m20230714_113455_create_class_data;
+mod m20230720_145347_create_challenge_progress;
 
 pub struct Migrator;
 
@@ -20,7 +21,8 @@ impl MigratorTrait for Migrator {
             Box::new(m20230714_105940_create_seen_articles::Migration),
             Box::new(m20230714_105946_create_characters::Migration),
             Box::new(m20230714_112535_create_shared_data::Migration),
-            Box::new(m20230714_113455_class_data::Migration),
+            Box::new(m20230714_113455_create_class_data::Migration),
+            Box::new(m20230720_145347_create_challenge_progress::Migration),
         ]
     }
 }
