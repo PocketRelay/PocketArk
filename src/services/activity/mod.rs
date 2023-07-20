@@ -1,6 +1,8 @@
 use serde_json::{Map, Value};
 
-use crate::{database::entity::User, http::models::mission::MissionActivity};
+use crate::{database::entity::User, http::models::mission::MissionActivity, state::App};
+
+use super::challenges::ChallengeProgressUpdate;
 
 pub struct ActivityService {}
 
@@ -16,18 +18,18 @@ impl ActivityService {
     pub const CHARACTER_LEVEL_UP: &str = "_characterLevelUp";
     pub const STRIKE_TEAM_RECRUITED: &str = "_strikeTeamRecruited";
 
-    pub async fn process_activity(&self, user: &User, activity: MissionActivity) {
-        match activity.name.as_str() {
-            Self::ITEM_CONSUMED => {}
-            Self::BADGE_EARNED => {}
-            Self::ARTICLE_PURCHASED => {}
-            Self::MISSION_FINISHED => {}
-            Self::EQUIPMENT_ATTACHMENT_UPDATED => {}
-            Self::EQUIPMENT_UPDATED => {}
-            Self::SKILL_PURCHASED => {}
-            Self::CHARACTER_LEVEL_UP => {}
-            Self::STRIKE_TEAM_RECRUITED => {}
-            name => {}
-        }
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn process_activity(&self, activity: &MissionActivity) -> Option<ChallengeProgressUpdate> {
+        let services = App::services();
+        let (definition, counter, descriptor) = services.challenges.get_by_activity(activity)?;
+        let progress = descriptor.get_progress(&activity.attributes);
+        Some(ChallengeProgressUpdate {
+            progress,
+            counter,
+            definition,
+        })
     }
 }

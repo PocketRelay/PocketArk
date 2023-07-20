@@ -146,7 +146,7 @@ pub struct PlayerInfoResult {
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeUpdate {
     pub challenge_id: Uuid,
-    pub counters: Vec<ChallengeCounter>,
+    pub counters: Vec<ChallengeUpdateCounter>,
     pub status_change: ChallengeStatusChange,
 }
 
@@ -161,7 +161,7 @@ pub enum ChallengeStatusChange {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ChallengeCounter {
+pub struct ChallengeUpdateCounter {
     pub name: String,
     pub current_count: u32,
 }

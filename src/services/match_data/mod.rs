@@ -106,9 +106,7 @@ impl Badge {
         activity: &MissionActivity,
     ) -> Option<(&Self, &ActivityDescriptor)> {
         self.activities.iter().find_map(|value| {
-            if value.activity_name.eq(&activity.name)
-                && value.matches_filter(&activity.attributes.extra)
-            {
+            if value.matches(&activity) {
                 Some((self, value))
             } else {
                 None
@@ -126,6 +124,10 @@ pub struct ActivityDescriptor {
 }
 
 impl ActivityDescriptor {
+    pub fn matches(&self, activity: &MissionActivity) -> bool {
+        self.activity_name.eq(&activity.name) && self.matches_filter(&activity.attributes.extra)
+    }
+
     /// Checks if the badge activity filter matches the attributes of
     /// the provided activity
     pub fn matches_filter(&self, attributes: &Map<String, Value>) -> bool {

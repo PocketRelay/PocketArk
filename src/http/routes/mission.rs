@@ -1,12 +1,19 @@
 use crate::{
-    database::entity::{Character, Currency, SharedData, User},
+    database::{
+        self,
+        entity::{
+            challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
+            SharedData, User,
+        },
+    },
     http::models::{
         auth::Sku,
         character::{LevelTable, Xp},
         mission::{
-            ChallengeUpdate, CompleteMissionData, MissionDetails, MissionModifier,
-            MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult, PrestigeData,
-            PrestigeProgression, RewardSource, StartMissionRequest, StartMissionResponse,
+            ChallengeStatusChange, ChallengeUpdate, CompleteMissionData, MissionDetails,
+            MissionModifier, MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge,
+            PlayerInfoResult, PrestigeData, PrestigeProgression, RewardSource, StartMissionRequest,
+            StartMissionResponse,
         },
         HttpError, RawJson,
     },
@@ -143,7 +150,7 @@ pub struct PlayerDataBuilder {
     pub reward_sources: Vec<RewardSource>,
     pub total_currency: HashMap<String, u32>,
     pub prestige_progression: PrestigeProgression,
-    pub items_eared: Vec<Value>,
+    pub items_earned: Vec<Value>,
     pub challenges_updates: HashMap<String, ChallengeUpdate>,
     pub badges: Vec<PlayerInfoBadge>,
 }
@@ -156,7 +163,7 @@ impl PlayerDataBuilder {
             reward_sources: Vec::new(),
             total_currency: HashMap::new(),
             prestige_progression: PrestigeProgression::default(),
-            items_eared: Vec::new(),
+            items_earned: Vec::new(),
             challenges_updates: HashMap::new(),
             badges: Vec::new(),
         }
@@ -277,6 +284,31 @@ async fn process_player_data(
         .map(|value| value.attributes.score)
         .sum();
 
+    // Update changed challenges
+    for (index, challenge_update) in data
+        .activity_report
+        .activities
+        .iter()
+        .filter_map(|activity| services.activity.process_activity(activity))
+        .enumerate()
+    {
+        let (model, update_counter, status_change) =
+            ChallengeProgress::handle_update(db, &user, challenge_update).await?;
+        let status_change = match status_change {
+            ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
+            ProgressUpdateType::Created => ChallengeStatusChange::Notify,
+        };
+
+        data_builder.challenges_updates.insert(
+            (index + 1).to_string(),
+            ChallengeUpdate {
+                challenge_id: model.challenge_id,
+                counters: vec![update_counter],
+                status_change,
+            },
+        );
+    }
+
     // Gives awards and badges for each activity
     data.activity_report
         .activities
@@ -380,7 +412,7 @@ async fn process_player_data(
 
     let result = PlayerInfoResult {
         challenges_updated: data_builder.challenges_updates,
-        items_earned: data_builder.items_eared,
+        items_earned: data_builder.items_earned,
         xp_earned: data_builder.xp_earned,
         previous_xp: previous_xp.current,
         current_xp: new_xp.current,

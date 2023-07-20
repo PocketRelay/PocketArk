@@ -1,11 +1,15 @@
-use super::{User, ValueMap};
+use super::{ChallengeProgress, User, ValueMap};
 use crate::{
     database::{entity::ClassData, DbResult},
     http::models::{
         auth::Sku,
         character::{CharacterEquipment, Class, CustomizationEntry, SkillTreeEntry, Xp},
+        mission::ChallengeUpdateCounter,
     },
-    services::defs::{Definitions, LevelTables},
+    services::{
+        challenges::ChallengeProgressUpdate,
+        defs::{Definitions, LevelTables},
+    },
     state::App,
 };
 use chrono::{DateTime, Utc};
@@ -51,6 +55,11 @@ pub struct ChallengeProgressCounter {
     pub last_changed: DateTime<Utc>,
 }
 
+pub enum ProgressUpdateType {
+    Changed,
+    Created,
+}
+
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
@@ -71,5 +80,86 @@ impl ActiveModelBehavior for ActiveModel {}
 impl Model {
     pub async fn find_by_user(db: &DatabaseConnection, user: &User) -> DbResult<Vec<Self>> {
         user.find_related(Entity).all(db).await
+    }
+
+    pub async fn handle_update<C>(
+        db: &C,
+        user: &User,
+        update: ChallengeProgressUpdate,
+    ) -> DbResult<(Self, ChallengeUpdateCounter, ProgressUpdateType)>
+    where
+        C: ConnectionTrait,
+    {
+        let mut update_counter = ChallengeUpdateCounter {
+            current_count: update.progress,
+            name: update.counter.name.clone(),
+        };
+
+        // TODO: Handling for interval field and resetting?
+
+        if let Some(mut progress) = user
+            .find_related(Entity)
+            .filter(Column::ChallengeId.eq(update.definition.name))
+            .one(db)
+            .await?
+        {
+            let now = Utc::now();
+            let mut times_complete = progress.times_completed;
+            let counter = progress
+                .counters
+                .0
+                .iter_mut()
+                .find(|counter| counter.name.eq(&update.counter.name));
+            if let Some(counter) = counter {
+                counter.target_count = update.counter.target_count;
+
+                let new_count = counter.current_count.saturating_add(update.progress);
+                counter.current_count = new_count.min(counter.target_count);
+                counter.total_count = counter.total_count.saturating_add(update.progress);
+
+                update_counter.current_count = counter.current_count;
+
+                if counter.current_count == counter.target_count {
+                    counter.times_completed += 1;
+                    times_complete += 1;
+                }
+
+                counter.last_changed = now;
+            }
+
+            let mut model = progress.into_active_model();
+            model.times_completed = Set(times_complete);
+            model.counters = Set(model.counters.take().expect("Missing counters"));
+            model.last_changed = Set(now);
+
+            let model = model.update(db).await?;
+
+            Ok((model, update_counter, ProgressUpdateType::Changed))
+        } else {
+            let now = Utc::now();
+
+            let counter = ChallengeProgressCounter {
+                name: update.counter.name.to_string(),
+                times_completed: 0,
+                total_count: update.progress,
+                current_count: update.progress,
+                target_count: update.counter.target_count,
+                reset_count: 0,
+                last_changed: now,
+            };
+            let model = ActiveModel {
+                id: NotSet,
+                user_id: Set(user.id),
+                challenge_id: Set(update.definition.name),
+                counters: Set(ChallengeCounters(vec![counter])),
+                state: Set("IN_PROGRESS".to_string()),
+                times_completed: Set(0),
+                last_changed: Set(now),
+                rewarded: Set(false),
+            };
+            // todo: apply rewards
+            let model = model.insert(db).await?;
+            Ok((model, update_counter, ProgressUpdateType::Created))
+        }
     }
 }

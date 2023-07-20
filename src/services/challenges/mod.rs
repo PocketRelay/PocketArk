@@ -1,13 +1,11 @@
-use std::process::exit;
-
-use crate::database::entity::ChallengeProgress;
+use crate::http::models::mission::MissionActivity;
 
 use super::match_data::ActivityDescriptor;
-use chrono::{DateTime, Utc};
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
+use std::process::exit;
 use uuid::Uuid;
 
 pub const CHALLENGE_DEFINITIONS: &str =
@@ -31,6 +29,22 @@ impl ChallengesService {
         debug!("Loaded {} challenge definition(s)", defs.len());
         Self { defs }
     }
+
+    pub fn get_by_activity(
+        &self,
+        activity: &MissionActivity,
+    ) -> Option<(&ChallengeDefinition, &ChallengeCounter, &ActivityDescriptor)> {
+        self.defs
+            .iter()
+            .find_map(|value| value.get_by_activity(activity))
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ChallengeProgressUpdate {
+    pub progress: u32,
+    pub counter: &'static ChallengeCounter,
+    pub definition: &'static ChallengeDefinition,
 }
 
 #[skip_serializing_none]
@@ -62,6 +76,18 @@ pub struct ChallengeDefinition {
     pub loc_description: Option<String>,
 }
 
+impl ChallengeDefinition {
+    pub fn get_by_activity(
+        &self,
+        activity: &MissionActivity,
+    ) -> Option<(&Self, &ChallengeCounter, &ActivityDescriptor)> {
+        self.counters
+            .iter()
+            .find_map(|counter| counter.get_by_activity(activity))
+            .map(|(counter, descriptor)| (self, counter, descriptor))
+    }
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -73,7 +99,21 @@ pub struct ChallengeCounter {
     pub i18n_title: Option<String>,
     pub i18n_description: Option<String>,
     pub activities: Vec<ActivityDescriptor>,
+    pub aggregate: Option<bool>,
 }
+
+impl ChallengeCounter {
+    pub fn get_by_activity(
+        &self,
+        activity: &MissionActivity,
+    ) -> Option<(&Self, &ActivityDescriptor)> {
+        self.activities
+            .iter()
+            .find(|value| value.matches(activity))
+            .map(|value| (self, value))
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChallengeReward {
     pub currencies: Vec<CurrencyReward>,

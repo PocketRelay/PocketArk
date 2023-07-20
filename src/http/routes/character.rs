@@ -286,6 +286,9 @@ pub async fn character_unlocked(Auth(user): Auth) -> Result<Json<UnlockedCharact
     let db = App::database();
     let shared_data = SharedData::get_from_user(&user, db).await?;
 
+    // TODO: Should actually handle creating definitions for an unlocked character if they
+    // are not already created
+
     Ok(Json(UnlockedCharacters {
         active_character_id: shared_data.active_character_id,
         list: vec![],
