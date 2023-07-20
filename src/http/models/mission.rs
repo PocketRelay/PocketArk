@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use crate::database::entity::Currency;
+use crate::{database::entity::Currency, services::challenges::CurrencyReward};
 
 use super::auth::Sku;
 
@@ -137,7 +137,7 @@ pub struct PlayerInfoResult {
     pub score: u32,
     pub total_score: u32,
     pub character_class_name: Uuid,
-    pub total_currencies_earned: Vec<Currency>,
+    pub total_currencies_earned: Vec<CurrencyReward>,
     pub reward_sources: Vec<RewardSource>,
     pub prestige_progression: PrestigeProgression,
 }

@@ -1,5 +1,6 @@
 use std::f32::consts::E;
 
+use chrono::format::Item;
 use sea_orm::{
     entity::prelude::*,
     ActiveValue::{NotSet, Set},
@@ -62,15 +63,24 @@ impl Model {
         user.find_related(Entity).all(db).await
     }
 
-    pub async fn create_or_update(
-        db: &DatabaseConnection,
-        user: &User,
-        name: String,
-        value: u32,
-    ) -> DbResult<Self> {
+    pub async fn create_or_update_many<'a, C, I>(db: &C, user: &User, items: I) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+        I: IntoIterator<Item = (&'a String, &'a u32)>,
+    {
+        for (key, value) in items {
+            Self::create_or_update(db, user, key, *value).await?;
+        }
+        Ok(())
+    }
+
+    pub async fn create_or_update<C>(db: &C, user: &User, name: &str, value: u32) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
         if let Some(model) = user
             .find_related(Entity)
-            .filter(Column::Name.eq(&name))
+            .filter(Column::Name.eq(name))
             .one(db)
             .await?
         {
@@ -82,7 +92,7 @@ impl Model {
             ActiveModel {
                 id: NotSet,
                 user_id: Set(user.id),
-                name: Set(name),
+                name: Set(name.to_string()),
                 balance: Set(value),
             }
             .insert(db)

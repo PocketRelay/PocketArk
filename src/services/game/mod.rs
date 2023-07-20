@@ -21,9 +21,12 @@ use crate::{
         pk::{codec::Encodable, packet::Packet, tag::TdfType, types::TdfMap, writer::TdfWriter},
         session::{PushExt, SessionLink, SetGameMessage},
     },
-    database::entity::{
-        challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency, SharedData,
-        User,
+    database::{
+        self,
+        entity::{
+            challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
+            SharedData, User,
+        },
     },
     http::models::{
         auth::Sku,
@@ -37,7 +40,7 @@ use crate::{
     state::App,
 };
 
-use super::match_data::MatchDataService;
+use super::{challenges::CurrencyReward, match_data::MatchDataService};
 
 pub mod manager;
 
@@ -79,10 +82,10 @@ impl Handler<GetMissionDataMessage> for Game {
     type Response = Sfr<Self, GetMissionDataMessage>;
     fn handle(
         &mut self,
-        msg: GetMissionDataMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _msg: GetMissionDataMessage,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
-        Sfr::new(move |act: &mut Game, ctx| {
+        Sfr::new(move |act: &mut Game, _ctx| {
             Box::pin(async move {
                 if let Some(processed) = act.processed_data.clone() {
                     return Some(processed);
@@ -289,7 +292,7 @@ async fn process_player_data(
         .ok_or(PlayerDataProcessError::UnknownUser)?;
     let mut shared_data = SharedData::get_from_user(&user, db).await?;
 
-    let character = Character::find_by_id_user(db, &user, shared_data.active_character_id)
+    let mut character = Character::find_by_id_user(db, &user, shared_data.active_character_id)
         .await?
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
@@ -424,18 +427,19 @@ async fn process_player_data(
     // Insert after change
     data_builder.append_prestige_after(&shared_data);
 
-    let character = if new_xp != previous_xp || level > previous_level {
-        character.update_xp(db, new_xp, level).await?
-    } else {
-        character
-    };
-
-    let mut total_currencies_earned = Vec::new();
-    for (key, value) in data_builder.total_currency {
-        let mut currency = Currency::create_or_update(db, &user, key, value).await?;
-        currency.balance = value;
-        total_currencies_earned.push(currency);
+    // Update character level and xp
+    if new_xp != previous_xp || level > previous_level {
+        character = character.update_xp(db, new_xp, level).await?
     }
+
+    // Update currencies
+    Currency::create_or_update_many(db, &user, &data_builder.total_currency).await?;
+
+    let total_currencies_earned = data_builder
+        .total_currency
+        .into_iter()
+        .map(|(name, value)| CurrencyReward { name, value })
+        .collect();
 
     let result = PlayerInfoResult {
         challenges_updated: data_builder.challenges_updates,
@@ -542,7 +546,7 @@ impl Handler<SetModifiersMessage> for Game {
     fn handle(
         &mut self,
         msg: SetModifiersMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
+        _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         self.modifiers = msg.modifiers;
     }
