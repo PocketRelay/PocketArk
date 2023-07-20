@@ -281,7 +281,7 @@ async fn process_player_data(
     data.activity_report
         .activities
         .iter()
-        .filter_map(|activity| services.match_data.get_by_activity(&activity))
+        .filter_map(|activity| services.match_data.get_by_activity(activity))
         .for_each(|(badge, progress, levels)| {
             let badge_name = badge.name.to_string();
             let mut xp_reward: u32 = 0;

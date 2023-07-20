@@ -94,14 +94,17 @@ pub struct Badge {
 
     pub currency: String,
 
-    pub activities: Vec<BadgeActivity>,
+    pub activities: Vec<ActivityDescriptor>,
     pub levels: Vec<BadgeLevel>,
 }
 
 impl Badge {
     /// Finds a badge activity details using the provided mission activity
     /// matches against the name and attribute filter
-    pub fn get_by_activity(&self, activity: &MissionActivity) -> Option<(&Self, &BadgeActivity)> {
+    pub fn get_by_activity(
+        &self,
+        activity: &MissionActivity,
+    ) -> Option<(&Self, &ActivityDescriptor)> {
         self.activities.iter().find_map(|value| {
             if value.activity_name.eq(&activity.name)
                 && value.matches_filter(&activity.attributes.extra)
@@ -116,13 +119,13 @@ impl Badge {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BadgeActivity {
-    pub activity_name: Uuid,
+pub struct ActivityDescriptor {
+    pub activity_name: String,
     pub filter: Map<String, Value>,
     pub increment_progress_by: String,
 }
 
-impl BadgeActivity {
+impl ActivityDescriptor {
     /// Checks if the badge activity filter matches the attributes of
     /// the provided activity
     pub fn matches_filter(&self, attributes: &Map<String, Value>) -> bool {

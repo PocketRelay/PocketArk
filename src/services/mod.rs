@@ -4,6 +4,8 @@ use self::{
     defs::Definitions, game::manager::GameManager, match_data::MatchDataService, tokens::Tokens,
 };
 
+pub mod activity;
+pub mod challenges;
 pub mod defs;
 pub mod game;
 pub mod items;

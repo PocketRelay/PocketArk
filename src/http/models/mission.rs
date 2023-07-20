@@ -50,7 +50,7 @@ pub struct MissionActivityReport {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MissionActivity {
-    pub name: Uuid,
+    pub name: String,
     pub attributes: MissionActivityAttributes,
 }
 
