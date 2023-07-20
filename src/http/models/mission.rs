@@ -118,7 +118,7 @@ pub struct MissionPlayerInfo {
 #[serde(rename_all = "camelCase")]
 pub struct PlayerInfoBadge {
     pub count: u32,
-    pub level_name: String,
+    pub level_name: Option<String>,
     pub rewarded_levels: Vec<String>,
     pub name: Uuid,
 }
@@ -174,7 +174,7 @@ pub struct RewardSource {
     pub currencies: HashMap<String, u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrestigeProgression {
     pub before: HashMap<Uuid, PrestigeData>,

@@ -35,7 +35,7 @@ pub struct CharacterResponse {
     pub shared_data: SharedData,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 pub struct Xp {
     pub current: u32,
     pub last: u32,

@@ -119,4 +119,13 @@ impl Model {
         shared_data.active_character_id = Set(uuid);
         shared_data.update(db).await
     }
+
+    pub async fn save_progression(self, db: &DatabaseConnection) -> DbResult<Self> {
+        let mut model = self.into_active_model();
+        model.shared_progression = Set(model
+            .shared_progression
+            .take()
+            .expect("Shared progression missing from take"));
+        model.update(db).await
+    }
 }

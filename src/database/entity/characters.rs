@@ -111,9 +111,7 @@ impl Model {
         Ok(())
     }
 
-    pub async fn update_xp(self, db: &DatabaseConnection) -> DbResult<Self> {
-        let xp = self.xp.clone();
-        let level = self.level;
+    pub async fn update_xp(self, db: &DatabaseConnection, xp: Xp, level: u32) -> DbResult<Self> {
         let mut model = self.into_active_model();
         model.xp = Set(xp);
         model.level = Set(level);
@@ -201,4 +199,6 @@ impl Model {
             .one(db)
             .await
     }
+
+    pub async fn update_character_level() {}
 }

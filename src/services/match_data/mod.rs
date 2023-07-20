@@ -6,6 +6,8 @@ use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
+use crate::http::models::mission::{MissionActivity, MissionActivityAttributes};
+
 pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
 pub const MATCH_MODIFIER_DEFINITIONS: &str =
     include_str!("../../resources/data/matchModifiers.json");
@@ -41,13 +43,38 @@ impl MatchDataService {
         Self { badges, modifiers }
     }
 
-    pub fn get_by_activity(&self, activity: &Uuid) -> Option<&Badge> {
-        self.badges.iter().find(|value| {
-            value
-                .activities
-                .iter()
-                .any(|value| value.activity_name.eq(activity))
-        })
+    pub fn get_by_activity(
+        &self,
+        activity: &MissionActivity,
+    ) -> Option<(&Badge, u32, Vec<&BadgeLevel>)> {
+        let (badge, badge_activity) = self
+            .badges
+            .iter()
+            .find_map(|value| value.get_by_activity(activity))?;
+        let progress = badge_activity.get_progress(&activity.attributes);
+        let levels: Vec<&BadgeLevel> = badge
+            .levels
+            .iter()
+            .filter(|value| value.target_count <= progress)
+            .collect();
+        Some((badge, progress, levels))
+    }
+
+    pub fn get_modifier_entry(
+        &self,
+        name: &str,
+        value: &str,
+    ) -> Option<(&MatchModifier, &MatchModifierEntry)> {
+        let modifier = self
+            .modifiers
+            .iter()
+            // Find the specific modifier by name
+            .find(|modifier| modifier.name.eq(name))?;
+
+        // Find the modifier value by the desired value
+        let value = modifier.values.iter().find(|entry| entry.name.eq(value))?;
+
+        Some((modifier, value))
     }
 }
 
@@ -71,6 +98,22 @@ pub struct Badge {
     pub levels: Vec<BadgeLevel>,
 }
 
+impl Badge {
+    /// Finds a badge activity details using the provided mission activity
+    /// matches against the name and attribute filter
+    pub fn get_by_activity(&self, activity: &MissionActivity) -> Option<(&Self, &BadgeActivity)> {
+        self.activities.iter().find_map(|value| {
+            if value.activity_name.eq(&activity.name)
+                && value.matches_filter(&activity.attributes.extra)
+            {
+                Some((self, value))
+            } else {
+                None
+            }
+        })
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BadgeActivity {
@@ -80,6 +123,8 @@ pub struct BadgeActivity {
 }
 
 impl BadgeActivity {
+    /// Checks if the badge activity filter matches the attributes of
+    /// the provided activity
     pub fn matches_filter(&self, attributes: &Map<String, Value>) -> bool {
         for (key, value) in self.filter.iter() {
             let right = match attributes.get(key) {
@@ -91,7 +136,17 @@ impl BadgeActivity {
             }
         }
 
-        return true;
+        true
+    }
+
+    /// Obtains the progress value from the provided attributes based
+    /// on the progress increment target
+    pub fn get_progress(&self, attributes: &MissionActivityAttributes) -> u32 {
+        match self.increment_progress_by.as_str() {
+            "count" => attributes.count,
+            "score" => attributes.score,
+            _ => 0,
+        }
     }
 }
 
@@ -132,4 +187,13 @@ pub struct MatchModifierEntry {
 pub struct ModifierData {
     pub flat_amount: u32,
     pub additive_multiplier: f32,
+}
+
+impl ModifierData {
+    /// Returns the amount that should be added based on
+    /// the old value with the modifier
+    pub fn get_amount(&self, old_value: u32) -> u32 {
+        let adative_value = (old_value as f32 * self.additive_multiplier).trunc() as u32;
+        self.flat_amount + adative_value
+    }
 }
