@@ -4,7 +4,10 @@ use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use uuid::Uuid;
+use uuid::{
+    fmt::{Hyphenated, Simple},
+    Uuid,
+};
 
 use crate::http::models::mission::{MissionActivity, MissionActivityAttributes};
 

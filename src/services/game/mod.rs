@@ -1,4 +1,7 @@
-use std::{collections::HashMap, future::ready};
+use std::{
+    collections::{BTreeMap, HashMap},
+    future::ready,
+};
 
 use chrono::Utc;
 use interlink::{
@@ -179,7 +182,7 @@ pub struct PlayerDataBuilder {
     pub total_currency: HashMap<String, u32>,
     pub prestige_progression: PrestigeProgression,
     pub items_earned: Vec<Value>,
-    pub challenges_updates: HashMap<String, ChallengeUpdate>,
+    pub challenges_updates: BTreeMap<String, ChallengeUpdate>,
     pub badges: Vec<PlayerInfoBadge>,
 }
 
@@ -192,7 +195,7 @@ impl PlayerDataBuilder {
             total_currency: HashMap::new(),
             prestige_progression: PrestigeProgression::default(),
             items_earned: Vec::new(),
-            challenges_updates: HashMap::new(),
+            challenges_updates: BTreeMap::new(),
             badges: Vec::new(),
         }
     }

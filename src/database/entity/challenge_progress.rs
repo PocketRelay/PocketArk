@@ -36,6 +36,8 @@ pub struct Model {
     pub counters: ChallengeCounters,
     pub state: String,
     pub times_completed: u32,
+    pub last_completed: Option<DateTime<Utc>>,
+    pub first_completed: Option<DateTime<Utc>>,
     pub last_changed: DateTime<Utc>,
     pub rewarded: bool,
 }
@@ -104,12 +106,14 @@ impl Model {
             .await?
         {
             let now = Utc::now();
+            let mut last_complete = progress.times_completed;
             let mut times_complete = progress.times_completed;
             let counter = progress
                 .counters
                 .0
                 .iter_mut()
                 .find(|counter| counter.name.eq(&update.counter.name));
+
             if let Some(counter) = counter {
                 counter.target_count = update.counter.target_count;
 
@@ -131,6 +135,13 @@ impl Model {
             model.times_completed = Set(times_complete);
             model.counters = Set(model.counters.take().expect("Missing counters"));
             model.last_changed = Set(now);
+
+            if times_complete != last_complete {
+                model.last_completed = Set(Some(now));
+                if times_complete == 1 {
+                    model.first_completed = Set(Some(now))
+                }
+            }
 
             let model = model.update(db).await?;
 
@@ -156,6 +167,8 @@ impl Model {
                 times_completed: Set(0),
                 last_changed: Set(now),
                 rewarded: Set(false),
+                last_completed: Set(None),
+                first_completed: Set(None),
             };
             // todo: apply rewards
             let model = model.insert(db).await?;

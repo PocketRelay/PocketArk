@@ -42,6 +42,16 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(
+                        ColumnDef::new(ChallengeProgress::LastCompleted)
+                            .date_time()
+                            .null(),
+                    )
+                    .col(
+                        ColumnDef::new(ChallengeProgress::FirstCompleted)
+                            .date_time()
+                            .null(),
+                    )
+                    .col(
                         ColumnDef::new(ChallengeProgress::LastChanged)
                             .date_time()
                             .not_null(),
@@ -79,6 +89,8 @@ enum ChallengeProgress {
     Counters,
     State,
     TimesCompleted,
+    LastCompleted,
+    FirstCompleted,
     LastChanged,
     Rewarded,
 }

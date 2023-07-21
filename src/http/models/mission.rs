@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -126,7 +126,7 @@ pub struct PlayerInfoBadge {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlayerInfoResult {
-    pub challenges_updated: HashMap<String, ChallengeUpdate>,
+    pub challenges_updated: BTreeMap<String, ChallengeUpdate>,
     pub items_earned: Vec<Value>,
     pub xp_earned: u32,
     pub previous_xp: u32,
