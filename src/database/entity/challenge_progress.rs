@@ -19,9 +19,11 @@ use sea_orm::{
     IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 use uuid::Uuid;
 
+#[skip_serializing_none]
 #[derive(Clone, Debug, DeriveEntityModel, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[sea_orm(table_name = "challenge_progress")]
