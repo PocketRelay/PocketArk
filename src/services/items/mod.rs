@@ -1,5 +1,7 @@
 //! Service in charge of deailing with items opening packs
 
+use std::collections::HashMap;
+
 use rand::rngs::StdRng;
 use sea_orm::DatabaseTransaction;
 
@@ -10,6 +12,15 @@ use crate::{
     },
     http::models::inventory::ItemDefinition,
 };
+
+use super::defs::LookupList;
+
+pub const INVENTORY_DEFINITIONS: &str =
+    include_str!("../../resources/data/inventoryDefinitions.json");
+
+pub struct ItemsService {
+    pub inventory: LookupList<String, ItemDefinition>,
+}
 
 pub struct PackBuilder {}
 
@@ -124,15 +135,78 @@ impl Category {
         Self::SHOTGUN_MODS_ENHANCED,
         Self::SNIPER_RIFLE_MODS_ENHANCED,
     ];
+
+    pub const ITEMS: &[&'static str] = &[
+        Self::BOOSTERS,
+        Self::CONSUMABLE,
+        Self::EQUIPMENT,
+        Self::ASSAULT_RIFLE,
+        Self::PISTOL,
+        Self::SHOTGUN,
+        Self::SNIPER_RIFLE,
+        Self::ASSAULT_RIFLE_MODS,
+        Self::PISTOL_MODS,
+        Self::SHOTGUN_MODS,
+        Self::SNIPER_RIFLE_MODS,
+        Self::ASSAULT_RIFLE_SPECIALIZED,
+        Self::PISTOL_SPECIALIZED,
+        Self::SHOTGUN_SPECIALIZED,
+        Self::SNIPER_RIFLE_SPECIALIZED,
+        Self::ASSAULT_RIFLE_MODS_ENHANCED,
+        Self::PISTOL_MODS_ENHANCED,
+        Self::SHOTGUN_MODS_ENHANCED,
+        Self::SNIPER_RIFLE_MODS_ENHANCED,
+    ];
+}
+
+pub struct ItemChance {
+    filter: ItemFilter,
+    amount: usize,
 }
 
 fn random_item_or_character() {
+    // First 4 items must be common
+    let first = ItemFilter::Rarity(Rarity::COMMON).and(
+        // Can be items
+        ItemFilter::categories(Category::ITEMS)
+            // or characters
+            .or(ItemFilter::Category(Category::CHARACTERS)),
+    );
+
+    let second = ItemFilter::Rarity(Rarity::UNCOMMON);
+
     let filter = ItemFilter::any([ItemFilter::Category("")]);
 }
 
 struct RandomItem {
     filter: ItemFilter,
     stack_size: u32,
+}
+
+impl RandomItem {
+    async fn grant_item(
+        &self,
+        rng: &mut StdRng,
+        user: &User,
+        tx: &DatabaseTransaction,
+        items: &[ItemDefinition],
+    ) -> DbResult<InventoryItem> {
+        let weights: HashMap<String, u32> = HashMap::new();
+        let items: Vec<&'static ItemDefinition> = items
+            .iter()
+            .filter_map(|value| {
+                let (result, weight) = self.filter.check(value);
+                if result {
+                    weights.insert(value.name.to_string(), weight);
+                    Some(value)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        Ok(item)
+    }
 }
 
 impl PackBuilder {
@@ -142,30 +216,66 @@ impl PackBuilder {
 }
 
 pub enum ItemFilter {
+    None,
+
+    /// Literal name of the item definition to use
+    Named(&'static str),
     /// Filter requiring a rarity
     Rarity(&'static str),
     /// Filter requiring a category
     Category(&'static str),
+
+    /// Weighted filtering
+    Weighted(Box<ItemFilter>, u32),
+
     /// Filter allowing any of the provided filters passing
     Any(Vec<ItemFilter>),
     /// Filter by both filters
     And(Box<ItemFilter>, Box<ItemFilter>),
+    /// Filter by one or the other filters
+    Or(Box<ItemFilter>, Box<ItemFilter>),
 }
 
 impl ItemFilter {
-    pub fn check(&self, item: &ItemDefinition) -> bool {
-        match self {
+    pub fn categories(values: &[&'static str]) -> Self {
+        Self::Any(
+            values
+                .iter()
+                .map(|value| ItemFilter::Category(*value))
+                .collect(),
+        )
+    }
+
+    pub fn rarities(values: &[&'static str]) -> Self {
+        Self::Any(
+            values
+                .iter()
+                .map(|value| ItemFilter::Rarity(*value))
+                .collect(),
+        )
+    }
+
+    pub fn check(&self, item: &ItemDefinition) -> (bool, u32) {
+        let result = match self {
             ItemFilter::Rarity(rarity) => {
                 item.rarity.as_ref().is_some_and(|value| value.eq(rarity))
             }
             ItemFilter::Category(category) => item.category.eq(category),
             ItemFilter::Any(values) => values.iter().any(|value| value.check(item)),
             ItemFilter::And(first, second) => first.check(item) && second.check(item),
-        }
+            ItemFilter::Or(first, second) => first.check(item) || second.check(item),
+            ItemFilter::None => true,
+            ItemFilter::Named(name) => name.eq(&item.name),
+            ItemFilter::Weighted(left, weight) => return (left.check(item), weight),
+        };
+        (result, 0)
     }
 
     pub fn and(self, other: ItemFilter) -> Self {
         Self::And(Box::new(self), Box::new(other))
+    }
+    pub fn or(self, other: ItemFilter) -> Self {
+        Self::Or(Box::new(self), Box::new(other))
     }
 
     pub fn any<I>(iter: I) -> Self

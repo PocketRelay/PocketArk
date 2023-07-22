@@ -55,6 +55,7 @@ pub struct ItemDefinition {
     pub cap: Option<u32>,
 
     /// Name of definition that this item depends on
+    /// (Requires the item to reach its capacity before it can be dropped)
     pub unlock_definition: Option<String>,
 
     pub on_consume: Option<Vec<Value>>,
