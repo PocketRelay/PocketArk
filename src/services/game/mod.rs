@@ -223,14 +223,14 @@ impl PlayerDataBuilder {
 
     pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
         // Append earned xp
-        self.xp_earned += xp;
+        self.xp_earned = self.xp_earned.saturating_add(xp);
 
         if let Some(existing) = self
             .reward_sources
             .iter_mut()
             .find(|value| value.name.eq(name))
         {
-            existing.xp += xp;
+            existing.xp = existing.xp.saturating_add(xp);
         } else {
             self.reward_sources.push(RewardSource {
                 currencies: HashMap::new(),

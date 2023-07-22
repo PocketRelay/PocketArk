@@ -53,6 +53,10 @@ pub struct ItemDefinition {
     pub rarity: Option<String>,
     pub droppable: Option<bool>,
     pub cap: Option<u32>,
+
+    /// Name of definition that this item depends on
+    pub unlock_definition: Option<String>,
+
     pub on_consume: Option<Vec<Value>>,
     pub on_add: Option<Vec<Value>>,
     pub on_remove: Option<Vec<Value>>,
