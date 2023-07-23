@@ -46,6 +46,8 @@ impl ItemsService {
             Self::reserves_pack(),
             Self::arsenal_pack(),
             Self::bonus_reward_pack(),
+            Self::random_common_mod_pack(),
+            Self::random_uncommon_mod_pack(),
         ]
         .into_iter()
         .map(|pack| (pack.name.clone(), pack))
@@ -153,6 +155,36 @@ impl ItemsService {
                         | ItemFilter::rarity(Rarity::RARE).weight(1),
                     // Items or characters (weighted for weapons)
                     ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(1),
+            )
+    }
+
+    fn random_uncommon_mod_pack() -> Pack {
+        Pack::new("44da78e5-8ceb-4684-983e-794329d4a631")
+            // 3 common items/characters
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Uncommon items
+                    ItemFilter::rarity(Rarity::UNCOMMON),
+                    // Weapon mods
+                    ItemFilter::category(Category::WEAPON_MODS)
+                        | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
+                ))
+                .amount(1),
+            )
+    }
+
+    fn random_common_mod_pack() -> Pack {
+        Pack::new("890b2aa6-191f-4162-ae79-a78d23e3c505")
+            // 3 common items/characters
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Uncommon items
+                    ItemFilter::rarity(Rarity::COMMON),
+                    // Weapon mods
+                    ItemFilter::category(Category::WEAPON_MODS)
+                        | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
                 ))
                 .amount(1),
             )
