@@ -206,7 +206,7 @@ pub async fn give_jumbo_supply_pack(user: &User) -> DbResult<Vec<InventoryItem>>
     // Give 5 random boosters
     let mut rand = StdRng::from_entropy();
     let boosters: Vec<&'static ItemDefinition> = services
-        .defs
+        .items
         .inventory
         .list()
         .iter()

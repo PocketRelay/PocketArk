@@ -21,7 +21,7 @@ use crate::{
 
 pub fn get_item_definitions(items: &[InventoryItem]) -> Vec<&'static ItemDefinition> {
     let services = App::services();
-    let defs = &services.defs.inventory;
+    let defs = &services.items.inventory;
 
     items
         .iter()
@@ -47,7 +47,7 @@ pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, 
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
-    let list: &'static [ItemDefinition] = services.defs.inventory.list();
+    let list: &'static [ItemDefinition] = services.items.inventory.list();
     Json(InventoryDefinitions {
         total_count: list.len(),
         list,

@@ -2,7 +2,7 @@ use interlink::prelude::Link;
 
 use self::{
     activity::ActivityService, challenges::ChallengesService, defs::Definitions,
-    game::manager::GameManager, match_data::MatchDataService, tokens::Tokens,
+    game::manager::GameManager, items::ItemsService, match_data::MatchDataService, tokens::Tokens,
 };
 
 pub mod activity;
@@ -20,6 +20,7 @@ pub struct Services {
     pub match_data: MatchDataService,
     pub challenges: ChallengesService,
     pub activity: ActivityService,
+    pub items: ItemsService,
 }
 
 impl Services {
@@ -30,6 +31,8 @@ impl Services {
         let match_data = MatchDataService::load();
         let challenges = ChallengesService::load();
         let activity = ActivityService::new();
+        let items = ItemsService::load();
+
         Self {
             games,
             defs,
@@ -37,6 +40,7 @@ impl Services {
             match_data,
             challenges,
             activity,
+            items,
         }
     }
 }

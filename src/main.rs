@@ -17,6 +17,8 @@ async fn main() {
 
     App::init().await;
 
+    App::services().items.test();
+
     select! {
         _ = http::start_server() => {
 

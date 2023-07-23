@@ -7,17 +7,12 @@ use crate::http::models::{
 use log::{debug, error};
 use uuid::Uuid;
 
-/// Definitions for all the items
-pub const INVENTORY_DEFINITIONS: &str =
-    include_str!("../../resources/data/inventoryDefinitions.json");
-
 pub const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
 pub const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
 pub const LEVEL_TABLE_DEFINITIONS: &str =
     include_str!("../../resources/data/characterLevelTables.json");
 
 pub struct Definitions {
-    pub inventory: LookupList<String, ItemDefinition>,
     pub skills: LookupList<Uuid, SkillDefinition>,
     pub classes: LookupList<Uuid, Class>,
     pub level_tables: LookupList<Uuid, LevelTable>,
@@ -29,30 +24,15 @@ impl Definitions {
     pub fn load() -> Self {
         debug!("Loading definitions");
 
-        let inventory = Self::load_inventory();
         let skills = Self::load_skills();
         let classes = Self::load_classes();
         let level_tables = Self::load_level_tables();
 
         Self {
-            inventory,
             skills,
             classes,
             level_tables,
         }
-    }
-
-    fn load_inventory() -> LookupList<String, ItemDefinition> {
-        let list: Vec<ItemDefinition> = match serde_json::from_str(INVENTORY_DEFINITIONS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load inventory definitions: {}", err);
-                exit(1);
-            }
-        };
-
-        debug!("Loaded {} inventory item definition(s)", list.len());
-        LookupList::create(list, |value| value.name.to_string())
     }
 
     fn load_skills() -> LookupList<Uuid, SkillDefinition> {
