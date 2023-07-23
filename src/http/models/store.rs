@@ -2,9 +2,18 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database::entity::{Currency, InventoryItem};
+use crate::{
+    database::entity::{Currency, InventoryItem},
+    services::store::StoreCatalog,
+};
 
 use super::inventory::{ActivityResult, ItemDefinition};
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreCatalogResponse {
+    pub list: Vec<&'static StoreCatalog>,
+}
 
 #[derive(Serialize)]
 pub struct UserCurrenciesResponse {

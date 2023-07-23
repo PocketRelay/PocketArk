@@ -29,6 +29,12 @@ pub fn get_item_definitions(items: &[InventoryItem]) -> Vec<&'static ItemDefinit
         .collect()
 }
 
+pub fn get_item_definition(item: &String) -> Option<&'static ItemDefinition> {
+    let services = App::services();
+    let defs = &services.items.inventory;
+    defs.lookup(item)
+}
+
 /// GET /inventory
 ///
 /// Responds with a list of all the players inventory items along

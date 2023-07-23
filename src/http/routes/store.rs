@@ -1,3 +1,5 @@
+use log::error;
+
 use crate::{
     database::{
         entity::{Character, Currency, InventoryItem, User},
@@ -9,18 +11,22 @@ use crate::{
             inventory::{ActivityResult, ItemDefinition},
             store::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
-                UpdateSeenArticles, UserCurrenciesResponse,
+                StoreCatalogResponse, UpdateSeenArticles, UserCurrenciesResponse,
             },
             HttpError, RawJson,
         },
         routes::inventory::get_item_definitions,
+    },
+    services::{
+        items::{Category, GrantedItem},
+        store::StoreCatalog,
     },
     state::App,
 };
 use axum::Json;
 use chrono::Utc;
 use hyper::StatusCode;
-use log::debug;
+use log::{debug, warn};
 use rand::{
     rngs::StdRng,
     seq::{IteratorRandom, SliceRandom},
@@ -30,16 +36,20 @@ use sea_orm::ActiveModelTrait;
 use serde_json::Map;
 use uuid::Uuid;
 
-/// Definition file for the contents of the in-game store
-static STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
-
 /// GET /store/catalogs
 ///
 /// Obtains the definitions for the store catalogs. Responds with
 /// the store catalog definitions along with all the articles within
 /// each catalog
-pub async fn get_catalogs() -> RawJson {
-    RawJson(STORE_CATALOG_DEFINITION)
+pub async fn get_catalogs() -> Json<StoreCatalogResponse> {
+    let services = App::services();
+    let catalog = &services.store.catalog;
+
+    // TODO: Catalog seen states loaded from db and added to response
+
+    Json(StoreCatalogResponse {
+        list: vec![catalog],
+    })
 }
 
 /// PUT /store/article/seen
@@ -75,22 +85,6 @@ pub async fn obtain_article(
 
     let now = Utc::now();
 
-    // categories:
-    // 0 = characters
-    // 12 = store pack / tools / nameplates
-    // 11 = material loot boxes? (striketeams)
-    // 7 = challenge reward?
-    // 5 = equipment
-    // 4 = consumable
-    // 8 = redeemables?
-    // 9 = consumable buffs / cap increase?
-    // 3 = boosters
-    // 1/2:GunType = base weapon mods?
-    // 14:GunType = alt weapon mods?
-    // 1:{guntype} = base gun unlock
-    // 13:{guntype} = alternative gun version unlock
-    // {num}:{guntype} = weapons?
-
     let weapon = ["1:AssaultRifle", "1:Pistol", "1:Shotgun", "1:SniperRifle"];
     let alt_weapon = [
         "13:AssaultRifle",
@@ -107,22 +101,72 @@ pub async fn obtain_article(
         "14:SniperRifle",
     ];
 
-    // let ids = [
-    //     "00deb555-5cb5-4473-ac9a-22e9d1ac2328",
-    //     "088efa63-ebdf-4fe5-a52c-0eefa0c92852",
-    // ];
+    let catalog = &services.store.catalog;
 
-    // let items = ids
-    //     .into_iter()
-    //     .map(|id| InventoryItem::create_item(&user, id.to_string(), 1));
+    let article = catalog
+        .articles
+        .iter()
+        .find(|value| value.name.ends_with(&req.article_name))
+        .ok_or(HttpError::new("Unknown article", StatusCode::NOT_FOUND))?;
 
-    // let mut items_out = Vec::with_capacity(items.len());
-    // for item in items {
-    //     let value = item.insert(db).await?;
-    //     items_out.push(value);
-    // }
+    // TODO: Pre check condition for can afford and allowed within limits
 
-    let items_out: Vec<InventoryItem> = give_jumbo_supply_pack(&user).await?;
+    let article_item =
+        services
+            .items
+            .inventory
+            .lookup(&article.item_name)
+            .ok_or(HttpError::new(
+                "Unknown article item",
+                StatusCode::NOT_FOUND,
+            ))?;
+
+    // TODO: Aquire item
+
+    // TODO: COnsume
+
+    let mut granted: Vec<GrantedItem> = Vec::new();
+
+    // Item pack consumables
+    if article_item.category == Category::ITEM_PACK {
+        let pack = services.items.packs.get(&article_item.name);
+        if let Some(pack) = pack {
+            let mut rng = StdRng::from_entropy();
+            if let Err(err) =
+                pack.grant_items(&mut rng, services.items.inventory.list(), &mut granted)
+            {
+                error!("Failed to grant pack items: {} {}", &article_item.name, err);
+                return Err(HttpError::new(
+                    "Failed to grant pack items",
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                ));
+            }
+        } else {
+            warn!(
+                "Don't know how to handle item pack: {} ({:?})",
+                &article_item.name, &article_item.loc_name
+            );
+            return Err(HttpError::new(
+                "Pack item not implemented",
+                StatusCode::NOT_IMPLEMENTED,
+            ));
+        }
+    }
+
+    let mut items_out: Vec<InventoryItem> = Vec::with_capacity(granted.len());
+
+    for granted in granted {
+        let mut item = InventoryItem::create_or_append(
+            db,
+            &user,
+            granted.defintion.name.to_string(),
+            granted.stack_size,
+        )
+        .await?;
+        item.stack_size = granted.stack_size;
+        items_out.push(item);
+    }
+
     let definitions = get_item_definitions(&items_out);
 
     // for item in &items_out {
@@ -138,20 +182,6 @@ pub async fn obtain_article(
     //         }
     //     }
     // }
-
-    // let items: Vec<InventoryItem> = vec![InventoryItem {
-    //     id: 0,
-    //     user_id: 1,
-    //     item_id: uuid::uuid!("ac948017-beb4-459d-8861-fab0b950d5da"),
-    //     definition_name: "c5b3d9e6-7932-4579-ba8a-fd469ed43fda".to_string(),
-    //     stack_size: 1,
-    //     seen: false,
-    //     instance_attributes: ValueMap(Map::new()),
-    //     created: now,
-    //     last_grant: now,
-    //     earned_by: "granted".to_string(),
-    //     restricted: false,
-    // }];
 
     let activity = ActivityResult {
         previous_xp: 0,

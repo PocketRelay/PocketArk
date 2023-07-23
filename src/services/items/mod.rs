@@ -88,7 +88,7 @@ impl ItemsService {
                 ItemChance::new(ItemFilter::and(
                     // Common items
                     ItemFilter::rarity(Rarity::COMMON),
-                    // Items or characters (weighted for weapons)
+                    // Items or characters
                     ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
                 ))
                 .amount(4),
@@ -99,7 +99,7 @@ impl ItemsService {
                     // Common with low chance of uncommon
                     ItemFilter::rarity(Rarity::COMMON).weight(8)
                         | ItemFilter::rarity(Rarity::UNCOMMON).weight(1),
-                    // Items or characters (weighted for weapons)
+                    // Items or characters
                     ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
                 ))
                 .amount(1),
@@ -236,7 +236,7 @@ impl ItemsService {
 
     fn arsenal_pack() -> Pack {
         Pack::new("29c47d42-5830-435b-943f-bf6cf04145e1")
-            // 3 common items/characters
+            // 3 common items/weapons
             .add_item(
                 ItemChance::new(ItemFilter::and(
                     // Exclude ultra rare and rare items from first selection
@@ -247,7 +247,7 @@ impl ItemsService {
                 ))
                 .amount(3),
             )
-            // 2 item/character that are rare or greater
+            // 2 item/weapons that are rare or greater
             .add_item(
                 ItemChance::new(ItemFilter::and(
                     // Rare or greater
@@ -389,7 +389,7 @@ impl ItemsService {
 
 pub struct PackBuilder {}
 
-struct Rarity {}
+pub struct Rarity {}
 
 impl Rarity {
     pub const COMMON: &str = "0";
@@ -398,7 +398,7 @@ impl Rarity {
     pub const ULTRA_RARE: &str = "3";
 }
 
-struct Category;
+pub struct Category;
 
 impl Category {
     /// Character items
@@ -507,7 +507,7 @@ impl Pack {
         self
     }
 
-    fn grant_items(
+    pub fn grant_items(
         &self,
         rng: &mut StdRng,
         items: &'static [ItemDefinition],

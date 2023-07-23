@@ -1,1400 +1,1396 @@
 {
-    "list": [
+    "catalogId": "Standard",
+    "name": "Standard",
+    "i18nName": "Standard",
+    "i18nDescription": "STANDARD_DESCRIPTION",
+    "customAttributes": {},
+    "categories": [],
+    "articles": [
         {
-            "catalogId": "Standard",
-            "name": "Standard",
-            "i18nName": "Standard",
-            "i18nDescription": "STANDARD_DESCRIPTION",
-            "customAttributes": {},
+            "catalogName": "Standard",
+            "i18nName": "193027",
+            "i18nDescription": "193030",
             "categories": [],
-            "articles": [
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Advanced",
+                "DisplayOrder": "25"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
                 {
-                    "catalogName": "Standard",
-                    "i18nName": "193027",
-                    "i18nDescription": "193030",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Advanced",
-                        "DisplayOrder": "25"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 20000,
-                            "finalPrice": 20000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 100,
-                            "finalPrice": 100
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "974a8c8e-08bc-4fdb-bede-43337c255df8",
-                    "name": "bec1801d-7108-4d07-9b40-5fe7400a233a",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "ADVANCED PACK",
-                    "locDescription": "Contains 5 random items or characters, including at least 1 Uncommon, with a small chance for a Rare"
+                    "currency": "GrindCurrency",
+                    "originalPrice": 20000,
+                    "finalPrice": 20000
                 },
                 {
-                    "catalogName": "Standard",
-                    "i18nName": "193024",
-                    "i18nDescription": "193021",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Basic",
-                        "DisplayOrder": "35"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 5000,
-                            "finalPrice": 5000
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "c6d431eb-325f-4765-ab8f-e48d7b58aa36",
-                    "name": "fddccd18-4d9e-4312-a6c4-b65614843523",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "BASIC PACK",
-                    "locDescription": "Contains 5 random items or characters, with a small chance that 1 will be Uncommon"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "193026",
-                    "i18nDescription": "193031",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Expert",
-                        "DisplayOrder": "20"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 50000,
-                            "finalPrice": 50000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 200,
-                            "finalPrice": 200
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "b6fe6a9f-de70-463a-bcc5-a1b146067470",
-                    "name": "6c1691b1-bab3-44a6-89f9-11b25b71d022",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "EXPERT PACK",
-                    "locDescription": "Contains 5 random items or characters, including at least 1 Rare, with a small chance for an Ultra-Rare "
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "220649",
-                    "i18nDescription": "220648",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Supply",
-                        "DisplayOrder": "30"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 10000,
-                            "finalPrice": 10000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 50,
-                            "finalPrice": 50
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "e4f4d32a-90c3-4f5c-9362-3bb5933706c7",
-                    "name": "90db729a-c0ed-442b-b680-b1ffa1dba185",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "JUMBO SUPPLY PACK",
-                    "locDescription": "Includes 5 each of the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as 5 Random Boosters."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "220647",
-                    "i18nDescription": "220645",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
-                        "DisplayOrder": "10"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 100000,
-                            "finalPrice": 100000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 300,
-                            "finalPrice": 300
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "29c47d42-5830-435b-943f-bf6cf04145e1",
-                    "name": "17f25ae4-a57e-49f7-879c-46961e94f876",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "ARSENAL PACK",
-                    "locDescription": "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for weapons."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "193028",
-                    "i18nDescription": "193023",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Supply",
-                        "DisplayOrder": "40"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 2000,
-                            "finalPrice": 2000
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "c5b3d9e6-7932-4579-ba8a-fd469ed43fda",
-                    "name": "1ac21353-f1c5-4038-b0dc-794a43433882",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "SUPPLY PACK",
-                    "locDescription": "Includes the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as a Random Booster."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "67353",
-                    "i18nDescription": "219463",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Ammo",
-                        "DisplayOrder": "79"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 5,
-                            "finalPrice": 5
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "16cdf51b-443a-48e2-ad07-413a3f4370e7",
-                    "name": "127d73be-394b-4958-b26b-bc42904de43a",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "AMMO PACK",
-                    "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197847{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "67356",
-                    "i18nDescription": "219464",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Cobra",
-                        "DisplayOrder": "78"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 5,
-                            "finalPrice": 5
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "ff6affa2-226b-4c8b-8013-7e7e94335e88",
-                    "name": "17de0adf-5f62-4e88-99bc-f6c9e7625028",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "COBRA RPG",
-                    "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197848{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "67354",
-                    "i18nDescription": "219465",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Health",
-                        "DisplayOrder": "77"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 5,
-                            "finalPrice": 5
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "34a78027-ac6e-4bc6-856e-4b8cee5859be",
-                    "name": "7e5992be-4623-4fdf-af5a-dbf9639997d6",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "FIRST AID PACK",
-                    "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197849{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "67355",
-                    "i18nDescription": "219467",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Revive",
-                        "DisplayOrder": "76"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 5,
-                            "finalPrice": 5
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "784e1293-4480-4abd-965e-2c6584f550c8",
-                    "name": "98a5752f-5dc8-48b5-b13a-ea870d80763c",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "REVIVE PACK",
-                    "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197846{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "67685",
-                    "i18nDescription": "219554",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_XP_Uncommon",
-                        "DisplayOrder": "75"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 10,
-                            "finalPrice": 10
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "a26534c9-636c-4022-8d7e-3f76af5fde02",
-                    "name": "ec979e3e-b8e4-4f93-99a0-01f4cfdbb175",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "EXPERIENCE ENHANCER II",
-                    "locDescription": "<font color=53FFF9>TYPE: BOOST</font>\n\n{string}167168{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "147477",
-                    "i18nDescription": "219552",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_XP_Rare",
-                        "DisplayOrder": "74"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 15,
-                            "finalPrice": 15
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "3a7a1d97-ddb7-4954-85e8-b280c2b9b2dc",
-                    "name": "96458b1f-2873-4faa-9d32-28b4f629396b",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "EXPERIENCE ENHANCER III",
-                    "locDescription": "<font color=53FFF9>TYPE: BOOST</font>\n\n{string}167161{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "67359",
-                    "i18nDescription": "219466",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Respec",
-                        "DisplayOrder": "73"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 15,
-                            "finalPrice": 15
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "bc012022-2d42-48d1-88fa-2d905d83d4fd",
-                    "name": "ab6f7da2-e457-4f19-8f02-e56d053d9c51",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "CHARACTER RESPEC",
-                    "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}187278{/string}"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "220151",
-                    "i18nDescription": "220153",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardMods_Basic",
-                        "DisplayOrder": "59"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 35,
-                            "finalPrice": 35
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "890b2aa6-191f-4162-ae79-a78d23e3c505",
-                    "name": "534707b6-06e2-457a-862e-6d4538eb0048",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "RANDOM WEAPON MOD (COMMON)",
-                    "locDescription": "<font color=53FFF9>TYPE: WEAPON MOD</font>\n\nContains 1 Random Common Weapon Mod"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "220646",
-                    "i18nDescription": "220644",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
-                        "DisplayOrder": "15"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 100000,
-                            "finalPrice": 100000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 300,
-                            "finalPrice": 300
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "731b16c9-3a97-4166-a2f7-e79c8b45128a",
-                    "name": "5b53cc5d-e612-4b36-9391-ccc13d9ff740",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "RESERVES PACK",
-                    "locDescription": "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for characters."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "193032",
-                    "i18nDescription": "193025",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 100000,
-                            "finalPrice": 100000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 300,
-                            "finalPrice": 300
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "8344cd62-2aed-468d-b155-6ae01f1f2405",
-                    "name": "ef3af84a-19c1-4f85-8b45-4175a3c07dbc",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "PREMIUM PACK",
-                    "locDescription": "Contains 5 random items or characters, including at least 2 that are Rare, with a higher chance for at least 1 Ultra-Rare"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "221488",
-                    "i18nDescription": "221489",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
-                        "DisplayOrder": "1"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 500000,
-                            "finalPrice": 500000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 1500,
-                            "finalPrice": 1500
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "e3e56e89-b995-475f-8e75-84bf27dc8297",
-                    "name": "ee1c410f-4dc8-4079-85ae-9c05398be6b4",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "JUMBO PREMIUM PACK",
-                    "locDescription": "Contains 25 random items or characters, including at least 10 that are Rare, with 5 improved chances for an Ultra-Rare."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "221490",
-                    "i18nDescription": "221484",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Boosters_Advanced",
-                        "DisplayOrder": "27"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 10000,
-                            "finalPrice": 10000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 50,
-                            "finalPrice": 50
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6",
-                    "name": "e6f17efe-c5fb-409b-8276-d9cff3d5c712",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "AMMO PRIMING PACK",
-                    "locDescription": "Contains 2 of each Uncommon ammo booster, plus 2 additional boosters, at least 1 of which is Rare or better."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "221485",
-                    "i18nDescription": "221486",
-                    "categories": [],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Bullwark",
-                        "DisplayOrder": "25"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "GrindCurrency",
-                            "originalPrice": 20000,
-                            "finalPrice": 20000
-                        },
-                        {
-                            "currency": "MTXCurrency",
-                            "originalPrice": 100,
-                            "finalPrice": 100
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "975f87f5-0242-4c73-9e0f-6e4033b22ee9",
-                    "name": "29501d01-1ca4-41ef-a015-db6e2fab8892",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": false,
-                    "availableDuration": {},
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "TECHNICAL MODS PACK",
-                    "locDescription": "Contains 5 random consumables or weapon mods, including at least 1 Uncommon, with a small chance for a Rare."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213764",
-                    "i18nDescription": "213762",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_WarfighterPackage",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "54360a2f-032d-4199-af68-7afc481909d3",
-                    "name": "3dd498b6-f88f-4184-ab75-041d2779eeb1",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "WARFIGHTER PACKAGE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases gun and combat power damage through improved energy flow."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213751",
-                    "i18nDescription": "213746",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_OperativePackage",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "f9cb7553-dd24-4c74-9f8a-d728dc27a088",
-                    "name": "2d6ea682-e316-42c9-857f-6788ba0efbff",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "OPERATIVE PACKAGE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases gun and tech power damage through optimized targeting."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213745",
-                    "i18nDescription": "213755",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_MartialBioticAmp",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "c9c65e00-79b2-4f9c-b2b5-89170defdeea",
-                    "name": "d72032ee-1d43-4217-b8aa-5c4e0ccebf2c",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "MARTIAL BIOTIC AMP",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases biotic power damage and melee damage via an advanced biotic amplifier."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213728",
-                    "i18nDescription": "213727",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_BerserkerPackage",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "2fa82a67-ea72-4ade-b594-39991985e3a3",
-                    "name": "05673dd6-0ff2-4196-a248-cbc063c092eb",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "BERSERKER PACKAGE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases shotgun and melee damage through optimized armor and weapon power."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "220150",
-                    "i18nDescription": "220154",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardMods_Advanced",
-                        "DisplayOrder": "58"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "44da78e5-8ceb-4684-983e-794329d4a631",
-                    "name": "e1f39d6a-ca98-448f-8e7a-48922f6364ac",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-06T16:00:00.000+0000",
-                        "end": "2023-07-09T15:59:59.999+0000"
-                    },
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "RANDOM WEAPON MOD (UNCOMMON)",
-                    "locDescription": "<font color=53FFF9>TYPE: WEAPON MOD</font>\n\nContains 1 Random Uncommon Weapon Mod"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213699",
-                    "i18nDescription": "213698",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_HydraulicJoints",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "f55e0776-32e8-4fa3-a8d7-488b11ddc21b",
-                    "name": "c8c98e67-664a-4104-b07e-06a1f2bf8cac",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "HYDRAULIC JOINTS",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases melee damage, maximizing force through improved armor joints."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213700",
-                    "i18nDescription": "213704",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Multicapacitors",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "b730ee5d-4882-4467-b6f1-afdea3ef0586",
-                    "name": "1b408617-27bb-4bc8-9ddc-ce867db5a9a6",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "MULTICAPACITOR",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nReduces the delay before deactivated shields begin regeneration, thanks to a backup power supply."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213708",
-                    "i18nDescription": "219455",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_SNPAmp",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "d81fcb26-db6d-428a-ae00-ec2363131086",
-                    "name": "154c9d19-eb60-41f2-8939-dcd6524f7bb4",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "SNIPER RIFLE AMP",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases sniper rifle damage by amplifying the rifle's mass accelerator."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213709",
-                    "i18nDescription": "219454",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_SHTAmp",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "a98901f5-eae3-4eae-b7fe-cfae3b584123",
-                    "name": "bdac90ac-a5f8-4eb0-b18c-7088f94cda58",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "SHOTGUN AMP",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases shotgun damage by amplifying the weapon's mass accelerator."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "221318",
-                    "i18nDescription": "221315",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardCharacters_Platinum",
-                        "DisplayOrder": "56"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 960,
-                            "finalPrice": 960
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "dad9ad62-1f36-4e38-9634-2eda92a83096",
-                    "name": "3d47efdd-2ee7-457c-aeac-f44c30e5e71c",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-05T16:00:00.000+0000",
-                        "end": "2023-07-08T15:59:59.999+0000"
-                    },
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "RANDOM CHARACTER (ULTRA RARE)",
-                    "locDescription": "<font color=53FFF9>TYPE: CHARACTER</font>\n\nContains 1 Random Ultra Rare Character"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "221317",
-                    "i18nDescription": "221314",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardCharacters_Expert",
-                        "DisplayOrder": "57"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [],
-                    "itemName": "53c8b4d7-18bf-4fc3-97cd-2a8366140b0a",
-                    "name": "d7b733c0-e53e-43ed-9d23-88d014710a9f",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-04T16:00:00.000+0000",
-                        "end": "2023-07-07T15:59:59.999+0000"
-                    },
-                    "visibleDuration": {},
-                    "seen": false,
-                    "locName": "RANDOM CHARACTER (RARE)",
-                    "locDescription": "<font color=53FFF9>TYPE: CHARACTER</font>\n\nContains 1 Random Rare Character"
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213711",
-                    "i18nDescription": "219456",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_ThermalClipStorage",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "d7dc3cbc-9a46-4aeb-9201-41cc89d38358",
-                    "name": "924f38ea-a2e8-46da-9afe-ac478e8d63aa",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "THERMAL CLIP STORAGE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases maximum thermal clips carried through additional armor storage compartments."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213694",
-                    "i18nDescription": "219446",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_EngineerKit",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "ded6343b-e1dc-45a8-9836-86a260f0a8cd",
-                    "name": "3bf4b2e1-7978-4dac-8e3f-5744ffb5787b",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "ENGINEERING KIT",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases tech damage through a variety of omni-tool upgrades."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213692",
-                    "i18nDescription": "219445",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_AssaultRifleAmp",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "9bba0f43-35ab-4551-9f80-d8a61877652b",
-                    "name": "9e5721b9-ab77-4930-b0f1-5dc12ac966cc",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "ASSAULT RIFLE AMP",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases assault rifle damage by amplifying the rifle's mass accelerator."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213701",
-                    "i18nDescription": "219450",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_PSTAmp",
-                        "DisplayOrder": "7"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 70,
-                            "finalPrice": 70
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "674e5611-b2b8-40c8-81d1-38f3cb52b34e",
-                    "name": "0ec7c507-2cf5-4530-bab6-12219cd42275",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": false,
-                    "locName": "PISTOL / SMG AMP",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases pistol and submachine gun damage by amplifying the weapon's mass accelerator."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213720",
-                    "i18nDescription": "213716",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_ArmoredCompartments",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "837a8a6b-bb5f-478d-9cff-a2335d402bd5",
-                    "name": "97d3775e-6f05-44b6-84fe-806760baffca",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": true,
-                    "locName": "ARMORED COMPARTMENTS",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases thermal clip and power cell capacity with added armor compartments."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213754",
-                    "i18nDescription": "219448",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_GuerillaUpgrades",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "a1d39d8d-0542-4741-879f-051dba5dc21a",
-                    "name": "2c4354ba-1fba-4f4b-92cf-e175c70a9f38",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": true,
-                    "locName": "GUERRILLA UPGRADE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases sniper rifle and pistol damage by amplifying the weapon's mass accelerator."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213763",
-                    "i18nDescription": "219453",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_ShockTrooperUpgrade",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "18715c2b-9b53-4c9e-b135-a1705c2b202b",
-                    "name": "5c4f2264-67bf-460e-bb11-77e2f044ab1b",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": true,
-                    "locName": "SHOCK TROOPER UPGRADE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases shotgun damage and power cell carrying capacity through optimized armor tech."
-                },
-                {
-                    "catalogName": "Standard",
-                    "i18nName": "213725",
-                    "i18nDescription": "213729",
-                    "categories": [
-                        "1"
-                    ],
-                    "customAttributes": {
-                        "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_CommandoPackage",
-                        "DisplayOrder": "5"
-                    },
-                    "nucleusEntitlementFilter": {},
-                    "prices": [
-                        {
-                            "currency": "MissionCurrency",
-                            "originalPrice": 120,
-                            "finalPrice": 120
-                        }
-                    ],
-                    "limits": [
-                        {
-                            "scope": "USER",
-                            "maximum": 1,
-                            "quantityRemaining": 1
-                        }
-                    ],
-                    "itemName": "5c352703-dcf2-4835-b959-d77d54431560",
-                    "name": "c3f934e1-c28e-4055-9fb7-f768e532ee7c",
-                    "autoClaim": false,
-                    "availableGraceInSeconds": 0,
-                    "limitedAvailability": true,
-                    "availableDuration": {
-                        "start": "2023-07-07T01:00:00.000+0000",
-                        "end": "2023-07-07T08:59:59.999+0000"
-                    },
-                    "visibleDuration": {
-                        "start": "2017-01-01T00:00:00.000+0000"
-                    },
-                    "seen": true,
-                    "locName": "COMMANDO PACKAGE",
-                    "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases gun and biotic damage through optimized weaponry and biotic amps."
+                    "currency": "MTXCurrency",
+                    "originalPrice": 100,
+                    "finalPrice": 100
                 }
-            ]
+            ],
+            "limits": [],
+            "itemName": "974a8c8e-08bc-4fdb-bede-43337c255df8",
+            "name": "bec1801d-7108-4d07-9b40-5fe7400a233a",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "ADVANCED PACK",
+            "locDescription": "Contains 5 random items or characters, including at least 1 Uncommon, with a small chance for a Rare"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "193024",
+            "i18nDescription": "193021",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Basic",
+                "DisplayOrder": "35"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 5000,
+                    "finalPrice": 5000
+                }
+            ],
+            "limits": [],
+            "itemName": "c6d431eb-325f-4765-ab8f-e48d7b58aa36",
+            "name": "fddccd18-4d9e-4312-a6c4-b65614843523",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "BASIC PACK",
+            "locDescription": "Contains 5 random items or characters, with a small chance that 1 will be Uncommon"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "193026",
+            "i18nDescription": "193031",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Expert",
+                "DisplayOrder": "20"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 50000,
+                    "finalPrice": 50000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 200,
+                    "finalPrice": 200
+                }
+            ],
+            "limits": [],
+            "itemName": "b6fe6a9f-de70-463a-bcc5-a1b146067470",
+            "name": "6c1691b1-bab3-44a6-89f9-11b25b71d022",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "EXPERT PACK",
+            "locDescription": "Contains 5 random items or characters, including at least 1 Rare, with a small chance for an Ultra-Rare "
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "220649",
+            "i18nDescription": "220648",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Supply",
+                "DisplayOrder": "30"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 10000,
+                    "finalPrice": 10000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 50,
+                    "finalPrice": 50
+                }
+            ],
+            "limits": [],
+            "itemName": "e4f4d32a-90c3-4f5c-9362-3bb5933706c7",
+            "name": "90db729a-c0ed-442b-b680-b1ffa1dba185",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "JUMBO SUPPLY PACK",
+            "locDescription": "Includes 5 each of the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as 5 Random Boosters."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "220647",
+            "i18nDescription": "220645",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
+                "DisplayOrder": "10"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 100000,
+                    "finalPrice": 100000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 300,
+                    "finalPrice": 300
+                }
+            ],
+            "limits": [],
+            "itemName": "29c47d42-5830-435b-943f-bf6cf04145e1",
+            "name": "17f25ae4-a57e-49f7-879c-46961e94f876",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "ARSENAL PACK",
+            "locDescription": "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for weapons."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "193028",
+            "i18nDescription": "193023",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Supply",
+                "DisplayOrder": "40"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 2000,
+                    "finalPrice": 2000
+                }
+            ],
+            "limits": [],
+            "itemName": "c5b3d9e6-7932-4579-ba8a-fd469ed43fda",
+            "name": "1ac21353-f1c5-4038-b0dc-794a43433882",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "SUPPLY PACK",
+            "locDescription": "Includes the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as a Random Booster."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "67353",
+            "i18nDescription": "219463",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Ammo",
+                "DisplayOrder": "79"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 5,
+                    "finalPrice": 5
+                }
+            ],
+            "limits": [],
+            "itemName": "16cdf51b-443a-48e2-ad07-413a3f4370e7",
+            "name": "127d73be-394b-4958-b26b-bc42904de43a",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "AMMO PACK",
+            "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197847{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "67356",
+            "i18nDescription": "219464",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Cobra",
+                "DisplayOrder": "78"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 5,
+                    "finalPrice": 5
+                }
+            ],
+            "limits": [],
+            "itemName": "ff6affa2-226b-4c8b-8013-7e7e94335e88",
+            "name": "17de0adf-5f62-4e88-99bc-f6c9e7625028",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "COBRA RPG",
+            "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197848{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "67354",
+            "i18nDescription": "219465",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Health",
+                "DisplayOrder": "77"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 5,
+                    "finalPrice": 5
+                }
+            ],
+            "limits": [],
+            "itemName": "34a78027-ac6e-4bc6-856e-4b8cee5859be",
+            "name": "7e5992be-4623-4fdf-af5a-dbf9639997d6",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "FIRST AID PACK",
+            "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197849{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "67355",
+            "i18nDescription": "219467",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Revive",
+                "DisplayOrder": "76"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 5,
+                    "finalPrice": 5
+                }
+            ],
+            "limits": [],
+            "itemName": "784e1293-4480-4abd-965e-2c6584f550c8",
+            "name": "98a5752f-5dc8-48b5-b13a-ea870d80763c",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "REVIVE PACK",
+            "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}197846{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "67685",
+            "i18nDescription": "219554",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_XP_Uncommon",
+                "DisplayOrder": "75"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 10,
+                    "finalPrice": 10
+                }
+            ],
+            "limits": [],
+            "itemName": "a26534c9-636c-4022-8d7e-3f76af5fde02",
+            "name": "ec979e3e-b8e4-4f93-99a0-01f4cfdbb175",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "EXPERIENCE ENHANCER II",
+            "locDescription": "<font color=53FFF9>TYPE: BOOST</font>\n\n{string}167168{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "147477",
+            "i18nDescription": "219552",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_XP_Rare",
+                "DisplayOrder": "74"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 15,
+                    "finalPrice": 15
+                }
+            ],
+            "limits": [],
+            "itemName": "3a7a1d97-ddb7-4954-85e8-b280c2b9b2dc",
+            "name": "96458b1f-2873-4faa-9d32-28b4f629396b",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "EXPERIENCE ENHANCER III",
+            "locDescription": "<font color=53FFF9>TYPE: BOOST</font>\n\n{string}167161{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "67359",
+            "i18nDescription": "219466",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Respec",
+                "DisplayOrder": "73"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 15,
+                    "finalPrice": 15
+                }
+            ],
+            "limits": [],
+            "itemName": "bc012022-2d42-48d1-88fa-2d905d83d4fd",
+            "name": "ab6f7da2-e457-4f19-8f02-e56d053d9c51",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "CHARACTER RESPEC",
+            "locDescription": "<font color=53FFF9>TYPE: CONSUMABLE</font>\n\n{string}187278{/string}"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "220151",
+            "i18nDescription": "220153",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardMods_Basic",
+                "DisplayOrder": "59"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 35,
+                    "finalPrice": 35
+                }
+            ],
+            "limits": [],
+            "itemName": "890b2aa6-191f-4162-ae79-a78d23e3c505",
+            "name": "534707b6-06e2-457a-862e-6d4538eb0048",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "RANDOM WEAPON MOD (COMMON)",
+            "locDescription": "<font color=53FFF9>TYPE: WEAPON MOD</font>\n\nContains 1 Random Common Weapon Mod"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "220646",
+            "i18nDescription": "220644",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
+                "DisplayOrder": "15"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 100000,
+                    "finalPrice": 100000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 300,
+                    "finalPrice": 300
+                }
+            ],
+            "limits": [],
+            "itemName": "731b16c9-3a97-4166-a2f7-e79c8b45128a",
+            "name": "5b53cc5d-e612-4b36-9391-ccc13d9ff740",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "RESERVES PACK",
+            "locDescription": "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for characters."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "193032",
+            "i18nDescription": "193025",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 100000,
+                    "finalPrice": 100000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 300,
+                    "finalPrice": 300
+                }
+            ],
+            "limits": [],
+            "itemName": "8344cd62-2aed-468d-b155-6ae01f1f2405",
+            "name": "ef3af84a-19c1-4f85-8b45-4175a3c07dbc",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "PREMIUM PACK",
+            "locDescription": "Contains 5 random items or characters, including at least 2 that are Rare, with a higher chance for at least 1 Ultra-Rare"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "221488",
+            "i18nDescription": "221489",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Ultimate",
+                "DisplayOrder": "1"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 500000,
+                    "finalPrice": 500000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 1500,
+                    "finalPrice": 1500
+                }
+            ],
+            "limits": [],
+            "itemName": "e3e56e89-b995-475f-8e75-84bf27dc8297",
+            "name": "ee1c410f-4dc8-4079-85ae-9c05398be6b4",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "JUMBO PREMIUM PACK",
+            "locDescription": "Contains 25 random items or characters, including at least 10 that are Rare, with 5 improved chances for an Ultra-Rare."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "221490",
+            "i18nDescription": "221484",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Boosters_Advanced",
+                "DisplayOrder": "27"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 10000,
+                    "finalPrice": 10000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 50,
+                    "finalPrice": 50
+                }
+            ],
+            "limits": [],
+            "itemName": "eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6",
+            "name": "e6f17efe-c5fb-409b-8276-d9cff3d5c712",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "AMMO PRIMING PACK",
+            "locDescription": "Contains 2 of each Uncommon ammo booster, plus 2 additional boosters, at least 1 of which is Rare or better."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "221485",
+            "i18nDescription": "221486",
+            "categories": [],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Packs/MPPacks_MoodImage_Bullwark",
+                "DisplayOrder": "25"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "GrindCurrency",
+                    "originalPrice": 20000,
+                    "finalPrice": 20000
+                },
+                {
+                    "currency": "MTXCurrency",
+                    "originalPrice": 100,
+                    "finalPrice": 100
+                }
+            ],
+            "limits": [],
+            "itemName": "975f87f5-0242-4c73-9e0f-6e4033b22ee9",
+            "name": "29501d01-1ca4-41ef-a015-db6e2fab8892",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": false,
+            "availableDuration": {},
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "TECHNICAL MODS PACK",
+            "locDescription": "Contains 5 random consumables or weapon mods, including at least 1 Uncommon, with a small chance for a Rare."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213764",
+            "i18nDescription": "213762",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_WarfighterPackage",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "54360a2f-032d-4199-af68-7afc481909d3",
+            "name": "3dd498b6-f88f-4184-ab75-041d2779eeb1",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "WARFIGHTER PACKAGE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases gun and combat power damage through improved energy flow."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213751",
+            "i18nDescription": "213746",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_OperativePackage",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "f9cb7553-dd24-4c74-9f8a-d728dc27a088",
+            "name": "2d6ea682-e316-42c9-857f-6788ba0efbff",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "OPERATIVE PACKAGE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases gun and tech power damage through optimized targeting."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213745",
+            "i18nDescription": "213755",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_MartialBioticAmp",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "c9c65e00-79b2-4f9c-b2b5-89170defdeea",
+            "name": "d72032ee-1d43-4217-b8aa-5c4e0ccebf2c",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "MARTIAL BIOTIC AMP",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases biotic power damage and melee damage via an advanced biotic amplifier."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213728",
+            "i18nDescription": "213727",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_BerserkerPackage",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "2fa82a67-ea72-4ade-b594-39991985e3a3",
+            "name": "05673dd6-0ff2-4196-a248-cbc063c092eb",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "BERSERKER PACKAGE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases shotgun and melee damage through optimized armor and weapon power."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "220150",
+            "i18nDescription": "220154",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardMods_Advanced",
+                "DisplayOrder": "58"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [],
+            "itemName": "44da78e5-8ceb-4684-983e-794329d4a631",
+            "name": "e1f39d6a-ca98-448f-8e7a-48922f6364ac",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-06T16:00:00.000+0000",
+                "end": "2023-07-09T15:59:59.999+0000"
+            },
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "RANDOM WEAPON MOD (UNCOMMON)",
+            "locDescription": "<font color=53FFF9>TYPE: WEAPON MOD</font>\n\nContains 1 Random Uncommon Weapon Mod"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213699",
+            "i18nDescription": "213698",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_HydraulicJoints",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "f55e0776-32e8-4fa3-a8d7-488b11ddc21b",
+            "name": "c8c98e67-664a-4104-b07e-06a1f2bf8cac",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "HYDRAULIC JOINTS",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases melee damage, maximizing force through improved armor joints."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213700",
+            "i18nDescription": "213704",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_Multicapacitors",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "b730ee5d-4882-4467-b6f1-afdea3ef0586",
+            "name": "1b408617-27bb-4bc8-9ddc-ce867db5a9a6",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "MULTICAPACITOR",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nReduces the delay before deactivated shields begin regeneration, thanks to a backup power supply."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213708",
+            "i18nDescription": "219455",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_SNPAmp",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "d81fcb26-db6d-428a-ae00-ec2363131086",
+            "name": "154c9d19-eb60-41f2-8939-dcd6524f7bb4",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "SNIPER RIFLE AMP",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases sniper rifle damage by amplifying the rifle's mass accelerator."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213709",
+            "i18nDescription": "219454",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_SHTAmp",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "a98901f5-eae3-4eae-b7fe-cfae3b584123",
+            "name": "bdac90ac-a5f8-4eb0-b18c-7088f94cda58",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "SHOTGUN AMP",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases shotgun damage by amplifying the weapon's mass accelerator."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "221318",
+            "i18nDescription": "221315",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardCharacters_Platinum",
+                "DisplayOrder": "56"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 960,
+                    "finalPrice": 960
+                }
+            ],
+            "limits": [],
+            "itemName": "dad9ad62-1f36-4e38-9634-2eda92a83096",
+            "name": "3d47efdd-2ee7-457c-aeac-f44c30e5e71c",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-05T16:00:00.000+0000",
+                "end": "2023-07-08T15:59:59.999+0000"
+            },
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "RANDOM CHARACTER (ULTRA RARE)",
+            "locDescription": "<font color=53FFF9>TYPE: CHARACTER</font>\n\nContains 1 Random Ultra Rare Character"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "221317",
+            "i18nDescription": "221314",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/Multiplayer/Store/Packs/MPPacks_MoodImage_CardCharacters_Expert",
+                "DisplayOrder": "57"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [],
+            "itemName": "53c8b4d7-18bf-4fc3-97cd-2a8366140b0a",
+            "name": "d7b733c0-e53e-43ed-9d23-88d014710a9f",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-04T16:00:00.000+0000",
+                "end": "2023-07-07T15:59:59.999+0000"
+            },
+            "visibleDuration": {},
+            "seen": false,
+            "locName": "RANDOM CHARACTER (RARE)",
+            "locDescription": "<font color=53FFF9>TYPE: CHARACTER</font>\n\nContains 1 Random Rare Character"
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213711",
+            "i18nDescription": "219456",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_ThermalClipStorage",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "d7dc3cbc-9a46-4aeb-9201-41cc89d38358",
+            "name": "924f38ea-a2e8-46da-9afe-ac478e8d63aa",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "THERMAL CLIP STORAGE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases maximum thermal clips carried through additional armor storage compartments."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213694",
+            "i18nDescription": "219446",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_EngineerKit",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "ded6343b-e1dc-45a8-9836-86a260f0a8cd",
+            "name": "3bf4b2e1-7978-4dac-8e3f-5744ffb5787b",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "ENGINEERING KIT",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases tech damage through a variety of omni-tool upgrades."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213692",
+            "i18nDescription": "219445",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_AssaultRifleAmp",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "9bba0f43-35ab-4551-9f80-d8a61877652b",
+            "name": "9e5721b9-ab77-4930-b0f1-5dc12ac966cc",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "ASSAULT RIFLE AMP",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases assault rifle damage by amplifying the rifle's mass accelerator."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213701",
+            "i18nDescription": "219450",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_PSTAmp",
+                "DisplayOrder": "7"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 70,
+                    "finalPrice": 70
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "674e5611-b2b8-40c8-81d1-38f3cb52b34e",
+            "name": "0ec7c507-2cf5-4530-bab6-12219cd42275",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": false,
+            "locName": "PISTOL / SMG AMP",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases pistol and submachine gun damage by amplifying the weapon's mass accelerator."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213720",
+            "i18nDescription": "213716",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_ArmoredCompartments",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "837a8a6b-bb5f-478d-9cff-a2335d402bd5",
+            "name": "97d3775e-6f05-44b6-84fe-806760baffca",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": true,
+            "locName": "ARMORED COMPARTMENTS",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases thermal clip and power cell capacity with added armor compartments."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213754",
+            "i18nDescription": "219448",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_GuerillaUpgrades",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "a1d39d8d-0542-4741-879f-051dba5dc21a",
+            "name": "2c4354ba-1fba-4f4b-92cf-e175c70a9f38",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": true,
+            "locName": "GUERRILLA UPGRADE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases sniper rifle and pistol damage by amplifying the weapon's mass accelerator."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213763",
+            "i18nDescription": "219453",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_ShockTrooperUpgrade",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "18715c2b-9b53-4c9e-b135-a1705c2b202b",
+            "name": "5c4f2264-67bf-460e-bb11-77e2f044ab1b",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": true,
+            "locName": "SHOCK TROOPER UPGRADE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases shotgun damage and power cell carrying capacity through optimized armor tech."
+        },
+        {
+            "catalogName": "Standard",
+            "i18nName": "213725",
+            "i18nDescription": "213729",
+            "categories": [
+                "1"
+            ],
+            "customAttributes": {
+                "PackTextureId": "Game/UI/MultiPlayer/Store/Store_ItemMoodImage_CommandoPackage",
+                "DisplayOrder": "5"
+            },
+            "nucleusEntitlementFilter": {},
+            "prices": [
+                {
+                    "currency": "MissionCurrency",
+                    "originalPrice": 120,
+                    "finalPrice": 120
+                }
+            ],
+            "limits": [
+                {
+                    "scope": "USER",
+                    "maximum": 1,
+                    "quantityRemaining": 1
+                }
+            ],
+            "itemName": "5c352703-dcf2-4835-b959-d77d54431560",
+            "name": "c3f934e1-c28e-4055-9fb7-f768e532ee7c",
+            "autoClaim": false,
+            "availableGraceInSeconds": 0,
+            "limitedAvailability": true,
+            "availableDuration": {
+                "start": "2023-07-07T01:00:00.000+0000",
+                "end": "2023-07-07T08:59:59.999+0000"
+            },
+            "visibleDuration": {
+                "start": "2017-01-01T00:00:00.000+0000"
+            },
+            "seen": true,
+            "locName": "COMMANDO PACKAGE",
+            "locDescription": "<font color=53FFF9>TYPE: EQUIPMENT</font>\n\nIncreases gun and biotic damage through optimized weaponry and biotic amps."
         }
     ]
 }
