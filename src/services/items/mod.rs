@@ -40,9 +40,16 @@ impl ItemsService {
         debug!("Loaded {} inventory item definition(s)", list.len());
 
         let inventory = LookupList::create(list, |value| value.name.to_string());
-        let mut packs = HashMap::new();
 
-        let pack_defs = [Self::jumbo_supply_pack(), Self::reserves_pack()];
+        let packs: HashMap<String, Pack> = [
+            Self::jumbo_supply_pack(),
+            Self::reserves_pack(),
+            Self::arsenal_pack(),
+            Self::bonus_reward_pack(),
+        ]
+        .into_iter()
+        .map(|pack| (pack.name.clone(), pack))
+        .collect();
 
         Self { inventory, packs }
     }
@@ -115,31 +122,45 @@ impl ItemsService {
             )
     }
 
-    pub fn test(&'static self) {
-        let pack = Pack::new("e4f4d32a-90c3-4f5c-9362-3bb5933706c7")
-            // 4 common items/characters
+    fn bonus_reward_pack() -> Pack {
+        Pack::new("cf9cd252-e1f2-4574-973d-d66cd81558d3")
+            // 3 common items/characters
             .add_item(
                 ItemChance::new(ItemFilter::and(
+                    // Exclude ultra rare and rare items from first selection
                     ItemFilter::rarity(Rarity::COMMON),
+                    // Items or characters (weighted for weapons)
                     ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
                 ))
                 .amount(4),
             )
-            // 1 item/character thats maybe uncommon
+            // 1 maybe uncommon item/character
             .add_item(
                 ItemChance::new(ItemFilter::and(
-                    ItemFilter::rarity(Rarity::COMMON).weight(5)
-                        | ItemFilter::rarity(Rarity::UNCOMMON).weight(1),
+                    // Uncommon but with a chance for rare
+                    ItemFilter::rarity(Rarity::UNCOMMON).weight(6)
+                        | ItemFilter::rarity(Rarity::RARE).weight(1),
+                    // Items or characters (weighted for weapons)
                     ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
                 ))
                 .amount(1),
-            );
+            )
+            // 1 maybe rare item/character
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Uncommon but with a chance for rare
+                    ItemFilter::rarity(Rarity::COMMON).weight(6)
+                        | ItemFilter::rarity(Rarity::RARE).weight(1),
+                    // Items or characters (weighted for weapons)
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(1),
+            )
+    }
 
-        let mut map = HashMap::new();
-        map.insert(Uuid::new_v4(), pack);
-
+    pub fn test(&'static self) {
         let mut out = File::create("packs.json").unwrap();
-        let out = serde_json::to_writer(&mut out, &map).unwrap();
+        let out = serde_json::to_writer(&mut out, &self.packs).unwrap();
 
         // let mut rng = StdRng::from_entropy();
 
@@ -389,15 +410,9 @@ pub enum ItemFilter {
     /// Filter allowing any of the provided filters passing
     Any(Vec<ItemFilter>),
     /// Filter by both filters
-    And {
-        left: Box<ItemFilter>,
-        right: Box<ItemFilter>,
-    },
+    And(Box<ItemFilter>, Box<ItemFilter>),
     /// Filter by one or the other filters
-    Or {
-        left: Box<ItemFilter>,
-        right: Box<ItemFilter>,
-    },
+    Or(Box<ItemFilter>, Box<ItemFilter>),
     /// Filter items that are not of a filter
     Not(Box<ItemFilter>),
 }
@@ -405,20 +420,14 @@ pub enum ItemFilter {
 impl std::ops::BitOr<ItemFilter> for ItemFilter {
     type Output = ItemFilter;
     fn bitor(self, rhs: ItemFilter) -> Self::Output {
-        ItemFilter::Or {
-            left: Box::new(self),
-            right: Box::new(rhs),
-        }
+        ItemFilter::Or(Box::new(self), Box::new(rhs))
     }
 }
 
 impl std::ops::BitAnd<ItemFilter> for ItemFilter {
     type Output = ItemFilter;
     fn bitand(self, rhs: ItemFilter) -> Self::Output {
-        ItemFilter::And {
-            left: Box::new(self),
-            right: Box::new(rhs),
-        }
+        ItemFilter::And(Box::new(self), Box::new(rhs))
     }
 }
 
@@ -489,13 +498,13 @@ impl ItemFilter {
 
                 (matches, total_weight)
             }
-            ItemFilter::And { left, right } => {
+            ItemFilter::And(left, right) => {
                 let (l, w1) = left.check(item);
                 let (r, w2) = right.check(item);
 
                 (l && r, w1 + w2)
             }
-            ItemFilter::Or { left, right } => {
+            ItemFilter::Or(left, right) => {
                 let (l, w1) = left.check(item);
                 let (r, w2) = right.check(item);
                 (l || r, if l { w1 } else { w2 })
@@ -515,16 +524,10 @@ impl ItemFilter {
     }
 
     pub fn and(left: ItemFilter, right: ItemFilter) -> Self {
-        Self::And {
-            left: Box::new(left),
-            right: Box::new(right),
-        }
+        Self::And(Box::new(left), Box::new(right))
     }
     pub fn or(left: ItemFilter, right: ItemFilter) -> Self {
-        Self::Or {
-            left: Box::new(left),
-            right: Box::new(right),
-        }
+        Self::Or(Box::new(left), Box::new(right))
     }
 
     pub fn not(filter: ItemFilter) -> Self {

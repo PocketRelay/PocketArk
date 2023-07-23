@@ -1,13 +1,175 @@
 {
-    "9ae3561d-139e-455c-915b-2f0f868cdfc6": {
+    "e4f4d32a-90c3-4f5c-9362-3bb5933706c7": {
+        "name": "e4f4d32a-90c3-4f5c-9362-3bb5933706c7",
         "items": [
             {
                 "filter": {
-                    "and": {
-                        "left": {
+                    "named": "eaefec2a-d892-498b-a175-e5d2048ae39a"
+                },
+                "stack_size": 5,
+                "amount": 1
+            },
+            {
+                "filter": {
+                    "named": "af39be6b-0542-4997-b524-227aa41ae2eb"
+                },
+                "stack_size": 5,
+                "amount": 1
+            },
+            {
+                "filter": {
+                    "named": "2cc0d932-8e9d-48a6-a6e8-a5665b77e835"
+                },
+                "stack_size": 5,
+                "amount": 1
+            },
+            {
+                "filter": {
+                    "named": "4d790010-1a79-4bd0-a79b-d52cac068a3a"
+                },
+                "stack_size": 5,
+                "amount": 1
+            },
+            {
+                "filter": {
+                    "category": "3"
+                },
+                "stack_size": 1,
+                "amount": 5
+            }
+        ]
+    },
+    "29c47d42-5830-435b-943f-bf6cf04145e1": {
+        "name": "29c47d42-5830-435b-943f-bf6cf04145e1",
+        "items": [
+            {
+                "filter": {
+                    "and": [
+                        {
+                            "not": {
+                                "or": [
+                                    {
+                                        "rarity": "2"
+                                    },
+                                    {
+                                        "rarity": "3"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "or": [
+                                {
+                                    "any": [
+                                        {
+                                            "category": "3"
+                                        },
+                                        {
+                                            "category": "4"
+                                        },
+                                        {
+                                            "category": "5"
+                                        },
+                                        {
+                                            "category": "2:"
+                                        },
+                                        {
+                                            "category": "13:"
+                                        },
+                                        {
+                                            "category": "14:"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "category": "1:"
+                                        },
+                                        "weight": 2
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "stack_size": 1,
+                "amount": 3
+            },
+            {
+                "filter": {
+                    "and": [
+                        {
+                            "or": [
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "2"
+                                        },
+                                        "weight": 2
+                                    }
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "3"
+                                        },
+                                        "weight": 1
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "or": [
+                                {
+                                    "any": [
+                                        {
+                                            "category": "3"
+                                        },
+                                        {
+                                            "category": "4"
+                                        },
+                                        {
+                                            "category": "5"
+                                        },
+                                        {
+                                            "category": "2:"
+                                        },
+                                        {
+                                            "category": "13:"
+                                        },
+                                        {
+                                            "category": "14:"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "category": "1:"
+                                        },
+                                        "weight": 2
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "stack_size": 1,
+                "amount": 2
+            }
+        ]
+    },
+    "cf9cd252-e1f2-4574-973d-d66cd81558d3": {
+        "name": "cf9cd252-e1f2-4574-973d-d66cd81558d3",
+        "items": [
+            {
+                "filter": {
+                    "and": [
+                        {
                             "rarity": "0"
                         },
-                        "right": {
+                        {
                             "any": [
                                 {
                                     "category": "3"
@@ -35,35 +197,35 @@
                                 }
                             ]
                         }
-                    }
+                    ]
                 },
                 "stack_size": 1,
                 "amount": 4
             },
             {
                 "filter": {
-                    "and": {
-                        "left": {
-                            "or": {
-                                "left": {
-                                    "weighted": {
-                                        "filter": {
-                                            "rarity": "0"
-                                        },
-                                        "weight": 5
-                                    }
-                                },
-                                "right": {
+                    "and": [
+                        {
+                            "or": [
+                                {
                                     "weighted": {
                                         "filter": {
                                             "rarity": "1"
                                         },
+                                        "weight": 6
+                                    }
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "2"
+                                        },
                                         "weight": 1
                                     }
                                 }
-                            }
+                            ]
                         },
-                        "right": {
+                        {
                             "any": [
                                 {
                                     "category": "3"
@@ -91,10 +253,193 @@
                                 }
                             ]
                         }
-                    }
+                    ]
                 },
                 "stack_size": 1,
                 "amount": 1
+            },
+            {
+                "filter": {
+                    "and": [
+                        {
+                            "or": [
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "0"
+                                        },
+                                        "weight": 6
+                                    }
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "2"
+                                        },
+                                        "weight": 1
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "any": [
+                                {
+                                    "category": "3"
+                                },
+                                {
+                                    "category": "4"
+                                },
+                                {
+                                    "category": "5"
+                                },
+                                {
+                                    "category": "1:"
+                                },
+                                {
+                                    "category": "2:"
+                                },
+                                {
+                                    "category": "13:"
+                                },
+                                {
+                                    "category": "14:"
+                                },
+                                {
+                                    "category": "0"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "stack_size": 1,
+                "amount": 1
+            }
+        ]
+    },
+    "731b16c9-3a97-4166-a2f7-e79c8b45128a": {
+        "name": "731b16c9-3a97-4166-a2f7-e79c8b45128a",
+        "items": [
+            {
+                "filter": {
+                    "and": [
+                        {
+                            "not": {
+                                "or": [
+                                    {
+                                        "rarity": "2"
+                                    },
+                                    {
+                                        "rarity": "3"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "or": [
+                                {
+                                    "any": [
+                                        {
+                                            "category": "3"
+                                        },
+                                        {
+                                            "category": "4"
+                                        },
+                                        {
+                                            "category": "5"
+                                        },
+                                        {
+                                            "category": "1:"
+                                        },
+                                        {
+                                            "category": "2:"
+                                        },
+                                        {
+                                            "category": "13:"
+                                        },
+                                        {
+                                            "category": "14:"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "category": "0"
+                                        },
+                                        "weight": 2
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "stack_size": 1,
+                "amount": 3
+            },
+            {
+                "filter": {
+                    "and": [
+                        {
+                            "or": [
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "2"
+                                        },
+                                        "weight": 2
+                                    }
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "rarity": "3"
+                                        },
+                                        "weight": 1
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "or": [
+                                {
+                                    "any": [
+                                        {
+                                            "category": "3"
+                                        },
+                                        {
+                                            "category": "4"
+                                        },
+                                        {
+                                            "category": "5"
+                                        },
+                                        {
+                                            "category": "1:"
+                                        },
+                                        {
+                                            "category": "2:"
+                                        },
+                                        {
+                                            "category": "13:"
+                                        },
+                                        {
+                                            "category": "14:"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "weighted": {
+                                        "filter": {
+                                            "category": "0"
+                                        },
+                                        "weight": 2
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "stack_size": 1,
+                "amount": 2
             }
         ]
     }
