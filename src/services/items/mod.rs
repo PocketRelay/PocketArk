@@ -6,6 +6,7 @@ use log::{debug, error};
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseTransaction;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use thiserror::Error;
 use uuid::{uuid, Uuid};
 
@@ -42,9 +43,19 @@ impl ItemsService {
         let inventory = LookupList::create(list, |value| value.name.to_string());
 
         let packs: HashMap<String, Pack> = [
+            // Packs
+            Self::supply_pack(),
+            Self::basic_pack(),
             Self::jumbo_supply_pack(),
+            Self::ammo_priming_pack(),
+            Self::technical_mods_pack(),
+            Self::advanced_pack(),
+            Self::expert_pack(),
             Self::reserves_pack(),
             Self::arsenal_pack(),
+            Self::premium_pack(),
+            Self::jumbo_premium_pack(),
+            // Item store
             Self::bonus_reward_pack(),
             Self::random_common_mod_pack(),
             Self::random_uncommon_mod_pack(),
@@ -54,6 +65,45 @@ impl ItemsService {
         .collect();
 
         Self { inventory, packs }
+    }
+
+    fn supply_pack() -> Pack {
+        Pack::new("c5b3d9e6-7932-4579-ba8a-fd469ed43fda")
+            // COBRA RPG
+            .add_item(ItemChance::named("eaefec2a-d892-498b-a175-e5d2048ae39a"))
+            // REVIVE PACK
+            .add_item(ItemChance::named("af39be6b-0542-4997-b524-227aa41ae2eb"))
+            // AMMO PACK
+            .add_item(ItemChance::named("2cc0d932-8e9d-48a6-a6e8-a5665b77e835"))
+            // FIRST AID PACK
+            .add_item(ItemChance::named("4d790010-1a79-4bd0-a79b-d52cac068a3a"))
+            // Random Boosters
+            .add_item(ItemChance::new(ItemFilter::category(Category::BOOSTERS)))
+    }
+
+    fn basic_pack() -> Pack {
+        Pack::new("c6d431eb-325f-4765-ab8f-e48d7b58aa36")
+            // 4 common items/characters
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Common items
+                    ItemFilter::rarity(Rarity::COMMON),
+                    // Items or characters (weighted for weapons)
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(4),
+            )
+            // 1 item/character that is uncommon or common
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Common with low chance of uncommon
+                    ItemFilter::rarity(Rarity::COMMON).weight(8)
+                        | ItemFilter::rarity(Rarity::UNCOMMON).weight(1),
+                    // Items or characters (weighted for weapons)
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(1),
+            )
     }
 
     fn jumbo_supply_pack() -> Pack {
@@ -68,6 +118,93 @@ impl ItemsService {
             .add_item(ItemChance::named("4d790010-1a79-4bd0-a79b-d52cac068a3a").stack_size(5))
             // 5 Random Boosters
             .add_item(ItemChance::new(ItemFilter::category(Category::BOOSTERS)).amount(5))
+    }
+
+    // "Contains 2 of each Uncommon ammo booster, plus 2 additional boosters, at least 1 of which is Rare or better."
+    fn ammo_priming_pack() -> Pack {
+        Pack::new("eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6")
+            // 4 common items/characters
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Common items
+                    ItemFilter::rarity(Rarity::UNCOMMON),
+                    // Items or characters (weighted for weapons)
+                    ItemFilter::and(
+                        ItemFilter::category(Category::BOOSTERS),
+                        ItemFilter::attributes([("consumableType", "Ammo")]),
+                    ),
+                ))
+                // TODO: No way of specifiying one of EACH so all items not just an amount
+                .amount(4),
+            )
+            .add_item(ItemChance::new(ItemFilter::category(Category::BOOSTERS)))
+            .add_item(ItemChance::new(ItemFilter::and(
+                // Common with low chance of uncommon
+                ItemFilter::rarity(Rarity::RARE).weight(8)
+                    | ItemFilter::rarity(Rarity::ULTRA_RARE).weight(1),
+                // Items or characters (weighted for weapons)
+                ItemFilter::category(Category::BOOSTERS),
+            )))
+    }
+
+    fn technical_mods_pack() -> Pack {
+        Pack::new("975f87f5-0242-4c73-9e0f-6e4033b22ee9")
+            // 4 common items/characters
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    // Exclude ultra rare and rare items from first selection
+                    ItemFilter::rarity(Rarity::COMMON),
+                    // Items or characters (weighted for characters)
+                    ItemFilter::category(Category::CONSUMABLE)
+                        | ItemFilter::category(Category::WEAPON_MODS)
+                        | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
+                ))
+                .amount(4),
+            )
+            // 1 item/character that are rare or greater
+            .add_item(ItemChance::new(ItemFilter::and(
+                // Uncommon wiht a chance for rare
+                ItemFilter::rarity(Rarity::UNCOMMON).weight(8)
+                    | ItemFilter::rarity(Rarity::RARE).weight(1),
+                // Items or characters (weighted for characters)
+                ItemFilter::category(Category::CONSUMABLE)
+                    | ItemFilter::category(Category::WEAPON_MODS)
+                    | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
+            )))
+    }
+
+    fn advanced_pack() -> Pack {
+        Pack::new("974a8c8e-08bc-4fdb-bede-43337c255df8")
+            // 4 common items/characters
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::COMMON),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(4),
+            )
+            // 1 item/character that are rare or greater
+            .add_item(ItemChance::new(ItemFilter::and(
+                ItemFilter::rarity(Rarity::UNCOMMON).weight(8)
+                    | ItemFilter::rarity(Rarity::RARE).weight(1),
+                ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+            )))
+    }
+
+    fn expert_pack() -> Pack {
+        Pack::new("b6fe6a9f-de70-463a-bcc5-a1b146067470")
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::COMMON) | ItemFilter::rarity(Rarity::UNCOMMON),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(4),
+            )
+            .add_item(ItemChance::new(ItemFilter::and(
+                ItemFilter::rarity(Rarity::RARE).weight(8)
+                    | ItemFilter::rarity(Rarity::ULTRA_RARE).weight(1),
+                ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+            )))
     }
 
     fn reserves_pack() -> Pack {
@@ -121,6 +258,53 @@ impl ItemsService {
                         | ItemFilter::category(Category::WEAPONS).weight(2),
                 ))
                 .amount(2),
+            )
+    }
+
+    fn premium_pack() -> Pack {
+        Pack::new("8344cd62-2aed-468d-b155-6ae01f1f2405")
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::COMMON) | ItemFilter::rarity(Rarity::UNCOMMON),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(3),
+            )
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::RARE).weight(4)
+                        | ItemFilter::rarity(Rarity::ULTRA_RARE).weight(1),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(2),
+            )
+    }
+    fn jumbo_premium_pack() -> Pack {
+        Pack::new("e3e56e89-b995-475f-8e75-84bf27dc8297")
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::COMMON) | ItemFilter::rarity(Rarity::UNCOMMON),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(10),
+            )
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::RARE).weight(8)
+                        | ItemFilter::rarity(Rarity::ULTRA_RARE).weight(1),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(10),
+            )
+            .add_item(
+                ItemChance::new(ItemFilter::and(
+                    ItemFilter::rarity(Rarity::COMMON).weight(4)
+                        | ItemFilter::rarity(Rarity::UNCOMMON).weight(4)
+                        | ItemFilter::rarity(Rarity::RARE).weight(2)
+                        | ItemFilter::rarity(Rarity::ULTRA_RARE).weight(1),
+                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+                ))
+                .amount(5),
             )
     }
 
@@ -433,6 +617,8 @@ pub enum ItemFilter {
     Rarity(String),
     /// Filter requiring a category
     Category(String),
+    // Filter on item attributes
+    Attributes(HashMap<String, Value>),
 
     Weighted {
         filter: Box<ItemFilter>,
@@ -485,6 +671,20 @@ impl ItemFilter {
             values
                 .iter()
                 .map(|value| ItemFilter::Rarity(value.to_string()))
+                .collect(),
+        )
+    }
+
+    pub fn attributes<I, K, V>(values: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<Value>,
+    {
+        Self::Attributes(
+            values
+                .into_iter()
+                .map(|(key, value)| (key.into(), value.into()))
                 .collect(),
         )
     }
@@ -551,6 +751,18 @@ impl ItemFilter {
                 let (result, weight) = filter.check(item);
 
                 (!result, weight)
+            }
+            ItemFilter::Attributes(map) => {
+                for (key, value) in map {
+                    if !item
+                        .custom_attributes
+                        .get(key)
+                        .is_some_and(|attr| value.eq(attr))
+                    {
+                        return (false, 0);
+                    }
+                }
+                (true, 0)
             }
         }
     }
