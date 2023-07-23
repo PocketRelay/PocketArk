@@ -2,7 +2,7 @@ use crate::database::entity::{Currency, InventoryItem};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -63,6 +63,20 @@ pub struct ItemDefinition {
     pub on_remove: Option<Vec<Value>>,
     pub restrictions: Option<String>,
     pub default_namespace: String,
+}
+
+impl PartialEq for ItemDefinition {
+    fn eq(&self, other: &Self) -> bool {
+        self.name.eq(&other.name)
+    }
+}
+
+impl Eq for ItemDefinition {}
+
+impl Hash for ItemDefinition {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state)
+    }
 }
 
 #[skip_serializing_none]

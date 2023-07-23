@@ -75,7 +75,7 @@ impl Model {
     pub async fn create_or_append<C>(
         db: &C,
         user: &User,
-        definition_name: String,
+        definition_name: &str,
         stack_size: u32,
     ) -> DbResult<Self>
     where
@@ -83,7 +83,7 @@ impl Model {
     {
         if let Some(existing) = user
             .find_related(Entity)
-            .filter(Column::DefinitionName.eq(&definition_name))
+            .filter(Column::DefinitionName.eq(definition_name))
             .one(db)
             .await?
         {
@@ -96,7 +96,7 @@ impl Model {
             model.last_grant = Set(Utc::now());
             model.update(db).await
         } else {
-            Self::create_item(user, definition_name, stack_size)
+            Self::create_item(user, definition_name.to_string(), stack_size)
                 .insert(db)
                 .await
         }

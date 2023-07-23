@@ -513,20 +513,28 @@ impl Pack {
         items: &'static [ItemDefinition],
         out: &mut Vec<GrantedItem>,
     ) -> Result<(), RandomError> {
-        let values = self.items_by_filter(items, &self.items);
-
         for chance in &self.items {
+            let values = Self::items_by_filter(&chance.filter, items, &self.items);
             out.reserve_exact(chance.amount);
 
-            let items =
-                values.choose_multiple_weighted(rng, chance.amount, |(_, _, weight)| *weight)?;
+            let has_weight = values.iter().any(|(_, _, weight)| *weight > 0);
 
+            let items = if has_weight {
+                values.choose_multiple_weighted(rng, chance.amount, |(_, _, weight)| *weight)?
+            } else {
+                values.choose_multiple(rng, chance.amount)
+            };
             for (defintion, chance, _) in items {
-                let item = GrantedItem {
-                    defintion,
-                    stack_size: chance.stack_size,
-                };
-                out.push(item)
+                let existing = out.iter_mut().find(|value| value.defintion.eq(defintion));
+
+                if let Some(existing) = existing {
+                    existing.stack_size = existing.stack_size.saturating_add(chance.stack_size);
+                } else {
+                    out.push(GrantedItem {
+                        defintion,
+                        stack_size: chance.stack_size,
+                    })
+                }
             }
         }
 
@@ -534,7 +542,7 @@ impl Pack {
     }
 
     fn items_by_filter<'a>(
-        &self,
+        filter: &ItemFilter,
         defs: &'static [ItemDefinition],
         items: &'a [ItemChance],
     ) -> Vec<(&'static ItemDefinition, &'a ItemChance, u32)> {
@@ -544,7 +552,7 @@ impl Pack {
             .filter(|value| value.droppable.unwrap_or_default())
             .filter_map(|value| {
                 for item in items {
-                    let (check, weight) = item.filter.check(value);
+                    let (check, weight) = filter.check(value);
                     if check {
                         return Some((value, item, weight));
                     }

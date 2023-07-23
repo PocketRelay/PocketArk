@@ -85,22 +85,6 @@ pub async fn obtain_article(
 
     let now = Utc::now();
 
-    let weapon = ["1:AssaultRifle", "1:Pistol", "1:Shotgun", "1:SniperRifle"];
-    let alt_weapon = [
-        "13:AssaultRifle",
-        "13:Pistol",
-        "13:Shotgun",
-        "13:SniperRifle",
-    ];
-
-    let mods = ["2:AssaultRifle", "2:Pistol", "2:Shotgun", "2:SniperRifle"];
-    let alt_mods = [
-        "14:AssaultRifle",
-        "14:Pistol",
-        "14:Shotgun",
-        "14:SniperRifle",
-    ];
-
     let catalog = &services.store.catalog;
 
     let article = catalog
@@ -121,6 +105,10 @@ pub async fn obtain_article(
                 StatusCode::NOT_FOUND,
             ))?;
 
+    debug!(
+        "Consuming article: {} ({:?})",
+        &article_item.name, &article_item.loc_name
+    );
     // TODO: Aquire item
 
     // TODO: COnsume
@@ -156,14 +144,17 @@ pub async fn obtain_article(
     let mut items_out: Vec<InventoryItem> = Vec::with_capacity(granted.len());
 
     for granted in granted {
-        let mut item = InventoryItem::create_or_append(
-            db,
-            &user,
-            granted.defintion.name.to_string(),
-            granted.stack_size,
-        )
-        .await?;
+        debug!(
+            "Granted item {} x{} ({:?}",
+            granted.defintion.name, granted.stack_size, granted.defintion.loc_name
+        );
+
+        let mut item =
+            InventoryItem::create_or_append(db, &user, &granted.defintion.name, granted.stack_size)
+                .await?;
+
         item.stack_size = granted.stack_size;
+
         items_out.push(item);
     }
 
@@ -209,46 +200,6 @@ pub async fn obtain_article(
         items: items_out,
         definitions,
     }))
-}
-
-pub async fn give_jumbo_supply_pack(user: &User) -> DbResult<Vec<InventoryItem>> {
-    let items = [
-        "eaefec2a-d892-498b-a175-e5d2048ae39a", // COBRA RPG
-        "af39be6b-0542-4997-b524-227aa41ae2eb", // REVIVE PACK
-        "2cc0d932-8e9d-48a6-a6e8-a5665b77e835", // AMMO PACK
-        "4d790010-1a79-4bd0-a79b-d52cac068a3a", // FIRST AID PACK
-    ];
-
-    const CONSUMABLE_COUNT: u32 = 5;
-    const BOOSTERS: &str = "3";
-    let mut items_out = Vec::new();
-
-    let services = App::services();
-    let db = App::database();
-
-    for item in items {
-        let mut item =
-            InventoryItem::create_or_append(db, user, item.to_string(), CONSUMABLE_COUNT).await?;
-        item.stack_size = CONSUMABLE_COUNT;
-        items_out.push(item);
-    }
-
-    // Give 5 random boosters
-    let mut rand = StdRng::from_entropy();
-    let boosters: Vec<&'static ItemDefinition> = services
-        .items
-        .inventory
-        .list()
-        .iter()
-        .filter(|value| value.category.eq(BOOSTERS))
-        .choose_multiple(&mut rand, 5);
-    for item in boosters {
-        let mut item = InventoryItem::create_or_append(db, user, item.name.clone(), 1).await?;
-        item.stack_size = 1;
-        items_out.push(item);
-    }
-
-    Ok(items_out)
 }
 
 /// POST /store/unclaimed/claimAll
