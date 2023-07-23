@@ -56,6 +56,7 @@ pub struct ItemDefinition {
 
     /// Name of definition that this item depends on
     /// (Requires the item to reach its capacity before it can be dropped)
+    /// TODO: Handle this when doing store rewards
     pub unlock_definition: Option<String>,
 
     pub on_consume: Option<Vec<Value>>,

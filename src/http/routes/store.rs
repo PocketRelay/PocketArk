@@ -151,7 +151,7 @@ pub async fn obtain_article(
         );
 
         let mut item =
-            InventoryItem::create_or_append(db, &user, &granted.defintion.name, granted.stack_size)
+            InventoryItem::create_or_append(db, &user, granted.defintion, granted.stack_size)
                 .await?;
 
         item.stack_size = granted.stack_size;

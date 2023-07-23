@@ -8,7 +8,7 @@ use sea_orm::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::database::DbResult;
+use crate::{database::DbResult, http::models::inventory::ItemDefinition};
 
 use super::{InventoryItem, User, ValueMap};
 
@@ -75,7 +75,7 @@ impl Model {
     pub async fn create_or_append<C>(
         db: &C,
         user: &User,
-        definition_name: &str,
+        definition: &ItemDefinition,
         stack_size: u32,
     ) -> DbResult<Self>
     where
@@ -83,20 +83,19 @@ impl Model {
     {
         if let Some(existing) = user
             .find_related(Entity)
-            .filter(Column::DefinitionName.eq(definition_name))
+            .filter(Column::DefinitionName.eq(&definition.name))
             .one(db)
             .await?
         {
-            let stack_size = existing.stack_size.saturating_add(stack_size);
-
-            // TODO: Max stack size from item definition
+            let capacity = definition.cap.as_ref().copied().unwrap_or(u32::MAX);
+            let stack_size = existing.stack_size.saturating_add(stack_size).min(capacity);
 
             let mut model = existing.into_active_model();
             model.stack_size = Set(stack_size);
             model.last_grant = Set(Utc::now());
             model.update(db).await
         } else {
-            Self::create_item(user, definition_name.to_string(), stack_size)
+            Self::create_item(user, definition.name.to_string(), stack_size)
                 .insert(db)
                 .await
         }
