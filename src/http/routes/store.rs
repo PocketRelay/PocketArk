@@ -141,6 +141,7 @@ pub async fn obtain_article(
         }
     }
 
+    let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(granted.len());
     let mut items_out: Vec<InventoryItem> = Vec::with_capacity(granted.len());
 
     for granted in granted {
@@ -156,9 +157,8 @@ pub async fn obtain_article(
         item.stack_size = granted.stack_size;
 
         items_out.push(item);
+        definitions.push(granted.defintion);
     }
-
-    let definitions = get_item_definitions(&items_out);
 
     // for item in &items_out {
     //     let def = definitions
