@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash, process::exit};
+use std::{borrow::Borrow, collections::HashMap, hash::Hash, process::exit};
 
 use crate::http::models::{
     character::{Class, LevelTable, SkillDefinition},
@@ -108,8 +108,12 @@ where
         &self.list
     }
 
-    pub fn lookup(&self, key: &K) -> Option<&V> {
-        let index = self.lookup.get(key)?;
+    pub fn lookup<Q: ?Sized>(&self, k: &Q) -> Option<&V>
+    where
+        K: Borrow<Q>,
+        Q: Hash + Eq,
+    {
+        let index = self.lookup.get(k)?;
         let value = &self.list[*index];
         Some(value)
     }

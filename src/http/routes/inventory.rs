@@ -194,7 +194,7 @@ pub async fn consume_inventory(
         definitions.push(granted.defintion);
     }
 
-    let currencies = Currency::get_from_user(&user, db).await?;
+    let currencies = Currency::get_from_user(db, &user).await?;
 
     let activity = ActivityResult {
         previous_xp: 0,

@@ -287,7 +287,7 @@ async fn process_player_data(
         .ok_or(PlayerDataProcessError::UnknownUser)?;
 
     debug!("Loaded processing user");
-    let mut shared_data = SharedData::get_from_user(&user, db).await?;
+    let mut shared_data = SharedData::get_from_user(db, &user).await?;
 
     debug!("Loaded shared data");
 

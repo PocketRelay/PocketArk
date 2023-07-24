@@ -43,7 +43,10 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
+    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
         // Create models for initial currency values
         let items = ["MTXCurrency", "GrindCurrency", "MissionCurrency"]
             .into_iter()
@@ -59,7 +62,10 @@ impl Model {
         Ok(())
     }
 
-    pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Vec<Currency>> {
+    pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Vec<Currency>>
+    where
+        C: ConnectionTrait + Send,
+    {
         user.find_related(Entity).all(db).await
     }
 

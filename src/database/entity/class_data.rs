@@ -32,12 +32,10 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create(
-        user: &User,
-        name: Uuid,
-        unlocked: bool,
-        db: &DatabaseConnection,
-    ) -> DbResult<()> {
+    pub async fn create<C>(db: &C, user: &User, name: Uuid, unlocked: bool) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
         let model = ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
@@ -48,7 +46,10 @@ impl Model {
         Ok(())
     }
 
-    pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Vec<Self>> {
+    pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Vec<Self>>
+    where
+        C: ConnectionTrait + Send,
+    {
         user.find_related(Entity).all(db).await
     }
 }

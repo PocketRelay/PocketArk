@@ -29,7 +29,7 @@ pub async fn get_characters(Auth(user): Auth) -> Result<Json<CharactersResponse>
     let db = App::database();
 
     let list = user.find_related(characters::Entity).all(db).await?;
-    let shared_data = SharedData::get_from_user(&user, db).await?;
+    let shared_data = SharedData::get_from_user(db, &user).await?;
 
     Ok(Json(CharactersResponse { list, shared_data }))
 }
@@ -50,7 +50,7 @@ pub async fn get_character(
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
 
-    let shared_data = SharedData::get_from_user(&user, db).await?;
+    let shared_data = SharedData::get_from_user(db, &user).await?;
 
     Ok(Json(CharacterResponse {
         character,
@@ -70,7 +70,7 @@ pub async fn set_active(
 
     // TODO: validate the character is actually owned
 
-    let _ = SharedData::set_active_character(&user, character_id, db).await?;
+    let _ = SharedData::set_active_character(db, &user, character_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -134,7 +134,7 @@ pub async fn update_shared_equip(
     debug!("Update shared equipment: {:?}", req);
 
     let db = App::database();
-    let _ = SharedData::set_shared_equipment(&user, req.list, db).await?;
+    let _ = SharedData::set_shared_equipment(db, &user, req.list).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -251,7 +251,7 @@ pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, Htt
 
     let db = App::database();
 
-    let class_data = ClassData::get_from_user(&user, db).await?;
+    let class_data = ClassData::get_from_user(db, &user).await?;
 
     // Updating unlocks from classdata
     list.iter_mut().for_each(|value| {
@@ -284,7 +284,7 @@ pub async fn get_level_tables() -> Json<CharacterLevelTables> {
 pub async fn character_unlocked(Auth(user): Auth) -> Result<Json<UnlockedCharacters>, HttpError> {
     debug!("Unlocked request");
     let db = App::database();
-    let shared_data = SharedData::get_from_user(&user, db).await?;
+    let shared_data = SharedData::get_from_user(db, &user).await?;
 
     // TODO: Should actually handle creating definitions for an unlocked character if they
     // are not already created

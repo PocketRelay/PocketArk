@@ -8,9 +8,12 @@ use sea_orm::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{database::DbResult, http::models::inventory::ItemDefinition};
+use crate::{
+    database::DbResult, http::models::inventory::ItemDefinition, services::items::Category,
+    state::App,
+};
 
-use super::{InventoryItem, User, ValueMap};
+use super::{Character, InventoryItem, User, ValueMap};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "inventory_items")]
@@ -53,13 +56,22 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub fn create_item(user: &User, definition_name: String, stack_size: u32) -> ActiveModel {
+    /// Createsa a new item from the provided definition
+    pub async fn create_item<C>(
+        db: &C,
+        user: &User,
+        definition: &ItemDefinition,
+        stack_size: u32,
+    ) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
         let now = Utc::now();
-        ActiveModel {
+        let model = ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
             item_id: Set(Uuid::new_v4()),
-            definition_name: Set(definition_name),
+            definition_name: Set(definition.name.to_string()),
             stack_size: Set(stack_size),
             seen: Set(false),
             instance_attributes: Set(ValueMap::default()),
@@ -68,6 +80,20 @@ impl Model {
             earned_by: Set("granted".to_string()),
             restricted: Set(false),
         }
+        .insert(db)
+        .await?;
+
+        // Handle character creation
+        if definition.category == Category::CHARACTERS {
+            let uuid = Uuid::parse_str(&definition.name);
+            if let Ok(uuid) = uuid {
+                let services = App::services();
+
+                Character::create_from_item(db, &services.defs, &user, uuid).await?;
+            }
+        }
+
+        Ok(model)
     }
 
     /// Creates a new item if there are no matching item definitions in
@@ -79,14 +105,8 @@ impl Model {
         stack_size: u32,
     ) -> DbResult<Self>
     where
-        C: ConnectionTrait,
+        C: ConnectionTrait + Send,
     {
-        // TODO: Create associated character if item is a category of character
-        //             let uuid = Uuid::parse_str(&def.name);
-        //             if let Ok(uuid) = uuid {
-        //                 Character::create_from_item(&services.defs, &user, uuid, db).await?;
-        //             }
-
         if let Some(existing) = user
             .find_related(Entity)
             .filter(Column::DefinitionName.eq(&definition.name))
@@ -101,9 +121,7 @@ impl Model {
             model.last_grant = Set(Utc::now());
             model.update(db).await
         } else {
-            Self::create_item(user, definition.name.to_string(), stack_size)
-                .insert(db)
-                .await
+            Self::create_item(db, user, definition, stack_size).await
         }
     }
 
@@ -125,7 +143,10 @@ impl Model {
         }
     }
 
-    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
+    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
         // Create models from initial item defs
         let items = [
             "79f3511c-55da-67f0-5002-359c370015d8", // HUMAN FEMALE SOLDIER
@@ -143,20 +164,26 @@ impl Model {
             "d5bf2213-d2d2-f892-7310-c39a15fb2ef3", // M-8 AVENGER
             "38e07595-764b-4d9c-b466-f26c7c416860", // VIPER
             "ca7d0f24-fc19-4a78-9d25-9c84eb01e3a5", // M-23 KATANA
-        ]
-        .into_iter()
-        .map(|definition_name| Self::create_item(user, definition_name.to_string(), 1));
-        Entity::insert_many(items)
-            .exec_without_returning(db)
-            .await?;
+        ];
+
+        let services = App::services();
+
+        for item in items {
+            let def = match services.items.inventory.lookup(item) {
+                Some(value) => value,
+                None => continue,
+            };
+
+            Self::create_item(db, user, def, 1).await?;
+        }
+
         Ok(())
     }
 
-    pub async fn update_seen(
-        db: &DatabaseConnection,
-        user: &User,
-        list: Vec<Uuid>,
-    ) -> DbResult<()> {
+    pub async fn update_seen<C>(db: &C, user: &User, list: Vec<Uuid>) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
         // Updates all the matching items seen state
         Entity::update_many()
             .col_expr(Column::Seen, Expr::value(true))
@@ -167,18 +194,17 @@ impl Model {
         Ok(())
     }
 
-    pub async fn get_all_items(
-        db: &DatabaseConnection,
-        user: &User,
-    ) -> DbResult<Vec<InventoryItem>> {
+    pub async fn get_all_items<C>(db: &C, user: &User) -> DbResult<Vec<InventoryItem>>
+    where
+        C: ConnectionTrait + Send,
+    {
         user.find_related(Entity).all(db).await
     }
 
-    pub async fn get_items(
-        db: &DatabaseConnection,
-        user: &User,
-        ids: Vec<Uuid>,
-    ) -> DbResult<Vec<InventoryItem>> {
+    pub async fn get_items<C>(db: &C, user: &User, ids: Vec<Uuid>) -> DbResult<Vec<InventoryItem>>
+    where
+        C: ConnectionTrait + Send,
+    {
         user.find_related(Entity)
             .filter(Column::ItemId.is_in(ids))
             .all(db)

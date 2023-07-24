@@ -69,7 +69,10 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<Model> {
+    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<Model>
+    where
+        C: ConnectionTrait + Send,
+    {
         // Create models from initial item defs
         let active_character = uuid!("af3a2cf0-dff7-4ca8-9199-73ce546c3e7b"); // HUMAN MALE SOLDIER;
 
@@ -91,36 +94,44 @@ impl Model {
         model.insert(db).await
     }
 
-    pub async fn get_from_user(user: &User, db: &DatabaseConnection) -> DbResult<Model> {
+    pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Model>
+    where
+        C: ConnectionTrait + Send,
+    {
         match user.find_related(Entity).one(db).await? {
             Some(value) => Ok(value),
-            None => Self::create_default(user, db).await,
+            None => Self::create_default(db, user).await,
         }
     }
 
-    pub async fn set_shared_equipment(
+    pub async fn set_shared_equipment<C>(
+        db: &C,
         user: &User,
         list: Vec<CharacterEquipment>,
-        db: &DatabaseConnection,
-    ) -> DbResult<Self> {
-        let shared_data = Self::get_from_user(user, db).await?;
+    ) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let shared_data = Self::get_from_user(db, user).await?;
         let mut shared_data = shared_data.into_active_model();
         shared_data.shared_equipment = Set(CharacterSharedEquipment { list });
         shared_data.update(db).await
     }
 
-    pub async fn set_active_character(
-        user: &User,
-        uuid: Uuid,
-        db: &DatabaseConnection,
-    ) -> DbResult<Self> {
-        let shared_data = Self::get_from_user(user, db).await?;
+    pub async fn set_active_character<C>(db: &C, user: &User, uuid: Uuid) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let shared_data = Self::get_from_user(db, user).await?;
         let mut shared_data = shared_data.into_active_model();
         shared_data.active_character_id = Set(uuid);
         shared_data.update(db).await
     }
 
-    pub async fn save_progression(self, db: &DatabaseConnection) -> DbResult<Self> {
+    pub async fn save_progression<C>(self, db: &C) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
         let mut model = self.into_active_model();
         model.shared_progression = Set(model
             .shared_progression

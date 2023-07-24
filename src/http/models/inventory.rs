@@ -82,7 +82,7 @@ impl Hash for ItemDefinition {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityResult {
     pub previous_xp: u32,

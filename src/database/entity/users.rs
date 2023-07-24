@@ -86,10 +86,9 @@ impl Model {
         .insert(db)
         .await?;
 
-        InventoryItem::create_default(&user, db).await?;
-        Character::create_default(&user, db).await?;
-        Currency::create_default(&user, db).await?;
-        SharedData::create_default(&user, db).await?;
+        InventoryItem::create_default(db, &user).await?;
+        Currency::create_default(db, &user).await?;
+        SharedData::create_default(db, &user).await?;
 
         Ok(user)
     }

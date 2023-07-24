@@ -3,14 +3,13 @@ use crate::{
     database::{entity::ClassData, DbResult},
     http::models::{
         auth::Sku,
-        character::{CharacterEquipment, Class, CustomizationEntry, SkillTreeEntry, Xp},
+        character::{CharacterEquipment, CustomizationEntry, SkillTreeEntry, Xp},
     },
     services::defs::{Definitions, LevelTables},
-    state::App,
 };
 use sea_orm::{
     entity::prelude::*,
-    ActiveValue::{self, NotSet, Set},
+    ActiveValue::{NotSet, Set},
     IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
@@ -83,47 +82,25 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
-        let services: &crate::services::Services = App::services();
-        let defs = &services.defs;
-
-        // Create models from initial item defs
-        let character_items = [
-            "79f3511c-55da-67f0-5002-359c370015d8", // HUMAN FEMALE SOLDIER
-            "a3960123-3625-4126-82e4-1f9a127d33aa", // HUMAN MALE ENGINEER
-            "baae0381-8690-4097-ae6d-0c16473519b4", // HUMAN MALE SENTINEL
-            "c756c741-1bc8-47a8-9f35-b7ca943ba034", // HUMAN FEMALE ENGINEER
-            "e4357633-93bc-4596-99c3-4cc0a49b2277", // HUMAN MALE ADEPT
-            "7fd30824-e20c-473e-b906-f4f30ebc4bb0", // HUMAN MALE VANGUARD
-            "96fa16c5-9f2b-46f8-a491-a4b0a24a1089", // HUMAN FEMALE VANGUARD
-            "34aeef66-a030-445e-98e2-1513c0c78df4", // HUMAN MALE INFILTRATOR
-            "af3a2cf0-dff7-4ca8-9199-73ce546c3e7b", // HUMAN MALE SOLDIER
-            "319ffe5d-f8fb-4217-bd2f-2e8af4f53fc8", // HUMAN FEMALE SENTINEL
-            "e2f76cf1-4b42-4dba-9751-f2add5c3f654", // HUMAN FEMALE ADEPT
-        ];
-
-        for item in character_items {
-            if let Ok(uuid) = Uuid::parse_str(item) {
-                Self::create_from_item(defs, user, uuid, db).await?;
-            }
-        }
-
-        Ok(())
-    }
-
-    pub async fn update_xp(self, db: &DatabaseConnection, xp: Xp, level: u32) -> DbResult<Self> {
+    pub async fn update_xp<C>(self, db: &C, xp: Xp, level: u32) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
         let mut model = self.into_active_model();
         model.xp = Set(xp);
         model.level = Set(level);
         model.update(db).await
     }
 
-    pub async fn create_from_item(
+    pub async fn create_from_item<C>(
+        db: &C,
         defs: &Definitions,
         user: &User,
         uuid: Uuid,
-        db: &DatabaseConnection,
-    ) -> DbResult<()> {
+    ) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
         const DEFAULT_LEVEL: u32 = 1;
         const DEFAULT_SKILL_POINTS: u32 = 2;
 
@@ -163,7 +140,7 @@ impl Model {
         };
         let _ = model.insert(db).await?;
 
-        ClassData::create(user, class_def.name, true, db).await?;
+        ClassData::create(db, user, class_def.name, true).await?;
 
         Ok(())
     }
@@ -199,6 +176,4 @@ impl Model {
             .one(db)
             .await
     }
-
-    pub async fn update_character_level() {}
 }
