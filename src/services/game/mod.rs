@@ -40,6 +40,7 @@ use crate::{
             PlayerInfoResult, PrestigeData, PrestigeProgression, RewardSource,
         },
     },
+    services::game::manager::RemoveGameMessage,
     state::App,
 };
 
@@ -68,12 +69,12 @@ pub struct Game {
 
 impl Service for Game {
     fn stopping(&mut self) {
-        // debug!("Game is stopping (GID: {})", self.id);
-        // // Remove the stopping game
-        // let services = App::services();
-        // let _ = services
-        //     .game_manager
-        //     .do_send(RemoveGameMessage { game_id: self.id });
+        debug!("Game is stopping (GID: {})", self.id);
+        // Remove the stopping game
+        let services = App::services();
+        let _ = services
+            .games
+            .do_send(RemoveGameMessage { game_id: self.id });
     }
 }
 
