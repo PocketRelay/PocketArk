@@ -14,6 +14,7 @@ pub mod client;
 pub mod inventory;
 pub mod leaderboard;
 pub mod mission;
+pub mod qos;
 pub mod store;
 pub mod strike_teams;
 pub mod telemetry;

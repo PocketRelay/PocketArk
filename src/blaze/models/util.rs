@@ -90,8 +90,8 @@ impl Encodable for PreAuthResponse {
                 w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);
                 w.write_str("bio-dub");
                 // TODO: Replace this host and port with the local QOS server when complete
-                w.tag_str(b"PSA", "qos-prod-bio-dub-common-common.gos.ea.com");
-                w.tag_u16(b"PSP", 17504);
+                w.tag_str(b"PSA", &self.target.host);
+                w.tag_u16(b"PSP", self.target.port);
                 w.tag_str(b"SNA", "prod-sjc");
                 w.tag_group_end();
             }

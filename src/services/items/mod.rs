@@ -515,7 +515,6 @@ impl Pack {
     ) -> Result<(), RandomError> {
         for chance in &self.items {
             let values = Self::items_by_filter(&chance.filter, items, &self.items);
-            out.reserve_exact(chance.amount);
 
             let has_weight = values.iter().any(|(_, _, weight)| *weight > 0);
 

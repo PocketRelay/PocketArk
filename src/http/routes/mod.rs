@@ -20,6 +20,7 @@ mod inventory;
 mod leaderboard;
 mod mission;
 mod presence;
+mod qos;
 mod store;
 mod strike_teams;
 mod telemetry;
@@ -142,6 +143,12 @@ pub fn router() -> Router {
                 .route("/:id", get(leaderboard::get_leaderboard)),
         )
         .route("/wv/playthrough/0", put(activity::update_playthrough))
+        .nest(
+            "/qos",
+            Router::new()
+                .route("/qos", get(qos::qos_query))
+                .route("/firewall", get(qos::qos_firewall)),
+        )
         .layer(TraceLayer::new_for_http())
         .layer(
             ServiceBuilder::new()
