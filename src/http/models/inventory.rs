@@ -52,6 +52,7 @@ pub struct ItemDefinition {
     pub attachable_categories: Vec<String>,
     pub rarity: Option<String>,
     pub droppable: Option<bool>,
+    pub consumable: Option<bool>,
     pub cap: Option<u32>,
 
     /// Name of definition that this item depends on

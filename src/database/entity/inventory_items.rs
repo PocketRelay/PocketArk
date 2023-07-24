@@ -81,6 +81,12 @@ impl Model {
     where
         C: ConnectionTrait,
     {
+        // TODO: Create associated character if item is a category of character
+        //             let uuid = Uuid::parse_str(&def.name);
+        //             if let Ok(uuid) = uuid {
+        //                 Character::create_from_item(&services.defs, &user, uuid, db).await?;
+        //             }
+
         if let Some(existing) = user
             .find_related(Entity)
             .filter(Column::DefinitionName.eq(&definition.name))

@@ -83,8 +83,6 @@ pub async fn obtain_article(
         .find(|value| value.name == req.currency)
         .ok_or(HttpError::new("Missing currency", StatusCode::BAD_REQUEST))?;
 
-    let now = Utc::now();
-
     let catalog = &services.store.catalog;
 
     let article = catalog
@@ -106,73 +104,15 @@ pub async fn obtain_article(
             ))?;
 
     debug!(
-        "Consuming article: {} ({:?})",
+        "Purchased article: {} ({:?})",
         &article_item.name, &article_item.loc_name
     );
-    // TODO: Aquire item
 
-    // TODO: COnsume
+    let mut item = InventoryItem::create_or_append(db, &user, article_item, 1).await?;
+    item.stack_size = 1;
 
-    let mut granted: Vec<GrantedItem> = Vec::new();
-
-    // Item pack consumables
-    if article_item.category == Category::ITEM_PACK {
-        let pack = services.items.packs.get(&article_item.name);
-        if let Some(pack) = pack {
-            let mut rng = StdRng::from_entropy();
-            if let Err(err) =
-                pack.grant_items(&mut rng, services.items.inventory.list(), &mut granted)
-            {
-                error!("Failed to grant pack items: {} {}", &article_item.name, err);
-                return Err(HttpError::new(
-                    "Failed to grant pack items",
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                ));
-            }
-        } else {
-            warn!(
-                "Don't know how to handle item pack: {} ({:?})",
-                &article_item.name, &article_item.loc_name
-            );
-            return Err(HttpError::new(
-                "Pack item not implemented",
-                StatusCode::NOT_IMPLEMENTED,
-            ));
-        }
-    }
-
-    let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(granted.len());
-    let mut items_out: Vec<InventoryItem> = Vec::with_capacity(granted.len());
-
-    for granted in granted {
-        debug!(
-            "Granted item {} x{} ({:?}",
-            granted.defintion.name, granted.stack_size, granted.defintion.loc_name
-        );
-
-        let mut item =
-            InventoryItem::create_or_append(db, &user, granted.defintion, granted.stack_size)
-                .await?;
-
-        item.stack_size = granted.stack_size;
-
-        items_out.push(item);
-        definitions.push(granted.defintion);
-    }
-
-    // for item in &items_out {
-    //     let def = definitions
-    //         .iter()
-    //         .find(|value| item.definition_name == value.name);
-    //     if let Some(def) = def {
-    //         if def.category.eq("0") {
-    //             let uuid = Uuid::parse_str(&def.name);
-    //             if let Ok(uuid) = uuid {
-    //                 Character::create_from_item(&services.defs, &user, uuid, db).await?;
-    //             }
-    //         }
-    //     }
-    // }
+    let definitions = vec![article_item];
+    let items_earned = vec![item];
 
     let activity = ActivityResult {
         previous_xp: 0,
@@ -188,7 +128,7 @@ pub async fn obtain_article(
         news_triggered: 0,
         currencies,
         currency_earned: vec![],
-        items_earned: items_out.clone(),
+        items_earned: items_earned.clone(),
         item_definitions: definitions.clone(),
         entitlements_granted: vec![],
         prestige_progression_map: Map::new(),
@@ -197,7 +137,7 @@ pub async fn obtain_article(
 
     Ok(Json(ObtainStoreItemResponse {
         generated_activity_result: activity,
-        items: items_out,
+        items: items_earned,
         definitions,
     }))
 }
