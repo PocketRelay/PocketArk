@@ -375,8 +375,8 @@ impl ItemsService {
     }
 
     pub fn test(&'static self) {
-        let mut out = File::create("packs.json").unwrap();
-        let out = serde_json::to_writer(&mut out, &self.packs).unwrap();
+        // let mut out = File::create("packs.json").unwrap();
+        // let out = serde_json::to_writer(&mut out, &self.packs).unwrap();
 
         // let mut rng = StdRng::from_entropy();
 
