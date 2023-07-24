@@ -7,7 +7,7 @@ use axum::{
 use hyper::{header, http::HeaderValue};
 use log::debug;
 
-use crate::http::models::qos::{FirewallQuery, QosQuery};
+use crate::http::models::qos::{FireTypeQuery, FirewallQuery, QosQuery};
 
 pub struct RawXml(String);
 
@@ -69,6 +69,21 @@ pub async fn qos_firewall(Query(query): Query<FirewallQuery>) -> RawXml {
             <reqsecret>1</reqsecret>
         </firewall>"#,
         LOCAL_QOS_HOST, LOCAL_QOS_PORT,
+    );
+
+    RawXml(response)
+}
+
+pub async fn qos_firetype(Query(query): Query<FireTypeQuery>) -> RawXml {
+    debug!("Redirected QOS type query to local: {:?}", query);
+
+    let response = format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+        <error>
+            <component>16</component>
+            <errorCode>13107216</errorCode>
+            <errorName>QOS_ERR_INVALID_SLOT</errorName>
+        </error>"#,
     );
 
     RawXml(response)

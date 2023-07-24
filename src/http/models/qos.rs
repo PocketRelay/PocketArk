@@ -12,3 +12,12 @@ pub struct FirewallQuery {
     pub vers: u32,
     pub nint: u32,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct FireTypeQuery {
+    pub vers: u32,
+    pub rqid: u32,
+    pub rqsc: u32,
+    pub inip: i64,
+    pub inpt: u16,
+}

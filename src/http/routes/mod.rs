@@ -147,7 +147,8 @@ pub fn router() -> Router {
             "/qos",
             Router::new()
                 .route("/qos", get(qos::qos_query))
-                .route("/firewall", get(qos::qos_firewall)),
+                .route("/firewall", get(qos::qos_firewall))
+                .route("/firetype", get(qos::qos_firetype)),
         )
         .layer(TraceLayer::new_for_http())
         .layer(
