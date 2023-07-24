@@ -511,6 +511,7 @@ impl Pack {
         &self,
         rng: &mut StdRng,
         items: &'static [ItemDefinition],
+        owned_items: &[(InventoryItem, &'static ItemDefinition)],
         out: &mut Vec<GrantedItem>,
     ) -> Result<(), RandomError> {
         for chance in &self.items {
@@ -520,6 +521,30 @@ impl Pack {
             let values: Vec<(&'static ItemDefinition, u32)> = items
                 .iter()
                 .filter(|value| value.droppable.unwrap_or_default())
+                .filter(|value| {
+                    let unlock_definition = match value.unlock_definition.as_ref() {
+                        Some(value) => value,
+                        // Item doesn't have an unlock definition
+                        None => return true,
+                    };
+
+                    let (item, definition) = match owned_items
+                        .iter()
+                        .find(|(_, definition)| definition.name.eq(unlock_definition))
+                    {
+                        Some(value) => value,
+                        // Player didn't own the required item
+                        None => return false,
+                    };
+
+                    if let Some(cap) = definition.cap {
+                        if item.stack_size != cap {
+                            return false;
+                        }
+                    }
+
+                    true
+                })
                 .filter_map(|value| {
                     let (check, weight) = chance.filter.check(value);
                     if check {
@@ -565,6 +590,13 @@ pub struct GrantedItem {
     /// The item definition
     pub defintion: &'static ItemDefinition,
     /// The total number of items to grant
+    pub stack_size: u32,
+}
+
+#[derive(Debug)]
+pub struct ItemChanged {
+    pub item_id: Uuid,
+    pub prev_stack_size: u32,
     pub stack_size: u32,
 }
 

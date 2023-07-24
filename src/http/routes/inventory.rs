@@ -19,7 +19,7 @@ use crate::{
     },
     services::{
         self,
-        items::{Category, GrantedItem},
+        items::{Category, GrantedItem, ItemChanged},
     },
     state::App,
 };
@@ -94,35 +94,32 @@ pub async fn consume_inventory(
 ) -> Result<Json<ActivityResult>, HttpError> {
     debug!("Consume inventory items: {:?}", req);
 
-    // Replace with actual database lookup
-    let exists: bool = true;
-
-    if !exists {
-        return Err(HttpError {
-            status: StatusCode::NOT_FOUND,
-            reason: "The user does not own the item.".to_string(),
-            cause: None,
-            stack_trace: None,
-            trace_id: None,
-        });
-    }
-
     let db = App::database();
     let services = App::services();
 
+    let mut items: Vec<(InventoryItem, &'static ItemDefinition)> =
+        InventoryItem::get_all_items(db, &user)
+            .await?
+            .into_iter()
+            .filter_map(|value| {
+                let definition = services.items.inventory.lookup(&value.definition_name)?;
+                Some((value, definition))
+            })
+            .collect();
+
     let items_service = &services.items;
 
-    // Collect all the items to be consumed
-    let item_ids: Vec<Uuid> = req.items.into_iter().map(|value| value.item_id).collect();
-    let items: Vec<InventoryItem> = InventoryItem::get_items(db, &user, item_ids).await?;
-
+    let mut items_changed: Vec<ItemChanged> = Vec::new();
     let mut granted: Vec<GrantedItem> = Vec::new();
 
-    for item in items {
-        let definition = match services.items.inventory.lookup(&item.definition_name) {
-            Some(value) => value,
-            None => continue,
-        };
+    for target in req.items {
+        let (item, definition) = items
+            .iter()
+            .find(|(item, _)| item.item_id.eq(&target.item_id))
+            .ok_or(HttpError::new(
+                "The user does not own the item.",
+                StatusCode::NOT_FOUND,
+            ))?;
 
         if !definition.consumable.unwrap_or_default() {
             return Err(HttpError::new(
@@ -136,17 +133,26 @@ pub async fn consume_inventory(
             let pack = items_service.packs.get(&definition.name);
             if let Some(pack) = pack {
                 let mut rng = StdRng::from_entropy();
-                if let Err(err) =
-                    pack.grant_items(&mut rng, items_service.inventory.list(), &mut granted)
-                {
+                if let Err(err) = pack.grant_items(
+                    &mut rng,
+                    items_service.inventory.list(),
+                    &items,
+                    &mut granted,
+                ) {
                     error!("Failed to grant pack items: {} {}", &definition.name, err);
                     return Err(HttpError::new(
                         "Failed to grant pack items",
                         StatusCode::INTERNAL_SERVER_ERROR,
                     ));
                 } else {
+                    // TODO: Check item wasn't already changed
+
                     // Take 1 from the item we just consumed
-                    item.reduce_stack_size(db, 1).await?;
+                    items_changed.push(ItemChanged {
+                        item_id: item.item_id,
+                        prev_stack_size: item.stack_size,
+                        stack_size: item.stack_size.saturating_sub(1),
+                    });
                 }
             } else {
                 warn!(
@@ -162,6 +168,8 @@ pub async fn consume_inventory(
             // TODO: consume the item
         }
     }
+
+    // TODO: Process item changes
 
     // TODO: Ha: u32ndle pack opening, consuming etc
 
