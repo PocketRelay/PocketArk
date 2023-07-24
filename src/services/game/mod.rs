@@ -664,7 +664,8 @@ impl Handler<SetCompleteMissionMessage> for Game {
         msg: SetCompleteMissionMessage,
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
-        self.mission_data = Some(msg.mission_data)
+        self.mission_data = Some(msg.mission_data);
+        self.processed_data = None;
     }
 }
 

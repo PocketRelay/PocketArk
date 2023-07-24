@@ -59,7 +59,12 @@ impl Service for Session {
     }
 
     fn stopping(&mut self) {
-        debug!("Session stopped {}", &self.uuid)
+        debug!("Session stopped {}", &self.uuid);
+        if let Some(id) = self.game {
+            let session_id = self.uuid;
+
+            tokio::spawn(async move {});
+        }
     }
 }
 
