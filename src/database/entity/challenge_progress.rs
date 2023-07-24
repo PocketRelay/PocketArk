@@ -1,26 +1,16 @@
-use super::{ChallengeProgress, User, ValueMap};
+use super::User;
 use crate::{
-    database::{entity::ClassData, DbResult},
-    http::models::{
-        auth::Sku,
-        character::{CharacterEquipment, Class, CustomizationEntry, SkillTreeEntry, Xp},
-        mission::ChallengeUpdateCounter,
-    },
-    services::{
-        challenges::ChallengeProgressUpdate,
-        defs::{Definitions, LevelTables},
-    },
-    state::App,
+    database::DbResult, http::models::mission::ChallengeUpdateCounter,
+    services::challenges::ChallengeProgressUpdate,
 };
 use chrono::{DateTime, Utc};
 use sea_orm::{
     entity::prelude::*,
-    ActiveValue::{self, NotSet, Set},
+    ActiveValue::{NotSet, Set},
     IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 use uuid::Uuid;
 
 #[skip_serializing_none]

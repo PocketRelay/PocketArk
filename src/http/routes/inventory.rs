@@ -1,10 +1,3 @@
-use axum::Json;
-use hyper::StatusCode;
-use log::{debug, error, warn};
-use rand::{rngs::StdRng, SeedableRng};
-use serde_json::Map;
-use uuid::Uuid;
-
 use crate::{
     database::entity::{Currency, InventoryItem},
     http::{
@@ -17,28 +10,14 @@ use crate::{
             HttpError,
         },
     },
-    services::{
-        self,
-        items::{Category, GrantedItem, ItemChanged},
-    },
+    services::items::{Category, GrantedItem, ItemChanged},
     state::App,
 };
-
-pub fn get_item_definitions(items: &[InventoryItem]) -> Vec<&'static ItemDefinition> {
-    let services = App::services();
-    let defs = &services.items.inventory;
-
-    items
-        .iter()
-        .filter_map(|item| defs.lookup(&item.definition_name))
-        .collect()
-}
-
-pub fn get_item_definition(item: &String) -> Option<&'static ItemDefinition> {
-    let services = App::services();
-    let defs = &services.items.inventory;
-    defs.lookup(item)
-}
+use axum::Json;
+use hyper::StatusCode;
+use log::{debug, error, warn};
+use rand::{rngs::StdRng, SeedableRng};
+use serde_json::Map;
 
 /// GET /inventory
 ///
@@ -46,8 +25,12 @@ pub fn get_item_definition(item: &String) -> Option<&'static ItemDefinition> {
 /// with the definitions for the items
 pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, HttpError> {
     let db = App::database();
+    let services = App::services();
     let items = InventoryItem::get_all_items(db, &user).await?;
-    let definitions = get_item_definitions(&items);
+    let definitions = items
+        .iter()
+        .filter_map(|item| services.items.by_name(&item.definition_name))
+        .collect();
 
     Ok(Json(InventoryResponse { items, definitions }))
 }
@@ -58,7 +41,7 @@ pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, 
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<InventoryDefinitions> {
     let services = App::services();
-    let list: &'static [ItemDefinition] = services.items.inventory.list();
+    let list: &'static [ItemDefinition] = services.items.defs();
     Json(InventoryDefinitions {
         total_count: list.len(),
         list,
@@ -96,18 +79,17 @@ pub async fn consume_inventory(
 
     let db = App::database();
     let services = App::services();
+    let items_service = &services.items;
 
-    let mut items: Vec<(InventoryItem, &'static ItemDefinition)> =
+    let items: Vec<(InventoryItem, &'static ItemDefinition)> =
         InventoryItem::get_all_items(db, &user)
             .await?
             .into_iter()
             .filter_map(|value| {
-                let definition = services.items.inventory.lookup(&value.definition_name)?;
+                let definition = items_service.by_name(&value.definition_name)?;
                 Some((value, definition))
             })
             .collect();
-
-    let items_service = &services.items;
 
     let mut items_changed: Vec<ItemChanged> = Vec::new();
     let mut granted: Vec<GrantedItem> = Vec::new();
@@ -133,12 +115,9 @@ pub async fn consume_inventory(
             let pack = items_service.packs.get(&definition.name);
             if let Some(pack) = pack {
                 let mut rng = StdRng::from_entropy();
-                if let Err(err) = pack.grant_items(
-                    &mut rng,
-                    items_service.inventory.list(),
-                    &items,
-                    &mut granted,
-                ) {
+                if let Err(err) =
+                    pack.grant_items(&mut rng, items_service.defs(), &items, &mut granted)
+                {
                     error!("Failed to grant pack items: {} {}", &definition.name, err);
                     return Err(HttpError::new(
                         "Failed to grant pack items",

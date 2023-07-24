@@ -1,36 +1,29 @@
 //! Service in charge of deailing with items opening packs
 
-use std::{collections::HashMap, fs::File, process::exit};
-
+use crate::{database::entity::InventoryItem, http::models::inventory::ItemDefinition};
 use log::{debug, error};
-use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom, SeedableRng};
-use sea_orm::DatabaseTransaction;
+use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::{collections::HashMap, process::exit};
 use thiserror::Error;
-use uuid::{uuid, Uuid};
-
-use crate::{
-    database::{
-        entity::{InventoryItem, User},
-        DbResult,
-    },
-    http::models::inventory::ItemDefinition,
-};
-
-use super::defs::LookupList;
+use uuid::Uuid;
 
 pub const INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
 
 pub struct ItemsService {
-    pub inventory: LookupList<String, ItemDefinition>,
+    /// Item definitions
+    defs: Vec<ItemDefinition>,
+    /// Lookup table for item definitions based on their name
+    defs_by_name: HashMap<String, usize>,
+    /// Available unlock packs
     pub packs: HashMap<String, Pack>,
 }
 
 impl ItemsService {
-    pub fn load() -> Self {
-        let list: Vec<ItemDefinition> = match serde_json::from_str(INVENTORY_DEFINITIONS) {
+    pub fn new() -> Self {
+        let defs: Vec<ItemDefinition> = match serde_json::from_str(INVENTORY_DEFINITIONS) {
             Ok(value) => value,
             Err(err) => {
                 error!("Failed to load inventory definitions: {}", err);
@@ -38,9 +31,13 @@ impl ItemsService {
             }
         };
 
-        debug!("Loaded {} inventory item definition(s)", list.len());
+        let defs_by_name: HashMap<String, usize> = defs
+            .iter()
+            .enumerate()
+            .map(|(index, definition)| (definition.name.clone(), index))
+            .collect();
 
-        let inventory = LookupList::create(list, |value| value.name.to_string());
+        debug!("Loaded {} inventory item definition(s)", defs.len());
 
         let packs: HashMap<String, Pack> = [
             // Packs
@@ -64,7 +61,21 @@ impl ItemsService {
         .map(|pack| (pack.name.clone(), pack))
         .collect();
 
-        Self { inventory, packs }
+        Self {
+            defs,
+            defs_by_name,
+            packs,
+        }
+    }
+
+    pub fn defs(&self) -> &[ItemDefinition] {
+        &self.defs
+    }
+
+    pub fn by_name(&self, name: &str) -> Option<&ItemDefinition> {
+        let index = self.defs_by_name.get(name).copied()?;
+        let def = &self.defs[index];
+        Some(def)
     }
 
     fn supply_pack() -> Pack {

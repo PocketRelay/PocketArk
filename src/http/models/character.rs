@@ -66,7 +66,7 @@ pub struct CharacterEquipment {
 
 use serde_with::DisplayFromStr;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CustomizationEntryUpdate {
     pub value_x: f32,
@@ -115,16 +115,15 @@ pub struct CharacterLevelTables {
     pub list: &'static [LevelTable],
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelTable {
-    pub table: Vec<LevelTableEntry>,
     pub name: Uuid,
-    pub i18n_name: String,
-    pub i18n_description: String,
-    pub loc_name: Option<String>,
-    pub loc_description: Option<String>,
+    pub table: Vec<LevelTableEntry>,
     pub custom_attributes: HashMap<String, Value>,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }
 
 impl LevelTable {
@@ -136,7 +135,7 @@ impl LevelTable {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelTableEntry {
     pub level: u32,
@@ -150,20 +149,20 @@ pub struct CharacterEquipmentList {
     pub list: Vec<CharacterEquipment>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SkillDefinition {
-    pub i18n_name: String,
-    pub i18n_description: String,
-    pub custom_attributes: Map<String, Value>,
-    pub tiers: Vec<SkillDefinitionTier>,
     pub name: Uuid,
+
+    pub tiers: Vec<SkillDefinitionTier>,
+    pub custom_attributes: Map<String, Value>,
     pub timestamp: DateTime<Utc>,
-    pub loc_name: String,
-    pub loc_description: String,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SkillDefinitionTier {
     pub tier: u8,
@@ -172,18 +171,19 @@ pub struct SkillDefinitionTier {
     pub skills: Vec<SkillItem>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SkillItem {
     pub name: String,
-    pub i18n_name: String,
     pub custom_attributes: Map<String, Value>,
     pub unlock_conditions: Vec<Value>,
     pub levels: Vec<SkillItemLevel>,
-    pub loc_name: String,
+
+    #[serde(flatten)]
+    pub locale: LocaleName,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SkillItemLevel {
     pub level: u8,
@@ -196,16 +196,22 @@ pub struct SkillItemLevel {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CharacterClasses {
-    pub list: Vec<Class>,
+    pub list: Vec<ClassWithState>,
     pub skill_definitions: &'static [SkillDefinition],
 }
 
+/// Class with an unlocked state field
+#[derive(Debug, Serialize)]
+pub struct ClassWithState {
+    #[serde(flatten)]
+    pub class: &'static Class,
+    pub unlocked: bool,
+}
+
 // Everyone contains their own instance
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Class {
-    pub i18n_name: String,
-    pub i18n_description: String,
     pub level_name: Uuid,
     pub prestige_level_name: Uuid,
     pub points: Map<String, Value>,
@@ -214,7 +220,6 @@ pub struct Class {
     pub attributes: Map<String, Value>,
     pub bonus: Map<String, Value>,
     pub custom_attributes: Map<String, Value>,
-    pub unlocked: bool,
     pub default_equipments: Vec<CharacterEquipment>,
     pub default_customization: HashMap<String, CustomizationEntry>,
     pub name: Uuid,
@@ -223,8 +228,9 @@ pub struct Class {
     pub initial_active_candidate: bool,
     pub item_link: String, //0:{ITEM_ID}
     pub default_namespace: String,
-    pub loc_name: String,
-    pub loc_description: String,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }
 
 // Everyone contains their own instance
@@ -233,4 +239,25 @@ pub struct Class {
 pub struct UnlockedCharacters {
     pub active_character_id: Uuid,
     pub list: Vec<Character>,
+}
+
+/// Localized naming variables
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocaleNameWithDesc {
+    pub i18n_name: String,
+    pub i18n_description: String,
+
+    pub loc_name: Option<String>,
+    pub loc_description: Option<String>,
+}
+
+/// Localized naming variables
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocaleName {
+    pub i18n_name: String,
+    pub loc_name: Option<String>,
 }

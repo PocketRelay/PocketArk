@@ -8,7 +8,7 @@ use crate::{
         models::{
             character::{
                 CharacterClasses, CharacterEquipmentList, CharacterLevelTables, CharacterResponse,
-                CharactersResponse, Class, SkillDefinition, UnlockedCharacters,
+                CharactersResponse, ClassWithState, SkillDefinition, UnlockedCharacters,
                 UpdateCustomizationRequest, UpdateSkillTreesRequest,
             },
             HttpError,
@@ -245,21 +245,27 @@ pub async fn update_skill_tree(
 /// GET /character/classes
 pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, HttpError> {
     let services = App::services();
-    let skill_definitions: &'static [SkillDefinition] = services.defs.skills.list();
-
-    let mut list: Vec<Class> = services.defs.classes.list().to_vec();
 
     let db = App::database();
-
     let class_data = ClassData::get_from_user(db, &user).await?;
 
-    // Updating unlocks from classdata
-    list.iter_mut().for_each(|value| {
-        let data = class_data.iter().find(|v| v.name == value.name);
-        if let Some(data) = data {
-            value.unlocked = data.unlocked;
-        }
-    });
+    // Combine classes with unlocked class data states
+    let list: Vec<ClassWithState> = services
+        .character
+        .classes
+        .list()
+        .iter()
+        .map(|class| {
+            let unlocked = class_data
+                .iter()
+                .find(|class_data| class_data.name == class.name)
+                .is_some_and(|class_data| class_data.unlocked);
+
+            ClassWithState { class, unlocked }
+        })
+        .collect();
+
+    let skill_definitions: &'static [SkillDefinition] = &services.character.skills;
 
     Ok(Json(CharacterClasses {
         list,
@@ -274,7 +280,7 @@ pub async fn get_classes(Auth(user): Auth) -> Result<Json<CharacterClasses>, Htt
 pub async fn get_level_tables() -> Json<CharacterLevelTables> {
     let services = App::services();
     Json(CharacterLevelTables {
-        list: services.defs.level_tables.list(),
+        list: &services.character.level_tables,
     })
 }
 

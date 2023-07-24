@@ -5,7 +5,7 @@ use crate::{
         auth::Sku,
         character::{CharacterEquipment, CustomizationEntry, SkillTreeEntry, Xp},
     },
-    services::defs::{Definitions, LevelTables},
+    services::character::CharacterService,
 };
 use sea_orm::{
     entity::prelude::*,
@@ -94,9 +94,9 @@ impl Model {
 
     pub async fn create_from_item<C>(
         db: &C,
-        defs: &Definitions,
+        characters: &CharacterService,
         user: &User,
-        uuid: Uuid,
+        item_name: &str,
     ) -> DbResult<()>
     where
         C: ConnectionTrait + Send,
@@ -104,7 +104,7 @@ impl Model {
         const DEFAULT_LEVEL: u32 = 1;
         const DEFAULT_SKILL_POINTS: u32 = 2;
 
-        let class_def = match defs.classes.lookup(&uuid) {
+        let class_def = match characters.classes.by_item(item_name) {
             Some(value) => value,
             // Class definition for the item is missing (Item wasn't a character?)
             None => return Ok(()),
@@ -113,7 +113,7 @@ impl Model {
         let mut point_map = HashMap::new();
         point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
 
-        let xp = Self::xp_from_level(&defs.level_tables, class_def.level_name, DEFAULT_LEVEL);
+        let xp = Self::xp_from_level(characters, class_def.level_name, DEFAULT_LEVEL);
 
         // Insert character
         let model = ActiveModel {
@@ -147,8 +147,8 @@ impl Model {
 
     /// Obtains the xp structure which contains the current, next, and last
     /// xp requirements for the provided level using the level tables
-    fn xp_from_level(tables: &LevelTables, level_name: Uuid, level: u32) -> Xp {
-        let (current, last, next) = match tables.lookup(&level_name) {
+    fn xp_from_level(characters: &CharacterService, level_name: Uuid, level: u32) -> Xp {
+        let (current, last, next) = match characters.level_table(&level_name) {
             Some(table) => {
                 let current = table.get_entry_xp(level).unwrap_or(0);
                 let last = table.get_entry_xp(level - 1).unwrap_or(0);

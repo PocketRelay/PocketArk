@@ -85,12 +85,8 @@ impl Model {
 
         // Handle character creation
         if definition.category == Category::CHARACTERS {
-            let uuid = Uuid::parse_str(&definition.name);
-            if let Ok(uuid) = uuid {
-                let services = App::services();
-
-                Character::create_from_item(db, &services.defs, &user, uuid).await?;
-            }
+            let services = App::services();
+            Character::create_from_item(db, &services.character, &user, &definition.name).await?;
         }
 
         Ok(model)
@@ -169,7 +165,7 @@ impl Model {
         let services = App::services();
 
         for item in items {
-            let def = match services.items.inventory.lookup(item) {
+            let def = match services.items.by_name(item) {
                 Some(value) => value,
                 None => continue,
             };

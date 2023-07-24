@@ -1,11 +1,8 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    future::ready,
-};
+use std::collections::{BTreeMap, HashMap};
 
 use chrono::Utc;
 use interlink::{
-    prelude::{Fr, Handler, Link, Message, Mr, Sfr},
+    prelude::{Handler, Link, Message, Sfr},
     service::Service,
 };
 use log::{debug, error};
@@ -297,11 +294,9 @@ async fn process_player_data(
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
     let class = services
-        .defs
+        .character
         .classes
-        .list()
-        .iter()
-        .find(|value| value.name.eq(&character.class_name))
+        .by_name(&character.class_name)
         .ok_or(PlayerDataProcessError::MissingClass)?;
 
     let mut data_builder = PlayerDataBuilder::new();
@@ -364,11 +359,11 @@ async fn process_player_data(
     );
 
     debug!("Compute leveling");
-    let level_tables = &services.defs.level_tables;
 
     // Character leveling
-    let level_table = level_tables
-        .lookup(&class.level_name)
+    let level_table = services
+        .character
+        .level_table(&class.level_name)
         .expect("Missing class level table");
 
     let previous_xp = character.xp;
@@ -388,8 +383,9 @@ async fn process_player_data(
 
     // Character prestige leveling
     {
-        let level_table = level_tables
-            .lookup(&class.prestige_level_name)
+        let level_table = services
+            .character
+            .level_table(&class.prestige_level_name)
             .expect("Missing prestige level table");
 
         let prestige_value = shared_data

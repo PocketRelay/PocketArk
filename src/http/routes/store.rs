@@ -63,15 +63,13 @@ pub async fn obtain_article(
         .ok_or(HttpError::new("Unknown article", StatusCode::NOT_FOUND))?;
 
     // Find the item the user is trying to buy from the article
-    let article_item =
-        services
-            .items
-            .inventory
-            .lookup(&article.item_name)
-            .ok_or(HttpError::new(
-                "Unknown article item",
-                StatusCode::NOT_FOUND,
-            ))?;
+    let article_item = services
+        .items
+        .by_name(&article.item_name)
+        .ok_or(HttpError::new(
+            "Unknown article item",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     let db = App::database();
 
