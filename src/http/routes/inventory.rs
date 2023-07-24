@@ -144,6 +144,9 @@ pub async fn consume_inventory(
                         "Failed to grant pack items",
                         StatusCode::INTERNAL_SERVER_ERROR,
                     ));
+                } else {
+                    // Take 1 from the item we just consumed
+                    item.reduce_stack_size(db, 1).await?;
                 }
             } else {
                 warn!(

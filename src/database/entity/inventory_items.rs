@@ -107,6 +107,24 @@ impl Model {
         }
     }
 
+    /// Creates a new item if there are no matching item definitions in
+    /// the inventory otherwise appends the stack size to the existing item
+    pub async fn reduce_stack_size<C>(self, db: &C, amount: u32) -> DbResult<Option<Self>>
+    where
+        C: ConnectionTrait,
+    {
+        let stack_size = self.stack_size.saturating_sub(amount);
+        if stack_size == 0 {
+            self.delete(db).await?;
+            Ok(None)
+        } else {
+            let mut model = self.into_active_model();
+            model.stack_size = Set(stack_size);
+            let model = model.update(db).await?;
+            Ok(Some(model))
+        }
+    }
+
     pub async fn create_default(user: &User, db: &DatabaseConnection) -> DbResult<()> {
         // Create models from initial item defs
         let items = [

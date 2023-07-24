@@ -514,20 +514,38 @@ impl Pack {
         out: &mut Vec<GrantedItem>,
     ) -> Result<(), RandomError> {
         for chance in &self.items {
-            let values = Self::items_by_filter(&chance.filter, items, &self.items);
+            let mut has_weights = false;
 
-            let has_weight = values.iter().any(|(_, _, weight)| *weight > 0);
+            // List of all items that can be dropped and match the chance filter
+            let values: Vec<(&'static ItemDefinition, u32)> = items
+                .iter()
+                .filter(|value| value.droppable.unwrap_or_default())
+                .filter_map(|value| {
+                    let (check, weight) = chance.filter.check(value);
+                    if check {
+                        if weight > 0 {
+                            has_weights = true
+                        }
 
-            let items = if has_weight {
-                values.choose_multiple_weighted(rng, chance.amount, |(_, _, weight)| *weight)?
+                        Some((value, weight))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+
+            // Randomly select items
+            let items = if has_weights {
+                values.choose_multiple_weighted(rng, chance.amount, |(_, weight)| *weight)?
             } else {
                 values.choose_multiple(rng, chance.amount)
             };
-            for (defintion, chance, _) in items {
+
+            for (defintion, _) in items {
                 let existing = out.iter_mut().find(|value| value.defintion.eq(defintion));
 
                 if let Some(existing) = existing {
-                    existing.stack_size = existing.stack_size.saturating_add(chance.stack_size);
+                    existing.stack_size += chance.stack_size;
                 } else {
                     out.push(GrantedItem {
                         defintion,
@@ -538,28 +556,6 @@ impl Pack {
         }
 
         Ok(())
-    }
-
-    fn items_by_filter<'a>(
-        filter: &ItemFilter,
-        defs: &'static [ItemDefinition],
-        items: &'a [ItemChance],
-    ) -> Vec<(&'static ItemDefinition, &'a ItemChance, u32)> {
-        // TODO: Provide list of user unlocks to check for X and S variants unlockDefinitions
-
-        defs.iter()
-            .filter(|value| value.droppable.unwrap_or_default())
-            .filter_map(|value| {
-                for item in items {
-                    let (check, weight) = filter.check(value);
-                    if check {
-                        return Some((value, item, weight));
-                    }
-                }
-
-                None
-            })
-            .collect()
     }
 }
 
@@ -576,12 +572,6 @@ pub struct GrantedItem {
 pub enum RandomError {
     #[error(transparent)]
     Weight(#[from] WeightedError),
-}
-
-impl PackBuilder {
-    pub fn new() -> Self {
-        Self {}
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
