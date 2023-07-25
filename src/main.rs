@@ -1,7 +1,7 @@
 use log::LevelFilter;
 use tokio::{select, signal};
 
-use crate::state::App;
+use crate::{database::entity::User, state::App};
 
 #[allow(unused)]
 mod blaze;
@@ -18,8 +18,6 @@ async fn main() {
     utils::logging::setup(LevelFilter::Debug);
 
     App::init().await;
-
-    App::services().items.test();
 
     select! {
         _ = http::start_server() => {

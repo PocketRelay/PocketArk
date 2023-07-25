@@ -401,18 +401,6 @@ impl ItemsService {
                 .amount(1),
             )
     }
-
-    pub fn test(&'static self) {
-        // let mut out = File::create("packs.json").unwrap();
-        // let out = serde_json::to_writer(&mut out, &self.packs).unwrap();
-
-        // let mut rng = StdRng::from_entropy();
-
-        // let mut out = Vec::new();
-        // pack.grant_items(&mut rng, self.inventory.list(), &mut out);
-
-        // debug!("Test Grant: {:#?}", out);
-    }
 }
 
 pub struct Rarity {}

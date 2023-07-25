@@ -484,7 +484,7 @@ async fn process_player_data(
         pid: user.id,
         persona_id: user.id,
         persona_display_name: user.username,
-        character_id: character.id,
+        character_id: character.character_id,
         character_class: character.class_name,
         modifiers: vec![],
         session_id: Uuid::new_v4(),
