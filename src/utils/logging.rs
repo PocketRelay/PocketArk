@@ -41,6 +41,12 @@ pub fn setup(logging_level: LevelFilter) {
                 .additive(false)
                 .build("pocket_ark", logging_level),
         )
+        .logger(
+            Logger::builder()
+                .appenders(APPENDERS)
+                .additive(false)
+                .build("sqlx", LevelFilter::Warn),
+        )
         .build(
             Root::builder()
                 .appenders(APPENDERS)

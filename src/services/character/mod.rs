@@ -98,8 +98,8 @@ impl ClassLookup {
                 Ok(value) => value,
                 Err(err) => {
                     error!(
-                        "Class {} item link UUID invalid: {}",
-                        class.name, class.item_link
+                        "Class {} item link UUID invalid '{}': {}",
+                        class.name, class.item_link, err
                     );
                     return;
                 }
