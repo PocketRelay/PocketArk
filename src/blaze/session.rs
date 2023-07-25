@@ -10,7 +10,7 @@ use crate::{
     },
     database::entity::User,
     http::middleware::upgrade::UpgradedTarget,
-    services::game::{GameID, Player},
+    services::game::{manager::GetGameMessage, GameID, Player, RemovePlayerMessage, RemoveReason},
     state::App,
 };
 use bytes::Bytes;
@@ -60,10 +60,24 @@ impl Service for Session {
 
     fn stopping(&mut self) {
         debug!("Session stopped {}", &self.uuid);
-        if let Some(id) = self.game {
-            let session_id = self.uuid;
+        if let Some(game_id) = self.game {
+            let user_id = self.user.id;
 
-            tokio::spawn(async move {});
+            tokio::spawn(async move {
+                let services = App::services();
+
+                let game = match services.games.send(GetGameMessage { game_id }).await {
+                    Ok(Some(value)) => value,
+                    _ => return,
+                };
+
+                let _ = game
+                    .send(RemovePlayerMessage {
+                        user_id,
+                        reason: RemoveReason::ServerConnectionLost,
+                    })
+                    .await;
+            });
         }
     }
 }

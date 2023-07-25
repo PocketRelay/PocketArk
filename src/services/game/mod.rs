@@ -19,7 +19,15 @@ use crate::{
             user_sessions::{IpPairAddress, NetData},
             PlayerState,
         },
-        pk::{codec::Encodable, packet::Packet, tag::TdfType, types::TdfMap, writer::TdfWriter},
+        pk::{
+            codec::{Decodable, Encodable, ValueType},
+            error::DecodeResult,
+            packet::Packet,
+            reader::TdfReader,
+            tag::TdfType,
+            types::TdfMap,
+            writer::TdfWriter,
+        },
         session::{PushExt, SessionLink, SetGameMessage},
     },
     database::entity::{
@@ -396,6 +404,8 @@ async fn process_player_data(
 
             // Save the changed progression
             shared_data = shared_data.save_progression(db).await?;
+        } else {
+            // TODO: Handle appending new shared progression
         }
     }
 
@@ -474,7 +484,7 @@ async fn process_player_data(
         pid: user.id,
         persona_id: user.id,
         persona_display_name: user.username,
-        character_id: character.character_id,
+        character_id: character.id,
         character_class: character.class_name,
         modifiers: vec![],
         session_id: Uuid::new_v4(),
@@ -545,6 +555,61 @@ impl Handler<UpdateStateMessage> for Game {
     ) -> Self::Response {
         self.state = msg.state;
         self.notify_state();
+    }
+}
+
+#[derive(Message)]
+pub struct RemovePlayerMessage {
+    pub user_id: u32,
+    pub reason: RemoveReason,
+}
+
+impl Handler<RemovePlayerMessage> for Game {
+    type Response = ();
+    fn handle(
+        &mut self,
+        msg: RemovePlayerMessage,
+        ctx: &mut interlink::service::ServiceContext<Self>,
+    ) -> Self::Response {
+        // Already empty game handling
+        if self.players.is_empty() {
+            ctx.stop();
+            return;
+        }
+
+        // Find the player index
+        let index = self.players.iter().position(|v| v.user.id == msg.user_id);
+
+        let index = match index {
+            Some(value) => value,
+            None => return,
+        };
+
+        // Remove the player
+        let player = self.players.remove(index);
+
+        // Set current game of this player
+        player.set_game(None);
+
+        // Update the other players
+        self.notify_player_removed(&player, msg.reason);
+        // self.notify_fetch_data(&player);
+        // self.modify_admin_list(player.player.id, AdminListOperation::Remove);
+
+        debug!(
+            "Removed player from game (PID: {}, GID: {})",
+            player.user.id, self.id
+        );
+
+        // If the player was in the host slot attempt migration
+        if index == 0 {
+            // self.try_migrate_host();
+        }
+
+        if self.players.is_empty() {
+            // Game is empty stop it
+            ctx.stop();
+        }
     }
 }
 
@@ -681,6 +746,25 @@ impl Game {
         this.start()
     }
 
+    /// Notifies all the session and the removed session that a
+    /// session was removed from the game.
+    ///
+    /// `player`    The player that was removed
+    /// `player_id` The player ID of the removed player
+    fn notify_player_removed(&self, player: &Player, reason: RemoveReason) {
+        let packet = Packet::notify(
+            components::game_manager::COMPONENT,
+            components::game_manager::NOTIFY_PLAYER_REMOVED,
+            PlayerRemoved {
+                game_id: self.id,
+                player_id: player.user.id,
+                reason,
+            },
+        );
+        self.push_all(&packet);
+        player.link.push(packet);
+    }
+
     /// Writes the provided packet to all connected sessions.
     /// Does not wait for the write to complete just waits for
     /// it to be placed into each sessions write buffers.
@@ -712,6 +796,88 @@ impl Game {
                 state: self.state,
             },
         );
+    }
+}
+
+pub struct PlayerRemoved {
+    pub game_id: GameID,
+    pub player_id: u32,
+    pub reason: RemoveReason,
+}
+
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum RemoveReason {
+    /// Hit timeout while joining
+    JoinTimeout = 0x0,
+    /// Player lost PTP conneciton
+    PlayerConnectionLost = 0x1,
+    /// Player lost connection with the Pocket Relay server
+    ServerConnectionLost = 0x2,
+    /// Game migration failed
+    MigrationFailed = 0x3,
+    GameDestroyed = 0x4,
+    GameEnded = 0x5,
+    /// Generic player left the game reason
+    PlayerLeft = 0x6,
+    GroupLeft = 0x7,
+    /// Player kicked
+    PlayerKicked = 0x8,
+    /// Player kicked and banned
+    PlayerKickedWithBan = 0x9,
+    /// Failed to join from the queue
+    PlayerJoinFromQueueFailed = 0xA,
+    PlayerReservationTimeout = 0xB,
+    HostEjected = 0xC,
+}
+
+impl RemoveReason {
+    pub fn from_value(value: u8) -> Self {
+        match value {
+            0x0 => Self::JoinTimeout,
+            0x1 => Self::PlayerConnectionLost,
+            0x2 => Self::ServerConnectionLost,
+            0x3 => Self::MigrationFailed,
+            0x4 => Self::GameDestroyed,
+            0x5 => Self::GameEnded,
+            0x6 => Self::PlayerLeft,
+            0x7 => Self::GroupLeft,
+            0x8 => Self::PlayerKicked,
+            0x9 => Self::PlayerKickedWithBan,
+            0xA => Self::PlayerJoinFromQueueFailed,
+            0xB => Self::PlayerReservationTimeout,
+            0xC => Self::HostEjected,
+            // Default to generic reason for unknown
+            _ => Self::PlayerLeft,
+        }
+    }
+}
+
+impl Encodable for RemoveReason {
+    fn encode(&self, writer: &mut TdfWriter) {
+        writer.write_u8((*self) as u8);
+    }
+}
+
+impl Decodable for RemoveReason {
+    fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
+        let value: u8 = reader.read_u8()?;
+        Ok(Self::from_value(value))
+    }
+}
+
+impl ValueType for RemoveReason {
+    fn value_type() -> TdfType {
+        TdfType::VarInt
+    }
+}
+
+impl Encodable for PlayerRemoved {
+    fn encode(&self, writer: &mut TdfWriter) {
+        writer.tag_u8(b"CNTX", 0);
+        writer.tag_u32(b"GID", self.game_id);
+        writer.tag_u32(b"PID", self.player_id);
+        writer.tag_value(b"REAS", &self.reason);
     }
 }
 

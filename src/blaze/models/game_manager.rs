@@ -3,7 +3,7 @@ use crate::{
         codec::Decodable, codec::Encodable, error::DecodeResult, reader::TdfReader, tag::TdfType,
         writer::TdfWriter,
     },
-    services::game::AttrMap,
+    services::game::{AttrMap, RemoveReason},
 };
 
 pub struct CreateGameResp;
@@ -65,6 +65,18 @@ impl Decodable for ReplayGameRequest {
     fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
         let gid = r.tag(b"GID")?;
         Ok(Self { gid })
+    }
+}
+pub struct LeaveGameRequest {
+    pub gid: u32,
+    pub reas: RemoveReason,
+}
+
+impl Decodable for LeaveGameRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let gid = r.tag(b"GID")?;
+        let reas = r.tag(b"REAS")?;
+        Ok(Self { gid, reas })
     }
 }
 

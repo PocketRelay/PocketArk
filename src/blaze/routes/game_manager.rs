@@ -1,14 +1,15 @@
 use crate::{
     blaze::{
         models::game_manager::{
-            CreateGameResp, ReplayGameRequest, UpdateAttrRequest, UpdateGameAttrRequest,
-            UpdateStateRequest,
+            CreateGameResp, LeaveGameRequest, ReplayGameRequest, UpdateAttrRequest,
+            UpdateGameAttrRequest, UpdateStateRequest,
         },
-        session::{GetPlayerMessage, SessionLink},
+        session::{self, GetPlayerMessage, GetUserMessage, SessionLink},
     },
     services::game::{
         manager::{CreateMessage, GetGameMessage},
-        NotifyGameReplayMessage, UpdateGameAttrMessage, UpdatePlayerAttr, UpdateStateMessage,
+        NotifyGameReplayMessage, RemovePlayerMessage, UpdateGameAttrMessage, UpdatePlayerAttr,
+        UpdateStateMessage,
     },
     state::App,
 };
@@ -76,4 +77,24 @@ pub async fn replay_game(_session: &mut SessionLink, req: ReplayGameRequest) {
         .expect("Unknown game");
     let _ = game.send(UpdateStateMessage { state: 130 }).await;
     let _ = game.send(NotifyGameReplayMessage).await;
+}
+
+pub async fn leave_game(session: &mut SessionLink, req: LeaveGameRequest) {
+    let services = App::services();
+    let game = services
+        .games
+        .send(GetGameMessage { game_id: req.gid })
+        .await
+        .expect("Failed to create")
+        .expect("Unknown game");
+    let user = session
+        .send(GetUserMessage)
+        .await
+        .expect("Failed to get user");
+    let _ = game
+        .send(RemovePlayerMessage {
+            user_id: user.id,
+            reason: req.reas,
+        })
+        .await;
 }
