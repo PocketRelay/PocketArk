@@ -125,11 +125,10 @@ impl Model {
 
     /// Creates a new item if there are no matching item definitions in
     /// the inventory otherwise appends the stack size to the existing item
-    pub async fn reduce_stack_size<C>(self, db: &C, amount: u32) -> DbResult<Option<Self>>
+    pub async fn set_stack_size<C>(self, db: &C, stack_size: u32) -> DbResult<Option<Self>>
     where
         C: ConnectionTrait,
     {
-        let stack_size = self.stack_size.saturating_sub(amount);
         if stack_size == 0 {
             self.delete(db).await?;
             Ok(None)

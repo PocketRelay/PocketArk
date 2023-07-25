@@ -505,7 +505,7 @@ impl Category {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pack {
-    name: Uuid,
+    pub name: Uuid,
     items: Vec<ItemChance>,
 }
 
