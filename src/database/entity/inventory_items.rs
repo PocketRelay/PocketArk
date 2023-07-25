@@ -88,7 +88,7 @@ impl Model {
         // Handle character creation
         if definition.category == Category::CHARACTERS {
             let services = App::services();
-            Character::create_from_item(db, &services.character, &user, &definition.name).await?;
+            Character::create_from_item(db, &services.character, user, &definition.name).await?;
         }
 
         Ok(model)

@@ -74,14 +74,13 @@ pub async fn qos_firewall(Query(query): Query<FirewallQuery>) -> RawXml {
 pub async fn qos_firetype(Query(query): Query<FireTypeQuery>) -> RawXml {
     debug!("Redirected QOS type query to local: {:?}", query);
 
-    let response = format!(
-        r#"<?xml version="1.0" encoding="UTF-8"?>
+    let response = r#"<?xml version="1.0" encoding="UTF-8"?>
         <error>
             <component>16</component>
             <errorCode>13107216</errorCode>
             <errorName>QOS_ERR_INVALID_SLOT</errorName>
-        </error>"#,
-    );
+        </error>"#
+        .to_string();
 
     RawXml(response)
 }

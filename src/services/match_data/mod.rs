@@ -106,7 +106,7 @@ impl Badge {
         activity: &MissionActivity,
     ) -> Option<(&Self, &ActivityDescriptor)> {
         self.activities.iter().find_map(|value| {
-            if value.matches(&activity) {
+            if value.matches(activity) {
                 Some((self, value))
             } else {
                 None

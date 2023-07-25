@@ -19,6 +19,12 @@ pub struct CharacterService {
     pub level_tables: Vec<LevelTable>,
 }
 
+impl Default for CharacterService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CharacterService {
     pub fn new() -> Self {
         let classes = match ClassLookup::new() {
