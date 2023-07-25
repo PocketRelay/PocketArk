@@ -3,7 +3,6 @@ use crate::{
     http::{
         middleware::user::Auth,
         models::{
-            inventory::ActivityResult,
             store::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, UpdateSeenArticles, UserCurrenciesResponse,
@@ -11,6 +10,7 @@ use crate::{
             HttpError,
         },
     },
+    services::activity::ActivityResult,
     state::App,
 };
 use axum::Json;
@@ -84,7 +84,8 @@ pub async fn obtain_article(
 
     debug!(
         "Purchased article: {} ({:?})",
-        &article_item.name, &article_item.loc_name
+        &article_item.name,
+        &article_item.locale.name()
     );
 
     // Create the purchased item

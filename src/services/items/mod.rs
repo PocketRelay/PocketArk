@@ -1,13 +1,14 @@
 //! Service in charge of deailing with items opening packs
 
-use crate::{database::entity::InventoryItem, http::models::inventory::ItemDefinition};
+use crate::{database::entity::InventoryItem, utils::models::LocaleNameWithDesc};
 use log::{debug, error};
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, process::exit};
+use serde_with::skip_serializing_none;
+use std::{collections::HashMap, hash::Hash, process::exit, str::FromStr};
 use thiserror::Error;
-use uuid::Uuid;
+use uuid::{uuid, Uuid};
 
 pub const INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
@@ -16,9 +17,9 @@ pub struct ItemsService {
     /// Item definitions
     defs: Vec<ItemDefinition>,
     /// Lookup table for item definitions based on their name
-    defs_by_name: HashMap<String, usize>,
+    defs_by_name: HashMap<Uuid, usize>,
     /// Available unlock packs
-    pub packs: HashMap<String, Pack>,
+    pub packs: HashMap<Uuid, Pack>,
 }
 
 impl ItemsService {
@@ -31,15 +32,15 @@ impl ItemsService {
             }
         };
 
-        let defs_by_name: HashMap<String, usize> = defs
+        let defs_by_name: HashMap<Uuid, usize> = defs
             .iter()
             .enumerate()
-            .map(|(index, definition)| (definition.name.clone(), index))
+            .map(|(index, definition)| (definition.name, index))
             .collect();
 
         debug!("Loaded {} inventory item definition(s)", defs.len());
 
-        let packs: HashMap<String, Pack> = [
+        let packs: HashMap<Uuid, Pack> = [
             // Packs
             Self::supply_pack(),
             Self::basic_pack(),
@@ -58,7 +59,7 @@ impl ItemsService {
             Self::random_uncommon_mod_pack(),
         ]
         .into_iter()
-        .map(|pack| (pack.name.clone(), pack))
+        .map(|pack| (pack.name, pack))
         .collect();
 
         Self {
@@ -72,7 +73,7 @@ impl ItemsService {
         &self.defs
     }
 
-    pub fn by_name(&self, name: &str) -> Option<&ItemDefinition> {
+    pub fn by_name(&self, name: &Uuid) -> Option<&ItemDefinition> {
         let index = self.defs_by_name.get(name).copied()?;
         let def = &self.defs[index];
         Some(def)
@@ -81,13 +82,21 @@ impl ItemsService {
     fn supply_pack() -> Pack {
         Pack::new("c5b3d9e6-7932-4579-ba8a-fd469ed43fda")
             // COBRA RPG
-            .add_item(ItemChance::named("eaefec2a-d892-498b-a175-e5d2048ae39a"))
+            .add_item(ItemChance::named(uuid!(
+                "eaefec2a-d892-498b-a175-e5d2048ae39a"
+            )))
             // REVIVE PACK
-            .add_item(ItemChance::named("af39be6b-0542-4997-b524-227aa41ae2eb"))
+            .add_item(ItemChance::named(uuid!(
+                "af39be6b-0542-4997-b524-227aa41ae2eb"
+            )))
             // AMMO PACK
-            .add_item(ItemChance::named("2cc0d932-8e9d-48a6-a6e8-a5665b77e835"))
+            .add_item(ItemChance::named(uuid!(
+                "2cc0d932-8e9d-48a6-a6e8-a5665b77e835"
+            )))
             // FIRST AID PACK
-            .add_item(ItemChance::named("4d790010-1a79-4bd0-a79b-d52cac068a3a"))
+            .add_item(ItemChance::named(uuid!(
+                "4d790010-1a79-4bd0-a79b-d52cac068a3a"
+            )))
             // Random Boosters
             .add_item(ItemChance::new(ItemFilter::category(Category::BOOSTERS)))
     }
@@ -120,13 +129,21 @@ impl ItemsService {
     fn jumbo_supply_pack() -> Pack {
         Pack::new("e4f4d32a-90c3-4f5c-9362-3bb5933706c7")
             // 5x COBRA RPG
-            .add_item(ItemChance::named("eaefec2a-d892-498b-a175-e5d2048ae39a").stack_size(5))
+            .add_item(
+                ItemChance::named(uuid!("eaefec2a-d892-498b-a175-e5d2048ae39a")).stack_size(5),
+            )
             // 5x REVIVE PACK
-            .add_item(ItemChance::named("af39be6b-0542-4997-b524-227aa41ae2eb").stack_size(5))
+            .add_item(
+                ItemChance::named(uuid!("af39be6b-0542-4997-b524-227aa41ae2eb")).stack_size(5),
+            )
             // 5x AMMO PACK
-            .add_item(ItemChance::named("2cc0d932-8e9d-48a6-a6e8-a5665b77e835").stack_size(5))
+            .add_item(
+                ItemChance::named(uuid!("2cc0d932-8e9d-48a6-a6e8-a5665b77e835")).stack_size(5),
+            )
             // 5x FIRST AID PACK
-            .add_item(ItemChance::named("4d790010-1a79-4bd0-a79b-d52cac068a3a").stack_size(5))
+            .add_item(
+                ItemChance::named(uuid!("4d790010-1a79-4bd0-a79b-d52cac068a3a")).stack_size(5),
+            )
             // 5 Random Boosters
             .add_item(ItemChance::new(ItemFilter::category(Category::BOOSTERS)).amount(5))
     }
@@ -500,7 +517,7 @@ impl Category {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pack {
-    name: String,
+    name: Uuid,
     items: Vec<ItemChance>,
 }
 
@@ -508,7 +525,7 @@ impl Pack {
     pub fn new(name: &str) -> Self {
         Self {
             items: Vec::new(),
-            name: name.to_string(),
+            name: Uuid::from_str(name).expect("Invalid pack uuid"),
         }
     }
 
@@ -632,7 +649,7 @@ impl ItemChance {
         }
     }
 
-    pub fn named(name: &str) -> Self {
+    pub fn named(name: Uuid) -> Self {
         Self::new(ItemFilter::named(name))
     }
 
@@ -651,7 +668,7 @@ impl ItemChance {
 #[serde(rename_all = "camelCase")]
 pub enum ItemFilter {
     /// Literal name of the item definition to use
-    Named(String),
+    Named(Uuid),
     /// Filter requiring a rarity
     Rarity(String),
     /// Filter requiring a category
@@ -729,8 +746,8 @@ impl ItemFilter {
         )
     }
 
-    pub fn named(value: &str) -> Self {
-        ItemFilter::Named(value.to_string())
+    pub fn named(value: Uuid) -> Self {
+        ItemFilter::Named(value)
     }
 
     pub fn rarity(value: &str) -> Self {
@@ -830,5 +847,61 @@ impl ItemFilter {
         I: IntoIterator<Item = Self>,
     {
         Self::Any(iter.into_iter().collect())
+    }
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ItemDefinition {
+    pub name: Uuid,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
+
+    pub custom_attributes: HashMap<String, Value>,
+    #[serialize_always]
+    pub secret: Option<Value>,
+    pub category: String,
+    pub attachable_categories: Vec<String>,
+    pub rarity: Option<String>,
+    pub droppable: Option<bool>,
+    pub consumable: Option<bool>,
+    pub cap: Option<u32>,
+
+    /// Name of definition that this item depends on
+    /// (Requires the item to reach its capacity before it can be dropped)
+    /// TODO: Handle this when doing store rewards
+    pub unlock_definition: Option<Uuid>,
+
+    #[serde(flatten)]
+    pub events: ItemEvents,
+
+    pub restrictions: Option<String>,
+    pub default_namespace: String,
+}
+
+/// Activity events that should be created when
+/// different things happen to the item
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ItemEvents {
+    pub on_consume: Option<Vec<Value>>,
+    pub on_add: Option<Vec<Value>>,
+    pub on_remove: Option<Vec<Value>>,
+}
+
+impl PartialEq for ItemDefinition {
+    fn eq(&self, other: &Self) -> bool {
+        self.name.eq(&other.name)
+    }
+}
+
+impl Eq for ItemDefinition {}
+
+impl Hash for ItemDefinition {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state)
     }
 }

@@ -1,10 +1,11 @@
+use std::str::FromStr;
+
 use crate::{
     database::{
         entity::{Character, InventoryItem, User, ValueMap},
         DbResult,
     },
-    http::models::inventory::ItemDefinition,
-    services::items::Category,
+    services::items::{Category, ItemDefinition},
     state::App,
 };
 use chrono::Utc;
@@ -27,7 +28,7 @@ pub struct Model {
     pub item_id: Uuid,
     #[serde(skip)]
     pub user_id: u32,
-    pub definition_name: String,
+    pub definition_name: Uuid,
     pub stack_size: u32,
     pub seen: bool,
     pub instance_attributes: ValueMap,
@@ -72,7 +73,7 @@ impl Model {
             id: NotSet,
             user_id: Set(user.id),
             item_id: Set(Uuid::new_v4()),
-            definition_name: Set(definition.name.to_string()),
+            definition_name: Set(definition.name),
             stack_size: Set(stack_size),
             seen: Set(false),
             instance_attributes: Set(ValueMap::default()),
@@ -106,7 +107,7 @@ impl Model {
     {
         if let Some(existing) = user
             .find_related(Entity)
-            .filter(Column::DefinitionName.eq(&definition.name))
+            .filter(Column::DefinitionName.eq(definition.name))
             .one(db)
             .await?
         {
@@ -166,7 +167,8 @@ impl Model {
         let services = App::services();
 
         for item in items {
-            let def = match services.items.by_name(item) {
+            let item = Uuid::from_str(item).expect("Invalid default item UUID");
+            let def = match services.items.by_name(&item) {
                 Some(value) => value,
                 None => continue,
             };

@@ -8,7 +8,7 @@ use serde_with::skip_serializing_none;
 pub struct LocaleNameWithDesc {
     // translation codes
     pub i18n_name: String,
-    pub i18n_description: String,
+    pub i18n_description: Option<String>,
 
     // translated
     pub loc_name: Option<String>,
@@ -27,11 +27,10 @@ impl LocaleNameWithDesc {
 
     /// Returns the localized description if present otherwise
     /// returns the i18n translation code
-    pub fn description(&self) -> &str {
-        match self.loc_description.as_ref() {
-            Some(value) => value,
-            None => &self.i18n_description,
-        }
+    pub fn description(&self) -> Option<&String> {
+        self.loc_description
+            .as_ref()
+            .or(self.i18n_description.as_ref())
     }
 }
 

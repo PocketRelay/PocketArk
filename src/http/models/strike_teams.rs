@@ -2,9 +2,7 @@ use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::services::character::Xp;
-
-use super::inventory::ActivityResult;
+use crate::services::{activity::ActivityResult, character::Xp};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

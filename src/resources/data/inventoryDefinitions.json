@@ -1,6 +1,6 @@
 [
     {
-        "name": "Free300APEXPointsOnAdd",
+        "name": "9d0da075-fc0e-47ab-8dd2-f9583823a7ed",
         "i18nName": "FREE_300_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_300_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -10,7 +10,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free1100APEXPointsOnAdd",
+        "name": "943725ae-135b-412a-aac8-a8555956c02c",
         "i18nName": "FREE_1100_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_1100_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -20,7 +20,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free1500APEXPointsOnAdd",
+        "name": "fcadad49-7c67-4e1f-825b-049b7e0a5cdb",
         "i18nName": "FREE_1500_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_1500_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -30,7 +30,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free4000APEXPointsOnAdd",
+        "name": "bceb5633-5f00-4113-9eac-3c8329a051e7",
         "i18nName": "FREE_4000_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_4000_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -51,7 +51,7 @@
         "defaultNamespace": ""
     },
     {
-        "name": "Free700APEXPointsOnAdd",
+        "name": "76d25328-78ed-4903-b330-7f80b631d886",
         "i18nName": "FREE_700_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_700_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -806,7 +806,7 @@
         "defaultNamespace": ""
     },
     {
-        "name": "Free500APEXPointsOnAdd",
+        "name": "ab9b7526-525d-4542-b10f-c7cb98eb804e",
         "i18nName": "FREE_500_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_500_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -816,7 +816,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free1050APEXPointsOnAdd",
+        "name": "605ce925-9a0d-4e7f-b719-1418a18230bc",
         "i18nName": "FREE_1050_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_1050_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -826,7 +826,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free2150APEXPointsOnAdd",
+        "name": "4cbd9566-b627-4b49-bc83-566da47457e6",
         "i18nName": "FREE_2150_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_2150_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -836,7 +836,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free3250APEXPointsOnAdd",
+        "name": "3afb1f95-55a0-46e8-8959-8b01b6e5e583",
         "i18nName": "FREE_3250_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_3250_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -846,7 +846,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free5750APEXPointsOnAdd",
+        "name": "feb5fa9a-e045-4ab0-9273-36630c4ab3a7",
         "i18nName": "FREE_5750_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_5750_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},
@@ -856,7 +856,7 @@
         "defaultNamespace": "default"
     },
     {
-        "name": "Free12000APEXPointsOnAdd",
+        "name": "784d1252-da58-4188-8302-e310a79dbc39",
         "i18nName": "FREE_12000_APEX_POINTS_ON_ADD",
         "i18nDescription": "FREE_12000_APEX_POINTS_ON_ADD_DESC",
         "customAttributes": {},

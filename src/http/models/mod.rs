@@ -20,6 +20,8 @@ pub mod strike_teams;
 pub mod telemetry;
 pub mod user_match;
 
+pub type HttpResult<T> = Result<Json<T>, HttpError>;
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpError {

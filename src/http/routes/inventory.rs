@@ -4,16 +4,19 @@ use crate::{
         middleware::user::Auth,
         models::{
             inventory::{
-                ActivityResult, InventoryConsumeRequest, InventoryDefinitions, InventoryResponse,
-                InventorySeenList, ItemDefinition,
+                ConsumeRequest, InventoryRequestQuery, InventoryResponse, InventorySeenRequest,
+                ItemDefinitionsResponse,
             },
-            HttpError,
+            HttpError, HttpResult,
         },
     },
-    services::items::{Category, GrantedItem, ItemChanged},
+    services::{
+        activity::ActivityResult,
+        items::{Category, GrantedItem, ItemChanged, ItemDefinition},
+    },
     state::App,
 };
-use axum::Json;
+use axum::{extract::Query, Json};
 use hyper::StatusCode;
 use log::{debug, error, warn};
 use rand::{rngs::StdRng, SeedableRng};
@@ -23,14 +26,33 @@ use serde_json::Map;
 ///
 /// Responds with a list of all the players inventory items along
 /// with the definitions for the items
-pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, HttpError> {
+pub async fn get_inventory(
+    Query(query): Query<InventoryRequestQuery>,
+    Auth(user): Auth,
+) -> HttpResult<InventoryResponse> {
     let db = App::database();
     let services = App::services();
-    let items = InventoryItem::get_all_items(db, &user).await?;
-    let definitions = items
-        .iter()
-        .filter_map(|item| services.items.by_name(&item.definition_name))
-        .collect();
+    let mut items = InventoryItem::get_all_items(db, &user).await?;
+
+    if let Some(namespace) = query.namespace {
+        // Remove items that aren't in the same namespace
+        items.retain(|item| {
+            services
+                .items
+                .by_name(&item.definition_name)
+                .is_some_and(|def| def.default_namespace.eq(&namespace))
+        });
+    }
+
+    let definitions = if query.include_definitions {
+        let defs = items
+            .iter()
+            .filter_map(|item| services.items.by_name(&item.definition_name))
+            .collect();
+        Some(defs)
+    } else {
+        None
+    };
 
     Ok(Json(InventoryResponse { items, definitions }))
 }
@@ -39,10 +61,10 @@ pub async fn get_inventory(Auth(user): Auth) -> Result<Json<InventoryResponse>, 
 ///
 /// Obtains the definitions for all the inventory items this includes things
 /// like lootboxes, characters, weapons, etc.
-pub async fn get_definitions() -> Json<InventoryDefinitions> {
+pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
     let services = App::services();
     let list: &'static [ItemDefinition] = services.items.defs();
-    Json(InventoryDefinitions {
+    Json(ItemDefinitionsResponse {
         total_count: list.len(),
         list,
     })
@@ -53,7 +75,7 @@ pub async fn get_definitions() -> Json<InventoryDefinitions> {
 /// Updates the seen status of a list of inventory item IDs
 pub async fn update_inventory_seen(
     Auth(user): Auth,
-    Json(req): Json<InventorySeenList>,
+    Json(req): Json<InventorySeenRequest>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Inventory seen change requested: {:?}", req);
 
@@ -73,7 +95,7 @@ pub async fn update_inventory_seen(
 /// within the game.
 pub async fn consume_inventory(
     Auth(user): Auth,
-    Json(req): Json<InventoryConsumeRequest>,
+    Json(req): Json<ConsumeRequest>,
 ) -> Result<Json<ActivityResult>, HttpError> {
     debug!("Consume inventory items: {:?}", req);
 
@@ -136,7 +158,8 @@ pub async fn consume_inventory(
             } else {
                 warn!(
                     "Don't know how to handle item pack: {} ({:?})",
-                    &definition.name, &definition.loc_name
+                    &definition.name,
+                    &definition.locale.name()
                 );
                 return Err(HttpError::new(
                     "Pack item not implemented",
@@ -158,7 +181,9 @@ pub async fn consume_inventory(
     for granted in granted {
         debug!(
             "Granted item {} x{} ({:?}",
-            granted.defintion.name, granted.stack_size, granted.defintion.loc_name
+            granted.defintion.name,
+            granted.stack_size,
+            granted.defintion.locale.name()
         );
 
         let mut item =

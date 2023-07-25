@@ -1,106 +1,58 @@
-use crate::database::entity::{Currency, InventoryItem};
+use crate::{database::entity::InventoryItem, services::items::ItemDefinition};
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+
 use serde_with::skip_serializing_none;
-use std::{collections::HashMap, hash::Hash};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize)]
-pub struct InventoryResponse {
-    pub items: Vec<InventoryItem>,
-    pub definitions: Vec<&'static ItemDefinition>,
+/// Paramas for requesting inventory
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct InventoryRequestQuery {
+    /// Whether to include definitions in the response
+    pub include_definitions: bool,
+    /// Optional namespace to filter by
+    pub namespace: Option<String>,
 }
 
+/// Response containing all the inventory items and their definitions
+#[skip_serializing_none]
 #[derive(Debug, Serialize)]
-pub struct InventoryDefinitions {
+pub struct InventoryResponse {
+    /// List of inventory items
+    pub items: Vec<InventoryItem>,
+    /// Definitions for items (only present when asked for in query)
+    pub definitions: Option<Vec<&'static ItemDefinition>>,
+}
+
+/// Response containing all the item definitions
+#[derive(Debug, Serialize)]
+pub struct ItemDefinitionsResponse {
     pub total_count: usize,
     pub list: &'static [ItemDefinition],
 }
 
+/// Request updating inventory item seen states
 #[derive(Debug, Deserialize)]
-pub struct InventorySeenList {
+pub struct InventorySeenRequest {
+    /// The list of item IDs to mark as seen
     pub list: Vec<Uuid>,
 }
 
+/// Item consume request body
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct InventoryConsumeRequest {
+pub struct ConsumeRequest {
+    /// List of items to consume
     pub items: Vec<ConsumeTarget>,
+    /// The namespace to search within
     pub namespace: String,
 }
 
+/// Target item that should be consumed
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConsumeTarget {
+    /// ID of the item to consume
     pub item_id: Uuid,
-    pub target_id: String,
-}
-
-#[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ItemDefinition {
-    pub name: String,
-    pub i18n_name: String,
-    pub i18n_description: Option<String>,
-    pub loc_name: Option<String>,
-    pub loc_description: Option<String>,
-    pub custom_attributes: HashMap<String, Value>,
-    #[serialize_always]
-    pub secret: Option<Value>,
-    pub category: String,
-    pub attachable_categories: Vec<String>,
-    pub rarity: Option<String>,
-    pub droppable: Option<bool>,
-    pub consumable: Option<bool>,
-    pub cap: Option<u32>,
-
-    /// Name of definition that this item depends on
-    /// (Requires the item to reach its capacity before it can be dropped)
-    /// TODO: Handle this when doing store rewards
-    pub unlock_definition: Option<String>,
-
-    pub on_consume: Option<Vec<Value>>,
-    pub on_add: Option<Vec<Value>>,
-    pub on_remove: Option<Vec<Value>>,
-    pub restrictions: Option<String>,
-    pub default_namespace: String,
-}
-
-impl PartialEq for ItemDefinition {
-    fn eq(&self, other: &Self) -> bool {
-        self.name.eq(&other.name)
-    }
-}
-
-impl Eq for ItemDefinition {}
-
-impl Hash for ItemDefinition {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.name.hash(state)
-    }
-}
-
-#[skip_serializing_none]
-#[derive(Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ActivityResult {
-    pub previous_xp: u32,
-    pub xp: u32,
-    pub xp_gained: u32,
-    pub previous_level: u32,
-    pub level: u32,
-    pub level_up: bool,
-    pub character_class_name: Option<Uuid>,
-    pub challenges_updated_count: u32,
-    pub challenges_completed_count: u32,
-    pub challenges_updated: Vec<Value>,
-    pub updated_challenge_ids: Vec<Value>,
-    pub news_triggered: u32,
-    pub currencies: Vec<Currency>,
-    pub currency_earned: Vec<Currency>,
-    pub items_earned: Vec<InventoryItem>,
-    pub item_definitions: Vec<&'static ItemDefinition>,
-    pub entitlements_granted: Vec<Value>,
-    pub prestige_progression_map: Map<String, Value>,
+    // pub target_id: String, *unused*
 }

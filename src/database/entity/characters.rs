@@ -95,7 +95,7 @@ impl Model {
         db: &C,
         characters: &CharacterService,
         user: &User,
-        item_name: &str,
+        item_name: &Uuid,
     ) -> DbResult<()>
     where
         C: ConnectionTrait + Send,

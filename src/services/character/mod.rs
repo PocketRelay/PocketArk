@@ -5,7 +5,7 @@ use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
-use std::{collections::HashMap, process::exit};
+use std::{collections::HashMap, process::exit, str::FromStr};
 use uuid::Uuid;
 
 const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
@@ -70,7 +70,7 @@ impl CharacterService {
 pub struct ClassLookup {
     classes: Vec<Class>,
     class_by_name: HashMap<Uuid, usize>,
-    class_by_item: HashMap<String, usize>,
+    class_by_item: HashMap<Uuid, usize>,
 }
 
 impl ClassLookup {
@@ -84,10 +84,21 @@ impl ClassLookup {
 
             // Parse item link from class
             let item = match class.item_link.split_once(':') {
-                Some((_, item)) => item.to_string(),
+                Some((_, item)) => Uuid::from_str(item),
                 None => {
                     error!(
                         "Class {} has an invalid item link: '{}'",
+                        class.name, class.item_link
+                    );
+                    return;
+                }
+            };
+
+            let item = match item {
+                Ok(value) => value,
+                Err(err) => {
+                    error!(
+                        "Class {} item link UUID invalid: {}",
                         class.name, class.item_link
                     );
                     return;
@@ -114,7 +125,7 @@ impl ClassLookup {
         Some(class)
     }
 
-    pub fn by_item(&self, item: &str) -> Option<&Class> {
+    pub fn by_item(&self, item: &Uuid) -> Option<&Class> {
         let index = self.class_by_item.get(item).copied()?;
         let class = &self.classes[index];
         Some(class)

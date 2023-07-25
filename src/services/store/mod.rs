@@ -6,6 +6,9 @@ use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
+use uuid::Uuid;
+
+use crate::utils::models::LocaleNameWithDesc;
 
 /// Definition file for the contents of the in-game store
 const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
@@ -33,25 +36,26 @@ impl StoreService {
 pub struct StoreCatalog {
     pub catalog_id: String,
     pub name: String,
-    pub i18n_name: String,
-    pub i18n_description: String,
+
     pub custom_attributes: Map<String, Value>,
     pub categories: Vec<String>,
     pub articles: Vec<StoreArticle>,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreArticle {
     pub catalog_name: String,
-    pub i18n_name: String,
-    pub i18n_description: String,
+
     pub categories: Vec<String>,
     pub custom_attributes: Map<String, Value>,
     pub nucleus_entitlement_filter: Map<String, Value>,
     pub prices: Vec<StorePrice>,
     pub limits: Vec<StoreLimit>,
-    pub item_name: String,
+    pub item_name: Uuid,
     pub name: String,
     pub auto_claim: bool,
     pub available_grace_in_seconds: u32,
@@ -59,8 +63,9 @@ pub struct StoreArticle {
     pub available_duration: StoreDuration,
     pub visible_duration: StoreDuration,
     pub seen: bool,
-    pub loc_name: String,
-    pub loc_description: String,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

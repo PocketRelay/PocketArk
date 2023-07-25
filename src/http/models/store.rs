@@ -4,10 +4,8 @@ use uuid::Uuid;
 
 use crate::{
     database::entity::{Currency, InventoryItem},
-    services::store::StoreCatalog,
+    services::{activity::ActivityResult, items::ItemDefinition, store::StoreCatalog},
 };
-
-use super::inventory::{ActivityResult, ItemDefinition};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
