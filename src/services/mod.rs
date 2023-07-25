@@ -30,11 +30,11 @@ impl Services {
     pub async fn init() -> Self {
         let games = GameManager::start();
         let tokens = Tokens::new().await;
-        let match_data = MatchDataService::load();
-        let challenges = ChallengesService::load();
+        let match_data = MatchDataService::new();
+        let challenges = ChallengesService::new();
         let activity = ActivityService::new();
         let items = ItemsService::new();
-        let store = StoreService::load();
+        let store = StoreService::new();
         let character = CharacterService::new();
 
         Self {

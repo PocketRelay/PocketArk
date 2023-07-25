@@ -1,13 +1,10 @@
-use std::net::Ipv4Addr;
-
+use crate::http::models::qos::{FireTypeQuery, FirewallQuery, QosQuery};
 use axum::{
     extract::Query,
     response::{IntoResponse, Response},
 };
 use hyper::{header, http::HeaderValue};
 use log::debug;
-
-use crate::http::models::qos::{FireTypeQuery, FirewallQuery, QosQuery};
 
 pub struct RawXml(String);
 

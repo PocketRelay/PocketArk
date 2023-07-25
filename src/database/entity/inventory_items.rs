@@ -1,5 +1,13 @@
+use crate::{
+    database::{
+        entity::{Character, InventoryItem, User, ValueMap},
+        DbResult,
+    },
+    http::models::inventory::ItemDefinition,
+    services::items::Category,
+    state::App,
+};
 use chrono::Utc;
-use openssl::stack;
 use sea_orm::{
     entity::prelude::*,
     sea_query::Expr,
@@ -7,13 +15,6 @@ use sea_orm::{
     IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
-
-use crate::{
-    database::DbResult, http::models::inventory::ItemDefinition, services::items::Category,
-    state::App,
-};
-
-use super::{Character, InventoryItem, User, ValueMap};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "inventory_items")]

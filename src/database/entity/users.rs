@@ -1,8 +1,5 @@
 use super::{Currency, SharedData};
-use crate::database::{
-    entity::{Character, InventoryItem},
-    DbResult,
-};
+use crate::database::{entity::InventoryItem, DbResult};
 use sea_orm::entity::prelude::*;
 use sea_orm::ActiveValue::{NotSet, Set};
 

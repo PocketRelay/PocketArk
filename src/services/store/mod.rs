@@ -15,7 +15,7 @@ pub struct StoreService {
 }
 
 impl StoreService {
-    pub fn load() -> Self {
+    pub fn new() -> Self {
         let catalog: StoreCatalog = match serde_json::from_str(STORE_CATALOG_DEFINITION) {
             Ok(value) => value,
             Err(err) => {

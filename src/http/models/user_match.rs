@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::services::match_data::{Badge, MatchModifier};
 

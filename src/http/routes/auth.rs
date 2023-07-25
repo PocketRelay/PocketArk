@@ -1,7 +1,6 @@
 use axum::Json;
 use chrono::Utc;
 use log::debug;
-use uuid::Uuid;
 
 use crate::{
     http::models::auth::{AuthRequest, AuthResponse, AuthUser},

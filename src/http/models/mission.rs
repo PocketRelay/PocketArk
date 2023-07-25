@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use crate::{database::entity::Currency, services::challenges::CurrencyReward};
+use crate::services::challenges::CurrencyReward;
 
 use super::auth::Sku;
 

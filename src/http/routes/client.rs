@@ -8,10 +8,10 @@ use axum::{
 };
 use hyper::{header, http::HeaderValue, StatusCode};
 use interlink::service::Service;
-use log::{debug, error};
+use log::error;
 use serde::Serialize;
 use tokio::io::split;
-use tokio_util::codec::{Framed, FramedRead, FramedWrite};
+use tokio_util::codec::{FramedRead, FramedWrite};
 
 use crate::{
     blaze::{pk::packet::PacketCodec, session::Session},

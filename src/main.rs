@@ -3,7 +3,9 @@ use tokio::{select, signal};
 
 use crate::state::App;
 
+#[allow(unused)]
 mod blaze;
+
 mod database;
 mod http;
 mod services;

@@ -1,10 +1,8 @@
 use std::collections::HashMap;
 
 use super::User;
-use crate::{
-    database::DbResult,
-    http::models::character::{CharacterEquipment, Xp},
-};
+use crate::database::DbResult;
+use crate::services::character::{CharacterEquipment, Xp};
 use sea_orm::ActiveValue::{NotSet, Set};
 use sea_orm::{entity::prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};

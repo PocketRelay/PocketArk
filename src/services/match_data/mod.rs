@@ -4,10 +4,7 @@ use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use uuid::{
-    fmt::{Hyphenated, Simple},
-    Uuid,
-};
+use uuid::Uuid;
 
 use crate::http::models::mission::{MissionActivity, MissionActivityAttributes};
 
@@ -21,7 +18,7 @@ pub struct MatchDataService {
 }
 
 impl MatchDataService {
-    pub fn load() -> Self {
+    pub fn new() -> Self {
         debug!("Loading match badges");
         let badges: Vec<Badge> = match serde_json::from_str(MATCH_BADGE_DEFINITIONS) {
             Ok(value) => value,

@@ -75,7 +75,7 @@ pub async fn obtain_article(
 
     // Obtain the user currency
     let currencies = Currency::get_from_user(db, &user).await?;
-    let currency = currencies
+    let _currency = currencies
         .iter()
         .find(|value| value.name == req.currency)
         .ok_or(HttpError::new("Missing currency", StatusCode::BAD_REQUEST))?;

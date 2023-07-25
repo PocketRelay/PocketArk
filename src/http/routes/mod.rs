@@ -6,9 +6,7 @@ use axum::{
 };
 use hyper::StatusCode;
 use tower::ServiceBuilder;
-use tower_http::{
-    compression::CompressionLayer, decompression::RequestDecompressionLayer, trace::TraceLayer,
-};
+use tower_http::{decompression::RequestDecompressionLayer, trace::TraceLayer};
 
 mod activity;
 mod auth;
@@ -51,7 +49,8 @@ pub fn router() -> Router {
                 .route("/missionConfig", get(strike_teams::get_mission_config))
                 .route("/specializations", get(strike_teams::get_specializations))
                 .route("/equipment", get(strike_teams::get_equipment))
-                .route("/:id/mission/resolve", post(strike_teams::resolve_mission)),
+                .route("/:id/mission/resolve", post(strike_teams::resolve_mission))
+                .route("/purchase", post(strike_teams::purchase)),
         )
         .route("/characters", get(character::get_characters))
         .nest(
@@ -153,7 +152,7 @@ pub fn router() -> Router {
         .layer(TraceLayer::new_for_http())
         .layer(
             ServiceBuilder::new()
-                .layer(HandleErrorLayer::new(|error: BoxError| async move {
+                .layer(HandleErrorLayer::new(|_error: BoxError| async move {
                     (StatusCode::INTERNAL_SERVER_ERROR, "Unhandled server error")
                 }))
                 .layer(RequestDecompressionLayer::new()),

@@ -8,12 +8,13 @@ use crate::{
         models::{
             character::{
                 CharacterClasses, CharacterEquipmentList, CharacterLevelTables, CharacterResponse,
-                CharactersResponse, ClassWithState, SkillDefinition, UnlockedCharacters,
-                UpdateCustomizationRequest, UpdateSkillTreesRequest,
+                CharactersResponse, ClassWithState, UnlockedCharacters, UpdateCustomizationRequest,
+                UpdateSkillTreesRequest,
             },
             HttpError,
         },
     },
+    services::character::SkillDefinition,
     state::App,
 };
 use axum::{extract::Path, Json};

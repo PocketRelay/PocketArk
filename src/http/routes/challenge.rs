@@ -39,7 +39,7 @@ pub async fn get_challenges(Auth(user): Auth) -> Result<Json<ChallengesResponse>
                 .cloned()
                 .collect::<Vec<_>>();
             ChallengeItem {
-                definition: definition.clone(),
+                definition,
                 progress: if progress.is_empty() {
                     None
                 } else {
@@ -76,7 +76,7 @@ pub async fn get_user_challenges(Auth(user): Auth) -> Result<Json<ChallengesResp
                 None
             } else {
                 Some(ChallengeItem {
-                    definition: definition.clone(),
+                    definition,
                     progress: Some(progress),
                 })
             }

@@ -2,7 +2,7 @@ use crate::blaze::{
     components,
     models::auth::*,
     pk::packet::Packet,
-    session::{GetUserMessage, PushExt, Session, SessionLink, UserAddedMessage},
+    session::{GetUserMessage, PushExt, SessionLink, UserAddedMessage},
 };
 
 pub async fn auth(session: &mut SessionLink, _req: AuthRequest) -> AuthResponse {
@@ -45,6 +45,6 @@ static ENTITLEMENTS: &[Entitlement] = &[
     Entitlement::new_pc(1011177546559, "310335", 2, "Origin.OFR.50.0001530", "TRIAL_ONLINE_ACCESS", 1),
 ];
 
-pub async fn list_entitlements_2(session: &mut SessionLink) -> ListEntitlementsResponse {
+pub async fn list_entitlements_2(_session: &mut SessionLink) -> ListEntitlementsResponse {
     ListEntitlementsResponse { list: ENTITLEMENTS }
 }

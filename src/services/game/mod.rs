@@ -11,6 +11,7 @@ use serde_json::Value;
 use thiserror::Error;
 use uuid::Uuid;
 
+use super::{challenges::CurrencyReward, match_data::MatchDataService};
 use crate::{
     blaze::{
         components,
@@ -21,16 +22,12 @@ use crate::{
         pk::{codec::Encodable, packet::Packet, tag::TdfType, types::TdfMap, writer::TdfWriter},
         session::{PushExt, SessionLink, SetGameMessage},
     },
-    database::{
-        self,
-        entity::{
-            challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
-            SharedData, User,
-        },
+    database::entity::{
+        challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency, SharedData,
+        User,
     },
     http::models::{
         auth::Sku,
-        character::{LevelTable, Xp},
         mission::{
             ChallengeStatusChange, ChallengeUpdate, CompleteMissionData, MissionDetails,
             MissionModifier, MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge,
@@ -40,8 +37,6 @@ use crate::{
     services::game::manager::RemoveGameMessage,
     state::App,
 };
-
-use super::{challenges::CurrencyReward, match_data::MatchDataService};
 
 pub mod manager;
 
@@ -369,12 +364,8 @@ async fn process_player_data(
     let previous_xp = character.xp;
     let previous_level = character.level;
 
-    let (new_xp, level) = compute_leveling(
-        level_table,
-        character.xp,
-        character.level,
-        data_builder.xp_earned,
-    );
+    let (new_xp, level) =
+        level_table.compute_leveling(character.xp, character.level, data_builder.xp_earned);
 
     debug!("Compute prestige");
 
@@ -396,8 +387,7 @@ async fn process_player_data(
 
         // Update the prestive value in-place
         if let Some(prestige_value) = prestige_value {
-            let (new_xp, level) = compute_leveling(
-                level_table,
+            let (new_xp, level) = level_table.compute_leveling(
                 prestige_value.xp,
                 prestige_value.level,
                 data_builder.xp_earned,
@@ -525,35 +515,6 @@ fn compute_modifiers(
                     data_builder.add_reward_currency(&modifier.name, key, amount);
                 });
         });
-}
-
-/// Computes the new xp and level values from the xp earned in
-/// the provided data builder
-pub fn compute_leveling(
-    level_table: &LevelTable,
-    mut xp: Xp,
-    mut level: u32,
-    xp_earned: u32,
-) -> (Xp, u32) {
-    xp.current = xp.current.saturating_add(xp_earned);
-
-    while xp.current >= xp.next {
-        let next_xp = match level_table.get_entry_xp(level + 1) {
-            Some(value) => value,
-            None => break,
-        };
-
-        level += 1;
-
-        // Subtract the old next amount from earnings
-        xp.current -= xp.next;
-
-        // Assign new next and last values
-        xp.last = xp.next;
-        xp.next = next_xp;
-    }
-
-    (xp, level)
 }
 
 #[derive(Message)]

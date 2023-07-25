@@ -1,42 +1,18 @@
 use crate::{
-    database::{
-        self,
-        entity::{
-            challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
-            SharedData, User,
-        },
-    },
     http::models::{
-        auth::Sku,
-        character::{LevelTable, Xp},
-        mission::{
-            ChallengeStatusChange, ChallengeUpdate, CompleteMissionData, MissionDetails,
-            MissionModifier, MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge,
-            PlayerInfoResult, PrestigeData, PrestigeProgression, RewardSource, StartMissionRequest,
-            StartMissionResponse,
-        },
+        mission::{CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse},
         HttpError, RawJson,
     },
-    services::{
-        game::{
-            manager::GetGameMessage, GetMissionDataMessage, SetCompleteMissionMessage,
-            SetModifiersMessage,
-        },
-        match_data::MatchDataService,
+    services::game::{
+        manager::GetGameMessage, GetMissionDataMessage, SetCompleteMissionMessage,
+        SetModifiersMessage,
     },
     state::App,
 };
-
 use axum::{extract::Path, Json};
-use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{DatabaseConnection, DbErr};
 use serde_json::Value;
-use std::collections::HashMap;
-use thiserror::Error;
-
-use uuid::Uuid;
 
 static CURRENT_MISSIONS_DEFINITION: &str =
     include_str!("../../resources/data/currentMissions.json");
@@ -57,7 +33,6 @@ pub async fn current_missions() -> RawJson {
 pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDetails>, HttpError> {
     debug!("Requested mission details: {}", mission_id);
 
-    let db = App::database();
     let services = App::services();
     let game = services
         .games
@@ -146,6 +121,3 @@ pub async fn update_seen(Json(req): Json<Value>) -> StatusCode {
     debug!("Update mission seen: {:?}", req);
     StatusCode::NO_CONTENT
 }
-
-#[test]
-fn test() {}

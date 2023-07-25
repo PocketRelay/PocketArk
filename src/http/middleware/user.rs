@@ -35,7 +35,7 @@ impl<S> FromRequestParts<S> for Auth {
             let db = App::database();
             let user: User = Tokens::service_verify(db, token)
                 .await
-                .map_err(|err| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
+                .map_err(|_err| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
 
             Ok(Self(user))
         })

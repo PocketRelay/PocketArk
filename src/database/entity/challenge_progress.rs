@@ -98,7 +98,7 @@ impl Model {
             .await?
         {
             let now = Utc::now();
-            let mut last_complete = progress.times_completed;
+            let last_complete = progress.times_completed;
             let mut times_complete = progress.times_completed;
             let counter = progress
                 .counters

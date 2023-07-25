@@ -398,8 +398,6 @@ impl ItemsService {
     }
 }
 
-pub struct PackBuilder {}
-
 pub struct Rarity {}
 
 impl Rarity {
@@ -411,6 +409,7 @@ impl Rarity {
 
 pub struct Category;
 
+#[allow(unused)]
 impl Category {
     /// Character items
     pub const CHARACTERS: &str = "0";
@@ -696,6 +695,7 @@ impl std::ops::Not for ItemFilter {
     }
 }
 
+#[allow(unused)]
 impl ItemFilter {
     pub fn categories(values: &[&str]) -> Self {
         Self::Any(

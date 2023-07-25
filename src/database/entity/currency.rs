@@ -1,16 +1,11 @@
-use std::f32::consts::E;
-
-use chrono::format::Item;
+use super::{Currency, User};
+use crate::database::DbResult;
 use sea_orm::{
     entity::prelude::*,
     ActiveValue::{NotSet, Set},
     IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
-
-use crate::database::DbResult;
-
-use super::{Currency, User};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "currency")]

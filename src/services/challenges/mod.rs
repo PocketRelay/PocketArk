@@ -16,7 +16,7 @@ pub struct ChallengesService {
 }
 
 impl ChallengesService {
-    pub fn load() -> Self {
+    pub fn new() -> Self {
         debug!("Loading challenges");
         let defs: Vec<ChallengeDefinition> = match serde_json::from_str(CHALLENGE_DEFINITIONS) {
             Ok(value) => value,

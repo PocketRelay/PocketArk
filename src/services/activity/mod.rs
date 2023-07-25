@@ -1,11 +1,9 @@
-use serde_json::{Map, Value};
-
-use crate::{database::entity::User, http::models::mission::MissionActivity, state::App};
-
 use super::challenges::ChallengeProgressUpdate;
+use crate::{http::models::mission::MissionActivity, state::App};
 
 pub struct ActivityService {}
 
+#[allow(unused)]
 impl ActivityService {
     // Hardcoded activity types
     pub const ITEM_CONSUMED: &str = "_itemConsumed";

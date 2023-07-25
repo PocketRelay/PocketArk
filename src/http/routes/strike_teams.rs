@@ -45,4 +45,6 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
 }
 
 /// POST /striketeams/purchase?currency=MissionCurrency
-pub async fn purchase() {}
+pub async fn purchase(req: String) {
+    debug!("Strike team purchase request: {}", req);
+}
