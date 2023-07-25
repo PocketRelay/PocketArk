@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use crate::utils::models::Sku;
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthRequest {
@@ -35,19 +37,4 @@ pub struct AuthUser {
     pub sku: Sku,
     pub anonymous: bool,
     pub name: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Sku {
-    pub title: String,    // always: mec.game
-    pub platform: String, // always: origin
-}
-
-impl Default for Sku {
-    fn default() -> Self {
-        Self {
-            title: "mec.game".to_string(),
-            platform: "origin".to_string(),
-        }
-    }
 }

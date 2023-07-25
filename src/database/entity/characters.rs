@@ -1,10 +1,10 @@
 use super::{User, ValueMap};
 use crate::{
     database::{entity::ClassData, DbResult},
-    http::models::auth::Sku,
     services::character::{
         CharacterEquipment, CharacterService, CustomizationEntry, SkillTreeEntry, Xp,
     },
+    utils::models::Sku,
 };
 use sea_orm::{
     entity::prelude::*,

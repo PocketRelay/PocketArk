@@ -26,16 +26,14 @@ use crate::{
         challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency, SharedData,
         User,
     },
-    http::models::{
-        auth::Sku,
-        mission::{
-            ChallengeStatusChange, ChallengeUpdate, CompleteMissionData, MissionDetails,
-            MissionModifier, MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge,
-            PlayerInfoResult, PrestigeData, PrestigeProgression, RewardSource,
-        },
+    http::models::mission::{
+        ChallengeStatusChange, ChallengeUpdate, CompleteMissionData, MissionDetails,
+        MissionModifier, MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult,
+        PrestigeData, PrestigeProgression, RewardSource,
     },
     services::game::manager::RemoveGameMessage,
     state::App,
+    utils::models::Sku,
 };
 
 pub mod manager;
@@ -132,7 +130,7 @@ impl Handler<GetMissionDataMessage> for Game {
                 }
 
                 let data = MissionDetails {
-                    sku: Sku::default(),
+                    sku: Sku,
                     name: mission_data.match_id,
                     duration_sec: mission_data.duration_sec,
                     percent_complete: mission_data.percent_complete,

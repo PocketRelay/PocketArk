@@ -5,9 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use crate::services::challenges::CurrencyReward;
-
-use super::auth::Sku;
+use crate::{services::challenges::CurrencyReward, utils::models::Sku};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
