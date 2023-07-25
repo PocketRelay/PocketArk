@@ -96,6 +96,13 @@ pub fn router() -> Router<SessionLink> {
         ),
         game_manager::replay_game,
     );
+    router.route(
+        (
+            components::game_manager::COMPONENT,
+            components::game_manager::LEAVE_GAME_BY_GROUP,
+        ),
+        game_manager::leave_game,
+    );
 
     router.route((0, 0), move |_: &'_ mut SessionLink| ready(()));
 

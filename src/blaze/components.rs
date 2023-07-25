@@ -13,6 +13,7 @@ pub mod game_manager {
     pub const UPDATE_PLAYER_ATTR: u16 = 8;
     pub const START_MATCHMAKING: u16 = 16;
     pub const REPLAY_GAME: u16 = 19;
+    pub const LEAVE_GAME_BY_GROUP: u16 = 22;
 
     pub const NOTIFY_PLAYER_REMOVED: u16 = 40;
     pub const NOTIFY_GAME_ATTR_UPDATE: u16 = 80;

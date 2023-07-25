@@ -35,13 +35,15 @@ pub async fn get_inventory(
     let mut items = InventoryItem::get_all_items(db, &user).await?;
 
     if let Some(namespace) = query.namespace {
-        // Remove items that aren't in the same namespace
-        items.retain(|item| {
-            services
-                .items
-                .by_name(&item.definition_name)
-                .is_some_and(|def| def.default_namespace.eq(&namespace))
-        });
+        if !namespace.is_empty() && namespace != "default" {
+            // Remove items that aren't in the same namespace
+            items.retain(|item| {
+                services
+                    .items
+                    .by_name(&item.definition_name)
+                    .is_some_and(|def| def.default_namespace.eq(&namespace))
+            });
+        }
     }
 
     let definitions = if query.include_definitions {
