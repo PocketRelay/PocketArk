@@ -11,6 +11,7 @@ pub mod challenges;
 pub mod character;
 pub mod game;
 pub mod items;
+pub mod leaderboard;
 pub mod match_data;
 pub mod store;
 pub mod tokens;

@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
+use crate::utils::models::LocaleNameWithDesc;
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LeaderboardsResponse {
@@ -13,8 +15,7 @@ pub struct LeaderboardsResponse {
 #[serde(rename_all = "camelCase")]
 pub struct LeaderboardCategory {
     pub name: Uuid,
-    pub i18n_name: String,
-    pub i18n_description: String,
+
     pub stat_collection_name: Uuid,
     pub stat_owner_name: String,
     pub ranked_stat_name: String,
@@ -22,7 +23,9 @@ pub struct LeaderboardCategory {
     pub seconds_to_live_after_last_write: u32,
     pub properties: Vec<Value>,
     pub owner_id_type: String,
-    pub loc_name: String,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }
 
 #[derive(Debug, Serialize)]

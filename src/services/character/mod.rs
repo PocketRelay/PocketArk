@@ -266,7 +266,7 @@ pub struct LevelTableEntry {
 }
 
 #[serde_as]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CustomizationEntry {
     #[serde_as(as = "DisplayFromStr")]
