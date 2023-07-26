@@ -123,7 +123,7 @@
 			"seen": false,
 			"customAttributes": {},
 			"startSeconds": 1688648400,
-			"endSeconds": 1688734800,
+			"endSeconds": 0,
 			"spLengthSeconds": 17120,
 			"completed": false
 		},
@@ -249,7 +249,7 @@
 			"seen": true,
 			"customAttributes": {},
 			"startSeconds": 1688662800,
-			"endSeconds": 1688749200,
+			"endSeconds": 0,
 			"spLengthSeconds": 4941,
 			"completed": false
 		},
@@ -468,7 +468,7 @@
 			"seen": true,
 			"customAttributes": {},
 			"startSeconds": 1688619600,
-			"endSeconds": 1688706000,
+			"endSeconds": 0,
 			"spLengthSeconds": 6158,
 			"completed": false
 		},
@@ -1711,7 +1711,7 @@
 			"seen": true,
 			"customAttributes": {},
 			"startSeconds": 1688619600,
-			"endSeconds": 1688706000,
+			"endSeconds": 0,
 			"spLengthSeconds": 10803,
 			"completed": false
 		},
@@ -1984,7 +1984,7 @@
 			"seen": false,
 			"customAttributes": {},
 			"startSeconds": 1688691600,
-			"endSeconds": 1688778000,
+			"endSeconds": 0,
 			"spLengthSeconds": 15341,
 			"completed": false
 		}
