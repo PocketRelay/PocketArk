@@ -12,7 +12,7 @@ use crate::{
     },
     services::{
         activity::ActivityResult,
-        items::{Category, GrantedItem, ItemChanged, ItemDefinition, Pack},
+        items::{Category, GrantedItem, ItemChanged, ItemDefinition},
     },
     state::App,
 };
@@ -20,7 +20,6 @@ use axum::{extract::Query, Json};
 use hyper::StatusCode;
 use log::{debug, error, warn};
 use rand::{rngs::StdRng, SeedableRng};
-use serde_json::Map;
 
 /// GET /inventory
 ///
@@ -105,7 +104,8 @@ pub async fn consume_inventory(
     let services = App::services();
     let items_service = &services.items;
 
-    let items: Vec<(InventoryItem, &'static ItemDefinition)> =
+    // Obtain the items and definitions that the user owns
+    let owned_items: Vec<(InventoryItem, &'static ItemDefinition)> =
         InventoryItem::get_all_items(db, &user)
             .await?
             .into_iter()
@@ -115,11 +115,14 @@ pub async fn consume_inventory(
             })
             .collect();
 
+    // List of changed item stack sizes
     let mut items_changed: Vec<ItemChanged> = Vec::new();
+    // List of items granted to the user
     let mut items_granted: Vec<GrantedItem> = Vec::new();
 
     for target in req.items {
-        let (item, definition) = items
+        // Find the owned item to consume
+        let (item, definition) = owned_items
             .iter()
             .find(|(item, _)| item.item_id.eq(&target.item_id))
             .ok_or(HttpError::new(
@@ -127,6 +130,7 @@ pub async fn consume_inventory(
                 StatusCode::NOT_FOUND,
             ))?;
 
+        // Ignore items that arent consumable
         if !definition.consumable.unwrap_or_default() {
             return Err(HttpError::new(
                 "Item not consumable",
@@ -134,68 +138,72 @@ pub async fn consume_inventory(
             ));
         }
 
-        // Item pack consumables
-        if definition.category == Category::ITEM_PACK {
-            let pack = items_service.packs.get(&definition.name).ok_or_else(|| {
-                warn!(
-                    "Don't know how to handle item pack: {} ({:?})",
-                    &definition.name,
-                    &definition.locale.name()
-                );
-                HttpError::new("Pack item not implemented", StatusCode::NOT_IMPLEMENTED)
-            })?;
+        match definition.category.as_str() {
+            Category::ITEM_PACK => {
+                let pack = items_service.packs.get(&definition.name).ok_or_else(|| {
+                    warn!(
+                        "Don't know how to handle item pack: {} ({:?})",
+                        &definition.name,
+                        &definition.locale.name()
+                    );
+                    HttpError::new("Pack item not implemented", StatusCode::NOT_IMPLEMENTED)
+                })?;
 
-            consume_pack(
-                item,
-                pack,
-                &mut items_changed,
-                &mut items_granted,
-                &items,
-                items_service.defs(),
-            )?;
-        } else if definition.category == Category::CONSUMABLE {
-            // TODO: consume the item
-            items_changed.push(ItemChanged {
-                item_id: item.item_id,
-                prev_stack_size: item.stack_size,
-                stack_size: item.stack_size.saturating_sub(1),
-            });
+                let mut rng = StdRng::from_entropy();
+
+                pack.grant_items(
+                    &mut rng,
+                    items_service.defs(),
+                    &owned_items,
+                    &mut items_granted,
+                )
+                .map_err(|err| {
+                    error!("Failed to grant pack items: {} {}", &pack.name, err);
+                    HttpError::new(
+                        "Failed to grant pack items",
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                    )
+                })?;
+
+                // TODO: Pack consumed activity
+            }
+            Category::APEX_POINTS => {
+                // TODO: Apex point awards
+            }
+            Category::STRIKE_TEAM_REWARD => {
+                // TODO: Strike team rewards
+            }
+            Category::CONSUMABLE => {}
+            Category::BOOSTERS => {}
+            Category::CAPACITY_UPGRADE => {}
+            _ => {}
         }
+
+        // Take 1 from the item we just consumed
+        items_changed.push(ItemChanged {
+            item_id: item.item_id,
+            prev_stack_size: item.stack_size,
+            stack_size: item.stack_size.saturating_sub(1),
+        });
     }
 
     // Process item changes
-    for (item, _) in items {
+    for (item, definition) in owned_items {
         let change = items_changed
             .iter()
             .find(|value| value.item_id.eq(&item.item_id));
         if let Some(change) = change {
+            debug!(
+                "Consumed item stack size {} ({}) new stack size: x{}",
+                item.item_id,
+                definition.locale.name(),
+                change.stack_size,
+            );
             item.set_stack_size(db, change.stack_size).await?;
         }
     }
 
-    let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(items_granted.len());
-    let mut items_out: Vec<InventoryItem> = Vec::with_capacity(items_granted.len());
-
-    for granted in items_granted {
-        debug!(
-            "Granted item {} x{} ({:?}",
-            granted.defintion.name,
-            granted.stack_size,
-            granted.defintion.locale.name()
-        );
-
-        let mut item =
-            InventoryItem::create_or_append(db, &user, granted.defintion, granted.stack_size)
-                .await?;
-
-        item.stack_size = granted.stack_size;
-
-        debug!("Item stack size: {}", item.stack_size);
-
-        items_out.push(item);
-        definitions.push(granted.defintion);
-    }
-
+    let (items_out, definitions) = InventoryItem::grant_items(db, &user, items_granted).await?;
     let currencies = Currency::get_from_user(db, &user).await?;
 
     let activity = ActivityResult {
@@ -206,33 +214,4 @@ pub async fn consume_inventory(
     };
 
     Ok(Json(activity))
-}
-
-fn consume_pack(
-    item: &InventoryItem,
-    pack: &Pack,
-    items_changed: &mut Vec<ItemChanged>,
-    items_granted: &mut Vec<GrantedItem>,
-    items_owned: &[(InventoryItem, &'static ItemDefinition)],
-    item_defs: &'static [ItemDefinition],
-) -> Result<(), HttpError> {
-    let mut rng = StdRng::from_entropy();
-
-    pack.grant_items(&mut rng, item_defs, items_owned, items_granted)
-        .map_err(|err| {
-            error!("Failed to grant pack items: {} {}", &pack.name, err);
-            HttpError::new(
-                "Failed to grant pack items",
-                StatusCode::INTERNAL_SERVER_ERROR,
-            )
-        })?;
-
-    // Take 1 from the item we just consumed
-    items_changed.push(ItemChanged {
-        item_id: item.item_id,
-        prev_stack_size: item.stack_size,
-        stack_size: item.stack_size.saturating_sub(1),
-    });
-
-    Ok(())
 }

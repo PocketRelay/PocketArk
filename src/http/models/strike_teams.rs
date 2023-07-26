@@ -2,7 +2,10 @@ use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::services::{activity::ActivityResult, character::Xp};
+use crate::{
+    services::{activity::ActivityResult, character::Xp},
+    utils::models::LocaleNameWithDesc,
+};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -37,10 +40,9 @@ pub struct TeamIcon {
 #[serde(rename_all = "camelCase")]
 pub struct TeamTrait {
     pub name: String,
-    pub i18n_name: String,
-    pub loc_name: String,
-    pub i18n_description: String,
-    pub loc_description: String,
     pub tag: String,
     pub effectiveness: u32,
+
+    #[serde(flatten)]
+    pub locale: LocaleNameWithDesc,
 }

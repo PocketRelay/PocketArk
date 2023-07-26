@@ -5,10 +5,11 @@ use crate::{
         entity::{Character, InventoryItem, User, ValueMap},
         DbResult,
     },
-    services::items::{Category, ItemDefinition},
+    services::items::{Category, GrantedItem, ItemDefinition},
     state::App,
 };
 use chrono::Utc;
+use log::debug;
 use sea_orm::{
     entity::prelude::*,
     sea_query::Expr,
@@ -92,6 +93,41 @@ impl Model {
         }
 
         Ok(model)
+    }
+
+    /// Grants all the provided granted items returning a list
+    /// of the created items and their definitions
+    pub async fn grant_items<C>(
+        db: &C,
+        user: &User,
+        granted: Vec<GrantedItem>,
+    ) -> DbResult<(Vec<Self>, Vec<&'static ItemDefinition>)>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(granted.len());
+        let mut items: Vec<InventoryItem> = Vec::with_capacity(granted.len());
+
+        for granted in granted {
+            debug!(
+                "Granted item {} x{} ({:?} to {}",
+                granted.defintion.name,
+                granted.stack_size,
+                granted.defintion.locale.name(),
+                user.username
+            );
+
+            let mut item =
+                Self::create_or_append(db, user, granted.defintion, granted.stack_size).await?;
+
+            // Update the returning item stack size to the correct size
+            item.stack_size = granted.stack_size;
+
+            items.push(item);
+            definitions.push(granted.defintion);
+        }
+
+        Ok((items, definitions))
     }
 
     /// Creates a new item if there are no matching item definitions in

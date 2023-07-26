@@ -848,14 +848,15 @@ pub struct ItemDefinition {
     pub locale: LocaleNameWithDesc,
 
     pub custom_attributes: HashMap<String, Value>,
-    #[serialize_always]
-    pub secret: Option<Value>,
+
     pub category: String,
     pub attachable_categories: Vec<String>,
     pub rarity: Option<String>,
-    pub droppable: Option<bool>,
-    pub consumable: Option<bool>,
     pub cap: Option<u32>,
+
+    pub consumable: Option<bool>,
+    pub droppable: Option<bool>,
+    pub deletable: Option<bool>,
 
     /// Name of definition that this item depends on
     /// (Requires the item to reach its capacity before it can be dropped)
@@ -867,6 +868,9 @@ pub struct ItemDefinition {
 
     pub restrictions: Option<String>,
     pub default_namespace: String,
+
+    #[serialize_always]
+    pub secret: Option<Value>,
 }
 
 /// Activity events that should be created when
