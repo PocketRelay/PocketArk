@@ -54,9 +54,255 @@ impl ItemsService {
             Self::premium_pack(),
             Self::jumbo_premium_pack(),
             // Item store
-            Self::bonus_reward_pack(),
-            Self::random_common_mod_pack(),
-            Self::random_uncommon_mod_pack(),
+            Self::bonus_reward_pack("cf9cd252-e1f2-4574-973d-d66cd81558d3"),
+            Self::bonus_reward_pack("ab939baf-3cc0-46a8-8983-5c8e92754a25"),
+            // Random mods
+            Self::random_mod_pack("890b2aa6-191f-4162-ae79-a78d23e3c505", Rarity::COMMON),
+            Self::random_mod_pack("44da78e5-8ceb-4684-983e-794329d4a631", Rarity::UNCOMMON),
+            Self::random_mod_pack("b104645c-ff63-4081-a3c2-669718d7e570", Rarity::RARE),
+            // Random weapons
+            Self::random_weapon_pack("20a2212b-ac19-436f-93c9-143463a813e9", Rarity::UNCOMMON),
+            Self::random_weapon_pack("aea28dd4-b5be-4994-80ec-825e2b024d4d", Rarity::RARE),
+            Self::random_weapon_pack("e9bfb771-5244-4f33-b318-dd49d79c7edf", Rarity::ULTRA_RARE),
+            // Random characters
+            Self::random_character_pack("e71d0c00-44f2-4087-a7f7-7a138fbee0e9", Rarity::UNCOMMON),
+            Self::random_character_pack("53c8b4d7-18bf-4fc3-97cd-2a8366140b0a", Rarity::RARE),
+            Self::random_character_pack("dad9ad62-1f36-4e38-9634-2eda92a83096", Rarity::ULTRA_RARE),
+            // Single item packs
+
+            // COBRA RPG
+            Self::item_pack(
+                "ff6affa2-226b-4c8b-8013-7e7e94335e88",
+                "eaefec2a-d892-498b-a175-e5d2048ae39a",
+            ),
+            // REVIVE PACK
+            Self::item_pack(
+                "784e1293-4480-4abd-965e-2c6584f550c8",
+                "af39be6b-0542-4997-b524-227aa41ae2eb",
+            ),
+            // AMMO PACK
+            Self::item_pack(
+                "16cdf51b-443a-48e2-ad07-413a3f4370e7",
+                "2cc0d932-8e9d-48a6-a6e8-a5665b77e835",
+            ),
+            // CHARACTER RESPEC
+            Self::item_pack(
+                "bc012022-2d42-48d1-88fa-2d905d83d4fd",
+                "52a2e172-2ae6-49f4-9914-bf3094f3a363",
+            ),
+            // EXPERIENCE ENHANCER III
+            Self::item_pack(
+                "3a7a1d97-ddb7-4954-85e8-b280c2b9b2dc",
+                "83d69f5b-3f97-4d41-ad76-99ea37a35ba8",
+            ),
+            // EXPERIENCE ENHANCER II
+            Self::item_pack(
+                "a26534c9-636c-4022-8d7e-3f76af5fde02",
+                "4f46229e-51cd-4ece-9a21-731133348088",
+            ),
+            // FIRST AID PACK
+            Self::item_pack(
+                "34a78027-ac6e-4bc6-856e-4b8cee5859be",
+                "4d790010-1a79-4bd0-a79b-d52cac068a3a",
+            ),
+            // APEX PACK
+            Self::todo_pack("80a9babf-3088-4ce9-a986-804f6ce9660c"),
+            // APEX POINTS
+            Self::todo_pack("3b2c8ed8-df9a-4659-aeda-786e06cc7dd9"),
+            // LOYALTY PACK (ME3)
+            Self::todo_pack("47088308-e623-494e-a436-cccfd7f4150f"),
+            // LOYALTY PACK (DA:I)
+            Self::todo_pack("523226d2-8a17-4081-9c22-71c890d1b4ab"),
+            // BONUS REWARD PACK
+            Self::todo_pack("ab939baf-3cc0-46a8-8983-5c8e92754a25"),
+            // PRE-ORDER BOOSTER PACK
+            Self::todo_pack("aa7b57df-d0a7-4275-8623-38575565fe15"),
+            // ANDROMEDA INITIATIVE PACK
+            Self::todo_pack("9dba3f79-7c9f-4526-96f0-7eaec177eccf"),
+            // SUPER DELUXE EDITION PACK - 1/20
+            Self::todo_pack("51e008c4-018c-477e-b99a-e8b44a86483b"),
+            // SUPER DELUXE EDITION PACK - 2/20
+            Self::todo_pack("80304bc9-e704-4b5d-9193-e35f8de7b871"),
+            // SUPER DELUXE EDITION PACK - 3/20
+            Self::todo_pack("efcc43cf-5877-4ef4-a52b-c35a88a154d2"),
+            // SUPER DELUXE EDITION PACK - 4/20
+            Self::todo_pack("3ff3ff1b-d2f1-4912-9612-9c50cf7138e2"),
+            // SUPER DELUXE EDITION PACK - 5/20
+            Self::todo_pack("22a72362-620c-4c86-bf83-83848336a6fb"),
+            // SUPER DELUXE EDITION PACK - 6/20
+            Self::todo_pack("66e5a516-443c-4062-953c-d34ffec0e4c5"),
+            // SUPER DELUXE EDITION PACK - 7/20
+            Self::todo_pack("06a249fd-324d-4a9e-9f46-7cb7e620652d"),
+            // SUPER DELUXE EDITION PACK - 8/20
+            Self::todo_pack("384e4424-0421-4793-b713-13d68616505e"),
+            // SUPER DELUXE EDITION PACK - 9/20
+            Self::todo_pack("e78760b4-2c64-45be-9906-e3183c64a424"),
+            // SUPER DELUXE EDITION PACK - 10/20
+            Self::todo_pack("5baa0a3d-86e3-45cc-8ab1-d26591c46a3c"),
+            // SUPER DELUXE EDITION PACK - 11/20
+            Self::todo_pack("03d7ec5a-d729-4fb3-91d2-2db11f8dfa40"),
+            // SUPER DELUXE EDITION PACK - 12/20
+            Self::todo_pack("bed2b13e-1cca-4981-b81f-985c051565a4"),
+            // SUPER DELUXE EDITION PACK - 13/20
+            Self::todo_pack("d21b1767-cb37-4bfa-ad30-12a9d2240775"),
+            // SUPER DELUXE EDITION PACK - 14/20
+            Self::todo_pack("cbe39480-8473-4aa4-8a06-ce1524a5af2e"),
+            // SUPER DELUXE EDITION PACK - 15/20
+            Self::todo_pack("317d54fd-0596-44ea-84ee-30b5fec1ab1d"),
+            // SUPER DELUXE EDITION PACK - 16/20
+            Self::todo_pack("db74221c-1e7e-41af-9a20-cb8176d5d00b"),
+            // SUPER DELUXE EDITION PACK - 17/20
+            Self::todo_pack("c1a96446-ae8e-47f5-8770-caeb69f862bd"),
+            // SUPER DELUXE EDITION PACK - 18/20
+            Self::todo_pack("774be722-7814-4c72-9d6f-08e5bf98aa47"),
+            // SUPER DELUXE EDITION PACK - 19/20
+            Self::todo_pack("b0fce148-f9d8-4098-b767-0e3e523f6e0d"),
+            // SUPER DELUXE EDITION PACK - 20/20
+            Self::todo_pack("23f98283-f960-46d6-85f9-4bf85d60e2cd"),
+            // APEX REINFORCEMENT PACK
+            Self::todo_pack("c4b1ebe3-e0b0-42fb-a51c-c6c2d688ac71"),
+            // APEX COMMENDATION PACK
+            Self::todo_pack("203ce2dc-962f-44c8-a513-76ee2286d0b7"),
+            // APEX CHALLENGE PACK
+            Self::todo_pack("17f90be7-8d74-4593-a85f-0b4cdb9f57ba"),
+            // LOGITECH WEAPON PACK
+            Self::todo_pack("7f2a365a-9f08-412f-8490-ce55fd34aad6"),
+            // BONUS BOOSTER PACK
+            Self::todo_pack("33cb8ec3-efce-4744-a858-db5e60e11424"),
+            // SUPPORT PACK
+            Self::todo_pack("fcc1fbf1-fa53-445b-b2e9-561702795627"),
+            // TOTINO'S BOOSTER PACK
+            Self::todo_pack("d8b62c9a-31f2-4e7e-82fe-43b9e72cbc7f"),
+            // APEX HQ PACK
+            Self::todo_pack("8a072bab-e849-475d-b552-e18704b150c4"),
+            // ADVANCED COMMUNITY PACK
+            Self::todo_pack("6fcbb0d5-b4ed-406d-8056-029ce7a91fd0"),
+            // STARTER PACK
+            Self::todo_pack("cba5b757-cf67-40e1-a500-66dad3840088"),
+            // TUTORIAL PACK
+            Self::todo_pack("37101bb8-e5c0-44d7-bcd9-bf49ceecc1de"),
+            // DELUXE EDITION PACK
+            Self::todo_pack("cc15e17f-1b06-4413-9c6c-544d01b50f2a"),
+            // NAMEPLATE: APEX MASTERY - BRONZE
+            Self::todo_pack("208aa537-19d0-4bea-9ac9-f11713cd85e8"),
+            // NAMEPLATE: APEX MASTERY - SILVER
+            Self::todo_pack("c9334ea7-9249-46a7-93af-b0622af5370e"),
+            // NAMEPLATE: APEX MASTERY - GOLD
+            Self::todo_pack("7ad4c7ea-2b31-412a-b688-c2d56619dcc3"),
+            // NAMEPLATE: ASSAULT RIFLE MASTERY- BRONZE
+            Self::todo_pack("0b7386e1-3e9b-415e-b246-45d3674367f4"),
+            // NAMEPLATE: ASSAULT RIFLE MASTERY- SILVER
+            Self::todo_pack("0d31bf4b-3ab2-4d09-8028-335bb2f28ad8"),
+            // NAMEPLATE: ASSAULT RIFLE MASTERY- GOLD
+            Self::todo_pack("19a680d4-5149-420a-aebe-03b9beb1ab83"),
+            // NAMEPLATE: COMBAT MASTERY - BRONZE
+            Self::todo_pack("d7e1823e-aa41-47fe-9602-13b6f31153f6"),
+            // NAMEPLATE: COMBAT MASTERY - SILVER
+            Self::todo_pack("5d3d4ce8-9cf0-4ff6-9860-9e8554c10577"),
+            // NAMEPLATE: COMBAT MASTERY - GOLD
+            Self::todo_pack("c537155c-efbd-49c2-a15c-2fcd088dfeb2"),
+            // NAMEPLATE: KETT MASTERY- BRONZE
+            Self::todo_pack("f8a12dd0-dd4d-4151-91dc-7e019005a22c"),
+            // NAMEPLATE: KETT MASTERY- SILVER
+            Self::todo_pack("e1c4ff7d-63e5-4e82-ae89-a078b954edce"),
+            // NAMEPLATE: KETT MASTERY- GOLD
+            Self::todo_pack("65e537a8-0a56-4ded-8d48-41e68d9d82cb"),
+            // NAMEPLATE: MAP MASTERY - BRONZE
+            Self::todo_pack("3dbc20f9-4258-44c8-aace-f89444f48346"),
+            // NAMEPLATE: MAP MASTERY - SILVER
+            Self::todo_pack("6d05ac99-3e2e-4f48-9b84-04c8d9be8420"),
+            // NAMEPLATE: MAP MASTERY - GOLD
+            Self::todo_pack("ba606bb6-08b0-4002-b45e-ab0d07c4126d"),
+            // NAMEPLATE: OUTLAW MASTERY - BRONZE
+            Self::todo_pack("ce59f903-f3a1-4ec3-90a3-1e82c5f47b85"),
+            // NAMEPLATE: OUTLAW MASTERY - SILVER
+            Self::todo_pack("2d9e2f93-2c72-491e-bdb9-46f20d0d9339"),
+            // NAMEPLATE: OUTLAW MASTERY - GOLD
+            Self::todo_pack("daf74c9a-8c2b-4de4-931f-dce265a88c1c"),
+            // NAMEPLATE: APEX RATING - BRONZE
+            Self::todo_pack("5c7b9f32-4fef-430c-a72d-0e7409b84adc"),
+            // NAMEPLATE: APEX RATING - SILVER
+            Self::todo_pack("ad9c5a2f-63b0-4638-935c-1733f083de38"),
+            // NAMEPLATE: APEX RATING - GOLD
+            Self::todo_pack("74f437e4-fd7d-4f6a-a441-66e6c64bb3c5"),
+            // NAMEPLATE: PISTOL MASTERY - BRONZE
+            Self::todo_pack("414b173e-2dcf-4587-8cdd-43c5bc872c5c"),
+            // NAMEPLATE: PISTOL MASTERY - SILVER
+            Self::todo_pack("be469a8c-71d0-47f2-a13f-80c94beec052"),
+            // NAMEPLATE: PISTOL MASTERY - GOLD
+            Self::todo_pack("73564b68-8e80-48b1-881c-2e2085787509"),
+            // NAMEPLATE: REMNANT MASTERY - BRONZE
+            Self::todo_pack("a6248be2-1647-4e9b-9e1e-b8b69ecf809d"),
+            // NAMEPLATE: REMNANT MASTERY - SILVER
+            Self::todo_pack("123b3fa1-565e-456f-b08d-aa131b0c5cf1"),
+            // NAMEPLATE: REMNANT MASTERY - GOLD
+            Self::todo_pack("206115c9-c953-4ce2-aab0-6804660f6cc1"),
+            // NAMEPLATE: SHOTGUN MASTERY - BRONZE
+            Self::todo_pack("aa7b4129-1e67-421a-a3e9-27813bd1105a"),
+            // NAMEPLATE: SHOTGUN MASTERY - SILVER
+            Self::todo_pack("88a7e312-1591-4ac5-bdd8-6be1a6f02c9f"),
+            // NAMEPLATE: SHOTGUN MASTERY - GOLD
+            Self::todo_pack("fa6aab20-ae9a-4778-829b-978f075de939"),
+            // NAMEPLATE: SNIPER RIFLE MASTERY - BRONZE
+            Self::todo_pack("66e865bb-b694-4f2a-86e3-caf58442780d"),
+            // NAMEPLATE: SNIPER RIFLE MASTERY - SILVER
+            Self::todo_pack("254dad07-4f5b-4ce0-9d78-6be17855f082"),
+            // NAMEPLATE: SNIPER RIFLE MASTERY - GOLD
+            Self::todo_pack("d9e0d08d-5ffc-4e33-9509-40776591eb68"),
+            // NAMEPLATE: TECH MASTERY - BRONZE
+            Self::todo_pack("6d830d65-13de-4c70-8fb9-d076c569b4f0"),
+            // NAMEPLATE: TECH MASTERY - SILVER
+            Self::todo_pack("8fd74763-e397-45ab-a27a-ac8f08e062e1"),
+            // NAMEPLATE: TECH MASTERY - GOLD
+            Self::todo_pack("737be245-d4ae-410b-9bf8-3db805eb79b7"),
+            // AESTHETIC
+            Self::todo_pack("53a5fc5e-3ba9-476f-a537-555bac6014f3"),
+            Self::todo_pack("8425ccb0-37f4-4d5e-915c-0806602f2593"),
+            Self::todo_pack("361895d8-49b0-4d0c-b359-60e7c343f194"),
+            Self::todo_pack("1e6627c8-f8ee-4c70-86b2-0c2dd4c65ff4"),
+            Self::todo_pack("c869e5a6-cb6c-4580-a162-d5ac3f72b737"),
+            Self::todo_pack("6e67e5e2-89c7-44cc-89fb-432e8e99734a"),
+            Self::todo_pack("55d1d22f-0ee7-41bf-939a-0aa372bb2e72"),
+            Self::todo_pack("e3f10da1-312a-4ba4-ad33-0c503e6c2a8f"),
+            Self::todo_pack("c9d603e7-9e20-4d72-a672-81c1a188a320"),
+            // DELUXE EDITION PACK #2
+            Self::todo_pack("e57690fe-4b17-4b11-b1de-a1fd4b0b4a55"),
+            // EA ACCESS PACK
+            Self::todo_pack("77459eda-2eab-4aae-b8f0-d26964f269eb"),
+            // TECH TEST SIGN-UP - BRONZE
+            Self::todo_pack("e28207db-3b14-4ba7-9dc6-d0826d76b78d"),
+            // ORIGIN ACCESS PACK
+            Self::todo_pack("7c4118cd-53fa-4c15-951c-6c250549db1d"),
+            // SUPPORT PACK
+            Self::todo_pack("0d9a69e0-cad5-4242-8052-9f0c2ded0236"),
+            // APEX ELITE PACK
+            Self::todo_pack("5e7cf499-4f72-47d8-b87b-04162ef4e406"),
+            // MEA DEVELOPER - GOLD
+            Self::todo_pack("0b2986da-3d0d-45fd-b0b7-2adfca9d2994"),
+            // CELEBRATORY PACK
+            Self::todo_pack("a883a017-1b11-41ea-b98a-127b25dd3032"),
+            Self::todo_pack("5aebef08-b14c-40df-95fe-59fc78274ad5"),
+            // NAMEPLATE: BIOTIC MASTERY - BRONZE
+            Self::todo_pack("6b1179d1-0a7b-496c-83e2-f66de8b57736"),
+            // NAMEPLATE: BIOTIC MASTERY - SILVER
+            Self::todo_pack("e9d39579-0f21-4d35-952f-cd418b6c4b57"),
+            // NAMEPLATE: BIOTIC MASTERY - GOLD
+            Self::todo_pack("8b9263f0-a660-48b3-8a83-f11cfb4da11b"),
+            // MP DLC PACK - COLLECTION ITEMS
+            Self::todo_pack("eed5b4df-736d-4b4c-b683-96c19dc5088d"),
+            Self::todo_pack("eb4fe1a6-c942-43f9-91f5-7b981ccbbb55"),
+            Self::todo_pack("ccb3f225-e808-4057-99b8-48a33c966be1"),
+            Self::todo_pack("ef8d85dc-74c5-4554-86c2-4e2f5c7e0fb8"),
+            Self::todo_pack("f1473ab2-55c1-4b22-a8d2-344dba5b4e09"),
+            Self::todo_pack("43eed42a-643a-4ddc-b0b7-51e6ed5ccbf8"),
+            Self::todo_pack("67416130-bd36-4cf4-94df-e276f7642472"),
+            Self::todo_pack("a1e73511-3672-40b0-9a9f-8c24faa8b831"),
+            Self::todo_pack("23b6647a-0b54-43a8-85fb-0a382522bf97"),
+            Self::todo_pack("609be685-d3c3-43a6-b0a1-484701c19172"),
+            Self::todo_pack("e4e12a1d-6f0a-4191-a740-26e715e42abe"),
+            Self::todo_pack("f8aecee2-3add-4b73-a520-961ef9932ea2"),
+            // [BUG] I am a banner!
+            Self::todo_pack("694577c3-0d92-4e85-ad41-de54a4c91154"),
         ]
         .into_iter()
         .map(|pack| (pack.name, pack))
@@ -77,6 +323,18 @@ impl ItemsService {
         let index = self.defs_by_name.get(name).copied()?;
         let def = &self.defs[index];
         Some(def)
+    }
+
+    /// Single item packs
+    fn item_pack(uuid: &str, item: &str) -> Pack {
+        Pack::new(uuid).add_item(ItemChance::named(
+            Uuid::from_str(item).expect("Invalid item pack ID"),
+        ))
+    }
+
+    // Pack thats not yet implemented
+    fn todo_pack(uuid: &str) -> Pack {
+        Pack::new(uuid)
     }
 
     fn supply_pack() -> Pack {
@@ -336,8 +594,8 @@ impl ItemsService {
             )
     }
 
-    fn bonus_reward_pack() -> Pack {
-        Pack::new("cf9cd252-e1f2-4574-973d-d66cd81558d3")
+    fn bonus_reward_pack(uuid: &str) -> Pack {
+        Pack::new(uuid)
             // 3 common items/characters
             .add_item(
                 ItemChance::new(ItemFilter::and(
@@ -360,46 +618,36 @@ impl ItemsService {
                 .amount(1),
             )
             // 1 maybe rare item/character
-            .add_item(
-                ItemChance::new(ItemFilter::and(
-                    // Uncommon but with a chance for rare
-                    ItemFilter::rarity(Rarity::COMMON).weight(6)
-                        | ItemFilter::rarity(Rarity::RARE).weight(1),
-                    // Items or characters (weighted for weapons)
-                    ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
-                ))
-                .amount(1),
-            )
+            .add_item(ItemChance::new(ItemFilter::and(
+                // Uncommon but with a chance for rare
+                ItemFilter::rarity(Rarity::COMMON).weight(6)
+                    | ItemFilter::rarity(Rarity::RARE).weight(1),
+                // Items or characters (weighted for weapons)
+                ItemFilter::categories(Category::ITEMS_WITH_CHARACTERS),
+            )))
     }
 
-    fn random_uncommon_mod_pack() -> Pack {
-        Pack::new("44da78e5-8ceb-4684-983e-794329d4a631")
-            // 3 common items/characters
-            .add_item(
-                ItemChance::new(ItemFilter::and(
-                    // Uncommon items
-                    ItemFilter::rarity(Rarity::UNCOMMON),
-                    // Weapon mods
-                    ItemFilter::category(Category::WEAPON_MODS)
-                        | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
-                ))
-                .amount(1),
-            )
+    fn random_mod_pack(uuid: &str, rarity: &str) -> Pack {
+        Pack::new(uuid).add_item(ItemChance::new(ItemFilter::and(
+            ItemFilter::rarity(rarity),
+            ItemFilter::category(Category::WEAPON_MODS)
+                | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
+        )))
     }
 
-    fn random_common_mod_pack() -> Pack {
-        Pack::new("890b2aa6-191f-4162-ae79-a78d23e3c505")
-            // 3 common items/characters
-            .add_item(
-                ItemChance::new(ItemFilter::and(
-                    // Uncommon items
-                    ItemFilter::rarity(Rarity::COMMON),
-                    // Weapon mods
-                    ItemFilter::category(Category::WEAPON_MODS)
-                        | ItemFilter::category(Category::WEAPON_MODS_ENHANCED),
-                ))
-                .amount(1),
-            )
+    fn random_weapon_pack(uuid: &str, rarity: &str) -> Pack {
+        Pack::new(uuid).add_item(ItemChance::new(ItemFilter::and(
+            ItemFilter::rarity(rarity),
+            ItemFilter::category(Category::WEAPONS)
+                | ItemFilter::category(Category::WEAPONS_SPECIALIZED),
+        )))
+    }
+
+    fn random_character_pack(uuid: &str, rarity: &str) -> Pack {
+        Pack::new(uuid).add_item(ItemChance::new(ItemFilter::and(
+            ItemFilter::rarity(rarity),
+            ItemFilter::category(Category::CHARACTERS),
+        )))
     }
 }
 
@@ -455,7 +703,7 @@ impl Category {
     /// Rewards from strike team missions (Loot boxes)
     pub const STRIKE_TEAM_REWARD: &str = "11";
 
-    /// Item loot box packs
+    /// Item loot box packs /
     pub const ITEM_PACK: &str = "12";
 
     // Specialized gun variants
