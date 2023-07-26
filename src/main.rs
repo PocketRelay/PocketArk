@@ -1,7 +1,6 @@
+use crate::state::App;
 use log::LevelFilter;
 use tokio::{select, signal};
-
-use crate::{database::entity::User, state::App};
 
 #[allow(unused)]
 mod blaze;
