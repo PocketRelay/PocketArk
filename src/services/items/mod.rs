@@ -184,77 +184,200 @@ impl ItemsService {
             // DELUXE EDITION PACK
             Self::todo_pack("cc15e17f-1b06-4413-9c6c-544d01b50f2a"),
             // NAMEPLATE: APEX MASTERY - BRONZE
-            Self::todo_pack("208aa537-19d0-4bea-9ac9-f11713cd85e8"),
+            Self::item_pack(
+                "208aa537-19d0-4bea-9ac9-f11713cd85e8",
+                "dd241aa0-26ba-4165-8332-69ba6259a8d3",
+            ),
             // NAMEPLATE: APEX MASTERY - SILVER
-            Self::todo_pack("c9334ea7-9249-46a7-93af-b0622af5370e"),
+            Self::item_pack(
+                "c9334ea7-9249-46a7-93af-b0622af5370e",
+                "ec666f35-cc51-4569-87ca-3c17ff25efe4",
+            ),
             // NAMEPLATE: APEX MASTERY - GOLD
-            Self::todo_pack("7ad4c7ea-2b31-412a-b688-c2d56619dcc3"),
+            Self::item_pack(
+                "7ad4c7ea-2b31-412a-b688-c2d56619dcc3",
+                "dec5e82a-0151-4802-b9eb-064e1849cba1",
+            ),
             // NAMEPLATE: ASSAULT RIFLE MASTERY- BRONZE
-            Self::todo_pack("0b7386e1-3e9b-415e-b246-45d3674367f4"),
+            Self::item_pack(
+                "0b7386e1-3e9b-415e-b246-45d3674367f4",
+                "bcec3018-405b-4c52-86b5-d4aedacccbd7",
+            ),
             // NAMEPLATE: ASSAULT RIFLE MASTERY- SILVER
-            Self::todo_pack("0d31bf4b-3ab2-4d09-8028-335bb2f28ad8"),
+            Self::item_pack(
+                "0d31bf4b-3ab2-4d09-8028-335bb2f28ad8",
+                "fdd1d812-64e1-40e9-ad89-3b7f90641fab",
+            ),
             // NAMEPLATE: ASSAULT RIFLE MASTERY- GOLD
-            Self::todo_pack("19a680d4-5149-420a-aebe-03b9beb1ab83"),
+            Self::item_pack(
+                "19a680d4-5149-420a-aebe-03b9beb1ab83",
+                "1fa00e66-177d-4afb-831c-ca90fcf09e91",
+            ),
             // NAMEPLATE: COMBAT MASTERY - BRONZE
-            Self::todo_pack("d7e1823e-aa41-47fe-9602-13b6f31153f6"),
+            Self::item_pack(
+                "d7e1823e-aa41-47fe-9602-13b6f31153f6",
+                "34a56ba9-1e06-4b27-8fb5-ca8122c6ac72",
+            ),
             // NAMEPLATE: COMBAT MASTERY - SILVER
-            Self::todo_pack("5d3d4ce8-9cf0-4ff6-9860-9e8554c10577"),
+            Self::item_pack(
+                "5d3d4ce8-9cf0-4ff6-9860-9e8554c10577",
+                "429c1c96-1aa6-4b9a-a109-754d4f1ce3ab",
+            ),
             // NAMEPLATE: COMBAT MASTERY - GOLD
-            Self::todo_pack("c537155c-efbd-49c2-a15c-2fcd088dfeb2"),
+            Self::item_pack(
+                "c537155c-efbd-49c2-a15c-2fcd088dfeb2",
+                "f958a50a-f9d4-477c-b071-d278fe6fa581",
+            ),
             // NAMEPLATE: KETT MASTERY- BRONZE
-            Self::todo_pack("f8a12dd0-dd4d-4151-91dc-7e019005a22c"),
+            Self::item_pack(
+                "f8a12dd0-dd4d-4151-91dc-7e019005a22c",
+                "26a31baf-8fef-4e8f-b704-29e9f335df0e",
+            ),
             // NAMEPLATE: KETT MASTERY- SILVER
-            Self::todo_pack("e1c4ff7d-63e5-4e82-ae89-a078b954edce"),
+            Self::item_pack(
+                "e1c4ff7d-63e5-4e82-ae89-a078b954edce",
+                "1d832caf-8ed5-4329-b33d-06d0ad9463f4",
+            ),
             // NAMEPLATE: KETT MASTERY- GOLD
-            Self::todo_pack("65e537a8-0a56-4ded-8d48-41e68d9d82cb"),
+            Self::item_pack(
+                "65e537a8-0a56-4ded-8d48-41e68d9d82cb",
+                "4d9c88f4-22d6-4096-8d5a-3e6629adf34f",
+            ),
             // NAMEPLATE: MAP MASTERY - BRONZE
-            Self::todo_pack("3dbc20f9-4258-44c8-aace-f89444f48346"),
+            Self::item_pack(
+                "3dbc20f9-4258-44c8-aace-f89444f48346",
+                "59cbef6f-323b-47c2-93e1-a41bdef50d14",
+            ),
             // NAMEPLATE: MAP MASTERY - SILVER
-            Self::todo_pack("6d05ac99-3e2e-4f48-9b84-04c8d9be8420"),
+            Self::item_pack(
+                "6d05ac99-3e2e-4f48-9b84-04c8d9be8420",
+                "8a3fbe71-eced-4d03-8cdc-f8ba3888b53c",
+            ),
             // NAMEPLATE: MAP MASTERY - GOLD
-            Self::todo_pack("ba606bb6-08b0-4002-b45e-ab0d07c4126d"),
+            Self::item_pack(
+                "ba606bb6-08b0-4002-b45e-ab0d07c4126d",
+                "129c6111-fdb8-4907-a820-8f9665de6d80",
+            ),
             // NAMEPLATE: OUTLAW MASTERY - BRONZE
-            Self::todo_pack("ce59f903-f3a1-4ec3-90a3-1e82c5f47b85"),
+            Self::item_pack(
+                "ce59f903-f3a1-4ec3-90a3-1e82c5f47b85",
+                "c2dd50c5-d650-4a75-bd49-f476a4e9d18e",
+            ),
             // NAMEPLATE: OUTLAW MASTERY - SILVER
-            Self::todo_pack("2d9e2f93-2c72-491e-bdb9-46f20d0d9339"),
+            Self::item_pack(
+                "2d9e2f93-2c72-491e-bdb9-46f20d0d9339",
+                "713b03ba-cead-4cd7-8239-0ce38dbc32fb",
+            ),
             // NAMEPLATE: OUTLAW MASTERY - GOLD
-            Self::todo_pack("daf74c9a-8c2b-4de4-931f-dce265a88c1c"),
+            Self::item_pack(
+                "daf74c9a-8c2b-4de4-931f-dce265a88c1c",
+                "9223bffe-ce83-48bf-8eb5-ed9e7345bdaa",
+            ),
             // NAMEPLATE: APEX RATING - BRONZE
-            Self::todo_pack("5c7b9f32-4fef-430c-a72d-0e7409b84adc"),
+            Self::item_pack(
+                "5c7b9f32-4fef-430c-a72d-0e7409b84adc",
+                "80c863cc-d53f-4335-92bd-71d6cec3b08b",
+            ),
             // NAMEPLATE: APEX RATING - SILVER
-            Self::todo_pack("ad9c5a2f-63b0-4638-935c-1733f083de38"),
+            Self::item_pack(
+                "ad9c5a2f-63b0-4638-935c-1733f083de38",
+                "227809cc-1fdd-433a-83ea-0662778e36dd",
+            ),
             // NAMEPLATE: APEX RATING - GOLD
-            Self::todo_pack("74f437e4-fd7d-4f6a-a441-66e6c64bb3c5"),
+            Self::item_pack(
+                "74f437e4-fd7d-4f6a-a441-66e6c64bb3c5",
+                "07a2c3ed-269a-46a4-ab81-5aaa3ff586d8",
+            ),
             // NAMEPLATE: PISTOL MASTERY - BRONZE
-            Self::todo_pack("414b173e-2dcf-4587-8cdd-43c5bc872c5c"),
+            Self::item_pack(
+                "414b173e-2dcf-4587-8cdd-43c5bc872c5c",
+                "5fda99e2-93aa-4e62-a198-c1a4381d9b97",
+            ),
             // NAMEPLATE: PISTOL MASTERY - SILVER
-            Self::todo_pack("be469a8c-71d0-47f2-a13f-80c94beec052"),
+            Self::item_pack(
+                "be469a8c-71d0-47f2-a13f-80c94beec052",
+                "23511ee2-1a01-4d4d-94ef-618a3c199b2b",
+            ),
             // NAMEPLATE: PISTOL MASTERY - GOLD
-            Self::todo_pack("73564b68-8e80-48b1-881c-2e2085787509"),
+            Self::item_pack(
+                "73564b68-8e80-48b1-881c-2e2085787509",
+                "3164389f-46aa-4f10-b5cb-4c5839a00f57",
+            ),
             // NAMEPLATE: REMNANT MASTERY - BRONZE
-            Self::todo_pack("a6248be2-1647-4e9b-9e1e-b8b69ecf809d"),
+            Self::item_pack(
+                "a6248be2-1647-4e9b-9e1e-b8b69ecf809d",
+                "561289b5-9efa-4d6f-acf4-ce8c2ff26792",
+            ),
             // NAMEPLATE: REMNANT MASTERY - SILVER
-            Self::todo_pack("123b3fa1-565e-456f-b08d-aa131b0c5cf1"),
+            Self::item_pack(
+                "123b3fa1-565e-456f-b08d-aa131b0c5cf1",
+                "4006a2e7-c0b5-4d02-b542-1c14ea05e9a4",
+            ),
             // NAMEPLATE: REMNANT MASTERY - GOLD
-            Self::todo_pack("206115c9-c953-4ce2-aab0-6804660f6cc1"),
+            Self::item_pack(
+                "206115c9-c953-4ce2-aab0-6804660f6cc1",
+                "9f571cb9-3846-41a0-a0c9-abc7dfac2772",
+            ),
             // NAMEPLATE: SHOTGUN MASTERY - BRONZE
-            Self::todo_pack("aa7b4129-1e67-421a-a3e9-27813bd1105a"),
+            Self::item_pack(
+                "aa7b4129-1e67-421a-a3e9-27813bd1105a",
+                "771029a8-e7ed-46a5-af30-e87ee73350f1",
+            ),
             // NAMEPLATE: SHOTGUN MASTERY - SILVER
-            Self::todo_pack("88a7e312-1591-4ac5-bdd8-6be1a6f02c9f"),
+            Self::item_pack(
+                "88a7e312-1591-4ac5-bdd8-6be1a6f02c9f",
+                "bed37817-170d-4144-9434-3ccd58c7ec8f",
+            ),
             // NAMEPLATE: SHOTGUN MASTERY - GOLD
-            Self::todo_pack("fa6aab20-ae9a-4778-829b-978f075de939"),
+            Self::item_pack(
+                "fa6aab20-ae9a-4778-829b-978f075de939",
+                "4fa9a564-dfbd-4c28-8ba5-6e9e3e48d950",
+            ),
             // NAMEPLATE: SNIPER RIFLE MASTERY - BRONZE
-            Self::todo_pack("66e865bb-b694-4f2a-86e3-caf58442780d"),
+            Self::item_pack(
+                "66e865bb-b694-4f2a-86e3-caf58442780d",
+                "2e0c84a8-0495-469e-a059-b71759cadf0a",
+            ),
             // NAMEPLATE: SNIPER RIFLE MASTERY - SILVER
-            Self::todo_pack("254dad07-4f5b-4ce0-9d78-6be17855f082"),
+            Self::item_pack(
+                "254dad07-4f5b-4ce0-9d78-6be17855f082",
+                "9945b0d6-2515-4329-a718-cfe1fb26b2d0",
+            ),
             // NAMEPLATE: SNIPER RIFLE MASTERY - GOLD
-            Self::todo_pack("d9e0d08d-5ffc-4e33-9509-40776591eb68"),
+            Self::item_pack(
+                "d9e0d08d-5ffc-4e33-9509-40776591eb68",
+                "6282e95d-5b15-482d-96bc-060e34126177",
+            ),
             // NAMEPLATE: TECH MASTERY - BRONZE
-            Self::todo_pack("6d830d65-13de-4c70-8fb9-d076c569b4f0"),
+            Self::item_pack(
+                "6d830d65-13de-4c70-8fb9-d076c569b4f0",
+                "153c87ec-0b2f-4cc1-9a84-4ad646d1418f",
+            ),
             // NAMEPLATE: TECH MASTERY - SILVER
-            Self::todo_pack("8fd74763-e397-45ab-a27a-ac8f08e062e1"),
+            Self::item_pack(
+                "8fd74763-e397-45ab-a27a-ac8f08e062e1",
+                "beefc0ed-d91c-463e-bc2c-ade1c9927ab5",
+            ),
             // NAMEPLATE: TECH MASTERY - GOLD
-            Self::todo_pack("737be245-d4ae-410b-9bf8-3db805eb79b7"),
+            Self::item_pack(
+                "737be245-d4ae-410b-9bf8-3db805eb79b7",
+                "6dbd41ae-c394-4502-984b-228075eada9f",
+            ),
+            // NAMEPLATE: BIOTIC MASTERY - BRONZE
+            Self::item_pack(
+                "6b1179d1-0a7b-496c-83e2-f66de8b57736",
+                "70f12a9a-a979-4d62-bda1-5f161e8f133a",
+            ),
+            // NAMEPLATE: BIOTIC MASTERY - SILVER
+            Self::item_pack(
+                "e9d39579-0f21-4d35-952f-cd418b6c4b57",
+                "9288bbdb-c045-439c-8771-651b83c294cc",
+            ),
+            // NAMEPLATE: BIOTIC MASTERY - GOLD
+            Self::item_pack(
+                "8b9263f0-a660-48b3-8a83-f11cfb4da11b",
+                "c072a185-7173-4a4b-87ce-c76e2ac9cead",
+            ),
             // AESTHETIC
             Self::todo_pack("53a5fc5e-3ba9-476f-a537-555bac6014f3"),
             Self::todo_pack("8425ccb0-37f4-4d5e-915c-0806602f2593"),
@@ -282,12 +405,6 @@ impl ItemsService {
             // CELEBRATORY PACK
             Self::todo_pack("a883a017-1b11-41ea-b98a-127b25dd3032"),
             Self::todo_pack("5aebef08-b14c-40df-95fe-59fc78274ad5"),
-            // NAMEPLATE: BIOTIC MASTERY - BRONZE
-            Self::todo_pack("6b1179d1-0a7b-496c-83e2-f66de8b57736"),
-            // NAMEPLATE: BIOTIC MASTERY - SILVER
-            Self::todo_pack("e9d39579-0f21-4d35-952f-cd418b6c4b57"),
-            // NAMEPLATE: BIOTIC MASTERY - GOLD
-            Self::todo_pack("8b9263f0-a660-48b3-8a83-f11cfb4da11b"),
             // MP DLC PACK - COLLECTION ITEMS
             Self::todo_pack("eed5b4df-736d-4b4c-b683-96c19dc5088d"),
             Self::todo_pack("eb4fe1a6-c942-43f9-91f5-7b981ccbbb55"),
