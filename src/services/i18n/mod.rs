@@ -11,9 +11,7 @@ pub struct I18nService {
 
 impl I18nService {
     pub fn new() -> Self {
-        let mut map = HashMap::new();
-
-        ReaderBuilder::new()
+        let mut map = ReaderBuilder::new()
             .from_reader(I18N_TRANSLATIONS)
             .into_records()
             .flatten()
@@ -22,12 +20,16 @@ impl I18nService {
                 let value = record.get(1)?;
 
                 Some((key, value.to_string()))
-            });
+            })
+            .collect();
 
         Self { map }
     }
 
-    pub fn get(&self, key: u32) -> &str {
-        self.map.get(&key)
+    pub fn get(&self, key: u32) -> Option<&str> {
+        match self.map.get(&key) {
+            Some(value) => Some(value),
+            None => None,
+        }
     }
 }
