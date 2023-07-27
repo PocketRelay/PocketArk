@@ -1,4 +1,6 @@
-use serde::Serialize;
+use std::collections::{BTreeMap, HashMap};
+
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
@@ -45,22 +47,101 @@ impl ActivityService {
 #[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityResult {
-    pub previous_xp: u32,
-    pub xp: u32,
-    pub xp_gained: u32,
-    pub previous_level: u32,
-    pub level: u32,
-    pub level_up: bool,
+    #[serde(flatten)]
+    pub xp: ActivityXpDetails,
+
+    #[serde(flatten)]
+    pub level: ActivityLevelDetails,
+
     pub character_class_name: Option<Uuid>,
-    pub challenges_updated_count: u32,
-    pub challenges_completed_count: u32,
-    pub challenges_updated: Vec<Value>,
-    pub updated_challenge_ids: Vec<Value>,
+
+    #[serde(flatten)]
+    pub challenge: ActivityChallengeDetails,
+
     pub news_triggered: u32,
     pub currencies: Vec<Currency>,
     pub currency_earned: Vec<Currency>,
-    pub items_earned: Vec<InventoryItem>,
-    pub item_definitions: Vec<&'static ItemDefinition>,
+
+    #[serde(flatten)]
+    pub items: ActivityItemDetails,
+
     pub entitlements_granted: Vec<Value>,
-    pub prestige_progression_map: Map<String, Value>,
+    #[serde(rename = "prestigeProgressionMap")]
+    pub prestige: PrestigeProgression,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct ActivityItemDetails {
+    #[serde(rename = "itemsEarned")]
+    pub earned: Vec<InventoryItem>,
+    #[serde(rename = "itemDefinitions")]
+    pub definitions: Vec<&'static ItemDefinition>,
+}
+
+#[derive(Debug, Default, Serialize)]
+pub struct ActivityChallengeDetails {
+    #[serde(rename = "challengesUpdatedCount")]
+    pub updated_count: u32,
+    #[serde(rename = "challengesCompletedCount")]
+    pub completed_count: u32,
+    #[serde(rename = "challengesUpdated")]
+    pub challenges_updated: BTreeMap<String, ChallengeUpdate>,
+    #[serde(rename = "updatedChallengeIds")]
+    pub updated_ids: Vec<Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityLevelDetails {
+    pub previous_level: u32,
+    pub level: u32,
+    pub level_up: bool,
+}
+
+#[derive(Debug, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityXpDetails {
+    pub xp: u32,
+    pub previous_xp: u32,
+    pub xp_gained: u32,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PrestigeProgression {
+    pub before: Option<HashMap<Uuid, PrestigeData>>,
+    pub after: Option<HashMap<Uuid, PrestigeData>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrestigeData {
+    pub name: Uuid,
+    pub level: u32,
+    pub xp: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChallengeUpdate {
+    pub challenge_id: Uuid,
+    pub counters: Vec<ChallengeUpdateCounter>,
+    pub status_change: ChallengeStatusChange,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ChallengeStatusChange {
+    Notify,
+    Changed,
+    #[serde(other)]
+    Unknown,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChallengeUpdateCounter {
+    pub name: String,
+    pub current_count: u32,
 }

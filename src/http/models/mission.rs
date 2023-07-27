@@ -5,7 +5,16 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use crate::{services::challenges::CurrencyReward, utils::models::Sku};
+use crate::{
+    database::entity::InventoryItem,
+    services::{
+        activity::{
+            ActivityItemDetails, ActivityLevelDetails, ChallengeUpdate, PrestigeProgression,
+        },
+        challenges::CurrencyReward,
+    },
+    utils::models::Sku,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -73,7 +82,7 @@ pub struct StartMissionResponse {
     pub match_id: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionDetails {
     pub sku: Sku,
@@ -92,7 +101,7 @@ pub struct MissionDetails {
     pub modifiers: Vec<MissionModifier>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionPlayerInfo {
     pub activities_processed: bool,
@@ -121,17 +130,21 @@ pub struct PlayerInfoBadge {
     pub name: Uuid,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlayerInfoResult {
     pub challenges_updated: BTreeMap<String, ChallengeUpdate>,
-    pub items_earned: Vec<Value>,
+
     pub xp_earned: u32,
     pub previous_xp: u32,
     pub current_xp: u32,
+
+    pub items_earned: Vec<InventoryItem>,
+
     pub previous_level: u32,
     pub level: u32,
     pub leveled_up: bool,
+
     pub score: u32,
     pub total_score: u32,
     pub character_class_name: Uuid,
@@ -142,47 +155,8 @@ pub struct PlayerInfoResult {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ChallengeUpdate {
-    pub challenge_id: Uuid,
-    pub counters: Vec<ChallengeUpdateCounter>,
-    pub status_change: ChallengeStatusChange,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum ChallengeStatusChange {
-    Notify,
-    Changed,
-    #[serde(other)]
-    Unknown,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ChallengeUpdateCounter {
-    pub name: String,
-    pub current_count: u32,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct RewardSource {
     pub name: String,
     pub xp: u32,
     pub currencies: HashMap<String, u32>,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PrestigeProgression {
-    pub before: HashMap<Uuid, PrestigeData>,
-    pub after: HashMap<Uuid, PrestigeData>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PrestigeData {
-    pub name: Uuid,
-    pub level: u32,
-    pub xp: u32,
 }

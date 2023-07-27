@@ -11,7 +11,11 @@ use serde_json::Value;
 use thiserror::Error;
 use uuid::Uuid;
 
-use super::{challenges::CurrencyReward, match_data::MatchDataService};
+use super::{
+    activity::{PrestigeData, PrestigeProgression},
+    challenges::CurrencyReward,
+    match_data::MatchDataService,
+};
 use crate::{
     blaze::{
         components,
@@ -35,11 +39,13 @@ use crate::{
         User,
     },
     http::models::mission::{
-        ChallengeStatusChange, ChallengeUpdate, CompleteMissionData, MissionDetails,
-        MissionModifier, MissionPlayerData, MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult,
-        PrestigeData, PrestigeProgression, RewardSource,
+        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
+        PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::game::manager::RemoveGameMessage,
+    services::{
+        activity::{ChallengeStatusChange, ChallengeUpdate},
+        game::manager::RemoveGameMessage,
+    },
     state::App,
     utils::models::Sku,
 };

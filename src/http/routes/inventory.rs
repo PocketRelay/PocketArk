@@ -11,7 +11,7 @@ use crate::{
         },
     },
     services::{
-        activity::ActivityResult,
+        activity::{ActivityItemDetails, ActivityResult},
         items::{Category, GrantedItem, ItemChanged, ItemDefinition},
     },
     state::App,
@@ -203,13 +203,15 @@ pub async fn consume_inventory(
         }
     }
 
-    let (items_out, definitions) = InventoryItem::grant_items(db, &user, items_granted).await?;
+    let (earned, definitions) = InventoryItem::grant_items(db, &user, items_granted).await?;
     let currencies = Currency::get_from_user(db, &user).await?;
 
     let activity = ActivityResult {
         currencies,
-        items_earned: items_out,
-        item_definitions: definitions,
+        items: ActivityItemDetails {
+            earned,
+            definitions,
+        },
         ..Default::default()
     };
 

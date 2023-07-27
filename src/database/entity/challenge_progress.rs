@@ -1,7 +1,7 @@
 use super::User;
 use crate::{
-    database::DbResult, http::models::mission::ChallengeUpdateCounter,
-    services::challenges::ChallengeProgressUpdate,
+    database::DbResult,
+    services::{activity::ChallengeUpdateCounter, challenges::ChallengeProgressUpdate},
 };
 use chrono::{DateTime, Utc};
 use sea_orm::{

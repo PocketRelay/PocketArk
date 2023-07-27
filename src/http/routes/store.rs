@@ -10,7 +10,7 @@ use crate::{
             HttpError,
         },
     },
-    services::activity::ActivityResult,
+    services::activity::{ActivityItemDetails, ActivityResult},
     state::App,
 };
 use axum::Json;
@@ -97,8 +97,10 @@ pub async fn obtain_article(
 
     let activity = ActivityResult {
         currencies,
-        items_earned: items_earned.clone(),
-        item_definitions: definitions.clone(),
+        items: ActivityItemDetails {
+            earned: items_earned.clone(),
+            definitions: definitions.clone(),
+        },
         ..Default::default()
     };
 
