@@ -35,8 +35,8 @@ use crate::{
         session::{PushExt, SessionLink, SetGameMessage},
     },
     database::entity::{
-        challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency, SharedData,
-        User,
+        challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
+        InventoryItem, SharedData, User,
     },
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
@@ -186,7 +186,7 @@ pub struct PlayerDataBuilder {
     pub reward_sources: Vec<RewardSource>,
     pub total_currency: HashMap<String, u32>,
     pub prestige_progression: PrestigeProgression,
-    pub items_earned: Vec<Value>,
+    pub items_earned: Vec<InventoryItem>,
     pub challenges_updates: BTreeMap<String, ChallengeUpdate>,
     pub badges: Vec<PlayerInfoBadge>,
 }
@@ -220,10 +220,18 @@ impl PlayerDataBuilder {
     }
 
     pub fn append_prestige_before(&mut self, shared_data: &SharedData) {
-        Self::append_prestige(&mut self.prestige_progression.before, shared_data)
+        let before = self
+            .prestige_progression
+            .before
+            .get_or_insert(HashMap::new());
+        Self::append_prestige(before, shared_data)
     }
     pub fn append_prestige_after(&mut self, shared_data: &SharedData) {
-        Self::append_prestige(&mut self.prestige_progression.after, shared_data)
+        let after = self
+            .prestige_progression
+            .after
+            .get_or_insert(HashMap::new());
+        Self::append_prestige(after, shared_data)
     }
 
     pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
