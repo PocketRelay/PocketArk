@@ -51,8 +51,9 @@ pub struct StrikeTeam {
 
 // Sourced from "NATO phonetic alphabet"
 static STRIKE_TEAM_NAMES: &[&str] = &[
-    "Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Juliett", "Kilo", "Lima",
-    "Mike", "November", "Oscar", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Zulu",
+    "Yankee", "Delta", "India", "Echo", "Zulu", "Charlie", "Whiskey", "Lima", "Bravo", "Sierra",
+    "November", "X-Ray", "Golf", "Alpha", "Romeo", "Kilo", "Tango", "Quebec", "Foxtrot", "Papa",
+    "Mike", "Oscar", "Juliet", "Uniform", "Victor", "Hotel",
 ];
 
 impl StrikeTeam {
