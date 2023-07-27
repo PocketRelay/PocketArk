@@ -22,7 +22,7 @@ use super::mission::MissionModifier;
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolveMissionResponse {
-    pub team: StrikeTeam,
+    pub team: StrikeTeamWithMission,
     pub mission_successful: bool,
     pub traits_acquired: Vec<TeamTrait>,
     pub activity_response: ActivityResult,
@@ -248,7 +248,16 @@ pub struct MissionDescriptor {
     pub i18n_desc: Option<String>,
     pub loc_name: Option<String>,
     pub loc_desc: Option<String>,
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: MissionDescriptorAttr,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct MissionDescriptorAttr {
+    pub icon: Option<String>,
+    pub selector_icon: Option<String>,
+    #[serde(flatten)]
+    pub extra: HashMap<String, Value>,
 }
 
 #[derive(Debug, Serialize)]
