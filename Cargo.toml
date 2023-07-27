@@ -44,6 +44,7 @@ serde_with = "3.0.0"
 # Password hashing
 argon2 = { version = "0.5", features = ["std"] }
 rand = "0.8.5"
+csv = "1.2.2"
 
 
 [dependencies.log4rs]
