@@ -1,7 +1,6 @@
-use std::{collections::HashMap, fs::File, io::BufWriter};
-
 use csv::ReaderBuilder;
 use log::debug;
+use std::collections::HashMap;
 
 const I18N_TRANSLATIONS: &[u8] = include_bytes!("../../resources/data/i18n.csv");
 
@@ -11,7 +10,7 @@ pub struct I18nService {
 
 impl I18nService {
     pub fn new() -> Self {
-        let mut map = ReaderBuilder::new()
+        let map: HashMap<u32, String> = ReaderBuilder::new()
             .from_reader(I18N_TRANSLATIONS)
             .into_records()
             .flatten()
@@ -22,6 +21,8 @@ impl I18nService {
                 Some((key, value.to_string()))
             })
             .collect();
+
+        debug!("Loaded {} translation(s)", map.len());
 
         Self { map }
     }
