@@ -2,7 +2,8 @@
     {
         "name": "kett",
         "i18nName": "211956",
-        "locName": "Kett"
+        "locName": "Kett",
+        "i18nDesc": ""
     },
     {
         "name": "stealthy",

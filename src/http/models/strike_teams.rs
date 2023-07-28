@@ -220,6 +220,7 @@ pub enum MissionAccessibility {
 pub enum MissionState {
     PendingResolve,
     Available,
+    Completed,
 }
 
 #[derive(Debug, Serialize)]
