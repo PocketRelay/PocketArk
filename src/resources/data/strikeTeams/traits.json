@@ -1,0 +1,30 @@
+[
+    {
+        "name": "remnant",
+        "i18nName": "211954",
+        "locName": "Remnant",
+        "i18nDesc": "",
+        "positive": [
+            {
+                "name": "Remnant Specialist",
+                "i18nName": 211951,
+                "locName": "Remnant Specialist",
+                "i18nDescription": 216428,
+                "locDescription": "+10 to Effectiveness against Remnant",
+                "tag": "remnant",
+                "effectiveness": 10
+            }
+        ],
+        "negative": [
+            {
+                "name": "Remnant Hysteria",
+                "i18nName": 211948,
+                "locName": "Remnant Hysteria",
+                "i18nDescription": 216430,
+                "locDescription": "-10 to Effectiveness against Remnant",
+                "tag": "remnant",
+                "effectiveness": -10
+            }
+        ],
+    }
+]
