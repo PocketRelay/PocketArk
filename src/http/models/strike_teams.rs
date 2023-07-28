@@ -295,12 +295,6 @@ static KNOWN_MISSION_TRAIT_NAMES: &[(u32, &str)] = &[
 ];
 
 static KNOWN_TRAIT_NAMES: &[(u32, &str)] = &[
-    (211948, "Remnant Hysteria"),
-    (211949, "Outlaw Hysteria"),
-    (211950, "Kett Specialist"),
-    (211951, "Remnant Specialist"),
-    (211952, "Kett Hysteria"),
-    (211953, "Outlaw Specialist"),
     (153269, "Careless"),
     (153270, "Berserker"),
     (153271, "Poor Intelligence"),
@@ -339,19 +333,15 @@ static KNOWN_TRAIT_NAMES: &[(u32, &str)] = &[
 
 #[rustfmt::skip]
 static KNOWN_TRAIT_DESCS: &[(u32, &str)] = &[
-    (216464, "+10 to Effectiveness against outlaws"),
     (216463,"+10 to Effectiveness with Key Intelligence Component"),
     (216462,"-10 to Effectiveness with Bribe Attempt"),
     (216461,"+10 to Effectiveness during Poor Weather Conditions"),
     (216460,"+10 to Effectiveness with We Need a Hero"),
     (216427,"-10 to Effectiveness when Silent and Deadly"),
-    (216428,"+10 to Effectiveness against Remnant"),
     (216429,"-10 to Effectiveness with We Need a Hero"),
-    (216430,"-10 to Effectiveness against Remnant"),
     (216431,"-10 to Effectiveness with Scary"),
     (216432,"+10 to Effectiveness with No Room for Error"),
     (216433,"+10 to Effectiveness during Defense"),
-    (216434,"+10 to Effectiveness against kett"),
     (216435,"-10 to Effectiveness against outlaws"),
     (216436,"+10 to Effectiveness during A Hostage Situation"),
     (216437,"+10 to Effectiveness during Assault"),
@@ -364,7 +354,6 @@ static KNOWN_TRAIT_DESCS: &[(u32, &str)] = &[
     (216444,"-10 to Effectiveness during Extraction"),
     (216445,"-10 to Effectiveness during Nighttime Missions"),
     (216446,"+5 to Effectiveness"),
-    (216447,"-10 to Effectiveness against kett"),
     (216448,"-10 to Effectiveness with Alien Presence"),
     (216449,"+10 to Effectiveness with Bribe Attempt"),
     (216450,"-10 to Effectiveness with No Room for Error"),

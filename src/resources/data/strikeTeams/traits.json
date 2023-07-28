@@ -25,6 +25,62 @@
                 "tag": "remnant",
                 "effectiveness": -10
             }
+        ]
+    },
+    {
+        "name": "outlaw",
+        "i18nName": "211955",
+        "locName": "Outlaw",
+        "i18nDesc": "",
+        "positive": [
+            {
+                "name": "Outlaw Specialist",
+                "i18nName": 211953,
+                "locName": "Outlaw Specialist",
+                "i18nDescription": 216464,
+                "locDescription": "+10 to Effectiveness against outlaws",
+                "tag": "outlaw",
+                "effectiveness": 10
+            }
         ],
+        "negative": [
+            {
+                "name": "Outlaw Hysteria",
+                "i18nName": 211949,
+                "locName": "Outlaw Hysteria",
+                "i18nDescription": 216435,
+                "locDescription": "-10 to Effectiveness against outlaws",
+                "tag": "outlaw",
+                "effectiveness": -10
+            }
+        ]
+    },
+    {
+        "name": "kett",
+        "i18nName": "211956",
+        "locName": "Kett",
+        "i18nDesc": "",
+        "positive": [
+            {
+                "name": "Kett Specialist",
+                "i18nName": 211950,
+                "locName": "Kett Specialist",
+                "i18nDescription": 216434,
+                "locDescription": "+10 to Effectiveness against kett",
+                "tag": "kett",
+                "effectiveness": 10
+            }
+        ],
+        "negative": [
+            {
+                "name": "Kett Hysteria",
+                "i18nName": 211952,
+                "locName": "Kett Hysteria",
+                "i18nDescription": 216447,
+                "locDescription": "-10 to Effectiveness against kett",
+                "tag": "kett",
+                "effectiveness": -10
+            }
+        ]
     }
 ]
