@@ -73,7 +73,17 @@
         "i18nName": "135556",
         "locName": "Key Intelligence Component",
         "i18nDesc": ""
+    },
+    {
+        "name": "risky",
+        "i18nName": "135555",
+        "locName": "High-Risk, High-Reward",
+        "i18nDesc": ""
+    },
+    {
+        "name": "hrt",
+        "i18nName": "135558",
+        "locName": "Hostage Situatio",
+        "i18nDesc": ""
     }
 ]
-// TODO: High-Risk, High-Reward	
-// TODO: A Hostage Situation
