@@ -1,0 +1,79 @@
+[
+    {
+        "name": "kett",
+        "i18nName": "211956",
+        "locName": "Kett"
+    },
+    {
+        "name": "stealthy",
+        "i18nName": "135559",
+        "locName": "Silent and Deadly",
+        "i18nDesc": ""
+    },
+    {
+        "name": "weather",
+        "i18nName": "135557",
+        "locName": "Poor Weather Conditions",
+        "i18nDesc": ""
+    },
+    {
+        "name": "outlaw",
+        "i18nName": "211955",
+        "locName": "Outlaw"
+    },
+    {
+        "name": "bloodthirsty",
+        "i18nName": "135562",
+        "locName": "Enemies Everywhere",
+        "i18nDesc": ""
+    },
+    {
+        "name": "scary",
+        "i18nName": "135561",
+        "locName": "Scary",
+        "i18nDesc": ""
+    },
+    {
+        "name": "precise",
+        "i18nName": "135550",
+        "locName": "No Room for Error",
+        "i18nDesc": ""
+    },
+    {
+        "name": "herocomplex",
+        "i18nName": "135552",
+        "locName": "We Need a Hero",
+        "i18nDesc": ""
+    },
+    {
+        "name": "remnant",
+        "i18nName": "211954",
+        "locName": "Remnant"
+    },
+    {
+        "name": "bribe",
+        "i18nName": "135560",
+        "locName": "Bribe Attempt",
+        "i18nDesc": ""
+    },
+    {
+        "name": "xenophobe",
+        "i18nName": "135549",
+        "locName": "Alien Presence",
+        "i18nDesc": ""
+    },
+    {
+        "name": "dark",
+        "i18nName": "135554",
+        "locName": "Nighttime Mission",
+        "i18nDesc": ""
+    },
+    {
+        "name": "poorintelligence",
+        "i18nName": "135556",
+        "locName": "Key Intelligence Component",
+        "i18nDesc": ""
+    }
+]
+// TODO: High-Risk, High-Reward	
+// TODO: A Hostage Situation
