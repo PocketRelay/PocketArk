@@ -342,7 +342,6 @@ static KNOWN_TRAIT_DESCS: &[(u32, &str)] = &[
     (216431,"-10 to Effectiveness with Scary"),
     (216432,"+10 to Effectiveness with No Room for Error"),
     (216433,"+10 to Effectiveness during Defense"),
-    (216435,"-10 to Effectiveness against outlaws"),
     (216436,"+10 to Effectiveness during A Hostage Situation"),
     (216437,"+10 to Effectiveness during Assault"),
     (216438,"+10 to Effectiveness with Enemies Everywhere"),

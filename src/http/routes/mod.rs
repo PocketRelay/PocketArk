@@ -50,6 +50,8 @@ pub fn router() -> Router {
                 .route("/specializations", get(strike_teams::get_specializations))
                 .route("/equipment", get(strike_teams::get_equipment))
                 .route("/:id/mission/resolve", post(strike_teams::resolve_mission))
+                .route("/:id/mission/:id", get(strike_teams::get_mission))
+                .route("/:id/retire", post(strike_teams::retire))
                 .route("/purchase", post(strike_teams::purchase)),
         )
         .route("/characters", get(character::get_characters))

@@ -1,0 +1,130 @@
+{
+    "name": "eeec9936-5a95-3a5b-80a4-d44880d9a63f",
+    "liveMission": {
+        "name": "eeec9936-5a95-3a5b-80a4-d44880d9a63f",
+        "descriptor": {
+            "name": "c4c0ba4d-61a5-4f28-af75-562093f185e3",
+            "i18nName": "216939",
+            "locName": "IDENTIFY ENEMY LOADOUTS",
+            "i18nDesc": "216896",
+            "locDesc": "We need to determine whether hostile forces intend to capture one of our installations or destroy it entirely. Hit their supply base and identify the loadout of their heavy weapons.",
+            "customAttributes": {
+                "Icon": "SpecAssault",
+                "SelectorIcon": "SpecAssaultSmall"
+            }
+        },
+        "missionType": {
+            "name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+            "descriptor": {
+                "name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+                "i18nName": "12028",
+                "locName": "Normal",
+                "customAttributes": {}
+            },
+            "giveCurrency": true,
+            "giveXp": true
+        },
+        "accessibility": "Single_Player",
+        "userMissionState": "IN_PROGRESS",
+        "waves": [],
+        "tags": [
+            {
+                "name": "precise",
+                "i18nName": "135550",
+                "locName": "No Room for Error",
+                "i18nDesc": ""
+            },
+            {
+                "name": "remnant",
+                "i18nName": "211954",
+                "locName": "Remnant"
+            },
+            {
+                "name": "dark",
+                "i18nName": "135554",
+                "locName": "Nighttime Mission",
+                "i18nDesc": ""
+            }
+        ],
+        "staticModifiers": [
+            {
+                "name": "difficulty",
+                "value": "bronze"
+            },
+            {
+                "name": "enemyType",
+                "value": "remnant"
+            },
+            {
+                "name": "level",
+                "value": "MPBlue"
+            }
+        ],
+        "dynamicModifiers": [],
+        "rewards": {
+            "name": "97621f83-b9f3-48df-b327-fd2e3d200ab4",
+            "currencyReward": {
+                "name": "MissionCurrency",
+                "value": 5
+            },
+            "mpItemRewards": {},
+            "spItemRewards": {
+                "e300500e-885e-4ee5-bbdc-f706b30b362a": 1,
+                "1440d464-0245-49f9-8533-4930b9283d78": 1
+            },
+            "itemDefinitions": [
+                {
+                    "name": "e300500e-885e-4ee5-bbdc-f706b30b362a",
+                    "i18nName": "215300",
+                    "i18nDescription": "215305",
+                    "locName": "Bronze Credit Loot Box",
+                    "locDescription": "A cache of credits found during a Bronze difficulty mission.",
+                    "customAttributes": {
+                        "LootTags": {
+                            "StrikeTeams_Bronze_Credits": "36"
+                        },
+                        "UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+                    },
+                    "category": "11",
+                    "attachableCategories": [],
+                    "rarity": "0",
+                    "consumable": true,
+                    "droppable": false,
+                    "onConsume": [],
+                    "onAdd": [],
+                    "onRemove": [],
+                    "defaultNamespace": "striketeams"
+                },
+                {
+                    "name": "1440d464-0245-49f9-8533-4930b9283d78",
+                    "i18nName": "215506",
+                    "i18nDescription": "215501",
+                    "locName": "Bronze Material Loot Box",
+                    "locDescription": "A collection of materials discovered during a Bronze difficulty mission.",
+                    "customAttributes": {
+                        "LootTags": {
+                            "StrikeTeams_Bronze_Materials": "41"
+                        },
+                        "UnlockedTextureId": "Game/UI/StrikeTeams/Rewards/RewardCrate_Bronze"
+                    },
+                    "category": "11",
+                    "attachableCategories": [],
+                    "rarity": "0",
+                    "consumable": true,
+                    "droppable": false,
+                    "onConsume": [],
+                    "onAdd": [],
+                    "onRemove": [],
+                    "defaultNamespace": "striketeams"
+                }
+            ]
+        },
+        "seen": false,
+        "customAttributes": {},
+        "startSeconds": 1690434000,
+        "endSeconds": 1690520400,
+        "spLengthSeconds": 6104,
+        "completed": false
+    },
+    "finishTime": "2023-07-28T05:41:14.000+0000"
+}

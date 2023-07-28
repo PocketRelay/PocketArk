@@ -44,6 +44,26 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
     RawJson(DEFS)
 }
 
+/// POST /striketeams/:id/mission/:id
+///
+/// Obtain the details about a specific strike team mission
+pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson {
+    debug!("Strike team get mission : {} {}", id, mission_id);
+
+    // TODO: Randomize outcome
+
+    static DEFS: &str = include_str!("../../resources/data/strikeTeamMissionSpecific.json");
+    RawJson(DEFS)
+}
+
+/// POST /striketeams/:id/retire
+///
+/// Retires (Removes) a strike team from the players
+/// strike teams
+pub async fn retire(Path(id): Path<Uuid>) {
+    debug!("Strike team retire: {}", id);
+}
+
 /// POST /striketeams/purchase?currency=MissionCurrency
 pub async fn purchase(req: String) {
     debug!("Strike team purchase request: {}", req);
