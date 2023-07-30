@@ -6,31 +6,31 @@ use crate::http::models::RawJson;
 
 /// GET /striketeams
 pub async fn get() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/strikeTeams.json");
     RawJson(DEFS)
 }
 
 /// GET /striketeams/successRate
 pub async fn get_success_rate() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeamSuccessRate.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/successRate.json");
     RawJson(DEFS)
 }
 
 /// GET /striketeams/missionConfig
 pub async fn get_mission_config() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeamMissionConfig.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/missionConfig.json");
     RawJson(DEFS)
 }
 
 /// GET /striketeams/specializations
 pub async fn get_specializations() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeamSpecializations.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/specializations.json");
     RawJson(DEFS)
 }
 
 /// GET /striketeams/equipment
 pub async fn get_equipment() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeamEquipment.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/equipment.json");
     RawJson(DEFS)
 }
 
@@ -40,7 +40,7 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
 
     // TODO: Randomize outcome
 
-    static DEFS: &str = include_str!("../../resources/data/placeholderStMissionResolve.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/placeholderResolve.json");
     RawJson(DEFS)
 }
 
@@ -52,7 +52,7 @@ pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson 
 
     // TODO: Randomize outcome
 
-    static DEFS: &str = include_str!("../../resources/data/strikeTeamMissionSpecific.json");
+    static DEFS: &str = include_str!("../../resources/data/strikeTeams/missionSpecific.json");
     RawJson(DEFS)
 }
 
