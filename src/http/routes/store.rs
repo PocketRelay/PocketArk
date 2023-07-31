@@ -73,12 +73,34 @@ pub async fn obtain_article(
 
     let db = App::database();
 
-    // Obtain the user currency
-    let currencies = Currency::get_from_user(db, &user).await?;
-    let _currency = currencies
+    // Article price for currency
+    let price = article
+        .prices
         .iter()
-        .find(|value| value.name == req.currency)
-        .ok_or(HttpError::new("Missing currency", StatusCode::BAD_REQUEST))?;
+        .find(|price| price.currency.eq(&req.currency))
+        .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
+
+    // Obtain the user currency
+    let user_currencies = Currency::get_from_user(db, &user).await?;
+
+    // Update the currencies (attempting to pay)
+    let mut currencies = Vec::with_capacity(user_currencies.len());
+    let mut paid: bool = false;
+    for mut currency in user_currencies {
+        if currency.name == req.currency && currency.balance >= price.final_price {
+            currency = currency.consume(db, price.final_price).await?;
+            paid = true;
+        }
+
+        currencies.push(currency);
+    }
+
+    if !paid {
+        return Err(HttpError::new(
+            "Currency balance cannot be less than 0.",
+            StatusCode::CONFLICT,
+        ));
+    }
 
     // TODO: Pre check condition for can afford and allowed within limits
 
