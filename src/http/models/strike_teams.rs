@@ -4,13 +4,11 @@ use crate::{
     database::entity::{Currency, StrikeTeam},
     services::{
         activity::ActivityResult,
-        strike_teams::{StrikeTeamEquipment, StrikeTeamWithMission, TeamTrait},
+        strike_teams::{StrikeTeamWithMission, TeamTrait},
     },
 };
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-
-use super::{ListWithCount, OwnedListWithCount};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

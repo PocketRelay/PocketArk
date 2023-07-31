@@ -62,7 +62,7 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         let balance = self.balance.saturating_sub(amount);
-        let model = self.into_active_model();
+        let mut model = self.into_active_model();
         model.balance = Set(balance);
         model.update(db).await
     }

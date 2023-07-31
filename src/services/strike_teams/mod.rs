@@ -1,23 +1,15 @@
-use std::{collections::HashMap, process::exit};
-
-use argon2::password_hash::rand_core::le;
 use chrono::{DateTime, Utc};
 use log::error;
-use rand::{rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use uuid::{uuid, Uuid};
+use std::{collections::HashMap, process::exit};
+use uuid::Uuid;
 
 use crate::{
     database::entity::StrikeTeam,
     http::models::mission::MissionModifier,
-    services::{
-        activity::ActivityResult,
-        challenges::CurrencyReward,
-        character::{CharacterService, Xp},
-        items::ItemDefinition,
-    },
+    services::{challenges::CurrencyReward, items::ItemDefinition},
     utils::models::LocaleNameWithDesc,
 };
 

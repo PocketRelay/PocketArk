@@ -8,9 +8,7 @@ use uuid::Uuid;
 use crate::{
     database::entity::InventoryItem,
     services::{
-        activity::{
-            ActivityItemDetails, ActivityLevelDetails, ChallengeUpdate, PrestigeProgression,
-        },
+        activity::{ChallengeUpdate, PrestigeProgression},
         challenges::CurrencyReward,
     },
     utils::models::Sku,

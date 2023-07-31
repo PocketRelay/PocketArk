@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 
 /// Localized naming variables
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LocaleNameWithDesc {
     // translation codes
