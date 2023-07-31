@@ -1,35 +1,32 @@
-{
-    "totalCount": 3,
-    "list": [
-        {
-            "name": "Assault",
-            "i18nName": "153368",
-            "locName": "Assault",
-            "i18nDescription": "216437",
-            "locDescription": "+10 to Effectiveness during Assault",
-            "tag": "assault",
-            "effectiveness": 20,
-            "customAttributes": {}
-        },
-        {
-            "name": "Defense",
-            "i18nName": "153370",
-            "locName": "Defense",
-            "i18nDescription": "216433",
-            "locDescription": "+10 to Effectiveness during Defense",
-            "tag": "defense",
-            "effectiveness": 20,
-            "customAttributes": {}
-        },
-        {
-            "name": "Extraction",
-            "i18nName": "153369",
-            "locName": "Extraction",
-            "i18nDescription": "216456",
-            "locDescription": "+10 to Effectiveness during Extraction",
-            "tag": "extraction",
-            "effectiveness": 20,
-            "customAttributes": {}
-        }
-    ]
-}
+[
+    {
+        "name": "Assault",
+        "i18nName": "153368",
+        "locName": "Assault",
+        "i18nDescription": "216437",
+        "locDescription": "+10 to Effectiveness during Assault",
+        "tag": "assault",
+        "effectiveness": 20,
+        "customAttributes": {}
+    },
+    {
+        "name": "Defense",
+        "i18nName": "153370",
+        "locName": "Defense",
+        "i18nDescription": "216433",
+        "locDescription": "+10 to Effectiveness during Defense",
+        "tag": "defense",
+        "effectiveness": 20,
+        "customAttributes": {}
+    },
+    {
+        "name": "Extraction",
+        "i18nName": "153369",
+        "locName": "Extraction",
+        "i18nDescription": "216456",
+        "locDescription": "+10 to Effectiveness during Extraction",
+        "tag": "extraction",
+        "effectiveness": 20,
+        "customAttributes": {}
+    }
+]

@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use axum::{
     response::{IntoResponse, Response},
     Json,
@@ -21,6 +23,28 @@ pub mod telemetry;
 pub mod user_match;
 
 pub type HttpResult<T> = Result<Json<T>, HttpError>;
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListWithCount<V>
+where
+    V: Debug + Sized + Serialize + 'static,
+{
+    pub total_count: usize,
+    pub list: &'static [V],
+}
+
+impl<V> ListWithCount<V>
+where
+    V: Debug + Sized + Serialize + 'static,
+{
+    pub fn new(list: &'static [V]) -> Self {
+        Self {
+            total_count: list.len(),
+            list,
+        }
+    }
+}
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,0 +1,34 @@
+{
+    "currencyBalance": {
+        "name": "MissionCurrency",
+        "balance": 0
+    },
+    "team": {
+        "id": "0114df1b-100a-4ac2-8fbe-0050d7281131",
+        "name": "Whiskey",
+        "icon": {
+            "name": "icon4",
+            "image": "Team04"
+        },
+        "level": 1,
+        "xp": {
+            "current": 0,
+            "last": 0,
+            "next": 6400
+        },
+        "positiveTraits": [
+            {
+                "name": "Precise",
+                "i18nName": "153287",
+                "locName": "Precise",
+                "i18nDescription": "216432",
+                "locDescription": "+10 to Effectiveness with No Room for Error",
+                "tag": "precise",
+                "effectiveness": 10
+            }
+        ],
+        "negativeTraits": [],
+        "outOfDate": false
+    },
+    "nextPurchaseCost": 120
+}

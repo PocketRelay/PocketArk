@@ -3,7 +3,8 @@ use interlink::prelude::Link;
 use self::{
     activity::ActivityService, challenges::ChallengesService, character::CharacterService,
     game::manager::GameManager, i18n::I18nService, items::ItemsService,
-    match_data::MatchDataService, store::StoreService, tokens::Tokens,
+    match_data::MatchDataService, store::StoreService, strike_teams::StrikeTeamService,
+    tokens::Tokens,
 };
 
 pub mod activity;
@@ -15,6 +16,7 @@ pub mod items;
 pub mod leaderboard;
 pub mod match_data;
 pub mod store;
+pub mod strike_teams;
 pub mod tokens;
 
 pub struct Services {
@@ -27,6 +29,7 @@ pub struct Services {
     pub store: StoreService,
     pub character: CharacterService,
     pub i18n: I18nService,
+    pub strike_teams: StrikeTeamService,
 }
 
 impl Services {
@@ -40,6 +43,7 @@ impl Services {
         let store = StoreService::new();
         let character = CharacterService::new();
         let i18n = I18nService::new();
+        let strike_teams = StrikeTeamService::new();
 
         Self {
             games,
@@ -51,6 +55,7 @@ impl Services {
             store,
             character,
             i18n,
+            strike_teams,
         }
     }
 }

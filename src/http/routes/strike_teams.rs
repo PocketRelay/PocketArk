@@ -1,8 +1,12 @@
-use axum::extract::Path;
+use axum::{extract::Path, Json};
 use log::debug;
 use uuid::Uuid;
 
-use crate::http::models::RawJson;
+use crate::{
+    http::models::{ListWithCount, RawJson},
+    services::strike_teams::{StrikeTeamEquipment, StrikeTeamSpecialization},
+    state::App,
+};
 
 /// GET /striketeams
 pub async fn get() -> RawJson {
@@ -23,15 +27,15 @@ pub async fn get_mission_config() -> RawJson {
 }
 
 /// GET /striketeams/specializations
-pub async fn get_specializations() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/specializations.json");
-    RawJson(DEFS)
+pub async fn get_specializations() -> Json<ListWithCount<StrikeTeamSpecialization>> {
+    let services = App::services();
+    Json(ListWithCount::new(&services.strike_teams.specializations))
 }
 
 /// GET /striketeams/equipment
-pub async fn get_equipment() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/equipment.json");
-    RawJson(DEFS)
+pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
+    let services = App::services();
+    Json(ListWithCount::new(&services.strike_teams.equipment))
 }
 
 /// POST /striketeams/:id/mission/resolve

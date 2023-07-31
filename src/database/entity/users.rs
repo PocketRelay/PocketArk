@@ -28,6 +28,8 @@ pub enum Relation {
     ChallengeProgress,
     #[sea_orm(has_one = "super::shared_data::Entity")]
     SharedData,
+    #[sea_orm(has_many = "super::strike_teams::Entity")]
+    StrikeTeams,
 }
 
 impl Related<super::currency::Entity> for Entity {
@@ -41,29 +43,40 @@ impl Related<super::characters::Entity> for Entity {
         Relation::Characters.def()
     }
 }
+
 impl Related<super::inventory_items::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::InventoryItems.def()
     }
 }
+
 impl Related<super::class_data::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::ClassData.def()
     }
 }
+
 impl Related<super::seen_articles::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SeenArticles.def()
     }
 }
+
 impl Related<super::shared_data::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SharedData.def()
     }
 }
+
 impl Related<super::challenge_progress::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::ChallengeProgress.def()
+    }
+}
+
+impl Related<super::strike_teams::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::StrikeTeams.def()
     }
 }
 

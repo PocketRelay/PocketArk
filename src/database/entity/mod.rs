@@ -9,6 +9,7 @@ pub mod currency;
 pub mod inventory_items;
 pub mod seen_articles;
 pub mod shared_data;
+pub mod strike_teams;
 pub mod users;
 
 pub type Character = characters::Model;
@@ -18,6 +19,7 @@ pub type SharedData = shared_data::Model;
 pub type InventoryItem = inventory_items::Model;
 pub type User = users::Model;
 pub type ClassData = class_data::Model;
+pub type StrikeTeam = strike_teams::Model;
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
