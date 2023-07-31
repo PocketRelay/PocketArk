@@ -7,7 +7,6 @@ use interlink::{
 };
 use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
-use serde_json::Value;
 use thiserror::Error;
 use uuid::Uuid;
 

@@ -24,7 +24,6 @@ use crate::{
 pub async fn get(Auth(user): Auth) -> HttpResult<StrikeTeamsResponse> {
     let db = App::database();
     let strike_teams: Vec<StrikeTeam> = StrikeTeam::get_by_user(db, &user).await?;
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/strikeTeams.json");
 
     // TODO: Load current missions
     let teams: Vec<StrikeTeamWithMission> = strike_teams
@@ -39,7 +38,7 @@ pub async fn get(Auth(user): Auth) -> HttpResult<StrikeTeamsResponse> {
 
     // Get new cost
     let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
-        .get(teams.len() + 1)
+        .get(teams.len())
         .copied();
     if let Some(strike_team_cost) = strike_team_cost {
         next_purchase_costs.insert("MissionCurrency".to_string(), strike_team_cost);
@@ -131,7 +130,7 @@ pub async fn purchase(Auth(user): Auth) -> HttpResult<PurchaseResponse> {
 
     // Get new cost
     let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
-        .get(strike_teams + 1)
+        .get(strike_teams)
         .copied()
         .ok_or(HttpError::new(
             "Maximum number of strike teams reached",
