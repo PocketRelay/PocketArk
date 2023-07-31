@@ -1,4 +1,4 @@
-use super::{Currency, SharedData};
+use super::{Currency, SharedData, StrikeTeam};
 use crate::database::{entity::InventoryItem, DbResult};
 use sea_orm::entity::prelude::*;
 use sea_orm::ActiveValue::{NotSet, Set};
@@ -99,6 +99,7 @@ impl Model {
         InventoryItem::create_default(db, &user).await?;
         Currency::create_default(db, &user).await?;
         SharedData::create_default(db, &user).await?;
+        StrikeTeam::create_default(db, &user).await?;
 
         Ok(user)
     }

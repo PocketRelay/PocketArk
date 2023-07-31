@@ -1,14 +1,19 @@
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
+use rand::SeedableRng;
 use sea_orm::prelude::*;
 use sea_orm::ActiveValue::{NotSet, Set};
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
+use crate::database::DbResult;
 use crate::services::{
     character::{CharacterService, Xp},
     strike_teams::TeamTrait,
 };
+use crate::state::App;
+
+use super::User;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "strike_teams")]
@@ -93,6 +98,19 @@ impl StrikeTeamIcon {
 impl Model {
     /// The level table used for strike team levels
     const LEVEL_TABLE: Uuid = uuid!("5e6f7542-7309-9367-8437-fe83678e5c28");
+
+    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let services = App::services();
+        let mut rng = StdRng::from_entropy();
+        let mut strike_team = Self::random(&mut rng, &services.character);
+        strike_team.user_id = Set(user.id);
+        strike_team.insert(db).await?;
+
+        Ok(())
+    }
 
     pub fn random(rng: &mut StdRng, character_service: &CharacterService) -> ActiveModel {
         let name = STRIKE_TEAM_NAMES

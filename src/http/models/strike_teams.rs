@@ -1,8 +1,8 @@
 use crate::{
-    database::entity::Currency,
+    database::entity::{Currency, StrikeTeam},
     services::{
         activity::ActivityResult,
-        strike_teams::{StrikeTeam, StrikeTeamEquipment, StrikeTeamWithMission, TeamTrait},
+        strike_teams::{StrikeTeamEquipment, StrikeTeamWithMission, TeamTrait},
     },
 };
 use serde::Serialize;
