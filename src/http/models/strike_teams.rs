@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     database::entity::{Currency, StrikeTeam},
     services::{
@@ -6,6 +8,9 @@ use crate::{
     },
 };
 use serde::Serialize;
+use serde_with::skip_serializing_none;
+
+use super::{ListWithCount, OwnedListWithCount};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,10 +21,30 @@ pub struct ResolveMissionResponse {
     pub activity_response: ActivityResult,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PurchaseResponse {
     pub currency_balance: Currency,
     pub team: StrikeTeam,
-    pub next_purchase_cost: u32,
+    pub next_purchase_cost: Option<u32>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamsResponse {
+    pub teams: StrikeTeamsList,
+    pub min_specialization_level: u32,
+    pub next_purchase_costs: HashMap<String, u32>,
+    pub inventory_item_limit: usize,
+    pub inventory_item_count: usize,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamsList {
+    pub total_count: usize,
+    pub list: Vec<StrikeTeamWithMission>,
+    pub cap: usize,
 }

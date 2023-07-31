@@ -1,17 +1,61 @@
+use std::collections::HashMap;
+
 use axum::{extract::Path, Json};
+use hyper::StatusCode;
 use log::debug;
 use uuid::Uuid;
 
 use crate::{
-    http::models::{ListWithCount, RawJson},
-    services::strike_teams::{StrikeTeamEquipment, StrikeTeamSpecialization},
+    database::entity::{Currency, StrikeTeam},
+    http::{
+        middleware::user::Auth,
+        models::{
+            strike_teams::{PurchaseResponse, StrikeTeamsList, StrikeTeamsResponse},
+            HttpError, HttpResult, ListWithCount, RawJson,
+        },
+    },
+    services::strike_teams::{
+        StrikeTeamEquipment, StrikeTeamService, StrikeTeamSpecialization, StrikeTeamWithMission,
+    },
     state::App,
 };
 
 /// GET /striketeams
-pub async fn get() -> RawJson {
+pub async fn get(Auth(user): Auth) -> HttpResult<StrikeTeamsResponse> {
+    let db = App::database();
+    let strike_teams: Vec<StrikeTeam> = StrikeTeam::get_by_user(db, &user).await?;
     static DEFS: &str = include_str!("../../resources/data/strikeTeams/strikeTeams.json");
-    RawJson(DEFS)
+
+    // TODO: Load current missions
+    let teams: Vec<StrikeTeamWithMission> = strike_teams
+        .into_iter()
+        .map(|team| StrikeTeamWithMission {
+            mission: None,
+            team,
+        })
+        .collect();
+
+    let mut next_purchase_costs: HashMap<String, u32> = HashMap::new();
+
+    // Get new cost
+    let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
+        .get(teams.len() + 1)
+        .copied();
+    if let Some(strike_team_cost) = strike_team_cost {
+        next_purchase_costs.insert("MissionCurrency".to_string(), strike_team_cost);
+    }
+
+    Ok(Json(StrikeTeamsResponse {
+        teams: StrikeTeamsList {
+            total_count: teams.len(),
+            cap: StrikeTeamService::MAX_STRIKE_TEAMS,
+            list: teams,
+        },
+        min_specialization_level: 16,
+        next_purchase_costs,
+        inventory_item_limit: 200,
+        inventory_item_count: 0,
+    }))
 }
 
 /// GET /striketeams/successRate
@@ -64,11 +108,65 @@ pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson 
 ///
 /// Retires (Removes) a strike team from the players
 /// strike teams
-pub async fn retire(Path(id): Path<Uuid>) {
+pub async fn retire(Auth(user): Auth, Path(id): Path<Uuid>) -> Result<(), HttpError> {
     debug!("Strike team retire: {}", id);
+    let db = App::database();
+    let team = StrikeTeam::get_by_id(db, &user, id)
+        .await?
+        .ok_or(HttpError::new(
+            "Strike team doesn't exist",
+            StatusCode::NOT_FOUND,
+        ))?;
+
+    team.delete(db).await?;
+
+    Ok(())
 }
 
 /// POST /striketeams/purchase?currency=MissionCurrency
-pub async fn purchase(req: String) {
-    debug!("Strike team purchase request: {}", req);
+pub async fn purchase(Auth(user): Auth) -> HttpResult<PurchaseResponse> {
+    let db = App::database();
+
+    let strike_teams = StrikeTeam::get_user_count(db, &user).await? as usize;
+
+    // Get new cost
+    let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
+        .get(strike_teams + 1)
+        .copied()
+        .ok_or(HttpError::new(
+            "Maximum number of strike teams reached",
+            StatusCode::CONFLICT,
+        ))?;
+
+    let currency = Currency::get_type_from_user(db, &user, "MissionCurrency")
+        .await?
+        .ok_or(HttpError::new(
+            "Currency balance cannot be less than 0.",
+            StatusCode::CONFLICT,
+        ))?;
+
+    // Cannot afford
+    if currency.balance < strike_team_cost {
+        return Err(HttpError::new(
+            "Currency balance cannot be less than 0.",
+            StatusCode::CONFLICT,
+        ));
+    }
+
+    // TODO: Transaction to revert incase strike team creation fails
+
+    // Consume currency
+    let currency_balance = currency.consume(db, strike_team_cost).await?;
+    let team = StrikeTeam::create_default(db, &user).await?;
+
+    // Get new cost
+    let next_purchase_cost = StrikeTeamService::STRIKE_TEAM_COSTS
+        .get(strike_teams + 2)
+        .copied();
+
+    Ok(Json(PurchaseResponse {
+        currency_balance,
+        team,
+        next_purchase_cost,
+    }))
 }

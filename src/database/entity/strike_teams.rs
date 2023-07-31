@@ -99,7 +99,7 @@ impl Model {
     /// The level table used for strike team levels
     const LEVEL_TABLE: Uuid = uuid!("5e6f7542-7309-9367-8437-fe83678e5c28");
 
-    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<()>
+    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<Self>
     where
         C: ConnectionTrait + Send,
     {
@@ -107,9 +107,39 @@ impl Model {
         let mut rng = StdRng::from_entropy();
         let mut strike_team = Self::random(&mut rng, &services.character);
         strike_team.user_id = Set(user.id);
-        strike_team.insert(db).await?;
+        strike_team.insert(db).await
+    }
 
+    pub async fn delete<C>(self, db: &C) -> DbResult<()>
+    where
+        C: ConnectionTrait + Send,
+    {
+        <Self as ModelTrait>::delete(self, db).await?;
         Ok(())
+    }
+
+    pub async fn get_by_id<C>(db: &C, user: &User, id: Uuid) -> DbResult<Option<Self>>
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity)
+            .filter(Column::TeamId.eq(id))
+            .one(db)
+            .await
+    }
+
+    pub async fn get_by_user<C>(db: &C, user: &User) -> DbResult<Vec<Self>>
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity).all(db).await
+    }
+
+    pub async fn get_user_count<C>(db: &C, user: &User) -> DbResult<u64>
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity).count(db).await
     }
 
     pub fn random(rng: &mut StdRng, character_service: &CharacterService) -> ActiveModel {

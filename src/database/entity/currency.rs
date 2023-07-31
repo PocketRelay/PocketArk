@@ -57,11 +57,35 @@ impl Model {
         Ok(())
     }
 
+    pub async fn consume<C>(self, db: &C, amount: u32) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let balance = self.balance.saturating_sub(amount);
+        let model = self.into_active_model();
+        model.balance = Set(balance);
+        model.update(db).await
+    }
+
     pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Vec<Currency>>
     where
         C: ConnectionTrait + Send,
     {
         user.find_related(Entity).all(db).await
+    }
+
+    pub async fn get_type_from_user<C>(
+        db: &C,
+        user: &User,
+        name: &str,
+    ) -> DbResult<Option<Currency>>
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity)
+            .filter(Column::Name.eq(name))
+            .one(db)
+            .await
     }
 
     pub async fn create_or_update_many<'a, C, I>(db: &C, user: &User, items: I) -> DbResult<()>

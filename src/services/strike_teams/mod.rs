@@ -31,8 +31,8 @@ pub struct StrikeTeamService {
 }
 
 impl StrikeTeamService {
-    pub const MAX_STRIKE_TEAMS: usize = 6;
     pub const STRIKE_TEAM_COSTS: &[u32] = &[0, 40, 80, 120, 160, 200];
+    pub const MAX_STRIKE_TEAMS: usize = Self::STRIKE_TEAM_COSTS.len();
 
     pub fn new() -> Self {
         let equipment: Vec<StrikeTeamEquipment> = match serde_json::from_str(EQUIPMENT_DEFINITIONS)
