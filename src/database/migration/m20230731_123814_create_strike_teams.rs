@@ -1,5 +1,7 @@
 use sea_orm_migration::prelude::*;
 
+use super::m20230714_105755_create_users::Users;
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -40,6 +42,12 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(ColumnDef::new(StrikeTeams::OutOfDate).boolean().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(StrikeTeams::Table, StrikeTeams::UserId)
+                            .to(Users::Table, Users::Id)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
                     .to_owned(),
             )
             .await
