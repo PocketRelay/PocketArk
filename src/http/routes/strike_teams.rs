@@ -81,6 +81,35 @@ pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
     Json(ListWithCount::new(&services.strike_teams.equipment))
 }
 
+/// POST /striketeams/:id/equipment/:name?currency=MissionCurrency
+pub async fn purchase_equipment(
+    Auth(user): Auth,
+    Path((id, name)): Path<(Uuid, String)>,
+) -> Result<(), HttpError> {
+    let db = App::database();
+    let team = StrikeTeam::get_by_id(db, &user, id)
+        .await?
+        .ok_or(HttpError::new(
+            "Strike team doesn't exist",
+            StatusCode::NOT_FOUND,
+        ))?;
+
+    // TODO: If on mission respond with 409 Conflict Team on mission
+
+    let services = App::services();
+    let equipment = services
+        .strike_teams
+        .equipment
+        .iter()
+        .find(|equip| equip.name.eq(&name))
+        .ok_or(HttpError::new(
+            "Unknown equipment item",
+            StatusCode::NOT_FOUND,
+        ))?;
+
+    Ok(())
+}
+
 /// POST /striketeams/:id/mission/resolve
 pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
     debug!("Strike team mission resolve: {}", id);
