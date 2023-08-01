@@ -621,19 +621,33 @@ impl<'a> TdfReader<'a> {
                 let key_type: TdfType = self.read_type()?;
                 let value_type: TdfType = self.read_type()?;
                 let length: usize = self.read_usize()?;
-                out.push_str(&format!("Map<{:?}, {:?}> ", key_type, value_type));
+                out.push_str(&format!(
+                    "Map<{:?}, {:?}, {}>",
+                    key_type, value_type, length
+                ));
                 out.push_str("{\n");
 
-                for i in 0..length {
-                    out.push_str(&"  ".repeat(indent + 1));
-                    self.stringify_type(out, indent + 1, &key_type)?;
-                    out.push_str(": ");
-                    self.stringify_type(out, indent + 1, &value_type)?;
-                    if i < length - 1 {
-                        out.push(',');
+                let start = self.cursor;
+
+                let mut proc = || -> DecodeResult<()> {
+                    for i in 0..length {
+                        out.push_str(&"  ".repeat(indent + 1));
+                        self.stringify_type(out, indent + 1, &key_type)?;
+                        out.push_str(": ");
+                        self.stringify_type(out, indent + 1, &value_type)?;
+                        if i < length - 1 {
+                            out.push(',');
+                        }
+                        out.push('\n')
                     }
-                    out.push('\n')
+                    Ok(())
+                };
+
+                if let Err(err) = proc() {
+                    out.push_str(&format!("Err: {}", err));
+                    out.push_str(&format!("Full Bytes: {:?}", &self.buffer[start..]));
                 }
+
                 out.push_str(&"  ".repeat(indent));
                 out.push('}');
             }
