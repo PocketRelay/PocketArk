@@ -2,8 +2,10 @@
 name = "pocket-ark"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Mass Effect Andromeda private server"
+license = "MIT"
+keywords = ["EA", "PocketArk", "MassEffectAndromeda"]
+authors = ["Jacobtread <jacobtread@gmail.com>"]
 
 [dependencies]
 openssl = "^0.10"
