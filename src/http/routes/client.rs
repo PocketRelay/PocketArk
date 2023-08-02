@@ -39,6 +39,9 @@ pub async fn details() -> Json<ServerDetails> {
 /// GET /ark/client/auth
 pub async fn authenticate() {}
 
+/// GET /ark/client/create
+pub async fn create() {}
+
 /// GET /ark/client/upgrade
 pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
     tokio::spawn(async move {
