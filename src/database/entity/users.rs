@@ -107,4 +107,14 @@ impl Model {
     pub async fn get_user(db: &DatabaseConnection, id: u32) -> DbResult<Option<Self>> {
         Entity::find_by_id(id).one(db).await
     }
+
+    pub async fn get_by_username(
+        db: &DatabaseConnection,
+        username: &str,
+    ) -> DbResult<Option<Self>> {
+        Entity::find()
+            .filter(Column::Username.eq(username))
+            .one(db)
+            .await
+    }
 }

@@ -29,7 +29,8 @@ pub fn router() -> Router {
         .nest(
             "/ark/client",
             Router::new()
-                .route("/auth", post(client::authenticate))
+                .route("/login", post(client::login))
+                .route("/create", post(client::create))
                 .route("/details", get(client::details))
                 .route("/upgrade", get(client::upgrade)),
         )

@@ -16,8 +16,16 @@ use tokio_util::codec::{FramedRead, FramedWrite};
 use crate::{
     blaze::{pk::packet::PacketCodec, session::Session},
     database::entity::User,
-    http::middleware::upgrade::BlazeUpgrade,
-    state::VERSION,
+    http::{
+        middleware::upgrade::BlazeUpgrade,
+        models::{
+            client::{AuthenticateRequest, AuthenticateResponse},
+            HttpError, HttpResult,
+        },
+    },
+    services::tokens::Tokens,
+    state::{App, VERSION},
+    utils::hashing::{hash_password, verify_password},
 };
 
 #[derive(Serialize)]
@@ -36,11 +44,45 @@ pub async fn details() -> Json<ServerDetails> {
     })
 }
 
-/// GET /ark/client/auth
-pub async fn authenticate() {}
+/// POST /ark/client/login
+pub async fn login(Json(req): Json<AuthenticateRequest>) -> HttpResult<AuthenticateResponse> {
+    let db = App::database();
+    let user = User::get_by_username(db, &req.username)
+        .await?
+        .ok_or(HttpError::new("Username not found", StatusCode::NOT_FOUND))?;
 
-/// GET /ark/client/create
-pub async fn create() {}
+    if !verify_password(&req.password, &user.password) {
+        return Err(HttpError::new(
+            "Incorrect password",
+            StatusCode::BAD_REQUEST,
+        ));
+    }
+
+    let token = Tokens::service_claim(user.id);
+
+    Ok(Json(AuthenticateResponse { token }))
+}
+
+/// POST /ark/client/create
+pub async fn create(Json(req): Json<AuthenticateRequest>) -> HttpResult<AuthenticateResponse> {
+    let db = App::database();
+
+    if User::get_by_username(db, &req.username).await?.is_some() {
+        return Err(HttpError::new(
+            "Username already taken",
+            StatusCode::CONFLICT,
+        ));
+    }
+
+    let password = hash_password(&req.password).map_err(|_| {
+        HttpError::new("Failed to hash password", StatusCode::INTERNAL_SERVER_ERROR)
+    })?;
+
+    let user = User::create_user(req.username, password, db).await?;
+    let token = Tokens::service_claim(user.id);
+
+    Ok(Json(AuthenticateResponse { token }))
+}
 
 /// GET /ark/client/upgrade
 pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
