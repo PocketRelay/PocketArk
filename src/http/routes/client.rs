@@ -19,7 +19,7 @@ use crate::{
     http::{
         middleware::upgrade::BlazeUpgrade,
         models::{
-            client::{AuthenticateRequest, AuthenticateResponse},
+            client::{AuthRequest, AuthResponse},
             HttpError, HttpResult,
         },
     },
@@ -45,7 +45,7 @@ pub async fn details() -> Json<ServerDetails> {
 }
 
 /// POST /ark/client/login
-pub async fn login(Json(req): Json<AuthenticateRequest>) -> HttpResult<AuthenticateResponse> {
+pub async fn login(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
     let db = App::database();
     let user = User::get_by_username(db, &req.username)
         .await?
@@ -60,11 +60,11 @@ pub async fn login(Json(req): Json<AuthenticateRequest>) -> HttpResult<Authentic
 
     let token = Tokens::service_claim(user.id);
 
-    Ok(Json(AuthenticateResponse { token }))
+    Ok(Json(AuthResponse { token }))
 }
 
 /// POST /ark/client/create
-pub async fn create(Json(req): Json<AuthenticateRequest>) -> HttpResult<AuthenticateResponse> {
+pub async fn create(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
     let db = App::database();
 
     if User::get_by_username(db, &req.username).await?.is_some() {
@@ -81,7 +81,7 @@ pub async fn create(Json(req): Json<AuthenticateRequest>) -> HttpResult<Authenti
     let user = User::create_user(req.username, password, db).await?;
     let token = Tokens::service_claim(user.id);
 
-    Ok(Json(AuthenticateResponse { token }))
+    Ok(Json(AuthResponse { token }))
 }
 
 /// GET /ark/client/upgrade
