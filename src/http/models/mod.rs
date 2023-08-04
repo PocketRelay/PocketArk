@@ -67,6 +67,15 @@ impl HttpError {
             trace_id: None,
         }
     }
+    pub fn new_owned(reason: String, status: StatusCode) -> Self {
+        Self {
+            status,
+            reason,
+            cause: None,
+            stack_trace: None,
+            trace_id: None,
+        }
+    }
 }
 
 impl From<DbErr> for HttpError {

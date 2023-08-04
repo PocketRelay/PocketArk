@@ -1,21 +1,30 @@
 use axum::Json;
 use chrono::Utc;
+use hyper::StatusCode;
 use log::debug;
 
 use crate::{
-    http::models::auth::{AuthRequest, AuthResponse, AuthUser},
+    database::entity::User,
+    http::models::{
+        auth::{AuthRequest, AuthResponse, AuthUser},
+        HttpError, HttpResult,
+    },
     services::tokens::Tokens,
+    state::App,
 };
 
 /// POST /auth
-pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
+pub async fn authenticate(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
-    // TODO: Actually auth properly
+    let db = App::database();
+    let user = User::get_user(db, req.persona_id)
+        .await?
+        .ok_or(HttpError::new("Invalid user", StatusCode::BAD_REQUEST))?;
 
-    let token = Tokens::service_claim(1);
+    let token = Tokens::service_claim(req.persona_id);
 
-    Json(AuthResponse {
+    Ok(Json(AuthResponse {
         session_id: token,
         user: AuthUser {
             roles: &[
@@ -50,14 +59,14 @@ pub async fn authenticate(Json(req): Json<AuthRequest>) -> Json<AuthResponse> {
                 "Store.User",
                 "Character.User",
             ],
-            pid: 1000279946559,
-            persona_id: 978651371,
+            pid: user.id,
+            persona_id: user.id,
             sku: req.sku,
             anonymous: false,
-            name: "jacobtread".to_string(),
+            name: user.username,
         },
         language: "en-us".to_string(),
         server_time: Utc::now(),
-        pid: "1000279946559".to_string(),
-    })
+        pid: user.id.to_string(),
+    }))
 }

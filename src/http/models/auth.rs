@@ -12,7 +12,7 @@ pub struct AuthRequest {
     pub auth_token: String,
     pub email_address: String,
     pub password: String,
-    pub persona_id: u64,
+    pub persona_id: u32,
     pub sku: Sku,
     pub metadata_tag: String,
 }
@@ -32,8 +32,8 @@ pub struct AuthResponse {
 pub struct AuthUser {
     pub roles: &'static [&'static str],
     #[serde(rename = "pid")]
-    pub pid: u64,
-    pub persona_id: u64,
+    pub pid: u32,
+    pub persona_id: u32,
     pub sku: Sku,
     pub anonymous: bool,
     pub name: String,

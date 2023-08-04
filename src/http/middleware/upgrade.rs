@@ -31,7 +31,7 @@ pub struct BlazeUpgrade {
     /// The upgrade handle
     on_upgrade: OnUpgrade,
     /// The client side target for this host
-    host_target: UpgradedTarget,
+    pub host_target: UpgradedTarget,
 }
 
 /// HTTP request upgraded into a Blaze socket along with

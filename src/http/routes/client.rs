@@ -85,7 +85,12 @@ pub async fn create(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
 }
 
 /// GET /ark/client/upgrade
-pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
+pub async fn upgrade(upgrade: BlazeUpgrade) -> Result<Response, HttpError> {
+    let db = App::database();
+    let user = Tokens::service_verify(db, upgrade.host_target.token.as_ref())
+        .await
+        .map_err(|err| HttpError::new_owned(err.to_string(), StatusCode::BAD_REQUEST))?;
+
     tokio::spawn(async move {
         let socket = match upgrade.upgrade().await {
             Ok(value) => value,
@@ -104,13 +109,6 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
             ctx.attach_stream(read, true);
             let writer = ctx.attach_sink(write);
 
-            // TODO: Validate authentication to obtain player deets
-            let user = User {
-                id: 1,
-                username: "Jacobtread".to_string(),
-                password: "".to_string(),
-            };
-
             Session::new(writer, socket.host_target, user)
         });
     });
@@ -124,5 +122,5 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Response {
     headers.insert(header::CONNECTION, HeaderValue::from_static("upgrade"));
     headers.insert(header::UPGRADE, HeaderValue::from_static("blaze"));
 
-    response
+    Ok(response)
 }
