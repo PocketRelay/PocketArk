@@ -250,7 +250,7 @@ impl Handler<UpdateUserMessage> for Session {
             components::user_sessions::COMPONENT,
             components::user_sessions::NOTIFY_USER_UPDATED,
             UserUpdated {
-                player_id: 1,
+                player_id: self.user.id,
                 game_id: self.game,
                 net_data: self.net.clone(),
             },
@@ -285,8 +285,8 @@ impl Handler<UserAddedMessage> for Session {
             components::user_sessions::COMPONENT,
             components::user_sessions::NOTIFY_USER_ADDED,
             UserAdded {
-                player_id: 1,
-                name: "Jacobtread".to_string(),
+                player_id: self.user.id,
+                name: self.user.username.to_string(),
                 game_id: self.game,
                 net_data: self.net.clone(),
             },

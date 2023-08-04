@@ -80,7 +80,9 @@ impl Decodable for LeaveGameRequest {
     }
 }
 
-pub struct NotifyMatchmakingStatus;
+pub struct NotifyMatchmakingStatus {
+    pub pid: u32,
+}
 
 impl Encodable for NotifyMatchmakingStatus {
     fn encode(&self, w: &mut TdfWriter) {
@@ -148,8 +150,8 @@ impl Encodable for NotifyMatchmakingStatus {
             });
             w.tag_group_end();
         }
-        w.tag_u32(b"MSCD", 1); // pid
-        w.tag_u32(b"MSID", 1); // pid
-        w.tag_u32(b"USID", 1); // pid
+        w.tag_u32(b"MSCD", self.pid); // pid
+        w.tag_u32(b"MSID", self.pid); // pid
+        w.tag_u32(b"USID", self.pid); // pid
     }
 }

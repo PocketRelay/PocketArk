@@ -13,7 +13,7 @@ pub async fn auth(session: &mut SessionLink, _req: AuthRequest) -> AuthResponse 
     let mut packet = Packet::notify(
         components::user_sessions::COMPONENT,
         components::user_sessions::NOTIFY_UPDATE_AUTH,
-        AuthNotify { user },
+        AuthNotify { user: user.clone() },
     );
 
     packet.header.notify = 1;
@@ -21,7 +21,7 @@ pub async fn auth(session: &mut SessionLink, _req: AuthRequest) -> AuthResponse 
 
     let _ = session.do_send(UserAddedMessage);
 
-    AuthResponse
+    AuthResponse { user }
 }
 
 #[rustfmt::skip]
