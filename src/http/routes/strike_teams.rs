@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use axum::{extract::Path, Json};
+use axum::{
+    extract::{Path, Query},
+    Json,
+};
 use hyper::StatusCode;
 use log::debug;
 use uuid::Uuid;
@@ -10,7 +13,7 @@ use crate::{
     http::{
         middleware::user::Auth,
         models::{
-            strike_teams::{PurchaseResponse, StrikeTeamsList, StrikeTeamsResponse},
+            strike_teams::{PurchaseQuery, PurchaseResponse, StrikeTeamsList, StrikeTeamsResponse},
             HttpError, HttpResult, ListWithCount, RawJson,
         },
     },
@@ -84,9 +87,18 @@ pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
 /// POST /striketeams/:id/equipment/:name?currency=MissionCurrency
 pub async fn purchase_equipment(
     Auth(user): Auth,
+    Query(query): Query<PurchaseQuery>,
     Path((id, name)): Path<(Uuid, String)>,
-) -> Result<(), HttpError> {
+) -> HttpResult<PurchaseResponse> {
     let db = App::database();
+
+    let currency = Currency::get_type_from_user(db, &user, &query.currency)
+        .await?
+        .ok_or(HttpError::new(
+            "Currency balance cannot be less than 0.",
+            StatusCode::CONFLICT,
+        ))?;
+
     let team = StrikeTeam::get_by_id(db, &user, id)
         .await?
         .ok_or(HttpError::new(
@@ -107,7 +119,31 @@ pub async fn purchase_equipment(
             StatusCode::NOT_FOUND,
         ))?;
 
-    Ok(())
+    let equipment_cost = equipment
+        .cost_by_currency
+        .get(&currency.name)
+        .copied()
+        .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
+
+    // Cannot afford
+    if currency.balance < equipment_cost {
+        return Err(HttpError::new(
+            "Currency balance cannot be less than 0.",
+            StatusCode::CONFLICT,
+        ));
+    }
+
+    // TODO: Transaction to revert incase equipment setting fails
+
+    // Consume currency
+    let currency_balance = currency.consume(db, equipment_cost).await?;
+    let team = team.set_equipment(db, Some(equipment.clone())).await?;
+
+    Ok(Json(PurchaseResponse {
+        currency_balance,
+        team,
+        next_purchase_cost: Some(0),
+    }))
 }
 
 /// POST /striketeams/:id/mission/resolve

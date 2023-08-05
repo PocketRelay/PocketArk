@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use log::error;
+use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
@@ -70,7 +71,7 @@ pub struct StrikeTeamWithMission {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamEquipment {
     pub name: String,

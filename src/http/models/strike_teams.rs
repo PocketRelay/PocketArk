@@ -7,7 +7,7 @@ use crate::{
         strike_teams::{StrikeTeamWithMission, TeamTrait},
     },
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 #[derive(Debug, Serialize)]
@@ -26,6 +26,10 @@ pub struct PurchaseResponse {
     pub currency_balance: Currency,
     pub team: StrikeTeam,
     pub next_purchase_cost: Option<u32>,
+}
+#[derive(Debug, Deserialize)]
+pub struct PurchaseQuery {
+    pub currency: String,
 }
 
 #[skip_serializing_none]

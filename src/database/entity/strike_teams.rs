@@ -1,20 +1,22 @@
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use sea_orm::prelude::*;
 use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::{prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use uuid::{uuid, Uuid};
 
+use super::User;
 use crate::database::DbResult;
+use crate::services::strike_teams::StrikeTeamEquipment;
 use crate::services::{
     character::{CharacterService, Xp},
     strike_teams::TeamTrait,
 };
 use crate::state::App;
 
-use super::User;
-
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "strike_teams")]
 #[serde(rename_all = "camelCase")]
@@ -30,6 +32,7 @@ pub struct Model {
     pub icon: StrikeTeamIcon,
     pub level: u32,
     pub xp: Xp,
+    pub equipment: Option<StrikeTeamEquipment>,
     pub positive_traits: TraitList,
     pub negative_traits: TraitList,
     pub out_of_date: bool,
@@ -110,6 +113,19 @@ impl Model {
         strike_team.insert(db).await
     }
 
+    pub async fn set_equipment<C>(
+        self,
+        db: &C,
+        equipment: Option<StrikeTeamEquipment>,
+    ) -> DbResult<Self>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let mut model = self.into_active_model();
+        model.equipment = Set(equipment);
+        model.update(db).await
+    }
+
     pub async fn delete<C>(self, db: &C) -> DbResult<()>
     where
         C: ConnectionTrait + Send,
@@ -175,6 +191,7 @@ impl Model {
             icon: Set(icon),
             level: Set(level),
             xp: Set(xp),
+            equipment: Set(None),
             positive_traits: Set(TraitList(positive_traits)),
             negative_traits: Set(TraitList(negative_traits)),
             out_of_date: Set(false),
