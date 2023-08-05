@@ -59,7 +59,9 @@ pub struct ActivityResult {
     pub challenge: ActivityChallengeDetails,
 
     pub news_triggered: u32,
+    /// The new total currency amounts
     pub currencies: Vec<Currency>,
+    /// The amounts that were earned
     pub currency_earned: Vec<Currency>,
 
     #[serde(flatten)]
