@@ -503,10 +503,12 @@ impl<'a> TdfReader<'a> {
     pub fn stringify(&mut self, out: &mut String) -> DecodeResult<()> {
         while self.cursor < self.buffer.len() {
             if let Err(err) = self.stringify_tag(out, 1) {
+                let remaining = &self.buffer[self.cursor..];
                 out.push_str(&format!(
-                    "... remaining {}, cause: {:?}",
-                    self.buffer.len() - self.cursor,
-                    err
+                    "... cause: {:?}, remaining {} {:?}",
+                    err,
+                    remaining.len(),
+                    remaining,
                 ));
                 break;
             }
