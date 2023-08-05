@@ -77,7 +77,7 @@ pub enum TdfType {
     /// f32 value
     Float = 0xA,
     // Not yet properly decoded
-    // U = 0xC,
+    U12 = 0xC,
 }
 
 /// Convert bytes back to tdf types
@@ -97,6 +97,7 @@ impl TryFrom<u8> for TdfType {
             0x8 => TdfType::Pair,
             0x9 => TdfType::Triple,
             0xA => TdfType::Float,
+            0xC => TdfType::U12,
             ty => return Err(DecodeError::UnknownType { ty }),
         })
     }

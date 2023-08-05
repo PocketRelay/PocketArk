@@ -492,6 +492,10 @@ impl<'a> TdfReader<'a> {
                 self.skip_var_int();
             }
             TdfType::Float => self.skip_f32()?,
+            TdfType::U12 => {
+                self.read_slice(8)?;
+                self.skip_blob(); // string
+            }
         }
         Ok(())
     }
@@ -692,6 +696,12 @@ impl<'a> TdfReader<'a> {
             TdfType::Float => {
                 let value = self.read_f32()?;
                 out.push_str(&value.to_string());
+            }
+            TdfType::U12 => {
+                let bytes = self.read_slice(8)?;
+                let value = self.read_string()?;
+
+                out.push_str(&format!("{:?} + \"{}\"", bytes, value));
             }
         };
         Ok(())
