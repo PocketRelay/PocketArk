@@ -1,8 +1,8 @@
 use crate::{
     blaze::{
         models::game_manager::{
-            CreateGameResp, LeaveGameRequest, ReplayGameRequest, UpdateAttrRequest,
-            UpdateGameAttrRequest, UpdateStateRequest,
+            CreateGameResp, LeaveGameRequest, MatchmakeRequest, ReplayGameRequest,
+            UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
         },
         session::{self, GetPlayerMessage, GetUserMessage, SessionLink},
     },
@@ -14,12 +14,14 @@ use crate::{
     state::App,
 };
 
-pub async fn create_game(session: &mut SessionLink) -> CreateGameResp {
+pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> CreateGameResp {
     let services = App::services();
     let player = session
         .send(GetPlayerMessage)
         .await
         .expect("Failed to get player");
+
+    // TODO: Handle create vs matchmaking
 
     let _game = services
         .games

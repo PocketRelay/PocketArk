@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{
     blaze::pk::{
         codec::Decodable, codec::Encodable, error::DecodeResult, reader::TdfReader, tag::TdfType,
@@ -6,6 +8,31 @@ use crate::{
     services::game::{AttrMap, RemoveReason},
 };
 
+pub struct MatchmakeRequest {
+    pub ty: MatchmakeType,
+}
+
+impl Decodable for MatchmakeRequest {
+    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
+        let value: String = r.tag(b"SCNM")?;
+        let ty = MatchmakeType::parse(&value);
+        Ok(Self { ty })
+    }
+}
+
+pub enum MatchmakeType {
+    QuickMatch,       // standardQuickMatch
+    CreatePublicGame, // createPublicGame
+}
+
+impl MatchmakeType {
+    pub fn parse(value: &str) -> Self {
+        match value {
+            "standardQuickMatch" => Self::QuickMatch,
+            _ => Self::CreatePublicGame,
+        }
+    }
+}
 pub struct CreateGameResp;
 
 impl Encodable for CreateGameResp {
