@@ -699,9 +699,9 @@ impl<'a> TdfReader<'a> {
             }
             TdfType::U12 => {
                 let bytes = self.read_slice(8)?;
+                out.push_str(&format!("{:?} + ", bytes));
                 let value = self.read_string()?;
-
-                out.push_str(&format!("{:?} + \"{}\"", bytes, value));
+                out.push_str(&format!("\"{}\"", value));
             }
         };
         Ok(())
