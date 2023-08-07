@@ -26,6 +26,12 @@ const MISSION_DESCRIPTORS: &str =
     include_str!("../../resources/data/strikeTeams/missionDescriptors.json");
 const MISSION_TRAITS: &str = include_str!("../../resources/data/strikeTeams/missionTraits.json");
 
+#[derive(Debug, Deserialize)]
+pub struct MissionTraits {
+    enemy: Vec<MissionTag>,
+    game: Vec<MissionTag>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTag {
@@ -33,9 +39,9 @@ pub struct MissionTag {
     pub i18n_name: String,
     pub loc_name: String,
     pub i18n_desc: String,
-    #[serde(skip)]
+    #[serde(skip_serializing)]
     pub positive: Option<TeamTrait>,
-    #[serde(skip)]
+    #[serde(skip_serializing)]
     pub negative: Option<TeamTrait>,
 }
 
@@ -43,7 +49,7 @@ pub struct StrikeTeamService {
     pub equipment: Vec<StrikeTeamEquipment>,
     pub specializations: Vec<StrikeTeamSpecialization>,
     pub mission_descriptors: Vec<MissionDescriptor>,
-    pub mission_traits: Vec<MissionTag>,
+    pub mission_traits: MissionTraits,
 }
 
 impl StrikeTeamService {
@@ -75,10 +81,10 @@ impl StrikeTeamService {
                     exit(1);
                 }
             };
-        let mission_traits: Vec<MissionTag> = match serde_json::from_str(MISSION_TRAITS) {
+        let mission_traits: MissionTraits = match serde_json::from_str(MISSION_TRAITS) {
             Ok(value) => value,
             Err(err) => {
-                error!("Failed to load mission descriptors: {}", err);
+                error!("Failed to load mission traits: {}", err);
                 exit(1);
             }
         };
@@ -164,18 +170,21 @@ pub struct Mission {
     pub mission_type: MissionType,
     pub accessibility: MissionAccessibility,
     pub waves: Vec<Wave>,
-    pub tags: Vec<MissionTag>,
+    pub tags: Vec<&'static MissionTag>,
     pub static_modifiers: Vec<MissionModifier>,
     pub dynamic_modifiers: Vec<MissionModifier>,
     pub rewards: MissionRewards,
     pub custom_attributes: Map<String, Value>,
+    // Time to start displaying the mission
     pub start_seconds: u64,
+    // Time to stop displaying the mission
     pub end_seconds: u64,
+    // How long the singleplayer mission will take to complete (Strike teams)
     pub sp_length_seconds: u32,
 }
 
 impl Mission {
-    pub fn random(rng: &mut StdRng, service: &StrikeTeamService) -> Self {
+    pub fn random(rng: &mut StdRng, service: &'static StrikeTeamService) -> Self {
         let name = Uuid::new_v4();
         // TODO: Filter descriptors based on what they apply to
         let descriptor = service
@@ -191,12 +200,20 @@ impl Mission {
         // TODO: Waves only need to be specified for custom missions
         let waves = Vec::new();
 
-        let choose_amount = rng.gen_range(0..3);
-        let tags: Vec<MissionTag> = service
+        let mut tags: Vec<&'static MissionTag> = Vec::with_capacity(3);
+
+        let enemy_tag = service
             .mission_traits
-            .choose_multiple(rng, choose_amount)
-            .cloned()
-            .collect();
+            .enemy
+            .choose(rng)
+            .expect("Missing enemy tag");
+        tags.push(enemy_tag);
+
+        service
+            .mission_traits
+            .game
+            .choose_multiple(rng, 2)
+            .for_each(|value| tags.push(value));
 
         // TODO: Modifiers
         let static_modifiers = Vec::new();
@@ -346,8 +363,8 @@ impl MissionTypeDescriptor {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
 pub struct MissionDescriptor {
     pub name: Uuid,
     pub i18n_name: String,
@@ -372,7 +389,7 @@ pub struct MissionDescriptorAttr {
 pub struct TeamTrait {
     pub name: String,
     pub tag: String,
-    pub effectiveness: u32,
+    pub effectiveness: i32,
 
     #[serde(flatten)]
     pub locale: LocaleNameWithDesc,
