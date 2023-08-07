@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use log::error;
-use rand::{rngs::StdRng, seq::SliceRandom, Rng};
+use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -383,93 +383,3 @@ impl TeamTrait {
         todo!("Random trait impl")
     }
 }
-
-static KNOWN_MISSION_TRAIT_NAMES: &[(u32, &str)] = &[
-    (135549, "Alien Presence"),
-    (135550, "No Room for Error"),
-    (135551, "Extraction"),
-    (135552, "We Need a Hero"),
-    (135553, "Assault"),
-    (135554, "Nighttime Mission"),
-    (135555, "High-Risk, High-Reward"),
-    (135556, "Key Intelligence Component"),
-    (135557, "Poor Weather Conditions"),
-    (135558, "Hostage Situation"),
-    (135559, "Silent and Deadly"),
-    (135560, "Bribe Attempt"),
-    (135561, "Scary"),
-    (135562, "Enemies Everywhere"),
-];
-
-static KNOWN_TRAIT_NAMES: &[(u32, &str)] = &[
-    (153269, "Careless"),
-    (153270, "Berserker"),
-    (153271, "Poor Intelligence"),
-    (153272, "Ill-Prepared"),
-    (153273, "Skirmisher"),
-    (153274, "Cowardly"),
-    (153275, "Virtuous"),
-    (153276, "Injured Teammate"),
-    (153277, "Shell-Shocked"),
-    (153278, "Tough"),
-    (153279, "Elite"),
-    (153280, "Grizzled Veteran"),
-    (153281, "Rugged"),
-    (153282, "Heroic"),
-    (153283, "Stealthy"),
-    (153284, "Unlucky"),
-    (153285, "Nighttime Operator"),
-    (153286, "Reluctant Soldier"),
-    (153287, "Precise"),
-    (153288, "Fragile"),
-    (153289, "Hero Complex"),
-    (153290, "Hostage Rescue Specialist"),
-    (153291, "Night Blindness"),
-    (153292, "Timid"),
-    (153293, "Daring"),
-    (153294, "Tactician"),
-    (153295, "Corruptible"),
-    (153296, "Lucky"),
-    (153297, "Fearless"),
-    (153298, "Low on Supplies"),
-    (153299, "Raucous"),
-    (153300, "Slow Reflexes"),
-    (153301, "Xenophobe"),
-    (153302, "Bloodthirsty"),
-];
-
-#[rustfmt::skip]
-static KNOWN_TRAIT_DESCS: &[(u32, &str)] = &[
-    (216463,"+10 to Effectiveness with Key Intelligence Component"),
-    (216462,"-10 to Effectiveness with Bribe Attempt"),
-    (216461,"+10 to Effectiveness during Poor Weather Conditions"),
-    (216460,"+10 to Effectiveness with We Need a Hero"),
-    (216427,"-10 to Effectiveness when Silent and Deadly"),
-    (216429,"-10 to Effectiveness with We Need a Hero"),
-    (216431,"-10 to Effectiveness with Scary"),
-    (216432,"+10 to Effectiveness with No Room for Error"),
-    (216433,"+10 to Effectiveness during Defense"),
-    (216436,"+10 to Effectiveness during A Hostage Situation"),
-    (216437,"+10 to Effectiveness during Assault"),
-    (216438,"+10 to Effectiveness with Enemies Everywhere"),
-    (216439,"-10 to Effectiveness during Assault"),
-    (216440,"+10 to Effectiveness with High-Risk, High-Reward"),
-    (216441,"-10 to Effectiveness with High-Risk, High-Reward"),
-    (216442,"+10 to Effectiveness when Silent and Deadly"),
-    (216443,"-10 to Effectiveness during Poor Weather Conditions"),
-    (216444,"-10 to Effectiveness during Extraction"),
-    (216445,"-10 to Effectiveness during Nighttime Missions"),
-    (216446,"+5 to Effectiveness"),
-    (216448,"-10 to Effectiveness with Alien Presence"),
-    (216449,"+10 to Effectiveness with Bribe Attempt"),
-    (216450,"-10 to Effectiveness with No Room for Error"),
-    (216451,"-10 to Effectiveness with Key Intelligence Component"),
-    (216452,"-10 to Effectiveness during A Hostage Situation"),
-    (216453,"-5 to Effectiveness"),
-    (216454,"+10 to Effectiveness with Alien Presence"),
-    (216455,"+10 to Effectiveness with Scary"),
-    (216456,"+10 to Effectiveness during Extraction"),
-    (216457,"+10 to Effectiveness during Nighttime Missions"),
-    (216458,"-10 to Effectiveness with Enemies Everywhere"),
-    (216459,"-10 to Effectiveness during Defense")
-];
