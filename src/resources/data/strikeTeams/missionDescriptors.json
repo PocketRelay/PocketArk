@@ -1,387 +1,387 @@
 [
     {
         "name": "6b04d12f-8c69-4901-91f1-a94ee47d478b",
-        "i18nName": 216304,
+        "i18nName": "216304",
         "locName": "PROTECT SENSITIVE EQUIPMENT",
-        "i18nDesc": 212448,
+        "i18nDesc": "212448",
         "locDesc": "Sensitive equipment vital to terraforming and colonization efforts is at risk of falling into enemy hands. Protect it at all costs."
     },
     {
         "name": "a6ee14d8-c7fe-4888-b88f-23787d0fd812",
-        "i18nName": 216305,
+        "i18nName": "216305",
         "locName": "IDENTIFY THE SPY",
-        "i18nDesc": 216883,
+        "i18nDesc": "216883",
         "locDesc": "We have reason to believe one of our people is giving intel to the enemy. Hit an enemy communication center and get us a name."
     },
     {
         "name": "80c28873-6de1-4ce5-90e9-16dad3c05540",
-        "i18nName": 216913,
+        "i18nName": "216913",
         "locName": "OBTAIN ENEMY SHIP LOCATIONS",
-        "i18nDesc": 216894,
+        "i18nDesc": "216894",
         "locDesc": "Enemies have been catching us by surprise, and we've been unable to locate their strike ship. Hit their resupply center and find out where that ship is."
     },
     {
         "name": "1c7c0aea-ffa9-415f-a191-67d170724861",
-        "i18nName": 216914,
+        "i18nName": "216914",
         "locName": "ELIMINATE THE TRAITOR",
-        "i18nDesc": 216903,
+        "i18nDesc": "216903",
         "locDesc": "One of our people turned traitor and is working with hostile forces. Hunt him down and take him out before he does any more damage."
     },
     {
         "name": "304dceea-6f20-4689-958b-43915e4349c5",
-        "i18nName": 216915,
+        "i18nName": "216915",
         "locName": "LOCATE NEW RESOURCES",
-        "i18nDesc": 216887,
+        "i18nDesc": "216887",
         "locDesc": "We've got reports of valuable mineral resources in an area with hostile activity. Find out if the enemy is sitting on anything we want, and make them think twice about how much they want it."
     },
     {
         "name": "562954b9-8714-46e3-87c0-0942090b62f8",
-        "i18nName": 216916,
+        "i18nName": "216916",
         "locName": "RECOVER STOLEN POWER GENERATORS",
-        "i18nDesc": 216899,
+        "i18nDesc": "216899",
         "locDesc": "Hostile forces stole power generators that one of our colony sites depends on for survival. Hit them hard and get our allies the supplies they need to keep the lights on."
     },
     {
         "name": "760c2f97-e55e-4bbd-9f3c-c5bee3bc1867",
-        "i18nName": 216917,
+        "i18nName": "216917",
         "locName": "DISTRACT ENEMY FORCES",
-        "i18nDesc": 216878,
+        "i18nDesc": "216878",
         "locDesc": "We need the enemy to pay attention to something other than our planned activity. Hit them as loudly as possible to draw their attention so that we can deploy forces covertly."
     },
     {
         "name": "c9e1d494-c7f0-40b7-b7c7-09b93efcf790",
-        "i18nName": 216918,
+        "i18nName": "216918",
         "locName": "DETERMINE ENEMY STRENGTH",
-        "i18nDesc": 216888,
+        "i18nDesc": "216888",
         "locDesc": "Hostile forces appear to be planning an attack, but it may be a feint to distract us. Harry their defenses and get an accurate estimation of their strength."
     },
     {
         "name": "be33ef87-dee9-4748-92f4-72415c1236ce",
-        "i18nName": 216919,
+        "i18nName": "216919",
         "locName": "OBTAIN PROTOTYPE SCHEMATICS",
-        "i18nDesc": 216884,
+        "i18nDesc": "216884",
         "locDesc": "Rumors are circulating about schematics for a new prototype based on Remnant tech, and we need to investigate. Get into the targeted research facility and find out if the rumors are true."
     },
     {
         "name": "8dcbe489-5f4a-4a28-ad28-36e946537b4b",
-        "i18nName": 216920,
+        "i18nName": "216920",
         "locName": "ELIMINATE ENEMY SABOTEURS",
-        "i18nDesc": 216893,
+        "i18nDesc": "216893",
         "locDesc": "We recently lost several supply stations to enemy saboteurs. Unfortunately for them, we located their base. Get in there and take them down."
     },
     {
         "name": "9c6685ec-754e-4521-94b7-2cfa887b223a",
-        "i18nName": 216921,
+        "i18nName": "216921",
         "locName": "ACQUIRE ENEMY RESEARCH",
-        "i18nDesc": 216890,
+        "i18nDesc": "216890",
         "locDesc": "An enemy group is performing medical research that’s yielded some promising and dangerous results. Infiltrate the facility and get us that research."
     },
     {
         "name": "55ac7934-180c-4449-a14a-335c111dad59",
-        "i18nName": 216922,
+        "i18nName": "216922",
         "locName": "INVESTIGATE FACILITY",
-        "i18nDesc": 216885,
+        "i18nDesc": "216885",
         "locDesc": "We received reports of a new facility, and it's not clear who is running or what their goal is. Investigate and determine if the facility presents a threat."
     },
     {
         "name": "5f70f75a-3999-4a96-ae85-12748189122c",
-        "i18nName": 216923,
+        "i18nName": "216923",
         "locName": "INVESTIGATE WEAPON REPORTS",
-        "i18nDesc": 216880,
+        "i18nDesc": "216880",
         "locDesc": "We've heard rumors of enemy forces moving weapons through the area. Hit the enemy base and find out what they're moving, and where."
     },
     {
         "name": "c78e2390-aedb-410c-a9f7-918bb42e0c66",
-        "i18nName": 216924,
+        "i18nName": "216924",
         "locName": "ESTABLISH ANTI-SHIP BATTERIES",
-        "i18nDesc": 216879,
+        "i18nDesc": "216879",
         "locDesc": "To utilize a potential site, we need to secure it against enemy bombardment. Secure the facility so we can establish anti-ship batteries."
     },
     {
         "name": "543e827f-0c1f-4d1b-9e7e-c96739ee28f9",
-        "i18nName": 216925,
+        "i18nName": "216925",
         "locName": "SABOTAGE ENEMY OPERATIONS",
-        "i18nDesc": 216891,
+        "i18nDesc": "216891",
         "locDesc": "Hostile forces are resisting our attempts to gain a foothold in the area. Hit their base and sabotage their operations while we prepare an offensive."
     },
     {
         "name": "0a33accb-4108-4b9b-9388-3db4f40e12bc",
-        "i18nName": 216926,
+        "i18nName": "216926",
         "locName": "OBTAIN DEAD-DROP DATA",
-        "i18nDesc": 216881,
+        "i18nDesc": "216881",
         "locDesc": "An agent embedded among enemy forces left us vital intel at a dead drop. Locate and retrieve it before enemy troops discover the drop."
     },
     {
         "name": "f3e4f7fd-a254-4f0c-b8c0-0266a9dcdaed",
-        "i18nName": 216927,
+        "i18nName": "216927",
         "locName": "DELAY SHIP LAUNCHES",
-        "i18nDesc": 216877,
+        "i18nDesc": "216877",
         "locDesc": "Hostile forces are planning to launch several ships that could threaten our operations. Keep those ships from launching until our forces are ready to fight them."
     },
     {
         "name": "928fe966-c9ac-48cc-9236-9aea952299bc",
-        "i18nName": 216928,
+        "i18nName": "216928",
         "locName": "OBTAIN MINING LOCATIONS",
-        "i18nDesc": 216897,
+        "i18nDesc": "216897",
         "locDesc": "The enemy is in possession of detailed mining locations. Hit their operations center and get us those sites."
     },
     {
         "name": "c1277f53-922f-4a41-81a1-7fd82d9312ce",
-        "i18nName": 216929,
+        "i18nName": "216929",
         "locName": "UNCOVER ENEMY PLANS",
-        "i18nDesc": 216886,
+        "i18nDesc": "216886",
         "locDesc": "The enemy has been quiet lately, and it's likely that they're planning something. Hit one of their listening posts and pull any intel on upcoming plans."
     },
     {
         "name": "ec79af2d-77ae-4d4f-a43a-5c89603bf60a",
-        "i18nName": 216930,
+        "i18nName": "216930",
         "locName": "RETAKE AN OCCUPIED FACILITY",
-        "i18nDesc": 216901,
+        "i18nDesc": "216901",
         "locDesc": "One of our key facilities was taken by enemy forces, costing us supplies and intel. Retake the facility before the enemy can lock it down."
     },
     {
         "name": "f9595cee-4e6c-42d6-91d1-eb98bca721a6",
-        "i18nName": 216931,
+        "i18nName": "216931",
         "locName": "MEASURE ENEMY RESPONSE",
-        "i18nDesc": 216906,
+        "i18nDesc": "216906",
         "locDesc": "We're planning a large operation and need to know the response time and strength of our targets. Poke the hornet's nest and report on their reactions."
     },
     {
         "name": "435dcdbc-f7fe-420b-93e8-f534843ce358",
-        "i18nName": 216932,
+        "i18nName": "216932",
         "locName": "ESTABLISH A LISTENING POST",
-        "i18nDesc": 216882,
+        "i18nDesc": "216882",
         "locDesc": "Our planned surveillance operations are blocked by the presence of an enemy base near our ideal site. Take out that base and give us a hiding place."
     },
     {
         "name": "b68b103a-01c6-45ed-beee-9b05944d7c39",
-        "i18nName": 216933,
+        "i18nName": "216933",
         "locName": "INVESTIGATE UNKNOWN SIGNALS",
-        "i18nDesc": 216905,
+        "i18nDesc": "216905",
         "locDesc": "Unknown signals are interfering with our communications in the area. Check the origin coordinates, find the source, and shut it down if hostile."
     },
     {
         "name": "dc8242b6-c9a2-429f-ab60-e0d71e0f0f46",
-        "i18nName": 216934,
+        "i18nName": "216934",
         "locName": "ESTABLISH A SUPPLY DEPOT",
-        "i18nDesc": 216908,
+        "i18nDesc": "216908",
         "locDesc": "Our efforts have been stymied by a supply shortage. We need you to take an enemy facility and convert it to a supply depot we can use."
     },
     {
         "name": "4fbf5bc5-c212-4aa1-bb80-b39c8bd7270f",
-        "i18nName": 216935,
+        "i18nName": "216935",
         "locName": "PUNISH KILLERS",
-        "i18nDesc": 216909,
+        "i18nDesc": "216909",
         "locDesc": "Enemy forces recently targeted a small unarmed ship and killed all aboard. Send them a message about what happens to people who kill unarmed civilians."
     },
     {
         "name": "299302af-5030-4551-9a5c-2e06325f1423",
-        "i18nName": 216936,
+        "i18nName": "216936",
         "locName": "PERFORM A SURGICAL STRIKE",
-        "i18nDesc": 216902,
+        "i18nDesc": "216902",
         "locDesc": "An enemy facility is currently blocking our strategic plans. We need it destroyed quickly and quietly."
     },
     {
         "name": "3818e80c-2fe3-4dfe-aa8e-cb3be46af391",
-        "i18nName": 216937,
+        "i18nName": "216937",
         "locName": "RECOVER STOLEN HABITATION DATA",
-        "i18nDesc": 216900,
+        "i18nDesc": "216900",
         "locDesc": "Enemy forces stole our data on possible habitation sites, then corrupted our local copies. Hit their site and get us that data back."
     },
     {
         "name": "fba8cc24-64de-4da0-87da-82f30cb7e286",
-        "i18nName": 216938,
+        "i18nName": "216938",
         "locName": "SABOTAGE WEAPONS SHIPMENT",
-        "i18nDesc": 216892,
+        "i18nDesc": "216892",
         "locDesc": "Hostile forces are set to receive a major weapons shipment. Take out the enemy team and stop that weapons shipment from reaching its destination."
     },
     {
         "name": "14cbf1e2-e427-4011-9e36-b81ed3256366",
-        "i18nName": 216939,
+        "i18nName": "216939",
         "locName": "IDENTIFY ENEMY LOADOUTS",
-        "i18nDesc": 216896,
+        "i18nDesc": "216896",
         "locDesc": "We need to determine whether hostile forces intend to capture one of our installations or destroy it entirely. Hit their supply base and identify the loadout of their heavy weapons."
     },
     {
         "name": "3430c2eb-c5a8-447c-9194-1aae7b70235f",
-        "i18nName": 216940,
+        "i18nName": "216940",
         "locName": "OBTAIN TECH PROTOTYPE",
-        "i18nDesc": 216895,
+        "i18nDesc": "216895",
         "locDesc": "We've heard reports of a valuable new tech prototype in the area. Investigate the facility and obtain that prototype."
     },
     {
         "name": "81df862a-4c40-4cd5-a64c-c36cabee7ba2",
-        "i18nName": 216941,
+        "i18nName": "216941",
         "locName": "INVESTIGATE A POSSIBLE TRAP",
-        "i18nDesc": 216907,
+        "i18nDesc": "216907",
         "locDesc": "We've picked up some leaked intel that looks too good to be true. Investigate the lead and be ready for an enemy ambush."
     },
     {
         "name": "093d6a72-fd57-4a93-9900-d5d5d08d1219",
-        "i18nName": 216942,
+        "i18nName": "216942",
         "locName": "OBTAIN ENCRYPTION KEY",
-        "i18nDesc": 216889,
+        "i18nDesc": "216889",
         "locDesc": "We've been unable to break the enemy's recent encryption protocols. Hit their listening post and obtain an encryption key before they can destroy their own data."
     },
     {
         "name": "6796fd86-2d62-402d-b317-a665e51ef39c",
-        "i18nName": 216943,
+        "i18nName": "216943",
         "locName": "FALSE FLAG OPERATION",
-        "i18nDesc": 216898,
+        "i18nDesc": "216898",
         "locDesc": "We've got intel about bad blood between multiple hostile groups in the area, and we'd like to encourage that. Take out one group and leave evidence to incriminate another."
     },
     {
         "name": "0945f671-0bd7-40d6-a32a-93b9e67dfc7d",
-        "i18nName": 216944,
+        "i18nName": "216944",
         "locName": "DESTROY ENEMY WARSHIPS",
-        "i18nDesc": 216904,
+        "i18nDesc": "216904",
         "locDesc": "Enemy warships have been wreaking havoc in the area. Ground those ships before they can do any more damage."
     },
     {
         "name": "7137c678-e3b2-4c20-8064-e137ebedaefd",
-        "i18nName": 212502,
+        "i18nName": "212502",
         "locName": "PROTECT ENGINEERING PERSONNEL",
-        "i18nDesc": 212447,
+        "i18nDesc": "212447",
         "locDesc": "An engineering team is en route to a critical mission, and we believe the mission plan has leaked. Get to the mission site and take out any hostiles before the team arrives."
     },
     {
         "name": "06b94fd1-7a9b-4016-93da-caf950305061",
-        "i18nName": 212503,
+        "i18nName": "212503",
         "locName": "ELIMINATE SUPPLY SHIPS",
-        "i18nDesc": 212446,
+        "i18nDesc": "212446",
         "locDesc": "We're tracking a few cargo ships ferrying supplies to enemy forces. Find those ships and take them out."
     },
     {
         "name": "509e7eb4-18c4-4b8a-b4ce-721c77e0069e",
-        "i18nName": 212504,
+        "i18nName": "212504",
         "locName": "ELIMINATE ARMS SMUGGLER",
-        "i18nDesc": 212441,
+        "i18nDesc": "212441",
         "locDesc": "We need a team to eliminate a target that's smuggling arms to a nasty outlaw group."
     },
     {
         "name": "0f249b79-fd2b-470e-a913-1a71194c0f86",
-        "i18nName": 212505,
+        "i18nName": "212505",
         "locName": "LOCATE AND REMOVE COMM TAPS",
-        "i18nDesc": 212445,
+        "i18nDesc": "212445",
         "locDesc": "Enemy operatives planted taps to monitor a number of our comms. We need a team to find and remove those devices."
     },
     {
         "name": "ae202255-3597-4f3a-aadd-40973612ffed",
-        "i18nName": 212506,
+        "i18nName": "212506",
         "locName": "PROTECT EMBEDDED INFORMANT",
-        "i18nDesc": 212438,
+        "i18nDesc": "212438",
         "locDesc": "An informant embedded in our enemy's forces thinks she’s been discovered. Take out the team she’s with while she extracts safely off-site."
     },
     {
         "name": "2f4b1ffd-c745-47c3-89aa-5d8f101e35da",
-        "i18nName": 212507,
+        "i18nName": "212507",
         "locName": "RECOVER SUPPLIES",
-        "i18nDesc": 212451,
+        "i18nDesc": "212451",
         "locDesc": "We've located wreckage that can be salvaged for useful supplies. Send a team to recover what they can."
     },
     {
         "name": "656f48b3-7a7e-4dd0-9240-047107cf3777",
-        "i18nName": 212508,
+        "i18nName": "212508",
         "locName": "DISRUPT ENEMY MOVEMENTS",
-        "i18nDesc": 212449,
+        "i18nDesc": "212449",
         "locDesc": "The enemy is moving troops through a key area. Disrupt their activities to open some holes in their defenses."
     },
     {
         "name": "26f239da-b1be-4be2-98cd-53778f112f6b",
-        "i18nName": 212509,
+        "i18nName": "212509",
         "locName": "CLEAR A SUPPLY ROUTE",
-        "i18nDesc": 212450,
+        "i18nDesc": "212450",
         "locDesc": "Enemy forces are threatening an important supply route. Clear our people a safe path."
     },
     {
         "name": "afc515f4-b56a-460d-9822-40d231049be1",
-        "i18nName": 212510,
+        "i18nName": "212510",
         "locName": "DISRUPT ENEMY COMMUNICATIONS",
-        "i18nDesc": 212439,
+        "i18nDesc": "212439",
         "locDesc": "Sensors detected a transmitter that's relaying enemy communications. Dispatch a team to disable it."
     },
     {
         "name": "0fed35af-4958-49f6-b925-57866bdce6eb",
-        "i18nName": 212511,
+        "i18nName": "212511",
         "locName": "INTERCEPT ENEMY DATA",
-        "i18nDesc": 212442,
+        "i18nDesc": "212442",
         "locDesc": "Intel says data on enemy combat plans is en route to a key adversary. Send a team to keep that data from reaching its target."
     },
     {
         "name": "518c1202-4e09-4d09-8b78-b75c2d42ecbf",
-        "i18nName": 212512,
+        "i18nName": "212512",
         "locName": "CLEAR AN ESCAPE ROUTE",
-        "i18nDesc": 212443,
+        "i18nDesc": "212443",
         "locDesc": "Friendly forces are trying to escape enemy pursuit. Clear them a path, and discourage the enemy from coming after them."
     },
     {
         "name": "f361791b-a749-4183-bd7f-dbb8a10b1461",
-        "i18nName": 212513,
+        "i18nName": "212513",
         "locName": "ELIMINATE HAZARDOUS MATERIALS",
-        "i18nDesc": 212440,
+        "i18nDesc": "212440",
         "locDesc": "We've got reports of hazardous materials at one of our facilities. Dispose of them safely so we can retake the location."
     },
     {
         "name": "4f5a89a2-1d32-47cf-8cea-45592054153f",
-        "i18nName": 212514,
+        "i18nName": "212514",
         "locName": "GATHER INTEL",
-        "i18nDesc": 212444,
+        "i18nDesc": "212444",
         "locDesc": "Dispatch a team to hack an enemy transmitter we recently located and relay relevant intel discovered."
     },
     {
         "name": "5fde975b-ac74-4f1a-a42d-4a871f21e9e4",
-        "i18nName": 212515,
+        "i18nName": "212515",
         "locName": "DISRUPT ENEMY SUPPLIES",
-        "i18nDesc": 212452,
+        "i18nDesc": "212452",
         "locDesc": "Hostile forces are putting pressure on our people. Take out their supply line to give our troops room to breathe."
     },
     {
         "name": "28b6941d-2b82-45cb-9ecf-3b4767a29101",
-        "i18nName": 144436,
+        "i18nName": "144436",
         "locName": "SABOTAGE THE ENEMY",
-        "i18nDesc": 144441,
+        "i18nDesc": "144441",
         "locDesc": "We've spotted a large enemy force with gaps in their security. Sneak in and take out their supplies to leave them vulnerable."
     },
     {
         "name": "e34fdd68-b4cf-4ff9-8fdd-a06994717b31",
-        "i18nName": 112279,
+        "i18nName": "112279",
         "locName": "SCOUT THE UNKNOWN",
-        "i18nDesc": 144440,
+        "i18nDesc": "144440",
         "locDesc": "Sensors detected a potentially valuable new area. Assemble a discovery team and dispatch them to investigate."
     },
     {
         "name": "cafbb2df-6561-40e0-8817-46d7332508ec",
-        "i18nName": 112280,
+        "i18nName": "112280",
         "locName": "PROTECT THE OUTPOST",
-        "i18nDesc": 144437,
+        "i18nDesc": "144437",
         "locDesc": "Outlaws are harassing one of our outposts. Send in a team to protect it until we can establish permanent defenses."
     },
     {
         "name": "923d249e-de07-4ab8-ac40-07e9cb4cb399",
-        "i18nName": 112281,
+        "i18nName": "112281",
         "locName": "RECOVER THE ARTIFACT",
-        "i18nDesc": 144439,
+        "i18nDesc": "144439",
         "locDesc": "Rumors of a significant Remnant artifact have surfaced. Send a team to investigate and recover anything they find."
     },
     {
         "name": "69db5592-2b8c-4682-8500-532eeb92dcd7",
-        "i18nName": 83340,
+        "i18nName": "83340",
         "locName": "SEARCH AND DESTROY",
-        "i18nDesc": 144442,
+        "i18nDesc": "144442",
         "locDesc": "Enemies were reported in the area. Hunt them down!"
     },
     {
         "name": "7c3141d4-512f-4bd2-a6d1-0d674a55a6e8",
-        "i18nName": 221327,
+        "i18nName": "221327",
         "locName": "CELEBRATORY MISSION",
-        "i18nDesc": 221328,
+        "i18nDesc": "221328",
         "locDesc": "A special mission, available for a limited time for a special occasion."
     },
     {
         "name": "0eb9f340-cab5-44e9-9832-3715d7bc18b8",
-        "i18nName": 114940,
+        "i18nName": "114940",
         "locName": "GATHER RESOURCES",
-        "i18nDesc": 144438,
+        "i18nDesc": "144438",
         "locDesc": "We received intel on a hidden cache of resources. Send a team to recover it—we need every advantage we can get."
     }
 ]
