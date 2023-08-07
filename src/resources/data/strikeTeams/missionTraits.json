@@ -6,7 +6,7 @@
         "i18nDesc": "",
         "positive": {
             "name": "Remnant Specialist",
-            "i18nName": 211951,
+            "i18nName": "211951",
             "locName": "Remnant Specialist",
             "i18nDescription": 216428,
             "locDescription": "+10 to Effectiveness against Remnant",
@@ -15,7 +15,7 @@
         },
         "negative": {
             "name": "Remnant Hysteria",
-            "i18nName": 211948,
+            "i18nName": "211948",
             "locName": "Remnant Hysteria",
             "i18nDescription": 216430,
             "locDescription": "-10 to Effectiveness against Remnant",
@@ -30,18 +30,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Outlaw Specialist",
-            "i18nName": 211953,
+            "i18nName": "211953",
             "locName": "Outlaw Specialist",
-            "i18nDescription": 216464,
+            "i18nDescription": "216464",
             "locDescription": "+10 to Effectiveness against outlaws",
             "tag": "outlaw",
             "effectiveness": 10
         },
         "negative": {
             "name": "Outlaw Hysteria",
-            "i18nName": 211949,
+            "i18nName": "211949",
             "locName": "Outlaw Hysteria",
-            "i18nDescription": 216435,
+            "i18nDescription": "216435",
             "locDescription": "-10 to Effectiveness against outlaws",
             "tag": "outlaw",
             "effectiveness": -10
@@ -54,18 +54,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Kett Specialist",
-            "i18nName": 211950,
+            "i18nName": "211950",
             "locName": "Kett Specialist",
-            "i18nDescription": 216434,
+            "i18nDescription": "216434",
             "locDescription": "+10 to Effectiveness against kett",
             "tag": "kett",
             "effectiveness": 10
         },
         "negative": {
             "name": "Kett Hysteria",
-            "i18nName": 211952,
+            "i18nName": "211952",
             "locName": "Kett Hysteria",
-            "i18nDescription": 216447,
+            "i18nDescription": "216447",
             "locDescription": "-10 to Effectiveness against kett",
             "tag": "kett",
             "effectiveness": -10
@@ -78,18 +78,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Nighttime Operator",
-            "i18nName": 153285,
+            "i18nName": "153285",
             "locName": "Nighttime Operator",
-            "i18nDescription": 216457,
+            "i18nDescription": "216457",
             "locDescription": "+10 to Effectiveness during Nighttime Missions",
             "tag": "dark",
             "effectiveness": 10
         },
         "negative": {
             "name": "Night Blindness",
-            "i18nName": 153291,
+            "i18nName": "153291",
             "locName": "Night Blindness",
-            "i18nDescription": 216445,
+            "i18nDescription": "216445",
             "locDescription": "-10 to Effectiveness during Nighttime Missions",
             "tag": "dark",
             "effectiveness": -10
@@ -102,18 +102,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Rugged",
-            "i18nName": 153281,
+            "i18nName": "153281",
             "locName": "Rugged",
-            "i18nDescription": 217985,
+            "i18nDescription": "217985",
             "locDescription": "+10 to Effectiveness during Poor Weather Conditions",
             "tag": "weather",
             "effectiveness": 10
         },
         "negative": {
             "name": "Ill-Prepared",
-            "i18nName": 153272,
+            "i18nName": "153272",
             "locName": "Ill-Prepared",
-            "i18nDescription": 216443,
+            "i18nDescription": "216443",
             "locDescription": "-10 to Effectiveness during Poor Weather Conditions",
             "tag": "weather",
             "effectiveness": -10
@@ -126,18 +126,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Daring",
-            "i18nName": 153293,
+            "i18nName": "153293",
             "locName": "Daring",
-            "i18nDescription": 216440,
+            "i18nDescription": "216440",
             "locDescription": "+10 to Effectiveness with High-Risk, High-Reward",
             "tag": "risky",
             "effectiveness": 10
         },
         "negative": {
             "name": "Timid",
-            "i18nName": 153292,
+            "i18nName": "153292",
             "locName": "Timid",
-            "i18nDescription": 216441,
+            "i18nDescription": "216441",
             "locDescription": "-10 to Effectiveness with High-Risk, High-Reward",
             "tag": "risky",
             "effectiveness": -10
@@ -150,18 +150,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Heroic",
-            "i18nName": 153282,
+            "i18nName": "153282",
             "locName": "Heroic",
-            "i18nDescription": 216460,
+            "i18nDescription": "216460",
             "locDescription": "+10 to Effectiveness with We Need a Hero",
             "tag": "herocomplex",
             "effectiveness": 10
         },
         "negative": {
             "name": "Hero Complex",
-            "i18nName": 153289,
+            "i18nName": "153289",
             "locName": "Hero Complex",
-            "i18nDescription": 216429,
+            "i18nDescription": "216429",
             "locDescription": "-10 to Effectiveness with We Need a Hero",
             "tag": "herocomplex",
             "effectiveness": -10
@@ -174,9 +174,9 @@
         "i18nDesc": "",
         "positive": {
             "name": "Hostage Rescue Specialist",
-            "i18nName": 153290,
+            "i18nName": "153290",
             "locName": "Hostage Rescue Specialist",
-            "i18nDescription": 216436,
+            "i18nDescription": "216436",
             "locDescription": "+10 to Effectiveness during A Hostage Situation",
             "tag": "hrt",
             "effectiveness": 10
@@ -190,9 +190,9 @@
         "i18nDesc": "",
         "negative": {
             "name": "Xenophobe",
-            "i18nName": 153301,
+            "i18nName": "153301",
             "locName": "Xenophobe",
-            "i18nDescription": 216448,
+            "i18nDescription": "216448",
             "locDescription": "-10 to Effectiveness with Alien Presence",
             "tag": "xenophobe",
             "effectiveness": -10
@@ -205,18 +205,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Virtuous",
-            "i18nName": 153275,
+            "i18nName": "153275",
             "locName": "Virtuous",
-            "i18nDescription": 216449,
+            "i18nDescription": "216449",
             "locDescription": "+10 to Effectiveness with Bribe Attempt",
             "tag": "bribe",
             "effectiveness": 10
         },
         "negative": {
             "name": "Corruptible",
-            "i18nName": 153295,
+            "i18nName": "153295",
             "locName": "Corruptible",
-            "i18nDescription": 216462,
+            "i18nDescription": "216462",
             "locDescription": "-10 to Effectiveness with Bribe Attempt",
             "tag": "bribe",
             "effectiveness": -10
@@ -229,18 +229,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Bloodthirsty",
-            "i18nName": 153302,
+            "i18nName": "153302",
             "locName": "Bloodthirsty",
-            "i18nDescription": 216438,
+            "i18nDescription": "216438",
             "locDescription": "+10 to Effectiveness with Enemies Everywhere",
             "tag": "bloodthirsty",
             "effectiveness": 10
         },
         "negative": {
             "name": "Berserker",
-            "i18nName": 153270,
+            "i18nName": "153270",
             "locName": "Berserker",
-            "i18nDescription": 216458,
+            "i18nDescription": "216458",
             "locDescription": "-10 to Effectiveness with Enemies Everywhere",
             "tag": "bloodthirsty",
             "effectiveness": -10
@@ -253,9 +253,9 @@
         "i18nDesc": "",
         "negative": {
             "name": "Poor Intelligence",
-            "i18nName": 153271,
+            "i18nName": "153271",
             "locName": "Poor Intelligence",
-            "i18nDescription": 216451,
+            "i18nDescription": "216451",
             "locDescription": "-10 to Effectiveness with Key Intelligence Component",
             "tag": "poorintelligence",
             "effectiveness": -10
@@ -268,18 +268,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Precise",
-            "i18nName": 153287,
+            "i18nName": "153287",
             "locName": "Precise",
-            "i18nDescription": 216432,
+            "i18nDescription": "216432",
             "locDescription": "+10 to Effectiveness with No Room for Error",
             "tag": "precise",
             "effectiveness": 10
         },
         "negative": {
             "name": "Careless",
-            "i18nName": 153269,
+            "i18nName": "153269",
             "locName": "Careless",
-            "i18nDescription": 216450,
+            "i18nDescription": "216450",
             "locDescription": "-10 to Effectiveness with No Room for Error",
             "tag": "precise",
             "effectiveness": -10
@@ -292,18 +292,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Fearless",
-            "i18nName": 153297,
+            "i18nName": "153297",
             "locName": "Fearless",
-            "i18nDescription": 216455,
+            "i18nDescription": "216455",
             "locDescription": "+10 to Effectiveness with Scary",
             "tag": "scary",
             "effectiveness": 10
         },
         "negative": {
             "name": "Cowardly",
-            "i18nName": 153274,
+            "i18nName": "153274",
             "locName": "Cowardly",
-            "i18nDescription": 216431,
+            "i18nDescription": "216431",
             "locDescription": "-10 to Effectiveness with Scary",
             "tag": "scary",
             "effectiveness": -10
@@ -316,18 +316,18 @@
         "i18nDesc": "",
         "positive": {
             "name": "Stealthy",
-            "i18nName": 153283,
+            "i18nName": "153283",
             "locName": "Stealthy",
-            "i18nDescription": 216442,
+            "i18nDescription": "216442",
             "locDescription": "+10 to Effectiveness when Silent and Deadly",
             "tag": "stealthy",
             "effectiveness": 10
         },
         "negative": {
             "name": "Raucous",
-            "i18nName": 153299,
+            "i18nName": "153299",
             "locName": "Raucous",
-            "i18nDescription": 216427,
+            "i18nDescription": "216427",
             "locDescription": "-10 to Effectiveness when Silent and Deadly",
             "tag": "stealthy",
             "effectiveness": -10

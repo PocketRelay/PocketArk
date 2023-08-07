@@ -5,6 +5,8 @@ use serde::{
 };
 use serde_with::skip_serializing_none;
 
+use crate::state::App;
+
 /// Localized naming variables
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -56,6 +58,15 @@ impl LocaleName {
         match self.loc_name.as_ref() {
             Some(value) => value,
             None => &self.i18n_name,
+        }
+    }
+
+    pub fn resolve(i18n: u32) -> Self {
+        let services = App::services();
+        let loc_name = services.i18n.get(i18n).map(|value| value.to_string());
+        Self {
+            i18n_name: i18n.to_string(),
+            loc_name,
         }
     }
 }

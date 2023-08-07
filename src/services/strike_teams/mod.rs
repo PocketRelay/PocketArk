@@ -1,26 +1,49 @@
 use chrono::{DateTime, Utc};
 use log::error;
+use rand::{rngs::StdRng, seq::SliceRandom, Rng};
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use std::{collections::HashMap, process::exit};
-use uuid::Uuid;
+use std::{
+    collections::HashMap,
+    process::exit,
+    time::{SystemTime, UNIX_EPOCH},
+};
+use uuid::{uuid, Uuid};
 
 use crate::{
     database::entity::StrikeTeam,
     http::models::mission::MissionModifier,
     services::{challenges::CurrencyReward, items::ItemDefinition},
-    utils::models::LocaleNameWithDesc,
+    utils::models::{LocaleName, LocaleNameWithDesc},
 };
 
 const EQUIPMENT_DEFINITIONS: &str = include_str!("../../resources/data/strikeTeams/equipment.json");
 const SPECIALIZATION_DEFINITIONS: &str =
     include_str!("../../resources/data/strikeTeams/specializations.json");
+const MISSION_DESCRIPTORS: &str =
+    include_str!("../../resources/data/strikeTeams/missionDescriptors.json");
+const MISSION_TRAITS: &str = include_str!("../../resources/data/strikeTeams/missionTraits.json");
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MissionTag {
+    pub name: String,
+    pub i18n_name: String,
+    pub loc_name: String,
+    pub i18n_desc: String,
+    #[serde(skip)]
+    pub positive: Option<TeamTrait>,
+    #[serde(skip)]
+    pub negative: Option<TeamTrait>,
+}
 
 pub struct StrikeTeamService {
     pub equipment: Vec<StrikeTeamEquipment>,
     pub specializations: Vec<StrikeTeamSpecialization>,
+    pub mission_descriptors: Vec<MissionDescriptor>,
+    pub mission_traits: Vec<MissionTag>,
 }
 
 impl StrikeTeamService {
@@ -44,10 +67,27 @@ impl StrikeTeamService {
                     exit(1);
                 }
             };
+        let mission_descriptors: Vec<MissionDescriptor> =
+            match serde_json::from_str(MISSION_DESCRIPTORS) {
+                Ok(value) => value,
+                Err(err) => {
+                    error!("Failed to load mission descriptors: {}", err);
+                    exit(1);
+                }
+            };
+        let mission_traits: Vec<MissionTag> = match serde_json::from_str(MISSION_TRAITS) {
+            Ok(value) => value,
+            Err(err) => {
+                error!("Failed to load mission descriptors: {}", err);
+                exit(1);
+            }
+        };
 
         Self {
             equipment,
             specializations,
+            mission_descriptors,
+            mission_traits,
         }
     }
 }
@@ -134,6 +174,69 @@ pub struct Mission {
     pub sp_length_seconds: u32,
 }
 
+impl Mission {
+    pub fn random(rng: &mut StdRng, service: &StrikeTeamService) -> Self {
+        let name = Uuid::new_v4();
+        // TODO: Filter descriptors based on what they apply to
+        let descriptor = service
+            .mission_descriptors
+            .choose(rng)
+            .expect("Failed to select mission descriptor")
+            .clone();
+
+        let mission_type = MissionType::normal();
+        // TODO: Randomly decide whether mission should be apex
+        let accessibility: MissionAccessibility = MissionAccessibility::Any;
+
+        // TODO: Waves only need to be specified for custom missions
+        let waves = Vec::new();
+
+        let choose_amount = rng.gen_range(0..3);
+        let tags: Vec<MissionTag> = service
+            .mission_traits
+            .choose_multiple(rng, choose_amount)
+            .cloned()
+            .collect();
+
+        // TODO: Modifiers
+        let static_modifiers = Vec::new();
+        let dynamic_modifiers = Vec::new();
+
+        let rewards = MissionRewards::random(rng, service);
+        let custom_attributes = Map::new();
+        // TODO: Custom attrs
+
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_secs();
+
+        let day = 60 * 60 * 24;
+
+        // TODO: Properly random gen expiry?
+        let start_seconds = now;
+        let end_seconds = now + day;
+
+        let sp_length_seconds = 4941; // TODO: Randomly decide duration that strike teams take
+
+        Self {
+            name,
+            descriptor,
+            mission_type,
+            accessibility,
+            waves,
+            tags,
+            static_modifiers,
+            dynamic_modifiers,
+            rewards,
+            custom_attributes,
+            start_seconds,
+            end_seconds,
+            sp_length_seconds,
+        }
+    }
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionRewards {
@@ -144,13 +247,20 @@ pub struct MissionRewards {
     pub item_definitions: Vec<&'static ItemDefinition>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MissionTag {
-    pub name: String,
-    pub i18n_name: String,
-    pub loc_name: String,
-    pub i18n_desc: String,
+impl MissionRewards {
+    pub fn random(rng: &mut StdRng, service: &StrikeTeamService) -> Self {
+        // TODO: Properly implement
+        Self {
+            name: Uuid::new_v4(),
+            currency_reward: CurrencyReward {
+                name: "MissionCurrency".to_string(),
+                value: 5,
+            },
+            mp_item_rewards: HashMap::new(),
+            sp_item_rewards: HashMap::new(),
+            item_definitions: Vec::new(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -198,16 +308,45 @@ pub struct MissionType {
     pub give_xp: bool,
 }
 
+impl MissionType {
+    pub fn normal() -> Self {
+        Self {
+            name: uuid!("1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c"),
+            descriptor: MissionTypeDescriptor::normal(),
+            give_currency: true,
+            give_xp: true,
+        }
+    }
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
     pub name: Uuid,
     pub i18n_name: String,
-    pub loc_name: Option<String>,
+    pub loc_name: String,
+    pub i18n_desc: Option<String>,
+    pub loc_desc: Option<String>,
     pub custom_attributes: Map<String, Value>,
 }
 
-#[derive(Debug, Serialize)]
+impl MissionTypeDescriptor {
+    pub fn normal() -> Self {
+        let locale = LocaleName::resolve(12028);
+
+        Self {
+            name: uuid!("39b9880a-ce11-4be3-a3e7-728763b48614"),
+            i18n_name: "12028".to_string(),
+            loc_name: "Normal".to_string(),
+            i18n_desc: None,
+            loc_desc: None,
+            custom_attributes: Map::new(),
+        }
+    }
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionDescriptor {
     pub name: Uuid,
@@ -218,8 +357,9 @@ pub struct MissionDescriptor {
     pub custom_attributes: MissionDescriptorAttr,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase", default)]
 pub struct MissionDescriptorAttr {
     pub icon: Option<String>,
     pub selector_icon: Option<String>,

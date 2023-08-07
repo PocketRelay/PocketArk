@@ -1,0 +1,26 @@
+[
+    {
+        "name": "042a14d5-da99-4b7d-ad24-03a641253667",
+        "descriptor": {
+            "name": "c82d0897-22d8-49c2-aae0-4878640d7c61",
+            "i18nName": "160746",
+            "locName": "TUTORIAL MISSION",
+            "i18nDesc": "215329",
+            "locDesc": "Learn the basics of Multiplayer Missions",
+            "customAttributes": {}
+        },
+        "giveCurrency": false,
+        "giveXp": true
+    },
+    {
+        "name": "1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c",
+        "descriptor": {
+            "name": "39b9880a-ce11-4be3-a3e7-728763b48614",
+            "i18nName": "12028",
+            "locName": "Normal",
+            "customAttributes": {}
+        },
+        "giveCurrency": true,
+        "giveXp": true
+    }
+]
