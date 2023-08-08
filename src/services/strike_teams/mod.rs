@@ -183,6 +183,8 @@ pub struct Mission {
     pub sp_length_seconds: u32,
 }
 
+// New missions are posted every four hours, starting at midnight, Eastern Standard Time (-5:00 UTC).
+
 impl Mission {
     pub fn random(rng: &mut StdRng, service: &'static StrikeTeamService) -> Self {
         let name = Uuid::new_v4();
@@ -194,8 +196,18 @@ impl Mission {
             .clone();
 
         let mission_type = MissionType::normal();
+
+        let access_choices = [
+            MissionAccessibility::Any,
+            MissionAccessibility::MultiPlayer,
+            MissionAccessibility::SinglePlayer,
+        ];
+
         // TODO: Randomly decide whether mission should be apex
-        let accessibility: MissionAccessibility = MissionAccessibility::Any;
+        let accessibility: MissionAccessibility = access_choices
+            .choose_weighted(rng, |access| access.weight())
+            .copied()
+            .expect("Failed to choose accessibility");
 
         // TODO: Waves only need to be specified for custom missions
         let waves = Vec::new();
@@ -216,10 +228,37 @@ impl Mission {
             .for_each(|value| tags.push(value));
 
         // TODO: Modifiers
-        let static_modifiers = Vec::new();
+        let mut static_modifiers = Vec::new();
         let dynamic_modifiers = Vec::new();
 
-        let rewards = MissionRewards::random(rng, service);
+        let diffs = [("bronze", 8), ("silver", 6), ("gold", 2), ("platinum", 1)];
+        let levels = [
+            "MPGreen", "MPBlack", "MPBlue", "MPGrey", "MPOrange", "MPYellow", "MPAqua", "MPTower",
+            "MPHangar",
+        ];
+
+        let (difficulty, _) = diffs
+            .choose_weighted(rng, |(_, weight)| *weight)
+            .expect("Failed to select difficulty");
+
+        let level = levels.choose(rng).expect("Failed to choose level");
+
+        static_modifiers.push(MissionModifier {
+            name: "difficulty".to_string(),
+            value: difficulty.to_string(),
+        });
+
+        static_modifiers.push(MissionModifier {
+            name: "enemyType".to_string(),
+            value: enemy_tag.name.to_string(),
+        });
+
+        static_modifiers.push(MissionModifier {
+            name: "level".to_string(),
+            value: level.to_string(),
+        });
+
+        let rewards = MissionRewards::random(rng, service, &accessibility, difficulty);
         let custom_attributes = Map::new();
         // TODO: Custom attrs
 
@@ -265,14 +304,28 @@ pub struct MissionRewards {
 }
 
 impl MissionRewards {
-    pub fn random(rng: &mut StdRng, service: &StrikeTeamService) -> Self {
-        // TODO: Properly implement
-        Self {
-            name: Uuid::new_v4(),
-            currency_reward: CurrencyReward {
+    pub fn random(
+        rng: &mut StdRng,
+        service: &StrikeTeamService,
+        access: &MissionAccessibility,
+        difficulty: &str,
+    ) -> Self {
+        let currency_reward = match access {
+            MissionAccessibility::SinglePlayer => CurrencyReward {
                 name: "MissionCurrency".to_string(),
                 value: 5,
             },
+            // Apex mission rewards
+            MissionAccessibility::Any | MissionAccessibility::MultiPlayer => CurrencyReward {
+                name: "MissionCurrency".to_string(),
+                value: 10,
+            },
+        };
+
+        // TODO: Properly implement
+        Self {
+            name: Uuid::new_v4(),
+            currency_reward,
             mp_item_rewards: HashMap::new(),
             sp_item_rewards: HashMap::new(),
             item_definitions: Vec::new(),
@@ -298,7 +351,7 @@ pub enum WaveType {
     Extraction,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Copy)]
 pub enum MissionAccessibility {
     #[serde(rename = "Single_Player")]
     SinglePlayer,
@@ -306,6 +359,16 @@ pub enum MissionAccessibility {
     MultiPlayer,
     #[serde(other)]
     Any,
+}
+
+impl MissionAccessibility {
+    pub fn weight(&self) -> u8 {
+        match self {
+            MissionAccessibility::SinglePlayer => 6,
+            MissionAccessibility::Any => 3,
+            MissionAccessibility::MultiPlayer => 1,
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
