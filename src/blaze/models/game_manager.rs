@@ -33,13 +33,15 @@ impl MatchmakeType {
         }
     }
 }
-pub struct CreateGameResp;
+pub struct MatchmakingResponse {
+    pub user_id: u32,
+}
 
-impl Encodable for CreateGameResp {
+impl Encodable for MatchmakingResponse {
     fn encode(&self, w: &mut TdfWriter) {
         w.tag_str_empty(b"COID");
         w.tag_str_empty(b"ESNM");
-        w.tag_u32(b"MSID", 1);
+        w.tag_u32(b"MSID", self.user_id);
         w.tag_str_empty(b"SCID");
         w.tag_str_empty(b"STMN");
     }

@@ -1093,7 +1093,7 @@ impl Encodable for GameDetails<'_> {
                 }
             }
 
-            w.tag_u8(b"MCAP", 1);
+            w.tag_u8(b"MCAP", 1); // should be 4?
             w.tag_u8(b"MNCP", 1);
             w.tag_str_empty(b"NPSI");
             w.group(b"NQOS", |w| {

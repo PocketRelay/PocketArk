@@ -1,8 +1,8 @@
 use crate::{
     blaze::{
         models::game_manager::{
-            CreateGameResp, LeaveGameRequest, MatchmakeRequest, ReplayGameRequest,
-            UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
+            LeaveGameRequest, MatchmakeRequest, MatchmakeType, MatchmakingResponse,
+            ReplayGameRequest, UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
         },
         session::{self, GetPlayerMessage, GetUserMessage, SessionLink},
     },
@@ -14,21 +14,36 @@ use crate::{
     state::App,
 };
 
-pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> CreateGameResp {
+pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> MatchmakingResponse {
     let services = App::services();
     let player = session
         .send(GetPlayerMessage)
         .await
         .expect("Failed to get player");
 
-    // TODO: Handle create vs matchmaking
+    let user_id = player.user.id;
 
-    let _game = services
-        .games
-        .send(CreateMessage { host: player })
-        .await
-        .expect("Failed to create");
-    CreateGameResp
+    match req.ty {
+        MatchmakeType::QuickMatch => {
+
+            // TODO:
+            // - Add to matchmaking queue
+            // - Send async matchmaking update (4, 12)
+            // - Couldn't find one? create new one
+            // - found one? send game details
+        }
+        MatchmakeType::CreatePublicGame => {
+            // TODO: Handle create vs matchmaking
+
+            let _game = services
+                .games
+                .send(CreateMessage { host: player })
+                .await
+                .expect("Failed to create");
+        }
+    }
+
+    MatchmakingResponse { user_id }
 }
 
 pub async fn update_game_attr(_session: &mut SessionLink, req: UpdateGameAttrRequest) {
