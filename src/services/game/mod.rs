@@ -939,6 +939,8 @@ impl Handler<AddPlayerMessage> for Game {
             GameDetails {
                 game: self,
                 player_id: player.user.id,
+                // TODO: Type based on why player was added
+                ty: MatchmakingResultType::CreatedGame,
             },
         );
 
@@ -1029,6 +1031,7 @@ impl Player {
 
 pub struct GameDetails<'a> {
     pub game: &'a Game,
+    pub ty: MatchmakingResultType,
     pub player_id: u32,
 }
 
@@ -1184,7 +1187,7 @@ impl Encodable for GameDetails<'_> {
             // SESSION_CANCELED = 4
             // SESSION_TERMINATED = 5
             // SESSION_ERROR_GAME_SETUP_FAILED = 6
-            writer.tag_u16(b"RSLT", 0);
+            writer.tag_u16(b"RSLT", self.ty as u8);
 
             writer.tag_u32(b"TOUT", 15000000);
             writer.tag_u32(b"TTM", 51109);
@@ -1192,6 +1195,14 @@ impl Encodable for GameDetails<'_> {
             writer.tag_u32(b"USID", self.player_id);
         });
     }
+}
+
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum MatchmakingResultType {
+    CreatedGame = 0,
+    JoinedNewGame = 1,
+    JoinedExistingGame = 2,
 }
 
 pub struct PostJoinMsg {
