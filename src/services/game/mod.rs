@@ -954,6 +954,8 @@ impl Handler<AddPlayerMessage> for Game {
 
         // Set current game of this player
         player.set_game(Some(self.id));
+
+        // TODO: Send info about other players
     }
 }
 
@@ -1004,6 +1006,9 @@ impl Player {
         w.tag_u32(b"LOC", 0x64654445);
         w.tag_str(b"NAME", &self.user.username);
         w.tag_str(b"NASP", "cem_ea_id");
+        if !self.attr.is_empty() {
+            w.tag_value(b"PATT", &self.attr);
+        }
         w.tag_u32(b"PID", self.user.id);
         IpPairAddress::tag(self.net.addr.as_ref(), b"PNET", w);
 
@@ -1096,11 +1101,12 @@ impl Encodable for GameDetails<'_> {
             w.tag_u8(b"MCAP", 1); // should be 4?
             w.tag_u8(b"MNCP", 1);
             w.tag_str_empty(b"NPSI");
+            // This should be the host QOS details?
             w.group(b"NQOS", |w| {
                 w.tag_u32(b"BWHR", 0);
                 w.tag_u32(b"DBPS", 24000000);
                 w.tag_u32(b"NAHR", 0);
-                w.tag_u32(b"NATT", 0);
+                w.tag_u32(b"NATT", 0); // 1?
                 w.tag_u32(b"UBPS", 8000000);
             });
 
@@ -1162,16 +1168,14 @@ impl Encodable for GameDetails<'_> {
 
         w.tag_union_start(b"REAS", 0x3);
         w.group(b"MMSC", |writer| {
-            const FIT: u16 = 20000;
+            const FIT: u16 = 20000; // 24500
 
             writer.tag_u16(b"FIT", FIT);
             writer.tag_u16(b"FIT", 0);
             writer.tag_u16(b"MAXF", FIT);
             writer.tag_u32(b"MSCD", self.player_id);
             writer.tag_u32(b"MSID", self.player_id);
-            writer.tag_u16(b"RSLT", 0);
-            writer.tag_u32(b"TOUT", 15000000);
-            writer.tag_u32(b"TTM", 51109);
+
             // TODO: Matchmaking result
             // SUCCESS_CREATED_GAME = 0
             // SUCCESS_JOINED_NEW_GAME = 1
@@ -1180,6 +1184,11 @@ impl Encodable for GameDetails<'_> {
             // SESSION_CANCELED = 4
             // SESSION_TERMINATED = 5
             // SESSION_ERROR_GAME_SETUP_FAILED = 6
+            writer.tag_u16(b"RSLT", 0);
+
+            writer.tag_u32(b"TOUT", 15000000);
+            writer.tag_u32(b"TTM", 51109);
+
             writer.tag_u32(b"USID", self.player_id);
         });
     }
