@@ -1187,7 +1187,7 @@ impl Encodable for GameDetails<'_> {
             // SESSION_CANCELED = 4
             // SESSION_TERMINATED = 5
             // SESSION_ERROR_GAME_SETUP_FAILED = 6
-            writer.tag_u16(b"RSLT", self.ty as u8);
+            writer.tag_u8(b"RSLT", self.ty as u8);
 
             writer.tag_u32(b"TOUT", 15000000);
             writer.tag_u32(b"TTM", 51109);
