@@ -1197,6 +1197,7 @@ impl Encodable for GameDetails<'_> {
     }
 }
 
+
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum MatchmakingResultType {
