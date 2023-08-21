@@ -31,6 +31,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(StrikeTeams::Icon).json().not_null())
                     .col(ColumnDef::new(StrikeTeams::Level).unsigned().not_null())
                     .col(ColumnDef::new(StrikeTeams::Xp).json().not_null())
+                    .col(ColumnDef::new(StrikeTeams::Equipment).json().nullable())
                     .col(
                         ColumnDef::new(StrikeTeams::PositiveTraits)
                             .json()
@@ -71,6 +72,7 @@ enum StrikeTeams {
     Icon,
     Level,
     Xp,
+    Equipment,
     PositiveTraits,
     NegativeTraits,
     OutOfDate,
