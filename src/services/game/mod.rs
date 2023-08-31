@@ -718,29 +718,13 @@ pub struct NotifyGameAttr {
 }
 
 impl Game {
-    pub fn new(id: u32) -> Link<Game> {
+    pub fn new(id: u32, attributes: TdfMap<String, String>) -> Link<Game> {
         // TODO: Take attributes provided by client matchmaking
         let this = Self {
             id,
             state: 1,
             setting: 262144,
-            attributes: [
-                ("coopGameVisibility", "1"),
-                ("difficulty", "1"),
-                ("difficultyRND", ""),
-                ("enemytype", "0"),
-                ("enemytypeRND", "1"),
-                ("level", "0"),
-                ("levelRND", "6"),
-                ("missionSlot", "0"),
-                ("missiontype", "Custom"),
-                ("mode", "contact_multiplayer"),
-                ("modifierCount", "0"),
-                ("modifiers", ""),
-            ]
-            .into_iter()
-            .map(|(key, value)| (key.to_string(), value.to_string()))
-            .collect(),
+            attributes,
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
             mission_data: None,

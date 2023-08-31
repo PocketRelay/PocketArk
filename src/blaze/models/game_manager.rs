@@ -1,18 +1,26 @@
 use std::str::FromStr;
 
-use tdf::{TdfDeserialize, TdfDeserializeOwned, TdfSerialize, TdfType};
+use tdf::{TdfDeserialize, TdfDeserializeOwned, TdfMap, TdfSerialize, TdfType, U12};
 
 use crate::services::game::{AttrMap, RemoveReason};
 
 pub struct MatchmakeRequest {
     pub ty: MatchmakeType,
+
+    pub attributes: AttrMap,
 }
 
 impl TdfDeserializeOwned for MatchmakeRequest {
     fn deserialize_owned(r: &mut tdf::TdfDeserializer<'_>) -> tdf::DecodeResult<Self> {
-        let value: String = r.tag(b"SCNM")?;
+        let scna: TdfMap<String, U12> = r.tag(b"SCNA")?;
+
+        let value: &str = r.tag(b"SCNM")?;
         let ty = MatchmakeType::parse(&value);
-        Ok(Self { ty })
+        let attributes = scna
+            .into_iter()
+            .map(|(key, value)| (key, value.value.to_string()))
+            .collect();
+        Ok(Self { ty, attributes })
     }
 }
 

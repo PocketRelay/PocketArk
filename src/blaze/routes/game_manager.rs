@@ -37,7 +37,10 @@ pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> Ma
 
             let _game = services
                 .games
-                .send(CreateMessage { host: player })
+                .send(CreateMessage {
+                    host: player,
+                    attributes: req.attributes,
+                })
                 .await
                 .expect("Failed to create");
         }

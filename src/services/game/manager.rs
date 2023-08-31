@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::blaze::models::PlayerState;
 
-use super::{AddPlayerMessage, Game, GameID, Player};
+use super::{AddPlayerMessage, AttrMap, Game, GameID, Player};
 
 /// Manager which controls all the active games on the server
 /// commanding them to do different actions and removing them
@@ -34,6 +34,8 @@ impl GameManager {
 pub struct CreateMessage {
     /// The host player for the game
     pub host: Player,
+
+    pub attributes: AttrMap,
 }
 
 /// Handler for creating games
@@ -51,7 +53,7 @@ impl Handler<CreateMessage> for GameManager {
 
         msg.host.state = PlayerState::ActiveConnected;
 
-        let link = Game::new(id);
+        let link = Game::new(id, msg.attributes);
         self.games.insert(id, link.clone());
 
         let _ = link.do_send(AddPlayerMessage { player: msg.host });
