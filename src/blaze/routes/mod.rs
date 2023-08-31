@@ -1,7 +1,6 @@
 use std::future::ready;
 
-use super::{components, session::SessionLink};
-use crate::blaze::pk::router::Router;
+use super::{components, router::Router, session::SessionLink};
 
 mod auth;
 mod game_manager;

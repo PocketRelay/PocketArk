@@ -1,5 +1,6 @@
+use tdf::TdfMap;
+
 use crate::blaze::models::util::*;
-use crate::blaze::pk::types::TdfMap;
 use crate::blaze::session::{GetHostTarget, SessionLink};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -20,7 +21,7 @@ pub async fn fetch_client_config(
     _session: &mut SessionLink,
     req: ClientConfigRequest,
 ) -> ClientConfigResponse {
-    let config: TdfMap<String, String> = match req.id.as_str() {
+    let config: TdfMap<&'static str, &'static str> = match req.id.as_str() {
         "IdentityParams" => [
             ("display", "console2/welcome"),
             ("redirect_uri", "http://127.0.0.1/success"),

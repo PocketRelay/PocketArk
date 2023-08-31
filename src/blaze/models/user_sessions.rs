@@ -1,20 +1,10 @@
+use crate::blaze::components;
 use std::net::{Ipv4Addr, SocketAddrV4};
-
-use crate::blaze::{
-    components,
-    pk::{
-        codec::{Decodable, Encodable, ValueType},
-        error::DecodeResult,
-        reader::TdfReader,
-        tag::TdfType,
-        types::Union,
-        writer::TdfWriter,
-    },
-};
+use tdf::prelude::*;
 
 #[derive(Default, Debug, Clone)]
 pub struct NetData {
-    pub addr: Option<IpPairAddress>,
+    pub addr: NetworkAddress,
     pub qos: QosNetworkData,
     pub hwfg: u8,
 }
@@ -25,12 +15,11 @@ pub struct UserUpdated {
     pub net_data: NetData,
 }
 
-impl Encodable for UserUpdated {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for UserUpdated {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.group(b"DATA", |w| {
             // ADDR
-            IpPairAddress::tag(self.net_data.addr.as_ref(), b"ADDR", w);
-
+            w.tag_ref(b"ADDR", &self.net_data.addr);
             w.tag_str(b"BPS", "bio-syd");
             w.tag_str(b"CTY", "NZ"); // Country
             w.tag_var_int_list_empty(b"CVAR");
@@ -50,25 +39,39 @@ impl Encodable for UserUpdated {
             );
             w.tag_u8(b"HWFG", self.net_data.hwfg); // Hardware config
             w.tag_str(b"ISP", "Example ISP"); // Internet Service Provider
-            w.tag_slice_list(b"PSLM", &[296, 245, 153, 40, 312, 238]);
-            w.tag_value(b"QDAT", &self.net_data.qos);
+            w.tag_list_slice(b"PSLM", &[296, 245, 153, 40, 312, 238]);
+            w.tag_ref(b"QDAT", &self.net_data.qos);
             w.tag_str(b"TZ", "Pacific/Auckland"); // Timezone
             w.tag_zero(b"UATT");
 
             w.tag_list_start(
                 b"ULST",
-                TdfType::Triple,
+                TdfType::ObjectId,
                 if self.game_id.is_some() { 2 } else { 1 },
             );
+            ObjectId {
+                ty: ObjectType {
+                    component: components::user_sessions::COMPONENT,
+                    ty: 2,
+                },
+                id: self.player_id as u64,
+            }
+            .serialize(w);
 
-            (components::user_sessions::COMPONENT, 2, self.player_id).encode(w);
             if let Some(game_id) = &self.game_id {
-                (components::game_manager::COMPONENT, 1, *game_id).encode(w);
+                ObjectId {
+                    ty: ObjectType {
+                        component: components::game_manager::COMPONENT,
+                        ty: 1,
+                    },
+                    id: *game_id as u64,
+                }
+                .serialize(w);
             }
         });
 
         w.tag_u8(b"SUBS", 1);
-        w.tag_u32(b"USID", self.player_id);
+        w.tag_owned(b"USID", self.player_id);
     }
 }
 
@@ -79,12 +82,11 @@ pub struct UserAdded {
     pub net_data: NetData,
 }
 
-impl Encodable for UserAdded {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for UserAdded {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.group(b"DATA", |w| {
             // ADDR
-            IpPairAddress::tag(self.net_data.addr.as_ref(), b"ADDR", w);
-
+            w.tag_ref(b"ADDR", &self.net_data.addr);
             w.tag_str_empty(b"BPS");
             w.tag_str(b"CTY", "NZ"); // Country
             w.tag_var_int_list_empty(b"CVAR");
@@ -104,88 +106,91 @@ impl Encodable for UserAdded {
             );
             w.tag_u8(b"HWFG", self.net_data.hwfg); // Hardware config
             w.tag_str(b"ISP", "Example ISP"); // Internet Service Provider
-            w.tag_value(b"QDAT", &self.net_data.qos);
+            w.tag_ref(b"QDAT", &self.net_data.qos);
             w.tag_str(b"TZ", "Pacific/Auckland"); // Timezone
             w.tag_zero(b"UATT");
 
             w.tag_list_start(
                 b"ULST",
-                TdfType::Triple,
+                TdfType::ObjectId,
                 if self.game_id.is_some() { 2 } else { 1 },
             );
 
-            (components::user_sessions::COMPONENT, 2, self.player_id).encode(w);
+            ObjectId {
+                ty: ObjectType {
+                    component: components::user_sessions::COMPONENT,
+                    ty: 2,
+                },
+                id: self.player_id as u64,
+            }
+            .serialize(w);
+
             if let Some(game_id) = &self.game_id {
-                (components::game_manager::COMPONENT, 1, *game_id).encode(w);
+                ObjectId {
+                    ty: ObjectType {
+                        component: components::game_manager::COMPONENT,
+                        ty: 1,
+                    },
+                    id: *game_id as u64,
+                }
+                .serialize(w);
             }
         });
 
         w.group(b"USER", |w| {
-            w.tag_u32(b"AID", self.player_id);
+            w.tag_owned(b"AID", self.player_id);
             w.tag_u32(b"ALOC", 1701727834);
-            w.tag_empty_blob(b"EXBB");
-            w.tag_u32(b"EXID", self.player_id);
-            w.tag_u32(b"ID", self.player_id);
+            w.tag_blob_empty(b"EXBB");
+            w.tag_owned(b"EXID", self.player_id);
+            w.tag_owned(b"ID", self.player_id);
             w.tag_str(b"NAME", &self.name);
             w.tag_str(b"NASP", "cem_ea_id");
-            w.tag_u32(b"ORIG", self.player_id);
-            w.tag_u32(b"PIDI", self.player_id);
+            w.tag_owned(b"ORIG", self.player_id);
+            w.tag_owned(b"PIDI", self.player_id);
         });
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, TdfSerialize, TdfDeserialize, TdfTyped)]
+#[tdf(group)]
 pub struct QosNetworkData {
+    #[tdf(tag = "BWHR")]
     pub bwhr: u32,
+    #[tdf(tag = "DBPS")]
     pub dbps: u32,
+    #[tdf(tag = "NAHR")]
     pub nahr: u32,
+    #[tdf(tag = "NATT")]
     pub natt: u8,
+    #[tdf(tag = "UBPS")]
     pub ubps: u32,
 }
-impl Encodable for QosNetworkData {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_u32(b"BWHR", self.bwhr);
-        w.tag_u32(b"DBPS", self.dbps);
-        w.tag_u32(b"NAHR", self.nahr);
-        w.tag_u8(b"NATT", self.natt);
-        w.tag_u32(b"UBPS", self.ubps);
-        w.tag_group_end();
-    }
-}
 
-impl Decodable for QosNetworkData {
-    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
-        let bwhr: u32 = r.tag(b"BWHR")?;
-        let dbps: u32 = r.tag(b"DBPS")?;
-        let nahr: u32 = r.tag(b"NAHR")?;
-        let natt: u8 = r.tag(b"NATT")?;
-        let ubps: u32 = r.tag(b"UBPS")?;
-        r.read_byte()?;
-        Ok(Self {
-            bwhr,
-            dbps,
-            nahr,
-            natt,
-            ubps,
-        })
-    }
-}
-impl ValueType for QosNetworkData {
-    fn value_type() -> TdfType {
-        TdfType::Group
-    }
+#[derive(Default, Debug, Clone, TdfSerialize, TdfDeserialize, TdfTyped)]
+pub enum NetworkAddress {
+    #[tdf(key = 0x2, tag = "VALU")]
+    AddressPair(IpPairAddress),
+    #[tdf(unset)]
+    Unset,
+    #[default]
+    #[tdf(default)]
+    Default,
 }
 
 /// Pair of socket addresses
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, TdfDeserialize, TdfSerialize, TdfTyped)]
+#[tdf(group)]
 pub struct IpPairAddress {
+    #[tdf(tag = "EXIP")]
     pub external: PairAddress,
+    #[tdf(tag = "INIP")]
     pub internal: PairAddress,
+    #[tdf(tag = "MACI")]
     pub maci: u32,
 }
 
 impl IpPairAddress {
-    pub fn tag(addr: Option<&IpPairAddress>, tag: &[u8], w: &mut TdfWriter) {
+    pub fn tag<S: tdf::TdfSerializer>(addr: Option<&IpPairAddress>, tag: &[u8], w: &mut S) {
         if let Some(addr) = addr {
             w.tag_union_value(b"ADDR", 0x2, b"VALU", addr);
         } else {
@@ -194,94 +199,34 @@ impl IpPairAddress {
     }
 }
 
-impl ValueType for IpPairAddress {
-    fn value_type() -> TdfType {
-        TdfType::Group
-    }
-}
-
-impl Decodable for IpPairAddress {
-    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
-        let external = r.tag(b"EXIP")?;
-        let internal = r.tag(b"INIP")?;
-        let maci = r.tag(b"MACI")?;
-        r.read_byte()?;
-        Ok(Self {
-            external,
-            internal,
-            maci,
-        })
-    }
-}
-
-impl Encodable for IpPairAddress {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_value(b"EXIP", &self.external);
-        w.tag_value(b"INIP", &self.internal);
-        w.tag_u32(b"MACI", self.maci);
-        w.tag_group_end()
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, TdfDeserialize, TdfSerialize, TdfTyped)]
+#[tdf(group)]
 pub struct PairAddress {
-    pub addr: SocketAddrV4,
+    #[tdf(tag = "IP", into = u32)]
+    pub addr: Ipv4Addr,
+    #[tdf(tag = "MACI")]
     pub maci: u32,
+    #[tdf(tag = "PORT")]
+    pub port: u16,
 }
 
-impl Decodable for PairAddress {
-    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
-        let ip: u32 = r.tag(b"IP")?;
-        let maci: u32 = r.tag(b"MACI")?;
-        let port: u16 = r.tag(b"PORT")?;
-        r.read_byte()?;
-
-        let addr = SocketAddrV4::new(Ipv4Addr::from(ip), port);
-        Ok(Self { addr, maci })
-    }
-}
-
-impl Encodable for PairAddress {
-    fn encode(&self, w: &mut TdfWriter) {
-        let octets = self.addr.ip().octets();
-        let value = u32::from_be_bytes(octets);
-
-        w.tag_u32(b"IP", value);
-        w.tag_u32(b"MACI", self.maci);
-        w.tag_u16(b"PORT", self.addr.port());
-        w.tag_group_end()
-    }
-}
-
-impl ValueType for PairAddress {
-    fn value_type() -> TdfType {
-        TdfType::Group
-    }
-}
-
+#[derive(Debug, TdfDeserialize)]
 pub struct UpdateNetworkInfo {
-    pub addr: Option<IpPairAddress>,
+    #[tdf(tag = "INFO")]
+    pub info: NetworkInfo,
+}
+
+#[derive(Debug, TdfDeserialize, TdfTyped)]
+#[tdf(group)]
+pub struct NetworkInfo {
+    #[tdf(tag = "ADDR")]
+    pub addr: NetworkAddress,
+    #[tdf(tag = "NQOS")]
     pub qos: QosNetworkData,
 }
 
-impl Decodable for UpdateNetworkInfo {
-    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
-        r.until_tag(b"INFO", TdfType::Group)?;
-        let addr = match r.tag::<Union<IpPairAddress>>(b"ADDR")? {
-            Union::Set { value, .. } => Some(value),
-            Union::Unset => None,
-        };
-        let qos = r.tag(b"NQOS")?;
-        Ok(Self { addr, qos })
-    }
-}
-
+#[derive(Debug, TdfDeserialize)]
 pub struct UpdateHardwareFlags {
+    #[tdf(tag = "HWFG")]
     pub flags: u8,
-}
-impl Decodable for UpdateHardwareFlags {
-    fn decode(r: &mut TdfReader) -> DecodeResult<Self> {
-        let flag = r.tag(b"HWFG")?;
-        Ok(Self { flags: flag })
-    }
 }

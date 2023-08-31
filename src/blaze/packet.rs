@@ -4,15 +4,14 @@
 //! Also contains the decoding and encoding logic for tokio codec
 //! [`PacketCodec`]
 
-use super::{
-    codec::{Decodable, Encodable},
-    error::DecodeResult,
-    reader::TdfReader,
-};
 use bitflags::bitflags;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use std::{fmt::Debug, hash::Hash, sync::Arc};
 use std::{io, ops::Deref};
+use tdf::{
+    serialize_vec, DecodeResult, TdfDeserialize, TdfDeserializer, TdfSerialize, TdfSerializer,
+    TdfStringifier,
+};
 use tokio_util::codec::{Decoder, Encoder};
 
 bitflags! {
@@ -110,15 +109,15 @@ impl Packet {
         }
     }
 
-    pub fn response<C: Encodable>(packet: &Packet, contents: C) -> Self {
+    pub fn response<C: TdfSerialize>(packet: &Packet, contents: C) -> Self {
         Self {
             header: packet.header.response(),
             pre_msg: Bytes::new(),
-            body: Bytes::from(contents.encode_bytes()),
+            body: Bytes::from(serialize_vec(&contents)),
         }
     }
 
-    pub fn respond<C: Encodable>(&self, contents: C) -> Self {
+    pub fn respond<C: TdfSerialize>(&self, contents: C) -> Self {
         Self::response(self, contents)
     }
 
@@ -142,11 +141,11 @@ impl Packet {
         Self::response_empty(self)
     }
 
-    pub fn notify<C: Encodable>(component: u16, command: u16, contents: C) -> Packet {
+    pub fn notify<C: TdfSerialize>(component: u16, command: u16, contents: C) -> Packet {
         Self {
             header: PacketHeader::notify(component, command),
             pre_msg: Bytes::new(),
-            body: Bytes::from(contents.encode_bytes()),
+            body: Bytes::from(serialize_vec(&contents)),
         }
     }
 
@@ -166,11 +165,11 @@ impl Packet {
         }
     }
 
-    pub fn request<C: Encodable>(component: u16, command: u16, seq: u32, contents: C) -> Packet {
+    pub fn request<C: TdfSerialize>(component: u16, command: u16, seq: u32, contents: C) -> Packet {
         Self {
             header: PacketHeader::request(component, command, seq),
             pre_msg: Bytes::new(),
-            body: Bytes::from(contents.encode_bytes()),
+            body: Bytes::from(serialize_vec(&contents)),
         }
     }
 
@@ -192,9 +191,9 @@ impl Packet {
 
     /// Attempts to decode the contents bytes of this packet into the
     /// provided Codec type value.
-    pub fn decode<C: Decodable>(&self) -> DecodeResult<C> {
-        let mut reader = TdfReader::new(&self.body);
-        C::decode(&mut reader)
+    pub fn decode<'de, C: TdfDeserialize<'de>>(&'de self) -> DecodeResult<C> {
+        let mut reader = TdfDeserializer::new(&self.body);
+        C::deserialize(&mut reader)
     }
 
     /// Attempts to read a packet from the provided
@@ -337,12 +336,12 @@ impl<T: FromRequest> Request<T> {
     /// `res` The into response type implementation
     pub fn response<E>(&self, res: E) -> Response
     where
-        E: Encodable,
+        E: TdfSerialize,
     {
         Response(Packet {
             header: self.header.response(),
             pre_msg: Bytes::new(),
-            body: Bytes::from(res.encode_bytes()),
+            body: Bytes::from(serialize_vec(&res)),
         })
     }
 }
@@ -353,10 +352,10 @@ pub struct PacketBody(Bytes);
 
 impl<T> From<T> for PacketBody
 where
-    T: Encodable,
+    T: TdfSerialize,
 {
     fn from(value: T) -> Self {
-        let bytes = value.encode_bytes();
+        let bytes = serialize_vec(&value);
         let bytes = Bytes::from(bytes);
         PacketBody(bytes)
     }
@@ -403,7 +402,7 @@ pub trait FromRequest: Sized + Send + 'static {
 
 impl<D> FromRequest for D
 where
-    D: Decodable + Send + 'static,
+    for<'de> D: TdfDeserialize<'de> + Send + 'static,
 {
     fn from_request(req: &Packet) -> DecodeResult<Self> {
         req.decode()
@@ -417,51 +416,14 @@ pub trait IntoResponse: 'static {
     fn into_response(self, req: &Packet) -> Packet;
 }
 
-/// Empty response implementation for unit types to allow
-/// functions to have no return type
-impl IntoResponse for () {
-    fn into_response(self, req: &Packet) -> Packet {
-        req.respond_empty()
-    }
-}
-
 /// Into response imeplementation for encodable responses
 /// which just calls res.respond
 impl<E> IntoResponse for E
 where
-    E: Encodable + 'static,
+    E: TdfSerialize + 'static,
 {
     fn into_response(self, req: &Packet) -> Packet {
         req.respond(self)
-    }
-}
-
-/// Into response implementation on result turning whichever
-/// portion of the result into a response
-impl<S, E> IntoResponse for Result<S, E>
-where
-    S: IntoResponse,
-    E: IntoResponse,
-{
-    fn into_response(self, req: &Packet) -> Packet {
-        match self {
-            Ok(value) => value.into_response(req),
-            Err(value) => value.into_response(req),
-        }
-    }
-}
-
-/// Into response implementation for option type turning
-/// None responses into an empty response
-impl<S> IntoResponse for Option<S>
-where
-    S: IntoResponse,
-{
-    fn into_response(self, req: &Packet) -> Packet {
-        match self {
-            Some(value) => value.into_response(req),
-            None => req.respond_empty(),
-        }
     }
 }
 
@@ -494,19 +456,13 @@ impl<'a> Debug for PacketDebug<'a> {
         }
 
         if !self.packet.pre_msg.is_empty() {
-            let mut reader = TdfReader::new(&self.packet.pre_msg);
+            let mut r = TdfDeserializer::new(&self.packet.pre_msg);
             let mut out = String::new();
 
             out.push_str("{\n");
+            let mut s = TdfStringifier::new(r, &mut out);
 
-            // Stringify the content or append error instead
-            if let Err(err) = reader.stringify(&mut out) {
-                writeln!(f, "Pre Msg: Content was malformed")?;
-                writeln!(f, "Error: {:?}", err)?;
-                writeln!(f, "Partial Pre Msg: {}", out)?;
-                writeln!(f, "Raw: {:?}", &self.packet.body)?;
-                return Ok(());
-            }
+            let _ = s.stringify();
 
             if out.len() == 2 {
                 // Remove new line if nothing else was appended
@@ -518,19 +474,13 @@ impl<'a> Debug for PacketDebug<'a> {
             writeln!(f, "Pre Message: {}", out)?;
         }
 
-        let mut reader = TdfReader::new(&self.packet.body);
+        let mut r = TdfDeserializer::new(&self.packet.body);
         let mut out = String::new();
 
         out.push_str("{\n");
+        let mut s = TdfStringifier::new(r, &mut out);
 
-        // Stringify the content or append error instead
-        if let Err(err) = reader.stringify(&mut out) {
-            writeln!(f, "Content: Content was malformed")?;
-            writeln!(f, "Error: {:?}", err)?;
-            writeln!(f, "Partial Content: {}", out)?;
-            writeln!(f, "Raw: {:?}", &self.packet.body)?;
-            return Ok(());
-        }
+        let _ = s.stringify();
 
         if out.len() == 2 {
             // Remove new line if nothing else was appended

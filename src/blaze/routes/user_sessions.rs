@@ -4,10 +4,11 @@ use crate::blaze::{
 };
 
 pub async fn update_network_info(session: &mut SessionLink, req: UpdateNetworkInfo) {
+    let info = req.info;
     let _ = session
         .send(NetworkInfoMessage {
-            addr: req.addr,
-            qos: req.qos,
+            addr: info.addr,
+            qos: info.qos,
         })
         .await;
 }

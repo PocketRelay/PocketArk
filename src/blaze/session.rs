@@ -1,13 +1,13 @@
 use super::{
     components,
-    models::user_sessions::{IpPairAddress, NetData, QosNetworkData, UserAdded, UserUpdated},
-    pk::{codec::Encodable, packet::PacketFlags},
+    models::user_sessions::{
+        IpPairAddress, NetData, NetworkAddress, QosNetworkData, UserAdded, UserUpdated,
+    },
+    packet::{Packet, PacketFlags},
+    router::HandleError,
 };
 use crate::{
-    blaze::pk::{
-        packet::{Packet, PacketDebug},
-        router::HandleError,
-    },
+    blaze::packet::PacketDebug,
     database::entity::User,
     http::middleware::upgrade::UpgradedTarget,
     services::game::{manager::GetGameMessage, GameID, Player, RemovePlayerMessage, RemoveReason},
@@ -17,6 +17,7 @@ use bytes::Bytes;
 use interlink::prelude::*;
 use log::{debug, error};
 use std::io;
+use tdf::{serialize_vec, TdfSerialize};
 use uuid::Uuid;
 
 pub struct Session {
@@ -106,7 +107,7 @@ impl Session {
                 uid: self.user.id,
                 error: 0,
             };
-            packet.pre_msg = Bytes::from(msg.encode_bytes());
+            packet.pre_msg = Bytes::from(serialize_vec(&msg));
         }
 
         self.debug_log_packet("Queued Write", &packet);
@@ -129,11 +130,11 @@ pub struct NotifyContext {
     pub error: u32,
 }
 
-impl Encodable for NotifyContext {
-    fn encode(&self, w: &mut super::pk::writer::TdfWriter) {
-        w.tag_u32(b"CNTX", self.uid);
-        w.tag_u32(b"ERRC", self.error);
-        w.group(b"MADR", |_| {})
+impl TdfSerialize for NotifyContext {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.tag_owned(b"CNTX", self.uid);
+        w.tag_owned(b"CNTX", self.error);
+        w.tag_group_empty(b"MADR");
     }
 }
 
@@ -199,7 +200,7 @@ impl Handler<WriteMessage> for Session {
 
 #[derive(Message)]
 pub struct NetworkInfoMessage {
-    pub addr: Option<IpPairAddress>,
+    pub addr: NetworkAddress,
     pub qos: QosNetworkData,
 }
 

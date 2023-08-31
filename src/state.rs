@@ -1,7 +1,7 @@
 use sea_orm::DatabaseConnection;
 
 use crate::{
-    blaze::{self, pk::router::Router, session::SessionLink},
+    blaze::{self, router::Router, session::SessionLink},
     services::Services,
 };
 

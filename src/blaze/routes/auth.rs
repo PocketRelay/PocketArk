@@ -1,7 +1,7 @@
 use crate::blaze::{
     components,
     models::auth::*,
-    pk::packet::Packet,
+    packet::Packet,
     session::{GetUserMessage, PushExt, SessionLink, UserAddedMessage},
 };
 

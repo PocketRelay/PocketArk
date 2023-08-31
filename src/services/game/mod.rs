@@ -7,6 +7,10 @@ use interlink::{
 };
 use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
+use tdf::{
+    types::string::write_empty_str, ObjectId, ObjectType, TdfDeserialize, TdfMap, TdfSerialize,
+    TdfType, TdfTyped,
+};
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -19,18 +23,10 @@ use crate::{
     blaze::{
         components,
         models::{
-            user_sessions::{IpPairAddress, NetData},
+            user_sessions::{NetData, NetworkAddress},
             PlayerState,
         },
-        pk::{
-            codec::{Decodable, Encodable, ValueType},
-            error::DecodeResult,
-            packet::Packet,
-            reader::TdfReader,
-            tag::TdfType,
-            types::TdfMap,
-            writer::TdfWriter,
-        },
+        packet::Packet,
         session::{PushExt, SessionLink, SetGameMessage},
     },
     database::entity::{
@@ -655,7 +651,7 @@ impl Handler<UpdatePlayerAttr> for Game {
             .find(|player| player.user.id == msg.pid);
 
         if let Some(player) = player {
-            player.attr.extend(msg.attr);
+            player.attr.insert_presorted(msg.attr.into_inner());
         }
     }
 }
@@ -680,7 +676,7 @@ impl Handler<UpdateGameAttrMessage> for Game {
                 gid: self.id,
             },
         );
-        self.attributes.extend(msg.attr);
+        self.attributes.insert_presorted(msg.attr.into_inner());
     }
 }
 
@@ -702,30 +698,23 @@ impl Handler<SetCompleteMissionMessage> for Game {
     }
 }
 
+#[derive(TdfSerialize)]
 pub struct NotifyPlayerAttr {
+    #[tdf(tag = "ATTR")]
     attr: AttrMap,
+    #[tdf(tag = "GID")]
     pid: u32,
+    #[tdf(tag = "PID")]
     gid: u32,
 }
 
-impl Encodable for NotifyPlayerAttr {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_value(b"ATTR", &self.attr);
-        w.tag_u32(b"GID", self.gid);
-        w.tag_u32(b"PID", self.pid);
-    }
-}
+#[derive(TdfSerialize)]
 
 pub struct NotifyGameAttr {
+    #[tdf(tag = "ATTR")]
     attr: AttrMap,
+    #[tdf(tag = "GID")]
     gid: u32,
-}
-
-impl Encodable for NotifyGameAttr {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_value(b"ATTR", &self.attr);
-        w.tag_u32(b"GID", self.gid);
-    }
 }
 
 impl Game {
@@ -750,6 +739,7 @@ impl Game {
                 ("modifiers", ""),
             ]
             .into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()))
             .collect(),
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
@@ -769,6 +759,7 @@ impl Game {
             components::game_manager::COMPONENT,
             components::game_manager::NOTIFY_PLAYER_REMOVED,
             PlayerRemoved {
+                cntx: 0,
                 game_id: self.id,
                 player_id: player.user.id,
                 reason,
@@ -794,7 +785,7 @@ impl Game {
     ///
     /// `component` The packet component
     /// `contents`  The packet contents
-    fn notify_all<C: Encodable>(&self, component: u16, command: u16, contents: C) {
+    fn notify_all<C: TdfSerialize>(&self, component: u16, command: u16, contents: C) {
         let packet = Packet::notify(component, command, contents);
         self.push_all(&packet);
     }
@@ -812,13 +803,19 @@ impl Game {
     }
 }
 
+#[derive(TdfSerialize)]
 pub struct PlayerRemoved {
+    #[tdf(tag = "CNTX")]
+    pub cntx: u32,
+    #[tdf(tag = "GID")]
     pub game_id: GameID,
+    #[tdf(tag = "PID")]
     pub player_id: u32,
+    #[tdf(tag = "REAS")]
     pub reason: RemoveReason,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, TdfDeserialize, TdfSerialize, TdfTyped)]
 #[repr(u8)]
 pub enum RemoveReason {
     /// Hit timeout while joining
@@ -832,6 +829,7 @@ pub enum RemoveReason {
     GameDestroyed = 0x4,
     GameEnded = 0x5,
     /// Generic player left the game reason
+    #[tdf(default)]
     PlayerLeft = 0x6,
     GroupLeft = 0x7,
     /// Player kicked
@@ -842,56 +840,6 @@ pub enum RemoveReason {
     PlayerJoinFromQueueFailed = 0xA,
     PlayerReservationTimeout = 0xB,
     HostEjected = 0xC,
-}
-
-impl RemoveReason {
-    pub fn from_value(value: u8) -> Self {
-        match value {
-            0x0 => Self::JoinTimeout,
-            0x1 => Self::PlayerConnectionLost,
-            0x2 => Self::ServerConnectionLost,
-            0x3 => Self::MigrationFailed,
-            0x4 => Self::GameDestroyed,
-            0x5 => Self::GameEnded,
-            0x6 => Self::PlayerLeft,
-            0x7 => Self::GroupLeft,
-            0x8 => Self::PlayerKicked,
-            0x9 => Self::PlayerKickedWithBan,
-            0xA => Self::PlayerJoinFromQueueFailed,
-            0xB => Self::PlayerReservationTimeout,
-            0xC => Self::HostEjected,
-            // Default to generic reason for unknown
-            _ => Self::PlayerLeft,
-        }
-    }
-}
-
-impl Encodable for RemoveReason {
-    fn encode(&self, writer: &mut TdfWriter) {
-        writer.write_u8((*self) as u8);
-    }
-}
-
-impl Decodable for RemoveReason {
-    fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
-        let value: u8 = reader.read_u8()?;
-        Ok(Self::from_value(value))
-    }
-}
-
-impl ValueType for RemoveReason {
-    fn value_type() -> TdfType {
-        TdfType::VarInt
-    }
-}
-
-impl Encodable for PlayerRemoved {
-    fn encode(&self, writer: &mut TdfWriter) {
-        writer.tag_u8(b"CNTX", 0);
-        writer.tag_u32(b"GID", self.game_id);
-        writer.tag_u32(b"PID", self.player_id);
-        writer.tag_value(b"REAS", &self.reason);
-    }
 }
 
 #[derive(Message)]
@@ -995,35 +943,45 @@ impl Player {
         let _ = self.link.do_send(SetGameMessage { game });
     }
 
-    pub fn encode(&self, game_id: u32, slot: usize, w: &mut TdfWriter) {
-        w.tag_empty_blob(b"BLOB");
-        w.tag_u32(b"CONG", self.user.id);
+    pub fn encode<S: tdf::TdfSerializer>(&self, game_id: u32, slot: usize, w: &mut S) {
+        w.tag_blob_empty(b"BLOB");
+        w.tag_owned(b"CONG", self.user.id);
         w.tag_u8(b"CSID", 0);
         w.tag_u8(b"DSUI", 0);
-        w.tag_empty_blob(b"EXBL");
-        w.tag_u32(b"EXID", self.user.id);
-        w.tag_u32(b"GID", game_id);
+        w.tag_blob_empty(b"EXBL");
+        w.tag_owned(b"EXID", self.user.id);
+        w.tag_owned(b"GID", game_id);
         w.tag_u8(b"JFPS", 1);
         w.tag_u8(b"JVMM", 1);
         w.tag_u32(b"LOC", 0x64654445);
         w.tag_str(b"NAME", &self.user.username);
         w.tag_str(b"NASP", "cem_ea_id");
         if !self.attr.is_empty() {
-            w.tag_value(b"PATT", &self.attr);
+            w.tag_ref(b"PATT", &self.attr);
         }
         w.tag_u32(b"PID", self.user.id);
-        IpPairAddress::tag(self.net.addr.as_ref(), b"PNET", w);
+        w.tag_ref(b"PNET", &self.net.addr);
 
         w.tag_u8(b"PSET", 1);
         w.tag_u8(b"RCRE", 0);
         w.tag_str_empty(b"ROLE");
         w.tag_usize(b"SID", slot);
         w.tag_u8(b"SLOT", 0);
-        w.tag_value(b"STAT", &self.state);
+        w.tag_ref(b"STAT", &self.state);
         w.tag_u16(b"TIDX", 0);
         w.tag_u8(b"TIME", 0); /* Unix timestamp in millseconds */
-        w.tag_triple(b"UGID", (30722, 2, self.user.id));
-        w.tag_u32(b"UID", self.user.id);
+        w.tag_alt(
+            b"UGID",
+            ObjectId {
+                ty: ObjectType {
+                    component: 30722,
+                    ty: 2,
+                },
+                id: self.user.id as u64,
+            },
+        );
+
+        w.tag_owned(b"UID", self.user.id);
         w.tag_str(b"UUID", &self.uuid.to_string());
         w.tag_group_end();
     }
@@ -1035,15 +993,8 @@ pub struct GameDetails<'a> {
     pub player_id: u32,
 }
 
-fn write_admin_list(writer: &mut TdfWriter, game: &Game) {
-    writer.tag_list_start(b"ADMN", TdfType::VarInt, game.players.len());
-    for player in &game.players {
-        writer.write_u32(player.user.id);
-    }
-}
-
-impl Encodable for GameDetails<'_> {
-    fn encode(&self, w: &mut TdfWriter) {
+impl<'a> TdfSerialize for GameDetails<'a> {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         let game = self.game;
         let host_player = match game.players.first() {
             Some(value) => value,
@@ -1052,10 +1003,10 @@ impl Encodable for GameDetails<'_> {
 
         // Game details
         w.group(b"GAME", |w| {
-            write_admin_list(w, game);
+            w.tag_list_iter_owned(b"ADMN", game.players.iter().map(|player| player.user.id));
             w.tag_u8(b"APRS", 1);
-            w.tag_value(b"ATTR", &game.attributes);
-            w.tag_slice_list(b"CAP", &[4, 0, 0, 0]);
+            w.tag_ref(b"ATTR", &game.attributes);
+            w.tag_list_slice(b"CAP", &[4, 0, 0, 0]);
             w.tag_u8(b"CCMD", 3);
             w.tag_str_empty(b"COID");
             w.tag_str_empty(b"CSID");
@@ -1089,16 +1040,20 @@ impl Encodable for GameDetails<'_> {
             w.tag_u64(b"GPVH", 3788120962);
             w.tag_u32(b"GSET", game.setting);
             w.tag_u32(b"GSID", game.id); // SHOULD MATCH START MISSION RESPONSE ID
-            w.tag_value(b"GSTA", &game.state);
+            w.tag_ref(b"GSTA", &game.state);
 
             w.tag_str_empty(b"GTYP");
             w.tag_str_empty(b"GURL");
             {
                 w.tag_list_start(b"HNET", TdfType::Group, 1);
                 w.write_byte(2);
-                if let Some(addr) = &host_player.net.addr {
-                    addr.encode(w);
-                }
+
+                match &host_player.net.addr {
+                    NetworkAddress::AddressPair(addr) => {
+                        addr.serialize(w);
+                    }
+                    _ => {}
+                };
             }
 
             w.tag_u8(b"MCAP", 1); // should be 4?
@@ -1116,7 +1071,7 @@ impl Encodable for GameDetails<'_> {
             w.tag_zero(b"NRES");
             w.tag_zero(b"NTOP");
             w.tag_str_empty(b"PGID");
-            w.tag_empty_blob(b"PGSR");
+            w.tag_blob_empty(b"PGSR");
 
             w.group(b"PHST", |w| {
                 w.tag_u32(b"CONG", host_player.user.id);
@@ -1131,7 +1086,7 @@ impl Encodable for GameDetails<'_> {
             w.tag_u8(b"QCAP", 0);
             w.group(b"RNFO", |w| {
                 w.tag_map_start(b"CRIT", TdfType::String, TdfType::Group, 1);
-                w.write_empty_str();
+                write_empty_str(w);
                 w.tag_u8(b"RCAP", 1);
                 w.tag_group_end();
             });
@@ -1147,7 +1102,7 @@ impl Encodable for GameDetails<'_> {
                 w.tag_u8(b"HSLT", 0x0);
             });
 
-            w.tag_slice_list(b"TIDS", &[65534]);
+            w.tag_list_slice(b"TIDS", &[65534]);
             w.tag_str(b"UUID", "32d89cf8-6a83-4282-b0a0-5b7a8449de2e");
             w.tag_u8(b"VOIP", 0);
             w.tag_str(b"VSTR", "60-Future739583");
@@ -1170,14 +1125,14 @@ impl Encodable for GameDetails<'_> {
         w.tag_u8(b"QOSV", 0);
 
         w.tag_union_start(b"REAS", 0x3);
-        w.group(b"MMSC", |writer| {
+        w.group(b"MMSC", |w| {
             const FIT: u16 = 20000; // 24500
 
-            writer.tag_u16(b"FIT", FIT);
-            writer.tag_u16(b"FIT", 0);
-            writer.tag_u16(b"MAXF", FIT);
-            writer.tag_u32(b"MSCD", self.player_id);
-            writer.tag_u32(b"MSID", self.player_id);
+            w.tag_u16(b"FIT", FIT);
+            w.tag_u16(b"FIT", 0);
+            w.tag_u16(b"MAXF", FIT);
+            w.tag_u32(b"MSCD", self.player_id);
+            w.tag_u32(b"MSID", self.player_id);
 
             // TODO: Matchmaking result
             // SUCCESS_CREATED_GAME = 0
@@ -1187,18 +1142,17 @@ impl Encodable for GameDetails<'_> {
             // SESSION_CANCELED = 4
             // SESSION_TERMINATED = 5
             // SESSION_ERROR_GAME_SETUP_FAILED = 6
-            writer.tag_u8(b"RSLT", self.ty as u8);
+            w.tag_owned(b"RSLT", self.ty);
 
-            writer.tag_u32(b"TOUT", 15000000);
-            writer.tag_u32(b"TTM", 51109);
+            w.tag_u32(b"TOUT", 15000000);
+            w.tag_u32(b"TTM", 51109);
 
-            writer.tag_u32(b"USID", self.player_id);
+            w.tag_u32(b"USID", self.player_id);
         });
     }
 }
 
-
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, TdfSerialize, TdfTyped)]
 #[repr(u8)]
 pub enum MatchmakingResultType {
     CreatedGame = 0,
@@ -1211,41 +1165,49 @@ pub struct PostJoinMsg {
     pub game_id: u32,
 }
 
-impl Encodable for PostJoinMsg {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for PostJoinMsg {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.group(b"CONV", |w| {
             w.tag_zero(b"FCNT");
             w.tag_zero(b"NTOP");
             w.tag_zero(b"TIER");
         });
         w.tag_u8(b"DISP", 1);
-        w.tag_u32(b"GID", self.game_id);
-        w.tag_triple(b"GRID", (0, 0, 0));
-        w.tag_u32(b"MSCD", self.player_id);
-        w.tag_u32(b"MSID", self.player_id);
-        w.tag_u32(b"QSVR", 0);
-        w.tag_u32(b"USID", self.player_id);
+        w.tag_owned(b"GID", self.game_id);
+
+        w.tag_alt(
+            b"GRID",
+            ObjectId {
+                ty: ObjectType {
+                    component: 0,
+                    ty: 0,
+                },
+                id: 0,
+            },
+        );
+
+        w.tag_owned(b"MSCD", self.player_id);
+        w.tag_owned(b"MSID", self.player_id);
+        w.tag_zero(b"QSVR");
+        w.tag_owned(b"USID", self.player_id);
     }
 }
 
+#[derive(TdfSerialize)]
 struct NotifyStateUpdate {
-    state: u8,
+    #[tdf(tag = "GID")]
     game_id: u32,
+    #[tdf(tag = "GSTA")]
+    state: u8,
 }
 
-impl Encodable for NotifyStateUpdate {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_u32(b"GID", self.game_id);
-        w.tag_u8(b"GSTA", self.state)
-    }
-}
 struct NotifyGameReplay {
     game_id: u32,
 }
 
-impl Encodable for NotifyGameReplay {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_u32(b"GID", self.game_id);
-        w.tag_u32(b"GRID", self.game_id)
+impl TdfSerialize for NotifyGameReplay {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.tag_owned(b"GID", self.game_id);
+        w.tag_owned(b"GRID", self.game_id)
     }
 }

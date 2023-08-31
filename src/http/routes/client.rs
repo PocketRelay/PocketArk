@@ -14,7 +14,7 @@ use tokio::io::split;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
 use crate::{
-    blaze::{pk::packet::PacketCodec, session::Session},
+    blaze::{packet::PacketCodec, session::Session},
     database::entity::User,
     http::{
         middleware::upgrade::BlazeUpgrade,

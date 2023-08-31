@@ -1,10 +1,9 @@
 //! Router implementation for routing packet components to different functions
 //! and automatically decoding the packet contents to the function type
 
-use super::{
-    error::{DecodeError, DecodeResult},
-    packet::{FromRequest, IntoResponse, Packet},
-};
+use tdf::{DecodeError, DecodeResult};
+
+use super::packet::{FromRequest, IntoResponse, Packet};
 use std::{
     collections::HashMap,
     future::Future,
@@ -13,25 +12,11 @@ use std::{
     task::{ready, Context, Poll},
 };
 
-/// Wrapper over the [FromRequest] type to support the unit type
-/// to differentiate
-pub trait FromRequestInternal: Sized + 'static {
-    fn from_request(req: &Packet) -> DecodeResult<Self>;
-}
+/// Handler contains a request body that must be deserialized
+pub struct WithRequest;
 
-/// Unit type implementation for handlers that don't take a req type
-impl FromRequestInternal for () {
-    fn from_request(_req: &Packet) -> DecodeResult<Self> {
-        Ok(())
-    }
-}
-
-/// Implementation for normal [FromRequest] implementations
-impl<F: FromRequest> FromRequestInternal for F {
-    fn from_request(req: &Packet) -> DecodeResult<Self> {
-        F::from_request(req)
-    }
-}
+/// Handler doesn't contain a request body
+pub struct WithoutRequest;
 
 /// Pin boxed future type that is Send and lives for 'a
 type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
@@ -43,7 +28,7 @@ type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 /// `Format` The format of the handler function (FormatA, FormatB)
 /// `Req`    The request value type for the handler
 /// `Res`    The response type for the handler
-pub trait Handler<'a, State, Req, Res>: Send + Sync + 'static {
+pub trait Handler<'a, State, Req, Res, Format>: Send + Sync + 'static {
     /// Handle function for calling the underlying handle logic using
     /// the proivded state and packet
     ///
@@ -68,7 +53,7 @@ type PacketFuture<'a> = BoxFuture<'a, Packet>;
 ///     Res {}
 /// }
 /// ```
-impl<'a, State, Fun, Fut, Req, Res> Handler<'a, State, Req, Res> for Fun
+impl<'a, State, Fun, Fut, Req, Res> Handler<'a, State, Req, Res, WithRequest> for Fun
 where
     Fun: Fn(&'a mut State, Req) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = Res> + Send + 'a,
@@ -92,7 +77,7 @@ where
 ///     Res {}
 /// }
 /// ```
-impl<'a, State, Fun, Fut, Res> Handler<'a, State, (), Res> for Fun
+impl<'a, State, Fun, Fut, Res> Handler<'a, State, (), Res, WithoutRequest> for Fun
 where
     Fun: Fn(&'a mut State) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = Res> + Send + 'a,
@@ -147,20 +132,21 @@ trait Route<S>: Send + Sync {
 
 /// Route wrapper over a handler for storing the phantom type data
 /// and implementing Route
-struct HandlerRoute<H, Req, Res> {
+struct HandlerRoute<H, Req, Res, Format> {
     /// The underlying handler
     handler: H,
     /// Marker for storing related data
-    _marker: PhantomData<fn(Req) -> Res>,
+    _marker: PhantomData<fn(Req, Format) -> Res>,
 }
 
 /// Route implementation for handlers wrapped by handler routes
-impl<H, State, Req, Res> Route<State> for HandlerRoute<H, Req, Res>
+impl<H, State, Req, Res, Format> Route<State> for HandlerRoute<H, Req, Res, Format>
 where
-    for<'a> H: Handler<'a, State, Req, Res>,
-    Req: FromRequestInternal,
+    for<'a> H: Handler<'a, State, Req, Res, Format>,
+    Req: FromRequest,
     Res: IntoResponse,
     State: Send + 'static,
+    Format: 'static,
 {
     fn handle<'s>(
         &self,
@@ -200,13 +186,14 @@ where
         Self::default()
     }
 
-    pub fn route<Req, Res>(
+    pub fn route<Req, Res, Format>(
         &mut self,
         target: (u16, u16),
-        route: impl for<'a> Handler<'a, S, Req, Res>,
+        route: impl for<'a> Handler<'a, S, Req, Res, Format>,
     ) where
-        Req: FromRequestInternal,
+        Req: FromRequest,
         Res: IntoResponse,
+        Format: 'static,
     {
         self.routes.insert(
             target,

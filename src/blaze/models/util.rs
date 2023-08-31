@@ -1,20 +1,12 @@
-use crate::blaze::pk::{
-    codec::{Decodable, Encodable},
-    error::DecodeResult,
-    reader::TdfReader,
-    tag::TdfType,
-    types::TdfMap,
-    writer::TdfWriter,
-};
-
 use crate::http::middleware::upgrade::{BlazeScheme, UpgradedTarget};
+use tdf::prelude::*;
 
 pub struct PreAuthResponse {
     pub target: UpgradedTarget,
 }
 
-impl Encodable for PreAuthResponse {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for PreAuthResponse {
+    fn serialize<S: TdfSerializer>(&self, w: &mut S) {
         let host = &self.target.host;
         let port = &self.target.port.to_string();
         let secure = &matches!(self.target.scheme, BlazeScheme::Https).to_string();
@@ -28,7 +20,7 @@ impl Encodable for PreAuthResponse {
         let host_alt_2 = format!("{}{}", self.target.scheme.value(), self.target.host,);
 
         w.tag_str(b"ASRC", "310335");
-        w.tag_slice_list(
+        w.tag_list_slice(
             b"CIDS",
             &[
                 1, 4, 7, 9, 10, 11, 14, 15, 25, 2000, 27, 30720, 30721, 30722, 30723, 30724, 33,
@@ -88,12 +80,13 @@ impl Encodable for PreAuthResponse {
 
             {
                 w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);
-                w.write_str("bio-dub");
-                // TODO: Replace this host and port with the local QOS server when complete
-                w.tag_str(b"PSA", &self.target.host);
-                w.tag_u16(b"PSP", self.target.port);
-                w.tag_str(b"SNA", "prod-sjc");
-                w.tag_group_end();
+                w.group_body(|w| {
+                    "bio-dub".serialize(w);
+                    // TODO: Replace this host and port with the local QOS server when complete
+                    w.tag_str(b"PSA", &self.target.host);
+                    w.tag_u16(b"PSP", self.target.port);
+                    w.tag_str(b"SNA", "prod-sjc");
+                });
             }
 
             w.tag_u32(b"TIME", 5000000);
@@ -104,20 +97,16 @@ impl Encodable for PreAuthResponse {
     }
 }
 
+#[derive(TdfSerialize)]
 pub struct PingResponse {
+    #[tdf(tag = "STIM")]
     pub time: u64,
-}
-
-impl Encodable for PingResponse {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_u64(b"STIM", self.time);
-    }
 }
 
 pub struct PostAuthResponse;
 
-impl Encodable for PostAuthResponse {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for PostAuthResponse {
+    fn serialize<S: TdfSerializer>(&self, w: &mut S) {
         // TODO: Update creds with localhost for using client handler
         w.group(b"TELE", |w| {
             w.tag_str(b"ADRS", "https://river.data.ea.com");
@@ -148,27 +137,18 @@ impl Encodable for PostAuthResponse {
             w.tag_u8(b"TMOP", 1);
             // TODO: Update with user id
             w.tag_u32(b"UID", 978651371)
-        })
+        });
     }
 }
 
+#[derive(Debug, TdfDeserialize)]
 pub struct ClientConfigRequest {
+    #[tdf(tag = "CFID")]
     pub id: String,
 }
 
-impl Decodable for ClientConfigRequest {
-    fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
-        let id = reader.tag(b"CFID")?;
-        Ok(Self { id })
-    }
-}
-
+#[derive(Debug, TdfSerialize)]
 pub struct ClientConfigResponse {
-    pub config: TdfMap<String, String>,
-}
-
-impl Encodable for ClientConfigResponse {
-    fn encode(&self, w: &mut TdfWriter) {
-        w.tag_value(b"CONF", &self.config)
-    }
+    #[tdf(tag = "CONF")]
+    pub config: TdfMap<&'static str, &'static str>,
 }

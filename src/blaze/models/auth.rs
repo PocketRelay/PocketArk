@@ -1,47 +1,46 @@
-use crate::{
-    blaze::pk::{
-        codec::{Decodable, Encodable, ValueType},
-        error::DecodeResult,
-        reader::TdfReader,
-        tag::TdfType,
-        writer::TdfWriter,
-    },
-    database::entity::User,
-};
+use tdf::{ObjectId, ObjectType, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
 
+use crate::database::entity::User;
+
+#[derive(Debug, TdfDeserialize)]
 pub struct AuthRequest {
+    #[tdf(tag = "AUTH")]
     pub token: String,
-}
-
-impl Decodable for AuthRequest {
-    fn decode(reader: &mut TdfReader) -> DecodeResult<Self> {
-        let token = reader.tag(b"AUTH")?;
-        Ok(Self { token })
-    }
 }
 
 pub struct AuthNotify {
     pub user: User,
 }
 
-impl Encodable for AuthNotify {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for AuthNotify {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.tag_zero(b"\x17CON");
         w.tag_u32(b"ALOC", 1701727834); // location
         w.tag_u32(b"BUID", self.user.id);
-        w.tag_triple(b"CGID", (30722u64, 2u64, self.user.id));
+
+        w.tag_alt(
+            b"CGID",
+            ObjectId {
+                ty: ObjectType {
+                    component: 30722,
+                    ty: 2,
+                },
+                id: self.user.id as u64,
+            },
+        );
+
         w.tag_str(b"DSNM", &self.user.username);
         w.tag_zero(b"FRST");
         w.tag_str(b"KEY", "0");
-        w.tag_u32(b"LAST", 1688871852);
-        w.tag_u32(b"LLOG", 1688871991);
+        w.tag_u32(b"LAST", 1688871852); // Last login time
+        w.tag_u32(b"LLOG", 1688871991); // Login time
         w.tag_str(b"MAIL", "******@gmail.com");
         w.tag_str(b"NASP", "cem_ea_id");
-        w.tag_u32(b"PID", self.user.id);
+        w.tag_owned(b"PID", self.user.id);
         w.tag_u8(b"PLAT", 4);
-        w.tag_u32(b"UID", self.user.id);
+        w.tag_owned(b"UID", self.user.id);
         w.tag_u8(b"USTP", 0);
-        w.tag_u32(b"XREF", self.user.id); //pid nucleus
+        w.tag_owned(b"XREF", self.user.id); //pid nucleus
     }
 }
 
@@ -49,8 +48,8 @@ pub struct AuthResponse {
     pub user: User,
 }
 
-impl Encodable for AuthResponse {
-    fn encode(&self, w: &mut TdfWriter) {
+impl TdfSerialize for AuthResponse {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.group(b"SESS", |w| {
             w.tag_zero(b"\x17CON");
             w.tag_u32(b"BUID", self.user.id);
@@ -145,40 +144,34 @@ impl Entitlement {
     }
 }
 
-impl Encodable for Entitlement {
-    fn encode(&self, writer: &mut TdfWriter) {
-        writer.tag_str_empty(b"DEVI");
-        writer.tag_str(b"GDAY", "2012-12-15T16:15Z");
-        writer.tag_str(b"GNAM", self.name);
-        writer.tag_u64(b"ID", self.id);
-        writer.tag_u8(b"ISCO", 0);
-        writer.tag_u8(b"PID", 0);
-        writer.tag_str(b"PJID", self.pjid);
-        writer.tag_u8(b"PRCA", self.prca);
-        writer.tag_str(b"PRID", self.prid);
-        writer.tag_u8(b"STAT", 1);
-        writer.tag_u8(b"STRC", 0);
-        writer.tag_str(b"TAG", self.tag);
-        writer.tag_str_empty(b"TDAY");
-        writer.tag_u8(b"TTYPE", self.ty);
-        writer.tag_u8(b"UCNT", 0);
-        writer.tag_u8(b"VER", 0);
-        writer.tag_group_end();
+impl TdfSerialize for Entitlement {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.tag_str_empty(b"DEVI");
+        w.tag_str(b"GDAY", "2012-12-15T16:15Z");
+        w.tag_str(b"GNAM", self.name);
+        w.tag_u64(b"ID", self.id);
+        w.tag_u8(b"ISCO", 0);
+        w.tag_u8(b"PID", 0);
+        w.tag_str(b"PJID", self.pjid);
+        w.tag_u8(b"PRCA", self.prca);
+        w.tag_str(b"PRID", self.prid);
+        w.tag_u8(b"STAT", 1);
+        w.tag_u8(b"STRC", 0);
+        w.tag_str(b"TAG", self.tag);
+        w.tag_str_empty(b"TDAY");
+        w.tag_u8(b"TTYPE", self.ty);
+        w.tag_u8(b"UCNT", 0);
+        w.tag_u8(b"VER", 0);
+        w.tag_group_end();
     }
 }
 
-impl ValueType for Entitlement {
-    fn value_type() -> TdfType {
-        TdfType::Group
-    }
+impl TdfTyped for Entitlement {
+    const TYPE: TdfType = TdfType::Group;
 }
 
+#[derive(TdfSerialize)]
 pub struct ListEntitlementsResponse {
+    #[tdf(tag = "NLST")]
     pub list: &'static [Entitlement],
-}
-
-impl Encodable for ListEntitlementsResponse {
-    fn encode(&self, writer: &mut TdfWriter) {
-        writer.tag_slice_list(b"NLST", self.list);
-    }
 }
