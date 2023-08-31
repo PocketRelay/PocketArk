@@ -14,6 +14,8 @@ mod state;
 
 #[tokio::main]
 async fn main() {
+    std::env::set_var("RUST_LOG", "tower_http=trace");
+
     utils::logging::setup(LevelFilter::Debug);
 
     App::init().await;

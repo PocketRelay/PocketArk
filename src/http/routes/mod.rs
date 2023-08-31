@@ -6,7 +6,10 @@ use axum::{
 };
 use hyper::StatusCode;
 use tower::ServiceBuilder;
-use tower_http::{decompression::RequestDecompressionLayer, trace::TraceLayer};
+use tower_http::{
+    decompression::RequestDecompressionLayer,
+    trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
+};
 
 mod activity;
 mod auth;
@@ -156,7 +159,6 @@ pub fn router() -> Router {
                 .route("/firewall", get(qos::qos_firewall))
                 .route("/firetype", get(qos::qos_firetype)),
         )
-        .layer(TraceLayer::new_for_http())
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(|_error: BoxError| async move {
@@ -164,6 +166,13 @@ pub fn router() -> Router {
                 }))
                 .layer(RequestDecompressionLayer::new()),
         )
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(DefaultMakeSpan::new().include_headers(true))
+                .on_request(DefaultOnRequest::new())
+                .on_response(DefaultOnResponse::new()),
+        )
+
     // .layer(CompressionLayer::new())
 }
 
