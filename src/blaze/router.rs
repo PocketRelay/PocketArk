@@ -155,7 +155,7 @@ where
     ) -> Result<PacketFuture<'s>, HandleError> {
         let req = match Req::from_request(&packet) {
             Ok(value) => value,
-            Err(err) => return Err(HandleError::Decoding(err)),
+            Err(err) => return Err(HandleError::Decoding(packet, err)),
         };
         let fut = self.handler.handle(state, req);
         Ok(Box::pin(HandlerFuture { fut, packet }))
@@ -231,5 +231,5 @@ pub enum HandleError {
     /// There wasn't an available handler for the provided packet
     MissingHandler(Packet),
     /// Decoding error while reading the packet
-    Decoding(DecodeError),
+    Decoding(Packet, DecodeError),
 }
