@@ -14,7 +14,7 @@ pub struct AuthNotify {
 
 impl TdfSerialize for AuthNotify {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
-        w.tag_zero(b"\x17CON");
+        w.tag_zero(b"7CON");
         w.tag_u32(b"ALOC", 1701727834); // location
         w.tag_u32(b"BUID", self.user.id);
 
@@ -45,7 +45,7 @@ pub struct AuthResponse {
 impl TdfSerialize for AuthResponse {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.group(b"SESS", |w| {
-            w.tag_zero(b"\x17CON");
+            w.tag_zero(b"7CON");
             w.tag_u32(b"BUID", self.user.id);
             w.tag_zero(b"FRST");
             w.tag_str(b"KEY", "0");
