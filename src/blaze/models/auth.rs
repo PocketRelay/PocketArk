@@ -1,6 +1,6 @@
-use tdf::{ObjectId, ObjectType, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
+use tdf::{ObjectId, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
 
-use crate::database::entity::User;
+use crate::{blaze::components::user_sessions::PLAYER_SESSION_TYPE, database::entity::User};
 
 #[derive(Debug, TdfDeserialize)]
 pub struct AuthRequest {
@@ -20,13 +20,7 @@ impl TdfSerialize for AuthNotify {
 
         w.tag_alt(
             b"CGID",
-            ObjectId {
-                ty: ObjectType {
-                    component: 30722,
-                    ty: 2,
-                },
-                id: self.user.id as u64,
-            },
+            ObjectId::new(PLAYER_SESSION_TYPE, self.user.id as u64),
         );
 
         w.tag_str(b"DSNM", &self.user.username);

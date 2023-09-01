@@ -6,6 +6,8 @@ pub mod authentication {
 }
 
 pub mod game_manager {
+    use tdf::ObjectType;
+
     pub const COMPONENT: u16 = 4;
 
     pub const UPDATE_GAME_STATE: u16 = 3;
@@ -19,6 +21,8 @@ pub mod game_manager {
     pub const NOTIFY_GAME_ATTR_UPDATE: u16 = 80;
     pub const NOTIFY_PLAYER_ATTR_UPDATE: u16 = 90;
     pub const NOTIFY_GAME_STATE_UPDATE: u16 = 100;
+
+    pub const GAME_INSTANCE_TYPE: ObjectType = ObjectType::new(COMPONENT, 1);
 }
 pub mod util {
     pub const COMPONENT: u16 = 9;
@@ -30,6 +34,8 @@ pub mod util {
 }
 
 pub mod user_sessions {
+    use tdf::ObjectType;
+
     pub const COMPONENT: u16 = 30722;
 
     pub const UPDATE_HARDWARE_FLAGS: u16 = 8;
@@ -38,4 +44,6 @@ pub mod user_sessions {
     pub const NOTIFY_USER_UPDATED: u16 = 1;
     pub const NOTIFY_USER_ADDED: u16 = 2;
     pub const NOTIFY_UPDATE_AUTH: u16 = 8;
+
+    pub const PLAYER_SESSION_TYPE: ObjectType = ObjectType::new(COMPONENT, 2);
 }

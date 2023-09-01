@@ -1,4 +1,6 @@
-use crate::blaze::components;
+use crate::blaze::components::{
+    self, game_manager::GAME_INSTANCE_TYPE, user_sessions::PLAYER_SESSION_TYPE,
+};
 use std::net::{Ipv4Addr, SocketAddrV4};
 use tdf::prelude::*;
 
@@ -49,24 +51,9 @@ impl TdfSerialize for UserUpdated {
                 TdfType::ObjectId,
                 if self.game_id.is_some() { 2 } else { 1 },
             );
-            ObjectId {
-                ty: ObjectType {
-                    component: components::user_sessions::COMPONENT,
-                    ty: 2,
-                },
-                id: self.player_id as u64,
-            }
-            .serialize(w);
-
+            ObjectId::new(PLAYER_SESSION_TYPE, self.player_id as u64).serialize(w);
             if let Some(game_id) = &self.game_id {
-                ObjectId {
-                    ty: ObjectType {
-                        component: components::game_manager::COMPONENT,
-                        ty: 1,
-                    },
-                    id: *game_id as u64,
-                }
-                .serialize(w);
+                ObjectId::new(GAME_INSTANCE_TYPE, *game_id as u64).serialize(w)
             }
         });
 
@@ -116,24 +103,9 @@ impl TdfSerialize for UserAdded {
                 if self.game_id.is_some() { 2 } else { 1 },
             );
 
-            ObjectId {
-                ty: ObjectType {
-                    component: components::user_sessions::COMPONENT,
-                    ty: 2,
-                },
-                id: self.player_id as u64,
-            }
-            .serialize(w);
-
+            ObjectId::new(PLAYER_SESSION_TYPE, self.player_id as u64).serialize(w);
             if let Some(game_id) = &self.game_id {
-                ObjectId {
-                    ty: ObjectType {
-                        component: components::game_manager::COMPONENT,
-                        ty: 1,
-                    },
-                    id: *game_id as u64,
-                }
-                .serialize(w);
+                ObjectId::new(GAME_INSTANCE_TYPE, *game_id as u64).serialize(w)
             }
         });
 

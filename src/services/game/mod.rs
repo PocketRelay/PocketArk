@@ -8,8 +8,8 @@ use interlink::{
 use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
 use tdf::{
-    types::string::write_empty_str, ObjectId, ObjectType, TdfDeserialize, TdfMap, TdfSerialize,
-    TdfType, TdfTyped,
+    types::string::write_empty_str, ObjectId, TdfDeserialize, TdfMap, TdfSerialize, TdfType,
+    TdfTyped,
 };
 use thiserror::Error;
 use uuid::Uuid;
@@ -21,7 +21,7 @@ use super::{
 };
 use crate::{
     blaze::{
-        components,
+        components::{self, user_sessions::PLAYER_SESSION_TYPE},
         models::{
             user_sessions::{NetData, NetworkAddress},
             PlayerState,
@@ -954,15 +954,10 @@ impl Player {
         w.tag_ref(b"STAT", &self.state);
         w.tag_u16(b"TIDX", 0);
         w.tag_u8(b"TIME", 0); /* Unix timestamp in millseconds */
+        // User group ID
         w.tag_alt(
             b"UGID",
-            ObjectId {
-                ty: ObjectType {
-                    component: 30722,
-                    ty: 2,
-                },
-                id: self.user.id as u64,
-            },
+            ObjectId::new(PLAYER_SESSION_TYPE, self.user.id as u64),
         );
 
         w.tag_owned(b"UID", self.user.id);
@@ -1159,16 +1154,7 @@ impl TdfSerialize for PostJoinMsg {
         w.tag_u8(b"DISP", 1);
         w.tag_owned(b"GID", self.game_id);
 
-        w.tag_alt(
-            b"GRID",
-            ObjectId {
-                ty: ObjectType {
-                    component: 0,
-                    ty: 0,
-                },
-                id: 0,
-            },
-        );
+        w.tag_alt(b"GRID", ObjectId::new_raw(0, 0, 0));
 
         w.tag_owned(b"MSCD", self.player_id);
         w.tag_owned(b"MSID", self.player_id);
