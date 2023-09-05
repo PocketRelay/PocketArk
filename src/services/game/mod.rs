@@ -27,7 +27,7 @@ use crate::{
             PlayerState,
         },
         packet::Packet,
-        session::{PushExt, SessionLink, SetGameMessage},
+        session::{InformSessions, PushExt, SessionLink, SetGameMessage},
     },
     database::entity::{
         challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
@@ -856,7 +856,7 @@ impl Handler<AddPlayerMessage> for Game {
         msg: AddPlayerMessage,
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
-        let _slot = self.players.len();
+        let slot = self.players.len();
 
         self.players.push(msg.player);
 
@@ -865,6 +865,25 @@ impl Handler<AddPlayerMessage> for Game {
             .players
             .last()
             .expect("Player was added but is missing from players");
+
+        let is_other = slot != 0;
+        if is_other {
+            // NOTIFY PLAYER JOINING
+            // Notify other players of the joined player
+            // self.notify_all(
+            //     Components::GameManager(GameManager::PlayerJoining),
+            //     PlayerJoining {
+            //         slot,
+            //         player,
+            //         game_id: self.id,
+            //     },
+            // );
+
+            // // Update other players with the client details
+            // self.update_clients(player);
+        }
+
+        // Game Setup
         let packet = Packet::notify(
             4,
             20,
@@ -889,7 +908,15 @@ impl Handler<AddPlayerMessage> for Game {
         // Set current game of this player
         player.set_game(Some(self.id));
 
-        // TODO: Send info about other players
+        if is_other {
+            // Provide the new players session details to the other players
+            let links: Vec<SessionLink> = self
+                .players
+                .iter()
+                .map(|player| player.link.clone())
+                .collect();
+            let _ = player.link.do_send(InformSessions { links });
+        }
     }
 }
 
@@ -1027,12 +1054,9 @@ impl<'a> TdfSerialize for GameDetails<'a> {
                 w.tag_list_start(b"HNET", TdfType::Group, 1);
                 w.write_byte(2);
 
-                match &host_player.net.addr {
-                    NetworkAddress::AddressPair(addr) => {
-                        addr.serialize(w);
-                    }
-                    _ => {}
-                };
+                if let NetworkAddress::AddressPair(addr) = &host_player.net.addr {
+                    addr.serialize(w);
+                }
             }
 
             w.tag_u8(b"MCAP", 1); // should be 4?

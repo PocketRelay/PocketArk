@@ -299,6 +299,32 @@ impl Handler<UserAddedMessage> for Session {
 }
 
 #[derive(Message)]
+pub struct InformSessions {
+    /// The link to send the set session to
+    pub links: Vec<Link<Session>>,
+}
+
+impl Handler<InformSessions> for Session {
+    type Response = ();
+
+    fn handle(&mut self, msg: InformSessions, _ctx: &mut ServiceContext<Self>) -> Self::Response {
+        let packet = Packet::notify(
+            components::user_sessions::COMPONENT,
+            components::user_sessions::NOTIFY_USER_ADDED,
+            UserAdded {
+                player_id: self.user.id,
+                name: self.user.username.to_string(),
+                game_id: self.game,
+                net_data: self.net.clone(),
+            },
+        );
+        for link in msg.links {
+            link.push(packet.clone());
+        }
+    }
+}
+
+#[derive(Message)]
 pub struct SetGameMessage {
     pub game: Option<GameID>,
 }
