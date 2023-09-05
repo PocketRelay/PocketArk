@@ -4,24 +4,12 @@ use tdf::{TdfDeserialize, TdfDeserializeOwned, TdfMap, TdfSerialize, TdfType, U1
 
 use crate::services::game::{AttrMap, RemoveReason};
 
+#[derive(TdfDeserialize)]
 pub struct MatchmakeRequest {
+    #[tdf(tag = "SCNA")]
+    pub attributes: TdfMap<String, U12>,
+    #[tdf(tag = "SCNM", into = &str)]
     pub ty: MatchmakeType,
-
-    pub attributes: AttrMap,
-}
-
-impl TdfDeserializeOwned for MatchmakeRequest {
-    fn deserialize_owned(r: &mut tdf::TdfDeserializer<'_>) -> tdf::DecodeResult<Self> {
-        let scna: TdfMap<String, U12> = r.tag(b"SCNA")?;
-
-        let value: &str = r.tag(b"SCNM")?;
-        let ty = MatchmakeType::parse(&value);
-        let attributes = scna
-            .into_iter()
-            .map(|(key, value)| (key, value.value.to_string()))
-            .collect();
-        Ok(Self { ty, attributes })
-    }
 }
 
 pub enum MatchmakeType {
@@ -29,14 +17,15 @@ pub enum MatchmakeType {
     CreatePublicGame, // createPublicGame
 }
 
-impl MatchmakeType {
-    pub fn parse(value: &str) -> Self {
+impl From<&str> for MatchmakeType {
+    fn from(value: &str) -> Self {
         match value {
             "standardQuickMatch" => Self::QuickMatch,
             _ => Self::CreatePublicGame,
         }
     }
 }
+
 pub struct MatchmakingResponse {
     pub user_id: u32,
 }

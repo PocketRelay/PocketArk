@@ -39,7 +39,11 @@ pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> Ma
                 .games
                 .send(CreateMessage {
                     host: player,
-                    attributes: req.attributes,
+                    attributes: req
+                        .attributes
+                        .into_iter()
+                        .map(|(key, value)| (key, value.value))
+                        .collect(),
                 })
                 .await
                 .expect("Failed to create");
