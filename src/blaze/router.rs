@@ -17,7 +17,8 @@ use tdf::{
 };
 
 use crate::{
-    blaze::models::errors::GlobalError, services::game::Player, utils::hashing::IntHashMap,
+    blaze::models::errors::GlobalError, database::entity::User, services::game::Player,
+    utils::hashing::IntHashMap,
 };
 
 use super::{
@@ -182,7 +183,7 @@ pub struct RawBlaze(Bytes);
 
 /// Extracts the session authenticated player if one is present,
 /// responds with [GlobalError::AuthenticationRequired] if there is none
-pub struct SessionAuth(pub Arc<Player>);
+pub struct SessionAuth(pub Arc<User>);
 
 pub struct Extension<T>(pub T);
 
@@ -213,23 +214,42 @@ where
     }
 }
 
-// impl FromPacketRequest for SessionAuth {
-//     type Rejection = BlazeError;
+impl FromPacketRequest for SessionAuth {
+    type Rejection = BlazeError;
 
-//     fn from_packet_request<'a>(
-//         req: &'a mut PacketRequest,
-//     ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
-//     where
-//         Self: 'a,
-//     {
-//         Box::pin(async move {
-//             let data = &*req.state.data.read().await;
-//             let data = data.as_ref().ok_or(GlobalError::AuthenticationRequired)?;
-//             let player = data.player.clone();
-//             Ok(SessionAuth(player))
-//         })
-//     }
-// }
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        Box::pin(async move {
+            let data = &*req.state.data.read().await;
+            let user = data.user.clone();
+            Ok(SessionAuth(user))
+        })
+    }
+}
+
+impl FromPacketRequest for Player {
+    type Rejection = BlazeError;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        Box::pin(async move {
+            let data = &*req.state.data.read().await;
+            Ok(Player::new(
+                data.user.clone(),
+                req.state.clone(),
+                data.net.clone(),
+            ))
+        })
+    }
+}
 
 impl<T> From<T> for RawBlaze
 where

@@ -1,4 +1,7 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::Arc,
+};
 
 use chrono::Utc;
 use interlink::{
@@ -22,16 +25,13 @@ use super::{
 use crate::{
     blaze::{
         components::{self, user_sessions::PLAYER_SESSION_TYPE},
-        models::{
-            user_sessions::{NetData, NetworkAddress},
-            PlayerState,
-        },
+        models::{user_sessions::NetworkAddress, PlayerState},
         packet::Packet,
-        session::{InformSessions, PushExt, SessionLink, SetGameMessage},
+        session::{NetData, SessionLink},
     },
     database::entity::{
-        challenge_progress::ProgressUpdateType, ChallengeProgress, Character, Currency,
-        InventoryItem, SharedData, User,
+        challenge_progress::ProgressUpdateType, users::UserId, ChallengeProgress, Character,
+        Currency, InventoryItem, SharedData, User,
     },
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
@@ -79,13 +79,13 @@ impl Service for Game {
 
 #[derive(Message)]
 #[msg(rtype = "Option<MissionDetails>")]
-pub struct GetMissionDataMessage;
+pub struct GetMissionDataMessage(pub DatabaseConnection);
 
 impl Handler<GetMissionDataMessage> for Game {
     type Response = Sfr<Self, GetMissionDataMessage>;
     fn handle(
         &mut self,
-        _msg: GetMissionDataMessage,
+        msg: GetMissionDataMessage,
         _ctx: &mut interlink::service::ServiceContext<Self>,
     ) -> Self::Response {
         Sfr::new(move |act: &mut Game, _ctx| {
@@ -97,7 +97,7 @@ impl Handler<GetMissionDataMessage> for Game {
                 let mission_data = act.mission_data.clone()?;
 
                 let now = Utc::now();
-                let db = App::database();
+                let db = msg.0;
 
                 let waves = mission_data
                     .player_data
@@ -128,7 +128,7 @@ impl Handler<GetMissionDataMessage> for Game {
                 let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
 
                 for value in &mission_data.player_data {
-                    match process_player_data(db, value, &mission_data).await {
+                    match process_player_data(db.clone(), value, &mission_data).await {
                         Ok(info) => {
                             player_infos.push(info);
                         }
@@ -283,23 +283,23 @@ impl PlayerDataBuilder {
 }
 
 async fn process_player_data(
-    db: &'static DatabaseConnection,
+    db: DatabaseConnection,
     data: &MissionPlayerData,
     mission_data: &CompleteMissionData,
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
     debug!("Processing player data");
 
     let services = App::services();
-    let user = User::get_user(db, data.nucleus_id)
+    let user = User::get_user(&db, data.nucleus_id)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
 
     debug!("Loaded processing user");
-    let mut shared_data = SharedData::get_from_user(db, &user).await?;
+    let mut shared_data = SharedData::get_from_user(&db, &user).await?;
 
     debug!("Loaded shared data");
 
-    let mut character = Character::find_by_id_user(db, &user, shared_data.active_character_id)
+    let mut character = Character::find_by_id_user(&db, &user, shared_data.active_character_id)
         .await?
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
@@ -412,7 +412,7 @@ async fn process_player_data(
             prestige_value.level = level;
 
             // Save the changed progression
-            shared_data = shared_data.save_progression(db).await?;
+            shared_data = shared_data.save_progression(&db).await?;
         } else {
             // TODO: Handle appending new shared progression
         }
@@ -432,7 +432,7 @@ async fn process_player_data(
         .enumerate()
     {
         let (model, update_counter, status_change) =
-            ChallengeProgress::handle_update(db, &user, challenge_update).await?;
+            ChallengeProgress::handle_update(&db, &user, challenge_update).await?;
         let status_change = match status_change {
             ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
             ProgressUpdateType::Created => ChallengeStatusChange::Notify,
@@ -452,13 +452,13 @@ async fn process_player_data(
 
     // Update character level and xp
     if new_xp != previous_xp || level > previous_level {
-        character = character.update_xp(db, new_xp, level).await?
+        character = character.update_xp(&db, new_xp, level).await?
     }
 
     debug!("Updating currencies");
 
     // Update currencies
-    Currency::create_or_update_many(db, &user, &data_builder.total_currency).await?;
+    Currency::create_or_update_many(&db, &user, &data_builder.total_currency).await?;
 
     let total_currencies_earned = data_builder
         .total_currency
@@ -785,6 +785,52 @@ impl Game {
             },
         );
     }
+
+    /// Creates a subscription between all the users and the the target player
+    fn add_user_sub(&self, target_id: UserId, target_link: SessionLink) {
+        debug!("Adding user subscriptions");
+
+        // Subscribe all the clients to eachother
+        self.players
+            .iter()
+            .filter(|other| other.user.id.ne(&target_id))
+            .for_each(|other| {
+                let other_id = other.user.id;
+                let other_link = other.link.clone();
+                let target_link = target_link.clone();
+
+                tokio::spawn(async move {
+                    target_link
+                        .add_subscriber(other_id, other_link.clone())
+                        .await;
+                    other_link
+                        .add_subscriber(target_id, target_link.clone())
+                        .await;
+                });
+            });
+    }
+
+    /// Notifies the provided player and all other players
+    /// in the game that they should remove eachother from
+    /// their player data list
+    fn rem_user_sub(&self, target_id: UserId, target_link: SessionLink) {
+        debug!("Removing user subscriptions");
+
+        // Unsubscribe all the clients from eachother
+        self.players
+            .iter()
+            .filter(|other| other.user.id.ne(&target_id))
+            .for_each(|other| {
+                let other_id = other.user.id;
+                let other_link = other.link.clone();
+                let target_link = target_link.clone();
+
+                tokio::spawn(async move {
+                    target_link.remove_subscriber(other_id).await;
+                    other_link.remove_subscriber(target_id).await;
+                });
+            });
+    }
 }
 
 #[derive(TdfSerialize)]
@@ -879,8 +925,8 @@ impl Handler<AddPlayerMessage> for Game {
             //     },
             // );
 
-            // // Update other players with the client details
-            // self.update_clients(player);
+            // Update other players with the client details
+            self.add_user_sub(player.user.id, player.link.clone());
         }
 
         // Game Setup
@@ -907,16 +953,6 @@ impl Handler<AddPlayerMessage> for Game {
 
         // Set current game of this player
         player.set_game(Some(self.id));
-
-        if is_other {
-            // Provide the new players session details to the other players
-            let links: Vec<SessionLink> = self
-                .players
-                .iter()
-                .map(|player| player.link.clone())
-                .collect();
-            let _ = player.link.do_send(InformSessions { links });
-        }
     }
 }
 
@@ -924,10 +960,9 @@ impl Handler<AddPlayerMessage> for Game {
 pub type AttrMap = TdfMap<String, String>;
 
 pub struct Player {
-    pub uuid: Uuid,
-    pub user: User,
+    pub user: Arc<User>,
     pub link: SessionLink,
-    pub net: NetData,
+    pub net: Arc<NetData>,
     pub state: PlayerState,
     pub attr: AttrMap,
 }
@@ -939,9 +974,8 @@ impl Drop for Player {
 }
 
 impl Player {
-    pub fn new(uuid: Uuid, user: User, link: SessionLink, net: NetData) -> Self {
+    pub fn new(user: Arc<User>, link: SessionLink, net: Arc<NetData>) -> Self {
         Self {
-            uuid,
             user,
             link,
             net,
@@ -951,7 +985,10 @@ impl Player {
     }
 
     pub fn set_game(&self, game: Option<GameID>) {
-        let _ = self.link.do_send(SetGameMessage { game });
+        let link = self.link.clone();
+        tokio::spawn(async move {
+            link.set_game(game).await;
+        });
     }
 
     pub fn encode<S: tdf::TdfSerializer>(&self, game_id: u32, slot: usize, w: &mut S) {
@@ -988,7 +1025,7 @@ impl Player {
         );
 
         w.tag_owned(b"UID", self.user.id);
-        w.tag_str(b"UUID", &self.uuid.to_string());
+        w.tag_str(b"UUID", &self.link.uuid.to_string());
         w.tag_group_end();
     }
 }

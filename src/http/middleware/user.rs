@@ -1,10 +1,9 @@
 use axum::extract::FromRequestParts;
 use futures::future::BoxFuture;
 use hyper::StatusCode;
+use sea_orm::DatabaseConnection;
 
-use crate::{
-    database::entity::User, http::models::HttpError, services::tokens::Tokens, state::App,
-};
+use crate::{database::entity::User, http::models::HttpError, services::tokens::Tokens};
 
 pub struct Auth(pub User);
 
@@ -23,6 +22,12 @@ impl<S> FromRequestParts<S> for Auth {
         'b: 'c,
         Self: 'c,
     {
+        let db = parts
+            .extensions
+            .get::<DatabaseConnection>()
+            .expect("Database connection extension missing")
+            .clone();
+
         Box::pin(async move {
             // Extract the token from the headers
             let token = parts
@@ -32,8 +37,7 @@ impl<S> FromRequestParts<S> for Auth {
                 .ok_or(HttpError::new("Missing session", StatusCode::BAD_REQUEST))?;
 
             // Verify the token claim
-            let db = App::database();
-            let user: User = Tokens::service_verify(db, token)
+            let user: User = Tokens::service_verify(&db, token)
                 .await
                 .map_err(|_err| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
 

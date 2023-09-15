@@ -9,9 +9,10 @@ use crate::{
     },
     state::App,
 };
-use axum::{extract::Path, Json};
+use axum::{extract::Path, Extension, Json};
 use hyper::StatusCode;
 use log::debug;
+use sea_orm::DatabaseConnection;
 use serde_json::Value;
 
 static CURRENT_MISSIONS_DEFINITION: &str =
@@ -30,7 +31,10 @@ pub async fn current_missions() -> RawJson {
 ///
 /// Called at end of game to obtain information about the
 /// game and rewards etc
-pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDetails>, HttpError> {
+pub async fn get_mission(
+    Path(mission_id): Path<u32>,
+    Extension(db): Extension<DatabaseConnection>,
+) -> Result<Json<MissionDetails>, HttpError> {
     debug!("Requested mission details: {}", mission_id);
 
     let services = App::services();
@@ -44,7 +48,7 @@ pub async fn get_mission(Path(mission_id): Path<u32>) -> Result<Json<MissionDeta
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
 
     let mission_data = game
-        .send(GetMissionDataMessage)
+        .send(GetMissionDataMessage(db))
         .await
         .map_err(|_| HttpError::new("Failed to send message", StatusCode::INTERNAL_SERVER_ERROR))?
         .ok_or(HttpError::new(

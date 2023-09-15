@@ -2,25 +2,25 @@ use crate::blaze::{
     components,
     models::auth::*,
     packet::Packet,
-    router::Blaze,
-    session::{GetUserMessage, PushExt, SessionLink, UserAddedMessage},
+    router::{Blaze, SessionAuth},
+    session::SessionLink,
 };
 
-pub async fn auth(session: SessionLink, Blaze(_req): Blaze<AuthRequest>) -> Blaze<AuthResponse> {
-    let user = session
-        .send(GetUserMessage)
-        .await
-        .expect("Failed to get user");
+pub async fn auth(
+    session: SessionLink,
+    SessionAuth(user): SessionAuth,
+    Blaze(_req): Blaze<AuthRequest>,
+) -> Blaze<AuthResponse> {
     let mut packet = Packet::notify(
         components::user_sessions::COMPONENT,
-        components::user_sessions::NOTIFY_UPDATE_AUTH,
+        components::user_sessions::UPDATE_AUTH,
         AuthNotify { user: user.clone() },
     );
 
     packet.header.notify = 1;
     session.push(packet);
 
-    let _ = session.do_send(UserAddedMessage);
+    session.add_subscriber(user.id, session.clone()).await;
 
     Blaze(AuthResponse { user })
 }

@@ -9,7 +9,8 @@ use crate::{
     },
     state::App,
 };
-use axum::Json;
+use axum::{Extension, Json};
+use sea_orm::DatabaseConnection;
 
 /// GET /challenges/categories
 ///
@@ -22,11 +23,13 @@ pub async fn get_challenge_categories() -> Json<ChallengeCategories> {
 /// GET /challenges
 ///
 /// Obtains a list of all the challenges that can be completed
-pub async fn get_challenges(Auth(user): Auth) -> Result<Json<ChallengesResponse>, HttpError> {
+pub async fn get_challenges(
+    Extension(db): Extension<DatabaseConnection>,
+    Auth(user): Auth,
+) -> Result<Json<ChallengesResponse>, HttpError> {
     let services = App::services();
-    let db = App::database();
 
-    let user_progress = ChallengeProgress::find_by_user(db, &user).await?;
+    let user_progress = ChallengeProgress::find_by_user(&db, &user).await?;
 
     let challenges: Vec<ChallengeItem> = services
         .challenges
@@ -56,11 +59,13 @@ pub async fn get_challenges(Auth(user): Auth) -> Result<Json<ChallengesResponse>
 ///
 /// Obtains a list of all the challenges the user has either
 /// completed or has started.
-pub async fn get_user_challenges(Auth(user): Auth) -> Result<Json<ChallengesResponse>, HttpError> {
+pub async fn get_user_challenges(
+    Extension(db): Extension<DatabaseConnection>,
+    Auth(user): Auth,
+) -> Result<Json<ChallengesResponse>, HttpError> {
     let services = App::services();
-    let db = App::database();
 
-    let user_progress = ChallengeProgress::find_by_user(db, &user).await?;
+    let user_progress = ChallengeProgress::find_by_user(&db, &user).await?;
 
     let challenges: Vec<ChallengeItem> = services
         .challenges

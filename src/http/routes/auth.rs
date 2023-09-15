@@ -1,7 +1,8 @@
-use axum::Json;
+use axum::{Extension, Json};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
+use sea_orm::DatabaseConnection;
 
 use crate::{
     database::entity::User,
@@ -14,11 +15,13 @@ use crate::{
 };
 
 /// POST /auth
-pub async fn authenticate(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
+pub async fn authenticate(
+    Extension(db): Extension<DatabaseConnection>,
+    Json(req): Json<AuthRequest>,
+) -> HttpResult<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
-    let db = App::database();
-    let user = User::get_user(db, req.persona_id)
+    let user = User::get_user(&db, req.persona_id)
         .await?
         .ok_or(HttpError::new("Invalid user", StatusCode::BAD_REQUEST))?;
 

@@ -1,20 +1,10 @@
 //! This module contains HTTP routes and logic used between the server
 //! and the PocketArk client
 
-use axum::{
-    body::Empty,
-    response::{IntoResponse, Response},
-    Json,
-};
-use hyper::{header, http::HeaderValue, StatusCode};
-use interlink::service::Service;
-use log::error;
-use serde::Serialize;
-use tokio::io::split;
-use tokio_util::codec::{FramedRead, FramedWrite};
+use std::sync::Arc;
 
 use crate::{
-    blaze::{packet::PacketCodec, session::Session},
+    blaze::{router::BlazeRouter, session::Session},
     database::entity::User,
     http::{
         middleware::upgrade::BlazeUpgrade,
@@ -24,9 +14,19 @@ use crate::{
         },
     },
     services::tokens::Tokens,
-    state::{App, VERSION},
+    state::VERSION,
     utils::hashing::{hash_password, verify_password},
 };
+use axum::{
+    body::Empty,
+    response::{IntoResponse, Response},
+    Extension, Json,
+};
+use hyper::{header, http::HeaderValue, StatusCode};
+use interlink::service::Service;
+use log::error;
+use sea_orm::DatabaseConnection;
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct ServerDetails {
@@ -45,9 +45,11 @@ pub async fn details() -> Json<ServerDetails> {
 }
 
 /// POST /ark/client/login
-pub async fn login(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
-    let db = App::database();
-    let user = User::get_by_username(db, &req.username)
+pub async fn login(
+    Extension(db): Extension<DatabaseConnection>,
+    Json(req): Json<AuthRequest>,
+) -> HttpResult<AuthResponse> {
+    let user = User::get_by_username(&db, &req.username)
         .await?
         .ok_or(HttpError::new("Username not found", StatusCode::NOT_FOUND))?;
 
@@ -64,10 +66,11 @@ pub async fn login(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
 }
 
 /// POST /ark/client/create
-pub async fn create(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
-    let db = App::database();
-
-    if User::get_by_username(db, &req.username).await?.is_some() {
+pub async fn create(
+    Extension(db): Extension<DatabaseConnection>,
+    Json(req): Json<AuthRequest>,
+) -> HttpResult<AuthResponse> {
+    if User::get_by_username(&db, &req.username).await?.is_some() {
         return Err(HttpError::new(
             "Username already taken",
             StatusCode::CONFLICT,
@@ -78,16 +81,19 @@ pub async fn create(Json(req): Json<AuthRequest>) -> HttpResult<AuthResponse> {
         HttpError::new("Failed to hash password", StatusCode::INTERNAL_SERVER_ERROR)
     })?;
 
-    let user = User::create_user(req.username, password, db).await?;
+    let user = User::create_user(req.username, password, &db).await?;
     let token = Tokens::service_claim(user.id);
 
     Ok(Json(AuthResponse { token }))
 }
 
 /// GET /ark/client/upgrade
-pub async fn upgrade(upgrade: BlazeUpgrade) -> Result<Response, HttpError> {
-    let db = App::database();
-    let user = Tokens::service_verify(db, upgrade.host_target.token.as_ref())
+pub async fn upgrade(
+    Extension(router): Extension<Arc<BlazeRouter>>,
+    Extension(db): Extension<DatabaseConnection>,
+    upgrade: BlazeUpgrade,
+) -> Result<Response, HttpError> {
+    let user = Tokens::service_verify(&db, upgrade.host_target.token.as_ref())
         .await
         .map_err(|err| HttpError::new_owned(err.to_string(), StatusCode::BAD_REQUEST))?;
 
@@ -100,17 +106,7 @@ pub async fn upgrade(upgrade: BlazeUpgrade) -> Result<Response, HttpError> {
             }
         };
 
-        Session::create(|ctx| {
-            // Attach reader and writers to the session context
-            let (read, write) = split(socket.upgrade);
-            let read = FramedRead::new(read, PacketCodec);
-            let write = FramedWrite::new(write, PacketCodec);
-
-            ctx.attach_stream(read, true);
-            let writer = ctx.attach_sink(write);
-
-            Session::new(writer, socket.host_target, user)
-        });
+        Session::start(socket.upgrade, socket.host_target, user, router);
     });
 
     let mut response = Empty::new().into_response();

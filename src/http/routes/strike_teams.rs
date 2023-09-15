@@ -2,10 +2,11 @@ use std::collections::HashMap;
 
 use axum::{
     extract::{Path, Query},
-    Json,
+    Extension, Json,
 };
 use hyper::StatusCode;
 use log::debug;
+use sea_orm::DatabaseConnection;
 use uuid::Uuid;
 
 use crate::{
@@ -24,9 +25,11 @@ use crate::{
 };
 
 /// GET /striketeams
-pub async fn get(Auth(user): Auth) -> HttpResult<StrikeTeamsResponse> {
-    let db = App::database();
-    let strike_teams: Vec<StrikeTeam> = StrikeTeam::get_by_user(db, &user).await?;
+pub async fn get(
+    Extension(db): Extension<DatabaseConnection>,
+    Auth(user): Auth,
+) -> HttpResult<StrikeTeamsResponse> {
+    let strike_teams: Vec<StrikeTeam> = StrikeTeam::get_by_user(&db, &user).await?;
 
     // TODO: Load current missions
     let teams: Vec<StrikeTeamWithMission> = strike_teams
@@ -89,17 +92,16 @@ pub async fn purchase_equipment(
     Auth(user): Auth,
     Query(query): Query<PurchaseQuery>,
     Path((id, name)): Path<(Uuid, String)>,
+    Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
-    let db = App::database();
-
-    let currency = Currency::get_type_from_user(db, &user, &query.currency)
+    let currency = Currency::get_type_from_user(&db, &user, &query.currency)
         .await?
         .ok_or(HttpError::new(
             "Currency balance cannot be less than 0.",
             StatusCode::CONFLICT,
         ))?;
 
-    let team = StrikeTeam::get_by_id(db, &user, id)
+    let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
         .ok_or(HttpError::new(
             "Strike team doesn't exist",
@@ -136,8 +138,8 @@ pub async fn purchase_equipment(
     // TODO: Transaction to revert incase equipment setting fails
 
     // Consume currency
-    let currency_balance = currency.consume(db, equipment_cost).await?;
-    let team = team.set_equipment(db, Some(equipment.clone())).await?;
+    let currency_balance = currency.consume(&db, equipment_cost).await?;
+    let team = team.set_equipment(&db, Some(equipment.clone())).await?;
 
     Ok(Json(PurchaseResponse {
         currency_balance,
@@ -172,26 +174,30 @@ pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson 
 ///
 /// Retires (Removes) a strike team from the players
 /// strike teams
-pub async fn retire(Auth(user): Auth, Path(id): Path<Uuid>) -> Result<(), HttpError> {
+pub async fn retire(
+    Auth(user): Auth,
+    Path(id): Path<Uuid>,
+    Extension(db): Extension<DatabaseConnection>,
+) -> Result<(), HttpError> {
     debug!("Strike team retire: {}", id);
-    let db = App::database();
-    let team = StrikeTeam::get_by_id(db, &user, id)
+    let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
         .ok_or(HttpError::new(
             "Strike team doesn't exist",
             StatusCode::NOT_FOUND,
         ))?;
 
-    team.delete(db).await?;
+    team.delete(&db).await?;
 
     Ok(())
 }
 
 /// POST /striketeams/purchase?currency=MissionCurrency
-pub async fn purchase(Auth(user): Auth) -> HttpResult<PurchaseResponse> {
-    let db = App::database();
-
-    let strike_teams = StrikeTeam::get_user_count(db, &user).await? as usize;
+pub async fn purchase(
+    Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
+) -> HttpResult<PurchaseResponse> {
+    let strike_teams = StrikeTeam::get_user_count(&db, &user).await? as usize;
 
     // Get new cost
     let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
@@ -202,7 +208,7 @@ pub async fn purchase(Auth(user): Auth) -> HttpResult<PurchaseResponse> {
             StatusCode::CONFLICT,
         ))?;
 
-    let currency = Currency::get_type_from_user(db, &user, "MissionCurrency")
+    let currency = Currency::get_type_from_user(&db, &user, "MissionCurrency")
         .await?
         .ok_or(HttpError::new(
             "Currency balance cannot be less than 0.",
@@ -220,8 +226,8 @@ pub async fn purchase(Auth(user): Auth) -> HttpResult<PurchaseResponse> {
     // TODO: Transaction to revert incase strike team creation fails
 
     // Consume currency
-    let currency_balance = currency.consume(db, strike_team_cost).await?;
-    let team = StrikeTeam::create_default(db, &user).await?;
+    let currency_balance = currency.consume(&db, strike_team_cost).await?;
+    let team = StrikeTeam::create_default(&db, &user).await?;
 
     // Get new cost
     let next_purchase_cost = StrikeTeamService::STRIKE_TEAM_COSTS

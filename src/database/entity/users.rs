@@ -3,6 +3,8 @@ use crate::database::{entity::InventoryItem, DbResult};
 use sea_orm::entity::prelude::*;
 use sea_orm::ActiveValue::{NotSet, Set};
 
+pub type UserId = u32;
+
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use tdf::{ObjectId, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
 
 use crate::{blaze::components::user_sessions::PLAYER_SESSION_TYPE, database::entity::User};
@@ -9,7 +11,7 @@ pub struct AuthRequest {
 }
 
 pub struct AuthNotify {
-    pub user: User,
+    pub user: Arc<User>,
 }
 
 impl TdfSerialize for AuthNotify {
@@ -39,7 +41,7 @@ impl TdfSerialize for AuthNotify {
 }
 
 pub struct AuthResponse {
-    pub user: User,
+    pub user: Arc<User>,
 }
 
 impl TdfSerialize for AuthResponse {

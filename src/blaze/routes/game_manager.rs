@@ -4,26 +4,23 @@ use crate::{
             LeaveGameRequest, MatchmakeRequest, MatchmakeType, MatchmakingResponse,
             ReplayGameRequest, UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
         },
-        router::Blaze,
-        session::{self, GetPlayerMessage, GetUserMessage, SessionLink},
+        router::{Blaze, SessionAuth},
+        session::{self, SessionLink},
     },
     services::game::{
         manager::{CreateMessage, GetGameMessage},
-        NotifyGameReplayMessage, RemovePlayerMessage, UpdateGameAttrMessage, UpdatePlayerAttr,
-        UpdateStateMessage,
+        NotifyGameReplayMessage, Player, RemovePlayerMessage, UpdateGameAttrMessage,
+        UpdatePlayerAttr, UpdateStateMessage,
     },
     state::App,
 };
 
 pub async fn create_game(
     session: SessionLink,
+    player: Player,
     Blaze(req): Blaze<MatchmakeRequest>,
 ) -> Blaze<MatchmakingResponse> {
     let services = App::services();
-    let player = session
-        .send(GetPlayerMessage)
-        .await
-        .expect("Failed to get player");
 
     let user_id = player.user.id;
 
@@ -107,7 +104,11 @@ pub async fn replay_game(Blaze(req): Blaze<ReplayGameRequest>) {
     let _ = game.send(NotifyGameReplayMessage).await;
 }
 
-pub async fn leave_game(session: SessionLink, Blaze(req): Blaze<LeaveGameRequest>) {
+pub async fn leave_game(
+    session: SessionLink,
+    SessionAuth(user): SessionAuth,
+    Blaze(req): Blaze<LeaveGameRequest>,
+) {
     let services = App::services();
     let game = services
         .games
@@ -115,10 +116,6 @@ pub async fn leave_game(session: SessionLink, Blaze(req): Blaze<LeaveGameRequest
         .await
         .expect("Failed to create")
         .expect("Unknown game");
-    let user = session
-        .send(GetUserMessage)
-        .await
-        .expect("Failed to get user");
     let _ = game
         .send(RemovePlayerMessage {
             user_id: user.id,

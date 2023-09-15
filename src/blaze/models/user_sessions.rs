@@ -1,129 +1,21 @@
-use crate::blaze::components::{
-    self, game_manager::GAME_INSTANCE_TYPE, user_sessions::PLAYER_SESSION_TYPE,
+use crate::{
+    blaze::{
+        components::{self, game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
+        session::NetData,
+    },
+    database::entity::{users::UserId, User},
 };
-use std::net::{Ipv4Addr, SocketAddrV4};
+use bitflags::bitflags;
+use serde::Serialize;
+use std::{
+    net::{Ipv4Addr, SocketAddrV4},
+    sync::Arc,
+};
 use tdf::prelude::*;
 
-#[derive(Default, Debug, Clone)]
-pub struct NetData {
-    pub addr: NetworkAddress,
-    pub qos: QosNetworkData,
-    pub hwfg: u8,
-}
+use super::util::PING_SITE_ALIAS;
 
-pub struct UserUpdated {
-    pub player_id: u32,
-    pub game_id: Option<u32>,
-    pub net_data: NetData,
-}
-
-impl TdfSerialize for UserUpdated {
-    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
-        w.group(b"DATA", |w| {
-            // ADDR
-            w.tag_ref(b"ADDR", &self.net_data.addr);
-            w.tag_str(b"BPS", "bio-syd");
-            w.tag_str(b"CTY", "NZ"); // Country
-            w.tag_var_int_list_empty(b"CVAR");
-            w.tag_map_tuples(
-                b"DMAP",
-                &[
-                    (458788, 0),
-                    (458789, 0),
-                    (458790, 0),
-                    (458791, 0),
-                    (458792, 0),
-                    (458877, 0),
-                    (917505, 0),
-                    (917506, 0),
-                    (2013396993, 0),
-                ],
-            );
-            w.tag_u8(b"HWFG", self.net_data.hwfg); // Hardware config
-            w.tag_str(b"ISP", "Example ISP"); // Internet Service Provider
-            w.tag_list_slice(b"PSLM", &[296, 245, 153, 40, 312, 238]);
-            w.tag_ref(b"QDAT", &self.net_data.qos);
-            w.tag_str(b"TZ", "Pacific/Auckland"); // Timezone
-            w.tag_zero(b"UATT");
-
-            w.tag_list_start(
-                b"ULST",
-                TdfType::ObjectId,
-                if self.game_id.is_some() { 2 } else { 1 },
-            );
-            ObjectId::new(PLAYER_SESSION_TYPE, self.player_id as u64).serialize(w);
-            if let Some(game_id) = &self.game_id {
-                ObjectId::new(GAME_INSTANCE_TYPE, *game_id as u64).serialize(w)
-            }
-        });
-
-        w.tag_u8(b"SUBS", 1);
-        w.tag_owned(b"USID", self.player_id);
-    }
-}
-
-pub struct UserAdded {
-    pub name: String,
-    pub player_id: u32,
-    pub game_id: Option<u32>,
-    pub net_data: NetData,
-}
-
-impl TdfSerialize for UserAdded {
-    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
-        w.group(b"DATA", |w| {
-            // ADDR
-            w.tag_ref(b"ADDR", &self.net_data.addr);
-            w.tag_str_empty(b"BPS");
-            w.tag_str(b"CTY", "NZ"); // Country
-            w.tag_var_int_list_empty(b"CVAR");
-            w.tag_map_tuples(
-                b"DMAP",
-                &[
-                    (458788, 0),
-                    (458789, 0),
-                    (458790, 0),
-                    (458791, 0),
-                    (458792, 0),
-                    (458877, 0),
-                    (917505, 0),
-                    (917506, 0),
-                    (2013396993, 0),
-                ],
-            );
-            w.tag_u8(b"HWFG", self.net_data.hwfg); // Hardware config
-            w.tag_str(b"ISP", "Example ISP"); // Internet Service Provider
-            w.tag_ref(b"QDAT", &self.net_data.qos);
-            w.tag_str(b"TZ", "Pacific/Auckland"); // Timezone
-            w.tag_zero(b"UATT");
-
-            w.tag_list_start(
-                b"ULST",
-                TdfType::ObjectId,
-                if self.game_id.is_some() { 2 } else { 1 },
-            );
-
-            ObjectId::new(PLAYER_SESSION_TYPE, self.player_id as u64).serialize(w);
-            if let Some(game_id) = &self.game_id {
-                ObjectId::new(GAME_INSTANCE_TYPE, *game_id as u64).serialize(w)
-            }
-        });
-
-        w.group(b"USER", |w| {
-            w.tag_owned(b"AID", self.player_id);
-            w.tag_u32(b"ALOC", 1701727834);
-            w.tag_blob_empty(b"EXBB");
-            w.tag_owned(b"EXID", self.player_id);
-            w.tag_owned(b"ID", self.player_id);
-            w.tag_str(b"NAME", &self.name);
-            w.tag_str(b"NASP", "cem_ea_id");
-            w.tag_owned(b"ORIG", self.player_id);
-            w.tag_owned(b"PIDI", self.player_id);
-        });
-    }
-}
-
-#[derive(Debug, Clone, Default, TdfSerialize, TdfDeserialize, TdfTyped)]
+#[derive(Debug, Clone, Copy, Default, Serialize, TdfSerialize, TdfDeserialize, TdfTyped)]
 #[tdf(group)]
 pub struct QosNetworkData {
     #[tdf(tag = "BWHR")]
@@ -138,7 +30,7 @@ pub struct QosNetworkData {
     pub ubps: u32,
 }
 
-#[derive(Default, Debug, Clone, TdfSerialize, TdfDeserialize, TdfTyped)]
+#[derive(Default, Debug, Clone, TdfSerialize, TdfDeserialize, TdfTyped, Serialize)]
 pub enum NetworkAddress {
     #[tdf(key = 0x2, tag = "VALU")]
     AddressPair(IpPairAddress),
@@ -150,7 +42,7 @@ pub enum NetworkAddress {
 }
 
 /// Pair of socket addresses
-#[derive(Debug, Clone, TdfDeserialize, TdfSerialize, TdfTyped)]
+#[derive(Debug, Clone, Serialize, TdfDeserialize, TdfSerialize, TdfTyped)]
 #[tdf(group)]
 pub struct IpPairAddress {
     #[tdf(tag = "EXIP")]
@@ -171,7 +63,7 @@ impl IpPairAddress {
     }
 }
 
-#[derive(Debug, Clone, TdfDeserialize, TdfSerialize, TdfTyped)]
+#[derive(Debug, Clone, Serialize, TdfDeserialize, TdfSerialize, TdfTyped)]
 #[tdf(group)]
 pub struct PairAddress {
     #[tdf(tag = "IP", into = u32)]
@@ -199,6 +91,196 @@ pub struct NetworkInfo {
 
 #[derive(Debug, TdfDeserialize)]
 pub struct UpdateHardwareFlags {
-    #[tdf(tag = "HWFG")]
-    pub flags: u8,
+    /// The hardware flag value
+    #[tdf(tag = "HWFG", into = u8)]
+    pub hardware_flags: HardwareFlags,
+}
+
+bitflags! {
+    #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
+    pub struct HardwareFlags: u8 {
+        const NONE = 0;
+        const VOIP_HEADSET_STATUS = 1;
+    }
+}
+
+impl From<HardwareFlags> for u8 {
+    #[inline]
+    fn from(value: HardwareFlags) -> Self {
+        value.bits()
+    }
+}
+
+impl From<u8> for HardwareFlags {
+    #[inline]
+    fn from(value: u8) -> Self {
+        HardwareFlags::from_bits_retain(value)
+    }
+}
+
+#[derive(TdfSerialize)]
+pub struct UserSessionExtendedDataUpdate {
+    #[tdf(tag = "DATA")]
+    pub data: UserSessionExtendedData,
+    // Total number of subscribers?
+    #[tdf(tag = "SUBS")]
+    pub subs: usize,
+    // The user ID that the session data is for
+    #[tdf(tag = "USID")]
+    pub user_id: UserId,
+}
+
+#[derive(TdfTyped)]
+#[tdf(group)]
+pub struct UserSessionExtendedData {
+    /// Networking data for the session
+    pub net: Arc<NetData>,
+    /// ID of the game the player is in (if present)
+    pub game: Option<u32>,
+
+    pub user_id: UserId,
+}
+
+impl TdfSerialize for UserSessionExtendedData {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.group_body(|w| {
+            // Network address
+            w.tag_ref(b"ADDR", &self.net.addr);
+            // Best ping site alias
+            w.tag_str(b"BPS", PING_SITE_ALIAS);
+            // Country
+            w.tag_str(b"CTY", "NZ");
+            // Client data
+            w.tag_var_int_list_empty(b"CVAR");
+            // Data map
+            w.tag_map_tuples(
+                b"DMAP",
+                &[
+                    (458788, 0),
+                    (458789, 0),
+                    (458790, 0),
+                    (458791, 0),
+                    (458792, 0),
+                    (458877, 0),
+                    (917505, 0),
+                    (917506, 0),
+                    (2013396993, 0),
+                ],
+            );
+            // Hardware flags
+            w.tag_owned(b"HWFG", self.net.hardware_flags.bits());
+            // Internet Service Provider
+            w.tag_str(b"ISP", "Example ISP");
+            // Ping server latency list
+            w.tag_list_slice(b"PSLM", &[0xfff0fff]);
+
+            // Quality of service data
+            w.tag_ref(b"QDAT", &self.net.qos);
+            // Timezone
+            w.tag_str(b"TZ", "Pacific/Auckland");
+
+            // User info attributes
+            w.tag_owned(b"UATT", 0u8);
+
+            let session_id = ObjectId::new(PLAYER_SESSION_TYPE, self.user_id as u64);
+
+            if let Some(game) = self.game {
+                // Blaze object ID list
+                w.tag_list_slice(
+                    b"ULST",
+                    &[session_id, ObjectId::new(GAME_TYPE, game as u64)],
+                );
+            } else {
+                // Blaze object ID list
+                w.tag_list_slice(b"ULST", &[session_id]);
+            }
+        });
+    }
+}
+
+#[derive(TdfTyped)]
+#[tdf(group)]
+pub struct UserIdentification<'a> {
+    pub id: u32,
+    pub name: &'a str,
+}
+
+impl<'a> UserIdentification<'a> {
+    pub fn from_user(user: &'a User) -> Self {
+        Self {
+            id: user.id,
+            name: &user.username,
+        }
+    }
+}
+
+impl TdfSerialize for UserIdentification<'_> {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.group_body(|w| {
+            // Account ID
+            w.tag_owned(b"AID", self.id);
+            // Account locale
+            w.tag_owned(b"ALOC", 0x64654445u32);
+            // External blob
+            w.tag_blob_empty(b"EXBB");
+            // External ID
+            w.tag_owned(b"EXID", self.id);
+            // Blaze ID
+            w.tag_owned(b"ID", self.id);
+            // Account name
+            w.tag_str(b"NAME", self.name);
+            // Namespace?
+            w.tag_str(b"NASP", "cem_ea_id");
+            w.tag_owned(b"ID", self.id);
+            w.tag_owned(b"ORIG", self.id);
+            w.tag_owned(b"PIDI", self.id);
+        });
+    }
+}
+
+#[derive(TdfSerialize)]
+pub struct NotifyUserAdded<'a> {
+    /// The user session data
+    #[tdf(tag = "DATA")]
+    pub session_data: UserSessionExtendedData,
+    /// The added user identification
+    #[tdf(tag = "USER")]
+    pub user: UserIdentification<'a>,
+}
+
+#[derive(TdfSerialize)]
+pub struct NotifyUserRemoved {
+    /// The ID of the removed user
+    #[tdf(tag = "BUID")]
+    pub user_id: UserId,
+}
+
+#[derive(TdfSerialize)]
+pub struct NotifyUserUpdated {
+    #[tdf(tag = "FLGS", into = u8)]
+    pub flags: UserDataFlags,
+    /// The ID of the updated user
+    #[tdf(tag = "ID")]
+    pub user_id: UserId,
+}
+
+bitflags! {
+    #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
+    pub struct UserDataFlags: u8 {
+        const NONE = 0;
+        const SUBSCRIBED = 1;
+        const ONLINE = 2;
+    }
+}
+
+impl From<UserDataFlags> for u8 {
+    fn from(value: UserDataFlags) -> Self {
+        value.bits()
+    }
+}
+
+impl From<u8> for UserDataFlags {
+    fn from(value: u8) -> Self {
+        UserDataFlags::from_bits_retain(value)
+    }
 }

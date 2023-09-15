@@ -1,6 +1,9 @@
 use crate::http::middleware::upgrade::{BlazeScheme, UpgradedTarget};
 use tdf::prelude::*;
 
+/// Alias used for ping sites
+pub const PING_SITE_ALIAS: &str = "bio-dub";
+
 pub struct PreAuthResponse {
     pub target: UpgradedTarget,
 }
@@ -81,7 +84,7 @@ impl TdfSerialize for PreAuthResponse {
             {
                 w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);
                 w.group_body(|w| {
-                    "bio-dub".serialize(w);
+                    PING_SITE_ALIAS.serialize(w);
                     // TODO: Replace this host and port with the local QOS server when complete
                     w.tag_str(b"PSA", &self.target.host);
                     w.tag_u16(b"PSP", self.target.port);

@@ -16,10 +16,11 @@ use crate::{
     },
     state::App,
 };
-use axum::{extract::Query, Json};
+use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;
 use log::{debug, error, warn};
 use rand::{rngs::StdRng, SeedableRng};
+use sea_orm::DatabaseConnection;
 
 /// GET /inventory
 ///
@@ -28,10 +29,10 @@ use rand::{rngs::StdRng, SeedableRng};
 pub async fn get_inventory(
     Query(query): Query<InventoryRequestQuery>,
     Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<InventoryResponse> {
-    let db = App::database();
     let services = App::services();
-    let mut items = InventoryItem::get_all_items(db, &user).await?;
+    let mut items = InventoryItem::get_all_items(&db, &user).await?;
 
     if let Some(namespace) = query.namespace {
         if !namespace.is_empty() && namespace != "default" {
@@ -76,14 +77,13 @@ pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
 /// Updates the seen status of a list of inventory item IDs
 pub async fn update_inventory_seen(
     Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
     Json(req): Json<InventorySeenRequest>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Inventory seen change requested: {:?}", req);
 
-    let db = App::database();
-
     // Updates all the matching items seen state
-    InventoryItem::update_seen(db, &user, req.list).await?;
+    InventoryItem::update_seen(&db, &user, req.list).await?;
 
     // TODO: Actual database call to update the seen status
     Ok(StatusCode::NO_CONTENT)
@@ -96,17 +96,17 @@ pub async fn update_inventory_seen(
 /// within the game.
 pub async fn consume_inventory(
     Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
     Json(req): Json<ConsumeRequest>,
 ) -> Result<Json<ActivityResult>, HttpError> {
     debug!("Consume inventory items: {:?}", req);
 
-    let db = App::database();
     let services = App::services();
     let items_service = &services.items;
 
     // Obtain the items and definitions that the user owns
     let owned_items: Vec<(InventoryItem, &'static ItemDefinition)> =
-        InventoryItem::get_all_items(db, &user)
+        InventoryItem::get_all_items(&db, &user)
             .await?
             .into_iter()
             .filter_map(|value| {
@@ -199,12 +199,12 @@ pub async fn consume_inventory(
                 definition.locale.name(),
                 change.stack_size,
             );
-            item.set_stack_size(db, change.stack_size).await?;
+            item.set_stack_size(&db, change.stack_size).await?;
         }
     }
 
-    let (earned, definitions) = InventoryItem::grant_items(db, &user, items_granted).await?;
-    let currencies = Currency::get_from_user(db, &user).await?;
+    let (earned, definitions) = InventoryItem::grant_items(&db, &user, items_granted).await?;
+    let currencies = Currency::get_from_user(&db, &user).await?;
 
     let activity = ActivityResult {
         currencies,

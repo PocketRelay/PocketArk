@@ -2,16 +2,13 @@ use tdf::TdfMap;
 
 use crate::blaze::models::util::*;
 use crate::blaze::router::Blaze;
-use crate::blaze::session::{GetHostTarget, SessionLink};
+use crate::blaze::session::SessionLink;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn pre_auth(session: SessionLink) -> Blaze<PreAuthResponse> {
-    let target = session
-        .send(GetHostTarget)
-        .await
-        .expect("Session closed before handling");
-
-    Blaze(PreAuthResponse { target })
+    Blaze(PreAuthResponse {
+        target: session.host_target.clone(),
+    })
 }
 
 pub async fn post_auth() -> Blaze<PostAuthResponse> {

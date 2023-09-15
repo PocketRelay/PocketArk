@@ -13,9 +13,10 @@ use crate::{
     services::activity::{ActivityItemDetails, ActivityResult},
     state::App,
 };
-use axum::Json;
+use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
+use sea_orm::DatabaseConnection;
 
 /// GET /store/catalogs
 ///
@@ -47,6 +48,7 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
 /// of the purchase
 pub async fn obtain_article(
     Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
     Json(req): Json<ObtainStoreItemRequest>,
 ) -> Result<Json<ObtainStoreItemResponse>, HttpError> {
     debug!("Requested buy store article: {:?}", req);
@@ -71,8 +73,6 @@ pub async fn obtain_article(
             StatusCode::NOT_FOUND,
         ))?;
 
-    let db = App::database();
-
     // Article price for currency
     let price = article
         .prices
@@ -81,14 +81,14 @@ pub async fn obtain_article(
         .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
 
     // Obtain the user currency
-    let user_currencies = Currency::get_from_user(db, &user).await?;
+    let user_currencies = Currency::get_from_user(&db, &user).await?;
 
     // Update the currencies (attempting to pay)
     let mut currencies = Vec::with_capacity(user_currencies.len());
     let mut paid: bool = false;
     for mut currency in user_currencies {
         if currency.name == req.currency && currency.balance >= price.final_price {
-            currency = currency.consume(db, price.final_price).await?;
+            currency = currency.consume(&db, price.final_price).await?;
             paid = true;
         }
 
@@ -111,7 +111,7 @@ pub async fn obtain_article(
     );
 
     // Create the purchased item
-    let mut item = InventoryItem::create_or_append(db, &user, article_item, 1).await?;
+    let mut item = InventoryItem::create_or_append(&db, &user, article_item, 1).await?;
     item.stack_size = 1;
 
     let definitions = vec![article_item];
@@ -147,9 +147,11 @@ pub async fn claim_unclaimed() -> Json<ClaimUncalimedResponse> {
 ///
 /// Response with the balance the user has in each type
 /// of digital currency within the game
-pub async fn get_currencies(Auth(user): Auth) -> Result<Json<UserCurrenciesResponse>, HttpError> {
-    let db = App::database();
-    let currencies = Currency::get_from_user(db, &user).await?;
+pub async fn get_currencies(
+    Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
+) -> Result<Json<UserCurrenciesResponse>, HttpError> {
+    let currencies = Currency::get_from_user(&db, &user).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
 }
