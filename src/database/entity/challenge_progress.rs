@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use sea_orm::{
     entity::prelude::*,
     ActiveValue::{NotSet, Set},
-    IntoActiveModel,
+    FromJsonQueryResult, IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

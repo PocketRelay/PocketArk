@@ -4,6 +4,7 @@ use super::User;
 use crate::database::DbResult;
 use crate::services::character::{CharacterEquipment, Xp};
 use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::FromJsonQueryResult;
 use sea_orm::{entity::prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_json::Number;
