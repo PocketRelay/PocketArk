@@ -148,16 +148,18 @@ impl TdfSerialize for NotifyMatchmakingStatus {
 #[derive(TdfSerialize, TdfTyped)]
 pub enum GameSetupContext {
     /// Context without additional data
-    #[tdf(key = 0x0, tag = "VALU")]
+    #[tdf(key = 0x0, tag = "MMSC")]
     Dataless {
         #[tdf(tag = "DCTX")]
         context: DatalessContext,
     },
     /// Context added from matchmaking
-    #[tdf(key = 0x3, tag = "VALU")]
+    #[tdf(key = 0x3, tag = "MMSC")]
     Matchmaking {
         #[tdf(tag = "FIT")]
         fit_score: u16,
+        #[tdf(tag = "FIT")]
+        fit_score_2: u16,
         #[tdf(tag = "MAXF")]
         max_fit_score: u16,
         #[tdf(tag = "MSCD")]
@@ -243,7 +245,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_u32(b"GID", game.id);
             w.tag_zero(b"GMRG");
             w.tag_str_empty(b"GNAM");
-            w.tag_u64(b"GPVH", 0x5a4f2b378b715c6);
+            w.tag_u64(b"GPVH", 3788120962);
             w.tag_owned(b"GSET", game.settings);
             w.tag_owned(b"GSID", game.id);
             w.tag_ref(b"GSTA", &game.state);
@@ -302,6 +304,9 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_u8(b"VOIP", 0);
             w.tag_str(b"VSTR", "60-Future739583");
         });
+
+        w.tag_u8(b"LFPJ", 0);
+        w.tag_str(b"MNAM", "coopGameVisibility");
 
         // Player list
         w.tag_list_start(b"PROS", TdfType::Group, game.players.len());

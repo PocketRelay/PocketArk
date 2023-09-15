@@ -55,6 +55,7 @@ impl GameManager {
         tokio::spawn(async move {
             let context = GameSetupContext::Matchmaking {
                 fit_score: DEFAULT_FIT,
+                fit_score_2: 0,
                 max_fit_score: DEFAULT_FIT,
                 id_1: host.user.id,
                 id_2: host.user.id,
