@@ -2,10 +2,11 @@ use crate::blaze::{
     components,
     models::auth::*,
     packet::Packet,
+    router::Blaze,
     session::{GetUserMessage, PushExt, SessionLink, UserAddedMessage},
 };
 
-pub async fn auth(session: &mut SessionLink, _req: AuthRequest) -> AuthResponse {
+pub async fn auth(session: SessionLink, Blaze(_req): Blaze<AuthRequest>) -> Blaze<AuthResponse> {
     let user = session
         .send(GetUserMessage)
         .await
@@ -21,7 +22,7 @@ pub async fn auth(session: &mut SessionLink, _req: AuthRequest) -> AuthResponse 
 
     let _ = session.do_send(UserAddedMessage);
 
-    AuthResponse { user }
+    Blaze(AuthResponse { user })
 }
 
 #[rustfmt::skip]
@@ -45,6 +46,6 @@ static ENTITLEMENTS: &[Entitlement] = &[
     Entitlement::new_pc(1011177546559, "310335", 2, "Origin.OFR.50.0001530", "TRIAL_ONLINE_ACCESS", 1),
 ];
 
-pub async fn list_entitlements_2(_session: &mut SessionLink) -> ListEntitlementsResponse {
-    ListEntitlementsResponse { list: ENTITLEMENTS }
+pub async fn list_entitlements_2() -> Blaze<ListEntitlementsResponse> {
+    Blaze(ListEntitlementsResponse { list: ENTITLEMENTS })
 }

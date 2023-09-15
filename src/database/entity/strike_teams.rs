@@ -2,7 +2,7 @@ use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use sea_orm::ActiveValue::{NotSet, Set};
-use sea_orm::{prelude::*, IntoActiveModel};
+use sea_orm::{prelude::*, FromJsonQueryResult, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use uuid::{uuid, Uuid};

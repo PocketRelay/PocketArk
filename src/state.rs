@@ -1,7 +1,9 @@
+use std::sync::Arc;
+
 use sea_orm::DatabaseConnection;
 
 use crate::{
-    blaze::{self, router::Router, session::SessionLink},
+    blaze::{self, router::BlazeRouter},
     services::Services,
 };
 
@@ -13,7 +15,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// set
 pub struct App {
     /// Global session router
-    pub router: Router<SessionLink>,
+    pub router: Arc<BlazeRouter>,
     pub database: DatabaseConnection,
     pub services: Services,
 }
@@ -24,7 +26,7 @@ static mut GLOBAL_STATE: Option<App> = None;
 impl App {
     pub async fn init() {
         // Initialize session router
-        let router = blaze::routes::router();
+        let router = blaze::routes::router().build();
         let services = Services::init().await;
         let database = crate::database::init().await;
 
@@ -38,7 +40,7 @@ impl App {
     }
 
     /// Obtains a static reference to the session router
-    pub fn router() -> &'static Router<SessionLink> {
+    pub fn router() -> &'static Arc<BlazeRouter> {
         match unsafe { &GLOBAL_STATE } {
             Some(value) => &value.router,
             None => panic!("Global state not initialized"),

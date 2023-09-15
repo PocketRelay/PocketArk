@@ -9,7 +9,7 @@ use crate::{
 use sea_orm::{
     entity::prelude::*,
     ActiveValue::{NotSet, Set},
-    IntoActiveModel,
+    FromJsonQueryResult, IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
