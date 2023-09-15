@@ -8,6 +8,7 @@ use bitflags::bitflags;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use std::{fmt::Debug, hash::Hash, sync::Arc};
 use std::{io, ops::Deref};
+use tdf::types::bytes::serialize_bytes;
 use tdf::{
     serialize_vec, DecodeResult, TdfDeserialize, TdfDeserializer, TdfSerialize, TdfSerializer,
     TdfStringifier,
@@ -46,11 +47,11 @@ impl PacketHeader {
         }
     }
 
-    pub const fn request(component: u16, command: u16, seq: u32) -> Self {
+    pub const fn request(seq: u32, component: u16, command: u16) -> Self {
         Self {
             component,
             command,
-            seq: 0,
+            seq,
             flags: PacketFlags::FLAG_DEFAULT,
             notify: 0,
             unused: 0,
@@ -81,119 +82,92 @@ impl PacketHeader {
 pub struct Packet {
     pub header: PacketHeader,
     pub pre_msg: Bytes,
-    pub body: Bytes,
+    pub contents: Bytes,
 }
 
 impl Packet {
-    /// Creates a packet from its raw components
-    ///
-    /// `header`   The packet header
-    /// `contents` The encoded packet contents
-    pub fn raw(header: PacketHeader, contents: Vec<u8>) -> Self {
+    pub const fn new(header: PacketHeader, pre_msg: Bytes, contents: Bytes) -> Self {
         Self {
             header,
-            pre_msg: Bytes::new(),
-            body: Bytes::from(contents),
+            pre_msg,
+            contents,
         }
     }
 
-    /// Creates a packet from its raw components
-    /// where the contents are empty
-    ///
-    /// `header` The packet header
-    pub const fn raw_empty(header: PacketHeader) -> Self {
-        Self {
-            header,
-            pre_msg: Bytes::new(),
-            body: Bytes::new(),
-        }
+    #[inline]
+    pub const fn new_empty(header: PacketHeader) -> Self {
+        Self::new(header, Bytes::new(), Bytes::new())
     }
 
-    pub fn response<C: TdfSerialize>(packet: &Packet, contents: C) -> Self {
-        Self {
-            header: packet.header.response(),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(serialize_vec(&contents)),
-        }
+    #[inline]
+    pub const fn new_request(seq: u32, component: u16, command: u16, contents: Bytes) -> Packet {
+        Self::new(
+            PacketHeader::request(seq, component, command),
+            Bytes::new(),
+            contents,
+        )
     }
 
-    pub fn respond<C: TdfSerialize>(&self, contents: C) -> Self {
-        Self::response(self, contents)
+    #[inline]
+    pub const fn new_response(packet: &Packet, contents: Bytes) -> Self {
+        Self::new(packet.header.response(), Bytes::new(), contents)
     }
 
-    pub fn response_raw(packet: &Packet, contents: Vec<u8>) -> Self {
-        Self {
-            header: packet.header.response(),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(contents),
-        }
+    #[inline]
+    pub const fn new_notify(component: u16, command: u16, contents: Bytes) -> Packet {
+        Self::new(
+            PacketHeader::notify(component, command),
+            Bytes::new(),
+            contents,
+        )
     }
 
+    #[inline]
+    pub const fn request_empty(seq: u32, component: u16, command: u16) -> Packet {
+        Self::new_empty(PacketHeader::request(seq, component, command))
+    }
+
+    #[inline]
     pub const fn response_empty(packet: &Packet) -> Self {
-        Self {
-            header: packet.header.response(),
-            pre_msg: Bytes::new(),
-            body: Bytes::new(),
-        }
+        Self::new_empty(packet.header.response())
     }
 
-    pub const fn respond_empty(&self) -> Self {
-        Self::response_empty(self)
+    #[inline]
+    pub const fn notify_empty(component: u16, command: u16) -> Packet {
+        Self::new_empty(PacketHeader::notify(component, command))
     }
 
-    pub fn notify<C: TdfSerialize>(component: u16, command: u16, contents: C) -> Packet {
-        Self {
-            header: PacketHeader::notify(component, command),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(serialize_vec(&contents)),
-        }
+    #[inline]
+    pub fn response<V>(packet: &Packet, contents: V) -> Self
+    where
+        V: TdfSerialize,
+    {
+        Self::new_response(packet, serialize_bytes(&contents))
     }
 
-    pub fn notify_raw(component: u16, command: u16, contents: Vec<u8>) -> Packet {
-        Self {
-            header: PacketHeader::notify(component, command),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(contents),
-        }
+    #[inline]
+    pub fn notify<V>(component: u16, command: u16, contents: V) -> Packet
+    where
+        V: TdfSerialize,
+    {
+        Self::new_notify(component, command, serialize_bytes(&contents))
     }
 
-    pub fn notify_empty(component: u16, command: u16) -> Packet {
-        Self {
-            header: PacketHeader::notify(component, command),
-            pre_msg: Bytes::new(),
-            body: Bytes::new(),
-        }
+    #[inline]
+    pub fn request<V>(seq: u32, component: u16, command: u16, contents: V) -> Packet
+    where
+        V: TdfSerialize,
+    {
+        Self::new_request(seq, component, command, serialize_bytes(&contents))
     }
 
-    pub fn request<C: TdfSerialize>(component: u16, command: u16, seq: u32, contents: C) -> Packet {
-        Self {
-            header: PacketHeader::request(component, command, seq),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(serialize_vec(&contents)),
-        }
-    }
-
-    pub fn request_raw(component: u16, command: u16, seq: u32, contents: Vec<u8>) -> Packet {
-        Self {
-            header: PacketHeader::request(component, command, seq),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(contents),
-        }
-    }
-
-    pub fn request_empty(component: u16, command: u16, seq: u32) -> Packet {
-        Self {
-            header: PacketHeader::request(component, command, seq),
-            pre_msg: Bytes::new(),
-            body: Bytes::new(),
-        }
-    }
-
-    /// Attempts to decode the contents bytes of this packet into the
-    /// provided Codec type value.
-    pub fn decode<'de, C: TdfDeserialize<'de>>(&'de self) -> DecodeResult<C> {
-        let mut reader = TdfDeserializer::new(&self.body);
-        C::deserialize(&mut reader)
+    /// Attempts to deserialize the packet contents as the provided type
+    pub fn deserialize<'de, V>(&'de self) -> DecodeResult<V>
+    where
+        V: TdfDeserialize<'de>,
+    {
+        let mut r = TdfDeserializer::new(&self.contents);
+        V::deserialize(&mut r)
     }
 
     /// Attempts to read a packet from the provided
@@ -233,7 +207,7 @@ impl Packet {
                 unused,
             },
             pre_msg: pre_msg.freeze(),
-            body: body.freeze(),
+            contents: body.freeze(),
         })
     }
 
@@ -242,7 +216,7 @@ impl Packet {
     ///
     /// `dst` The destination buffer
     pub fn write(&self, dst: &mut BytesMut) {
-        dst.put_u32(self.body.len() as u32);
+        dst.put_u32(self.contents.len() as u32);
         dst.put_u16(self.pre_msg.len() as u16);
         dst.put_u16(self.header.component);
         dst.put_u16(self.header.command);
@@ -255,7 +229,7 @@ impl Packet {
         dst.put_u8(self.header.notify);
         dst.put_u8(self.header.unused);
         dst.extend_from_slice(&self.pre_msg);
-        dst.extend_from_slice(&self.body);
+        dst.extend_from_slice(&self.contents);
     }
 }
 
@@ -286,144 +260,6 @@ impl Encoder<Packet> for PacketCodec {
     fn encode(&mut self, item: Packet, dst: &mut BytesMut) -> Result<(), Self::Error> {
         item.write(dst);
         Ok(())
-    }
-}
-
-/// Encoder implementation for borrowed packets
-impl Encoder<&Packet> for PacketCodec {
-    type Error = io::Error;
-
-    fn encode(&mut self, item: &Packet, dst: &mut BytesMut) -> Result<(), Self::Error> {
-        item.write(dst);
-        Ok(())
-    }
-}
-
-/// Encoder implementation for arc reference packets
-impl Encoder<Arc<Packet>> for PacketCodec {
-    type Error = io::Error;
-
-    fn encode(&mut self, item: Arc<Packet>, dst: &mut BytesMut) -> Result<(), Self::Error> {
-        item.write(dst);
-        Ok(())
-    }
-}
-
-/// Structure wrapping a from request type to include a packet
-/// header to allow the response type to be created
-pub struct Request<T: FromRequest> {
-    /// The decoded request type
-    pub req: T,
-    /// The packet header from the request
-    pub header: PacketHeader,
-}
-
-/// Deref implementation so that the request fields can be
-/// directly accessed
-impl<T: FromRequest> Deref for Request<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.req
-    }
-}
-
-impl<T: FromRequest> Request<T> {
-    /// Creates a response from the provided response type value
-    /// returning a Response structure which can be used as a Route
-    /// repsonse
-    ///
-    /// `res` The into response type implementation
-    pub fn response<E>(&self, res: E) -> Response
-    where
-        E: TdfSerialize,
-    {
-        Response(Packet {
-            header: self.header.response(),
-            pre_msg: Bytes::new(),
-            body: Bytes::from(serialize_vec(&res)),
-        })
-    }
-}
-
-/// Wrapping structure for raw Bytes structures that can
-/// be used as packet response
-pub struct PacketBody(Bytes);
-
-impl<T> From<T> for PacketBody
-where
-    T: TdfSerialize,
-{
-    fn from(value: T) -> Self {
-        let bytes = serialize_vec(&value);
-        let bytes = Bytes::from(bytes);
-        PacketBody(bytes)
-    }
-}
-
-/// Type for route responses that have already been turned into
-/// packets usually for lifetime reasons
-pub struct Response(Packet);
-
-impl IntoResponse for Response {
-    /// Simply provide the already compute response
-    fn into_response(self, _req: &Packet) -> Packet {
-        self.0
-    }
-}
-
-impl IntoResponse for PacketBody {
-    fn into_response(self, req: &Packet) -> Packet {
-        Packet {
-            header: req.header.response(),
-            pre_msg: Bytes::new(),
-            body: self.0,
-        }
-    }
-}
-
-impl<T: FromRequest> FromRequest for Request<T> {
-    fn from_request(req: &Packet) -> DecodeResult<Self> {
-        let inner = T::from_request(req)?;
-        let header = req.header;
-        Ok(Self { req: inner, header })
-    }
-}
-
-/// Trait implementing by structures which can be created from a request
-/// packet and is used for the arguments on routing functions
-pub trait FromRequest: Sized + Send + 'static {
-    /// Takes the value from the request returning a decode result of
-    /// whether the value could be created
-    ///
-    /// `req` The request packet
-    fn from_request(req: &Packet) -> DecodeResult<Self>;
-}
-
-impl<D> FromRequest for D
-where
-    for<'de> D: TdfDeserialize<'de> + Send + 'static,
-{
-    fn from_request(req: &Packet) -> DecodeResult<Self> {
-        req.decode()
-    }
-}
-
-/// Trait for a type that can be converted into a packet
-/// response using the header from the request packet
-pub trait IntoResponse: 'static {
-    /// Into packet conversion
-    fn into_response(self, req: &Packet) -> Packet;
-}
-
-/// Into response imeplementation for encodable responses
-/// which just calls res.respond
-impl<E> IntoResponse for E
-where
-    E: TdfSerialize + 'static,
-{
-    fn into_response(self, req: &Packet) -> Packet {
-        req.respond(self)
     }
 }
 
@@ -474,7 +310,7 @@ impl<'a> Debug for PacketDebug<'a> {
             writeln!(f, "Pre Message: {}", out)?;
         }
 
-        let mut r = TdfDeserializer::new(&self.packet.body);
+        let mut r = TdfDeserializer::new(&self.packet.contents);
         let mut out = String::new();
 
         out.push_str("{\n");

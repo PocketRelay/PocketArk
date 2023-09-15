@@ -4,6 +4,7 @@ use crate::{
             LeaveGameRequest, MatchmakeRequest, MatchmakeType, MatchmakingResponse,
             ReplayGameRequest, UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
         },
+        router::Blaze,
         session::{self, GetPlayerMessage, GetUserMessage, SessionLink},
     },
     services::game::{
@@ -14,7 +15,10 @@ use crate::{
     state::App,
 };
 
-pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> MatchmakingResponse {
+pub async fn create_game(
+    session: SessionLink,
+    Blaze(req): Blaze<MatchmakeRequest>,
+) -> Blaze<MatchmakingResponse> {
     let services = App::services();
     let player = session
         .send(GetPlayerMessage)
@@ -50,10 +54,10 @@ pub async fn create_game(session: &mut SessionLink, req: MatchmakeRequest) -> Ma
         }
     }
 
-    MatchmakingResponse { user_id }
+    Blaze(MatchmakingResponse { user_id })
 }
 
-pub async fn update_game_attr(_session: &mut SessionLink, req: UpdateGameAttrRequest) {
+pub async fn update_game_attr(Blaze(req): Blaze<UpdateGameAttrRequest>) {
     let services = App::services();
     let game = services
         .games
@@ -64,7 +68,7 @@ pub async fn update_game_attr(_session: &mut SessionLink, req: UpdateGameAttrReq
     let _ = game.send(UpdateGameAttrMessage { attr: req.attr }).await;
 }
 
-pub async fn update_player_attr(_session: &mut SessionLink, req: UpdateAttrRequest) {
+pub async fn update_player_attr(Blaze(req): Blaze<UpdateAttrRequest>) {
     let services = App::services();
     let game = services
         .games
@@ -80,7 +84,7 @@ pub async fn update_player_attr(_session: &mut SessionLink, req: UpdateAttrReque
         .await;
 }
 
-pub async fn update_game_state(_session: &mut SessionLink, req: UpdateStateRequest) {
+pub async fn update_game_state(Blaze(req): Blaze<UpdateStateRequest>) {
     let services = App::services();
     let game = services
         .games
@@ -91,7 +95,7 @@ pub async fn update_game_state(_session: &mut SessionLink, req: UpdateStateReque
     let _ = game.send(UpdateStateMessage { state: req.state }).await;
 }
 
-pub async fn replay_game(_session: &mut SessionLink, req: ReplayGameRequest) {
+pub async fn replay_game(Blaze(req): Blaze<ReplayGameRequest>) {
     let services = App::services();
     let game = services
         .games
@@ -103,7 +107,7 @@ pub async fn replay_game(_session: &mut SessionLink, req: ReplayGameRequest) {
     let _ = game.send(NotifyGameReplayMessage).await;
 }
 
-pub async fn leave_game(session: &mut SessionLink, req: LeaveGameRequest) {
+pub async fn leave_game(session: SessionLink, Blaze(req): Blaze<LeaveGameRequest>) {
     let services = App::services();
     let game = services
         .games

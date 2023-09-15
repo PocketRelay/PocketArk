@@ -4,7 +4,6 @@ use super::{
         IpPairAddress, NetData, NetworkAddress, QosNetworkData, UserAdded, UserUpdated,
     },
     packet::{Packet, PacketFlags},
-    router::HandleError,
 };
 use crate::{
     blaze::packet::PacketDebug,
@@ -145,23 +144,15 @@ impl StreamHandler<io::Result<Packet>> for Session {
             let mut addr = ctx.link();
             tokio::spawn(async move {
                 let router = App::router();
-                let response = match router.handle(&mut addr, packet) {
+                let response = match router.handle(addr.clone(), packet) {
                     // Await the handler response future
                     Ok(fut) => fut.await,
 
                     // Handle any errors that occur
-                    Err(err) => {
-                        match err {
-                            // No handler set-up just respond with a default empty response
-                            HandleError::MissingHandler(packet) => packet.respond_empty(),
-                            HandleError::Decoding(packet, err) => {
-                                error!(
-                                    "Error while decoding packet ({:?}): {:?}",
-                                    packet.header, err
-                                );
-                                return;
-                            }
-                        }
+                    // Handle no handler for packet
+                    Err(packet) => {
+                        debug!("Missing packet handler");
+                        Packet::response_empty(&packet)
                     }
                 };
                 // Push the response to the client

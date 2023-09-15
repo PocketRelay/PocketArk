@@ -1,202 +1,114 @@
 //! Router implementation for routing packet components to different functions
 //! and automatically decoding the packet contents to the function type
 
-use tdf::{DecodeError, DecodeResult};
-
-use super::packet::{FromRequest, IntoResponse, Packet};
+use bytes::Bytes;
+use futures::future::BoxFuture;
+use log::error;
 use std::{
-    collections::HashMap,
+    any::{Any, TypeId},
+    convert::Infallible,
+    future::ready,
     future::Future,
     marker::PhantomData,
-    pin::Pin,
-    task::{ready, Context, Poll},
+    sync::Arc,
+};
+use tdf::{
+    serialize_vec, types::bytes::serialize_bytes, TdfDeserialize, TdfDeserializer, TdfSerialize,
 };
 
-/// Handler contains a request body that must be deserialized
-pub struct WithRequest;
+use crate::{
+    blaze::models::errors::GlobalError, services::game::Player, utils::hashing::IntHashMap,
+};
 
-/// Handler doesn't contain a request body
-pub struct WithoutRequest;
+use super::{
+    components::{component_key, ComponentKey},
+    models::errors::BlazeError,
+    packet::{Packet, PacketHeader},
+    session::SessionLink,
+};
 
-/// Pin boxed future type that is Send and lives for 'a
-type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
-
-/// Trait implemented by handlers which can provided a boxed future
-/// to a response type which can be turned into a response
-///
-/// `State`  The type of state provided to the handler
-/// `Format` The format of the handler function (FormatA, FormatB)
-/// `Req`    The request value type for the handler
-/// `Res`    The response type for the handler
-pub trait Handler<'a, State, Req, Res, Format>: Send + Sync + 'static {
-    /// Handle function for calling the underlying handle logic using
-    /// the proivded state and packet
-    ///
-    /// `state`  The state to provide
-    /// `packet` The packet to handle
-    fn handle(&self, state: &'a mut State, req: Req) -> BoxFuture<'a, Res>;
+pub trait Handler<Args, Res>: Send + Sync + 'static {
+    fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet>;
 }
 
-/// Future which results in a response packet being produced that can
-/// only live for the lifetime of 'a which is the state lifetime
-type PacketFuture<'a> = BoxFuture<'a, Packet>;
-
-/// Handler implementation for async functions that take the state as well
-/// as a request type
-///
-/// ```
-/// struct State;
-/// struct Req;
-/// struct Res;
-///
-/// async fn test(state: &mut State, req: Req) -> Res {
-///     Res {}
-/// }
-/// ```
-impl<'a, State, Fun, Fut, Req, Res> Handler<'a, State, Req, Res, WithRequest> for Fun
-where
-    Fun: Fn(&'a mut State, Req) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Res> + Send + 'a,
-    Req: FromRequest,
-    Res: IntoResponse,
-    State: Send + 'static,
-{
-    fn handle(&self, state: &'a mut State, req: Req) -> BoxFuture<'a, Res> {
-        Box::pin(self(state, req))
-    }
-}
-
-/// Handler implementation for async functions that take the state with no
-/// request type
-///
-/// ```
-/// struct State;
-/// struct Res;
-///
-/// async fn test(state: &mut State) -> Res {
-///     Res {}
-/// }
-/// ```
-impl<'a, State, Fun, Fut, Res> Handler<'a, State, (), Res, WithoutRequest> for Fun
-where
-    Fun: Fn(&'a mut State) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Res> + Send + 'a,
-    Res: IntoResponse,
-    State: Send + 'static,
-{
-    fn handle(&self, state: &'a mut State, _: ()) -> BoxFuture<'a, Res> {
-        Box::pin(self(state))
-    }
-}
-
-/// Future wrapper that wraps a future from a handler in order
-/// to poll the underlying future and then transform the future
-/// result into the response packet
-///
-/// 'a:   The lifetime of the session
-/// `Res` The response type for the handler
-struct HandlerFuture<'a, Res> {
-    /// The future from the hanlder
-    fut: BoxFuture<'a, Res>,
-    /// The packet the handler is responding to
-    packet: Packet,
-}
-
-impl<'a, Res> Future for HandlerFuture<'a, Res>
-where
-    Res: IntoResponse,
-{
-    type Output = Packet;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let this = self.get_mut();
-        // Poll the underlying future
-        let fut = Pin::new(&mut this.fut);
-        let res = ready!(fut.poll(cx));
-        // Transform the result
-        let packet = res.into_response(&this.packet);
-        Poll::Ready(packet)
-    }
-}
-
-/// Trait for erasing the inner types of the handler routes
-trait Route<S>: Send + Sync {
-    /// Handle function for calling the handler logic on the actual implementation
-    /// producing a future that lives as long as the state
-    ///
-    /// `state`  The state provided
-    /// `packet` The packet to handle with the route
-    fn handle<'s>(&self, state: &'s mut S, packet: Packet)
-        -> Result<PacketFuture<'s>, HandleError>;
-}
-
-/// Route wrapper over a handler for storing the phantom type data
-/// and implementing Route
-struct HandlerRoute<H, Req, Res, Format> {
-    /// The underlying handler
+/// Wrapper around [Handler] that stores the required associated
+/// generic types allowing it to have its typed erased using [ErasedHandler]
+struct HandlerRoute<H, Args, Res> {
+    /// The wrapped handler
     handler: H,
-    /// Marker for storing related data
-    _marker: PhantomData<fn(Req, Format) -> Res>,
+    /// The associated type info
+    _marker: PhantomData<fn(Args) -> Res>,
 }
 
-/// Route implementation for handlers wrapped by handler routes
-impl<H, State, Req, Res, Format> Route<State> for HandlerRoute<H, Req, Res, Format>
+/// Wrapper around [Handler] that erasings the associated generic types
+/// so that it can be stored within the [Router]
+trait ErasedHandler: Send + Sync {
+    fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet>;
+}
+
+/// Erased handler implementation for all [Handler] implementations using [HandlerRoute]
+impl<H, Args, Res> ErasedHandler for HandlerRoute<H, Args, Res>
 where
-    for<'a> H: Handler<'a, State, Req, Res, Format>,
-    Req: FromRequest,
-    Res: IntoResponse,
-    State: Send + 'static,
-    Format: 'static,
+    H: Handler<Args, Res>,
+    Args: 'static,
+    Res: 'static,
 {
-    fn handle<'s>(
-        &self,
-        state: &'s mut State,
-        packet: Packet,
-    ) -> Result<PacketFuture<'s>, HandleError> {
-        let req = match Req::from_request(&packet) {
-            Ok(value) => value,
-            Err(err) => return Err(HandleError::Decoding(packet, err)),
-        };
-        let fut = self.handler.handle(state, req);
-        Ok(Box::pin(HandlerFuture { fut, packet }))
+    #[inline]
+    fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet> {
+        self.handler.handle(req)
     }
 }
 
-/// Route implementation for storing components mapped to route
-/// handlers
-pub struct Router<S> {
-    /// The map of components to routes
-    routes: HashMap<(u16, u16), Box<dyn Route<S>>>,
+///
+pub struct PacketRequest {
+    pub state: SessionLink,
+    pub packet: Packet,
+    pub extensions: Arc<AnyMap>,
 }
 
-impl<S> Default for Router<S> {
-    fn default() -> Self {
+impl PacketRequest {
+    pub fn extension<T: Send + Sync + 'static>(&self) -> Option<&T> {
+        self.extensions
+            .get(&TypeId::of::<T>())
+            .and_then(|boxed| (&**boxed as &(dyn Any + 'static)).downcast_ref())
+    }
+}
+
+type AnyMap = IntHashMap<TypeId, Box<dyn Any + Send + Sync>>;
+type RouteMap = IntHashMap<ComponentKey, Box<dyn ErasedHandler>>;
+
+pub struct BlazeRouterBuilder {
+    /// Map for looking up a route based on the component key
+    routes: RouteMap,
+    extensions: AnyMap,
+}
+
+impl BlazeRouterBuilder {
+    pub fn new() -> Self {
         Self {
             routes: Default::default(),
+            extensions: Default::default(),
         }
     }
-}
 
-impl<S> Router<S>
-where
-    S: Send + 'static,
-{
-    /// Creates a new router
-    pub fn new() -> Self {
-        Self::default()
+    pub fn add_extension<T: Send + Sync + 'static>(&mut self, val: T) -> Option<T> {
+        self.extensions
+            .insert(TypeId::of::<T>(), Box::new(val))
+            .and_then(|boxed| {
+                (boxed as Box<dyn Any + 'static>)
+                    .downcast()
+                    .ok()
+                    .map(|boxed| *boxed)
+            })
     }
 
-    pub fn route<Req, Res, Format>(
-        &mut self,
-        target: (u16, u16),
-        route: impl for<'a> Handler<'a, S, Req, Res, Format>,
-    ) where
-        Req: FromRequest,
-        Res: IntoResponse,
-        Format: 'static,
+    pub fn route<Args, Res>(&mut self, component: u16, command: u16, route: impl Handler<Args, Res>)
+    where
+        Args: 'static,
+        Res: 'static,
     {
         self.routes.insert(
-            target,
+            component_key(component, command),
             Box::new(HandlerRoute {
                 handler: route,
                 _marker: PhantomData,
@@ -204,32 +116,326 @@ where
         );
     }
 
-    /// Handle function takes the provided packet retrieves the component from its header
-    /// and finds the matching route (Returning an empty response immediately if none match)
-    /// and providing the state the route along with the packet awaiting the route future
-    ///
-    /// `state`  The provided state
-    /// `packet` The packet to handle
-    pub fn handle<'a>(
-        &self,
-        state: &'a mut S,
-        packet: Packet,
-    ) -> Result<PacketFuture<'a>, HandleError> {
-        let target = (packet.header.component, packet.header.command);
-        let route = match self.routes.get(&target) {
-            Some(value) => value,
-            None => return Err(HandleError::MissingHandler(packet)),
-        };
-
-        route.handle(state, packet)
+    pub fn build(self) -> Arc<BlazeRouter> {
+        Arc::new(BlazeRouter {
+            routes: self.routes,
+            extensions: Arc::new(self.extensions),
+        })
     }
 }
 
-/// Error that can occur while handling a packet
-#[derive(Debug)]
-pub enum HandleError {
-    /// There wasn't an available handler for the provided packet
-    MissingHandler(Packet),
-    /// Decoding error while reading the packet
-    Decoding(Packet, DecodeError),
+pub struct BlazeRouter {
+    /// Map for looking up a route based on the component key
+    routes: RouteMap,
+    extensions: Arc<AnyMap>,
 }
+
+impl BlazeRouter {
+    pub fn handle(
+        &self,
+        state: SessionLink,
+        packet: Packet,
+    ) -> Result<BoxFuture<'_, Packet>, Packet> {
+        let route = match self.routes.get(&component_key(
+            packet.header.component,
+            packet.header.command,
+        )) {
+            Some(value) => value,
+            None => return Err(packet),
+        };
+
+        Ok(route.handle(PacketRequest {
+            state,
+            packet,
+            extensions: self.extensions.clone(),
+        }))
+    }
+}
+
+pub trait FromPacketRequest: Sized {
+    type Rejection: IntoPacketResponse;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a;
+}
+
+/// Wrapper for providing deserialization [FromPacketRequest] and
+/// serialization [IntoPacketResponse] for TDF contents
+pub struct Blaze<V>(pub V);
+
+/// Wrapper for providing deserialization [FromPacketRequest] and
+/// serialization [IntoPacketResponse] for TDF contents
+///
+/// Stores the packet header so that it can be used for generating
+/// responses
+pub struct BlazeWithHeader<V> {
+    pub req: V,
+    pub header: PacketHeader,
+}
+
+/// [Blaze] tdf type for contents that have already been
+/// serialized ahead of time
+pub struct RawBlaze(Bytes);
+
+/// Extracts the session authenticated player if one is present,
+/// responds with [GlobalError::AuthenticationRequired] if there is none
+pub struct SessionAuth(pub Arc<Player>);
+
+pub struct Extension<T>(pub T);
+
+impl<T> FromPacketRequest for Extension<T>
+where
+    T: Clone + Send + Sync + 'static,
+{
+    type Rejection = BlazeError;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        Box::pin(ready(
+            req.extension()
+                .ok_or_else(|| {
+                    error!(
+                        "Attempted to extract missing extension {}",
+                        std::any::type_name::<T>()
+                    );
+                    GlobalError::System.into()
+                })
+                .cloned()
+                .map(Extension),
+        ))
+    }
+}
+
+// impl FromPacketRequest for SessionAuth {
+//     type Rejection = BlazeError;
+
+//     fn from_packet_request<'a>(
+//         req: &'a mut PacketRequest,
+//     ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+//     where
+//         Self: 'a,
+//     {
+//         Box::pin(async move {
+//             let data = &*req.state.data.read().await;
+//             let data = data.as_ref().ok_or(GlobalError::AuthenticationRequired)?;
+//             let player = data.player.clone();
+//             Ok(SessionAuth(player))
+//         })
+//     }
+// }
+
+impl<T> From<T> for RawBlaze
+where
+    T: TdfSerialize,
+{
+    fn from(value: T) -> Self {
+        let bytes = serialize_vec(&value);
+        let bytes = Bytes::from(bytes);
+        RawBlaze(bytes)
+    }
+}
+
+impl<V> FromPacketRequest for Blaze<V>
+where
+    for<'a> V: TdfDeserialize<'a> + Send + 'a,
+{
+    type Rejection = BlazeError;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        Box::pin(ready(
+            req.packet
+                .deserialize::<'a, V>()
+                .map_err(|err| {
+                    error!("Error while decoding packet: {:?}", err);
+                    GlobalError::System.into()
+                })
+                .map(Blaze),
+        ))
+    }
+}
+
+impl<V> BlazeWithHeader<V> {
+    pub fn response<E>(&self, res: E) -> Packet
+    where
+        E: TdfSerialize,
+    {
+        Packet::new(self.header.response(), Bytes::new(), serialize_bytes(&res))
+    }
+}
+
+impl<V> FromPacketRequest for BlazeWithHeader<V>
+where
+    for<'a> V: TdfDeserialize<'a> + Send + 'a,
+{
+    type Rejection = BlazeError;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        let mut r = TdfDeserializer::new(&req.packet.contents);
+
+        Box::pin(ready(
+            V::deserialize(&mut r)
+                .map(|value| BlazeWithHeader {
+                    req: value,
+                    header: req.packet.header,
+                })
+                .map_err(|err| {
+                    error!("Error while decoding packet: {:?}", err);
+                    GlobalError::System.into()
+                }),
+        ))
+    }
+}
+
+impl FromPacketRequest for SessionLink {
+    type Rejection = Infallible;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        let state = req.state.clone();
+        Box::pin(ready(Ok(state)))
+    }
+}
+
+pub trait IntoPacketResponse: 'static {
+    fn into_response(self, req: &Packet) -> Packet;
+}
+
+impl IntoPacketResponse for () {
+    fn into_response(self, req: &Packet) -> Packet {
+        Packet::response_empty(req)
+    }
+}
+
+impl IntoPacketResponse for Infallible {
+    fn into_response(self, _: &Packet) -> Packet {
+        // Infallible can never be constructed so this can never happen
+        unreachable!()
+    }
+}
+
+impl IntoPacketResponse for Packet {
+    fn into_response(self, _req: &Packet) -> Packet {
+        self
+    }
+}
+
+impl<V> IntoPacketResponse for Blaze<V>
+where
+    V: TdfSerialize + 'static,
+{
+    fn into_response(self, req: &Packet) -> Packet {
+        Packet::response(req, self.0)
+    }
+}
+
+impl IntoPacketResponse for RawBlaze {
+    fn into_response(self, req: &Packet) -> Packet {
+        Packet::new_response(req, self.0)
+    }
+}
+
+impl<T, E> IntoPacketResponse for Result<T, E>
+where
+    T: IntoPacketResponse,
+    E: IntoPacketResponse,
+{
+    fn into_response(self, req: &Packet) -> Packet {
+        match self {
+            Ok(value) => value.into_response(req),
+            Err(value) => value.into_response(req),
+        }
+    }
+}
+
+impl<V> IntoPacketResponse for Option<V>
+where
+    V: IntoPacketResponse,
+{
+    fn into_response(self, req: &Packet) -> Packet {
+        match self {
+            Some(value) => value.into_response(req),
+            None => Packet::response_empty(req),
+        }
+    }
+}
+
+// Macro for expanding a macro for every tuple variant
+#[rustfmt::skip]
+macro_rules! all_the_tuples {
+    ($name:ident) => {
+        $name!([]);
+        $name!([T1]);
+        $name!([T1, T2]);
+        $name!([T1, T2, T3]);
+        $name!([T1, T2, T3, T4]);
+        $name!([T1, T2, T3, T4, T5]);
+        $name!([T1, T2, T3, T4, T5, T6]);
+        $name!([T1, T2, T3, T4, T5, T6, T7]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14]);
+        $name!([T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15]);
+    };
+}
+
+// Macro for implementing a handler for a tuple of arguments
+macro_rules! impl_handler {
+    (
+        [$($ty:ident),*]
+    ) => {
+
+        #[allow(non_snake_case, unused_mut)]
+        impl<Fun, Fut, $($ty,)* Res> Handler<($($ty,)*), Res> for Fun
+        where
+            Fun: Fn($($ty),*) -> Fut + Send + Sync + 'static,
+            Fut: Future<Output = Res> + Send,
+            $( $ty: FromPacketRequest + Send, )*
+            Res: IntoPacketResponse,
+        {
+            fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet>
+            {
+                Box::pin(async move {
+                    let mut req = req;
+                    $(
+
+                        let $ty = match $ty::from_packet_request(&mut req).await {
+                            Ok(value) => value,
+                            Err(rejection) => return rejection.into_response(&req.packet),
+                        };
+                    )*
+
+                    let res = self($($ty),* ).await;
+                    res.into_response(&req.packet)
+                })
+            }
+        }
+    };
+}
+
+// Implement a handler for every tuple
+all_the_tuples!(impl_handler);
