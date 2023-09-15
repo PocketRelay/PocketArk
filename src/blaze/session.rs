@@ -180,7 +180,7 @@ impl SessionWriter {
                 WriteMessage::Close => break,
             };
 
-            self.link.debug_log_packet("Queued Write", &packet);
+            self.link.debug_log_packet("Write", &packet);
             if self.inner.send(packet).await.is_err() {
                 break;
             }
@@ -352,7 +352,6 @@ impl Session {
         //     packet.pre_msg = Bytes::from(serialize_vec(&msg));
         // }
 
-        self.debug_log_packet("Queued Write", &packet);
         _ = self.writer.send(WriteMessage::Write(packet))
     }
 
