@@ -1,9 +1,12 @@
 use super::{
     components::{self, user_sessions},
-    models::user_sessions::{
-        HardwareFlags, IpPairAddress, NetworkAddress, NotifyUserAdded, NotifyUserRemoved,
-        NotifyUserUpdated, QosNetworkData, UserDataFlags, UserIdentification,
-        UserSessionExtendedData, UserSessionExtendedDataUpdate,
+    models::{
+        game_manager::RemoveReason,
+        user_sessions::{
+            HardwareFlags, IpPairAddress, NetworkAddress, NotifyUserAdded, NotifyUserRemoved,
+            NotifyUserUpdated, QosNetworkData, UserDataFlags, UserIdentification,
+            UserSessionExtendedData, UserSessionExtendedDataUpdate,
+        },
     },
     packet::{Packet, PacketCodec, PacketFlags},
     router::BlazeRouter,
@@ -12,7 +15,7 @@ use crate::{
     blaze::packet::PacketDebug,
     database::entity::{users::UserId, User},
     http::middleware::upgrade::UpgradedTarget,
-    services::game::{manager::GetGameMessage, GameID, Player, RemovePlayerMessage, RemoveReason},
+    services::game::{GameID, Player},
     state::App,
 };
 use bytes::Bytes;
@@ -291,17 +294,11 @@ impl Session {
 
             let services = App::services();
 
-            let game = match services.games.send(GetGameMessage { game_id }).await {
-                Ok(Some(value)) => value,
-                _ => return,
-            };
-
-            let _ = game
-                .send(RemovePlayerMessage {
-                    user_id,
-                    reason: RemoveReason::ServerConnectionLost,
-                })
-                .await;
+            let game = services.games.get_game(game_id).await;
+            if let Some(game) = game {
+                let game = &mut *game.write().await;
+                game.remove_player(user_id, RemoveReason::ServerConnectionLost);
+            }
         }
 
         // Remove the session from the sessions service

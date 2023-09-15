@@ -4,17 +4,11 @@ use std::{
 };
 
 use chrono::Utc;
-use interlink::{
-    prelude::{Handler, Link, Message, Sfr},
-    service::Service,
-};
 use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
-use tdf::{
-    types::string::write_empty_str, ObjectId, TdfDeserialize, TdfMap, TdfSerialize, TdfType,
-    TdfTyped,
-};
+use tdf::{ObjectId, TdfMap, TdfSerialize};
 use thiserror::Error;
+use tokio::sync::RwLock;
 use uuid::Uuid;
 
 use super::{
@@ -24,8 +18,15 @@ use super::{
 };
 use crate::{
     blaze::{
-        components::{self, user_sessions::PLAYER_SESSION_TYPE},
-        models::{user_sessions::NetworkAddress, PlayerState},
+        components::{self, game_manager, user_sessions::PLAYER_SESSION_TYPE},
+        models::{
+            game_manager::{
+                AttributesChange, GameSetupContext, GameSetupResponse, NotifyGameReplay,
+                NotifyGameStateChange, NotifyPostJoinedGame, PlayerAttributesChange, PlayerRemoved,
+                RemoveReason,
+            },
+            PlayerState,
+        },
         packet::Packet,
         session::{NetData, SessionLink},
     },
@@ -37,10 +38,7 @@ use crate::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::{
-        activity::{ChallengeStatusChange, ChallengeUpdate},
-        game::manager::RemoveGameMessage,
-    },
+    services::activity::{ChallengeStatusChange, ChallengeUpdate},
     state::App,
     utils::models::Sku,
 };
@@ -48,6 +46,7 @@ use crate::{
 pub mod manager;
 
 pub type GameID = u32;
+pub type GameRef = Arc<RwLock<Game>>;
 
 pub struct Game {
     /// Unique ID for this game
@@ -55,7 +54,7 @@ pub struct Game {
     /// The current game state
     pub state: u8,
     /// The current game setting
-    pub setting: u32,
+    pub settings: u32,
     /// The game attributes
     pub attributes: AttrMap,
     /// The list of players in this game
@@ -64,103 +63,6 @@ pub struct Game {
     pub modifiers: Vec<MissionModifier>,
     pub mission_data: Option<CompleteMissionData>,
     pub processed_data: Option<MissionDetails>,
-}
-
-impl Service for Game {
-    fn stopping(&mut self) {
-        debug!("Game is stopping (GID: {})", self.id);
-        // Remove the stopping game
-        let services = App::services();
-        let _ = services
-            .games
-            .do_send(RemoveGameMessage { game_id: self.id });
-    }
-}
-
-#[derive(Message)]
-#[msg(rtype = "Option<MissionDetails>")]
-pub struct GetMissionDataMessage(pub DatabaseConnection);
-
-impl Handler<GetMissionDataMessage> for Game {
-    type Response = Sfr<Self, GetMissionDataMessage>;
-    fn handle(
-        &mut self,
-        msg: GetMissionDataMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        Sfr::new(move |act: &mut Game, _ctx| {
-            Box::pin(async move {
-                if let Some(processed) = act.processed_data.clone() {
-                    return Some(processed);
-                }
-
-                let mission_data = act.mission_data.clone()?;
-
-                let now = Utc::now();
-                let db = msg.0;
-
-                let waves = mission_data
-                    .player_data
-                    .iter()
-                    .map(|value| value.waves_completed)
-                    .max()
-                    .unwrap_or_default();
-
-                let level: String = mission_data
-                    .modifiers
-                    .iter()
-                    .find(|value| value.name == "level")
-                    .map(|value| value.value.clone())
-                    .unwrap_or_else(|| "MPAqua".to_string());
-                let difficulty: String = mission_data
-                    .modifiers
-                    .iter()
-                    .find(|value| value.name == "difficulty")
-                    .map(|value| value.value.clone())
-                    .unwrap_or_else(|| "bronze".to_string());
-                let enemy_type: String = mission_data
-                    .modifiers
-                    .iter()
-                    .find(|value| value.name == "enemytype")
-                    .map(|value| value.value.clone())
-                    .unwrap_or_else(|| "outlaw".to_string());
-
-                let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
-
-                for value in &mission_data.player_data {
-                    match process_player_data(db.clone(), value, &mission_data).await {
-                        Ok(info) => {
-                            player_infos.push(info);
-                        }
-                        Err(err) => {
-                            error!("Error while processing player: {}", err);
-                        }
-                    }
-                }
-
-                let data = MissionDetails {
-                    sku: Sku,
-                    name: mission_data.match_id,
-                    duration_sec: mission_data.duration_sec,
-                    percent_complete: mission_data.percent_complete,
-                    waves_encountered: waves,
-                    extraction_state: mission_data.extraction_state,
-                    enemy_type,
-                    difficulty,
-                    map: level,
-                    start: now,
-                    end: now,
-                    processed: now,
-                    player_infos,
-                    modifiers: mission_data.modifiers,
-                };
-
-                act.processed_data = Some(data.clone());
-
-                Some(data)
-            })
-        })
-    }
 }
 
 #[derive(Debug, Error)]
@@ -534,60 +436,186 @@ fn compute_modifiers(
         });
 }
 
-#[derive(Message)]
-pub struct SetModifiersMessage {
-    pub modifiers: Vec<MissionModifier>,
-}
+const DEFAULT_FIT: u16 = 21600;
 
-impl Handler<SetModifiersMessage> for Game {
-    type Response = ();
-    fn handle(
-        &mut self,
-        msg: SetModifiersMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        self.modifiers = msg.modifiers;
+impl Game {
+    pub fn new(id: u32, attributes: TdfMap<String, String>) -> Game {
+        Self {
+            id,
+            state: 1,
+            settings: 262144,
+            attributes,
+            players: Vec::with_capacity(4),
+            modifiers: Vec::new(),
+            mission_data: None,
+            processed_data: None,
+        }
     }
-}
 
-#[derive(Message)]
-pub struct UpdateStateMessage {
-    pub state: u8,
-}
+    pub fn set_attributes(&mut self, attributes: AttrMap) {
+        let packet = Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::GAME_ATTR_UPDATE,
+            AttributesChange {
+                id: self.id,
+                attributes: &attributes,
+            },
+        );
 
-impl Handler<UpdateStateMessage> for Game {
-    type Response = ();
-    fn handle(
-        &mut self,
-        msg: UpdateStateMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        self.state = msg.state;
-        self.notify_state();
+        self.attributes.insert_presorted(attributes.into_inner());
+
+        debug!("Updated game attributes");
+
+        self.push_all(&packet);
     }
-}
 
-#[derive(Message)]
-pub struct RemovePlayerMessage {
-    pub user_id: u32,
-    pub reason: RemoveReason,
-}
+    pub fn set_player_attributes(&mut self, user_id: UserId, attributes: AttrMap) {
+        let packet = Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::PLAYER_ATTR_UPDATE,
+            PlayerAttributesChange {
+                game_id: self.id,
+                user_id,
+                attributes: &attributes,
+            },
+        );
 
-impl Handler<RemovePlayerMessage> for Game {
-    type Response = ();
-    fn handle(
-        &mut self,
-        msg: RemovePlayerMessage,
-        ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
+        debug!("Updated player attributes");
+
+        self.push_all(&packet);
+
+        let player = self
+            .players
+            .iter_mut()
+            .find(|player| player.user.id == user_id);
+
+        if let Some(player) = player {
+            player.attr.insert_presorted(attributes.into_inner());
+        }
+    }
+
+    pub fn set_complete_mission(&mut self, mission_data: CompleteMissionData) {
+        self.mission_data = Some(mission_data);
+        self.processed_data = None;
+    }
+
+    pub fn set_modifiers(&mut self, modifiers: Vec<MissionModifier>) {
+        self.modifiers = modifiers;
+    }
+
+    pub async fn get_mission_details(&mut self, db: &DatabaseConnection) -> Option<MissionDetails> {
+        if let Some(processed) = self.processed_data.clone() {
+            return Some(processed);
+        }
+
+        let mission_data = self.mission_data.clone()?;
+
+        let now = Utc::now();
+
+        let waves = mission_data
+            .player_data
+            .iter()
+            .map(|value| value.waves_completed)
+            .max()
+            .unwrap_or_default();
+
+        let level: String = mission_data
+            .modifiers
+            .iter()
+            .find(|value| value.name == "level")
+            .map(|value| value.value.clone())
+            .unwrap_or_else(|| "MPAqua".to_string());
+        let difficulty: String = mission_data
+            .modifiers
+            .iter()
+            .find(|value| value.name == "difficulty")
+            .map(|value| value.value.clone())
+            .unwrap_or_else(|| "bronze".to_string());
+        let enemy_type: String = mission_data
+            .modifiers
+            .iter()
+            .find(|value| value.name == "enemytype")
+            .map(|value| value.value.clone())
+            .unwrap_or_else(|| "outlaw".to_string());
+
+        let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
+
+        for value in &mission_data.player_data {
+            match process_player_data(db.clone(), value, &mission_data).await {
+                Ok(info) => {
+                    player_infos.push(info);
+                }
+                Err(err) => {
+                    error!("Error while processing player: {}", err);
+                }
+            }
+        }
+
+        let data = MissionDetails {
+            sku: Sku,
+            name: mission_data.match_id,
+            duration_sec: mission_data.duration_sec,
+            percent_complete: mission_data.percent_complete,
+            waves_encountered: waves,
+            extraction_state: mission_data.extraction_state,
+            enemy_type,
+            difficulty,
+            map: level,
+            start: now,
+            end: now,
+            processed: now,
+            player_infos,
+            modifiers: mission_data.modifiers,
+        };
+
+        self.processed_data = Some(data.clone());
+
+        Some(data)
+    }
+
+    pub fn set_state(&mut self, state: u8) {
+        self.state = state;
+
+        debug!("Updated game state (Value: {:?})", &state);
+
+        self.push_all(&Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::GAME_STATE_CHANGE,
+            NotifyGameStateChange {
+                game_id: self.id,
+                state,
+            },
+        ));
+    }
+
+    /// Called by the game manager service once this game has been stopped and
+    /// removed from the game list
+    fn stopped(self) {
+        debug!("Game is stopped (GID: {})", self.id);
+    }
+
+    fn stop(&mut self) {
+        // Mark the game as stopping
+        // self.state = GameState::Destructing;
+
+        // Remove the stopping game
+        let game_id = self.id;
+        tokio::spawn(async move {
+            let services = App::services();
+
+            services.games.remove_game(game_id).await;
+        });
+    }
+
+    pub fn remove_player(&mut self, user_id: u32, reason: RemoveReason) {
         // Already empty game handling
         if self.players.is_empty() {
-            ctx.stop();
+            self.stop();
             return;
         }
 
         // Find the player index
-        let index = self.players.iter().position(|v| v.user.id == msg.user_id);
+        let index = self.players.iter().position(|v| v.user.id == user_id);
 
         let index = match index {
             Some(value) => value,
@@ -601,7 +629,7 @@ impl Handler<RemovePlayerMessage> for Game {
         player.set_game(None);
 
         // Update the other players
-        self.notify_player_removed(&player, msg.reason);
+        self.notify_player_removed(&player, reason);
         // self.notify_fetch_data(&player);
         // self.modify_admin_list(player.player.id, AdminListOperation::Remove);
 
@@ -617,120 +645,74 @@ impl Handler<RemovePlayerMessage> for Game {
 
         if self.players.is_empty() {
             // Game is empty stop it
-            ctx.stop();
+            self.stop();
         }
     }
-}
 
-#[derive(Message)]
-pub struct UpdatePlayerAttr {
-    pub attr: AttrMap,
-    pub pid: u32,
-}
+    pub fn add_player(&mut self, mut player: Player, context: GameSetupContext) {
+        let slot = self.players.len();
 
-impl Handler<UpdatePlayerAttr> for Game {
-    type Response = ();
-    fn handle(
-        &mut self,
-        msg: UpdatePlayerAttr,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        self.notify_all(
-            components::game_manager::COMPONENT,
-            components::game_manager::NOTIFY_PLAYER_ATTR_UPDATE,
-            NotifyPlayerAttr {
-                attr: msg.attr.clone(),
-                pid: msg.pid,
-                gid: self.id,
-            },
-        );
+        self.players.push(player);
 
+        // Obtain the player that was just added
         let player = self
             .players
-            .iter_mut()
-            .find(|player| player.user.id == msg.pid);
+            .last()
+            .expect("Player was added but is missing from players");
 
-        if let Some(player) = player {
-            player.attr.insert_presorted(msg.attr.into_inner());
+        let is_other = slot != 0;
+        if is_other {
+            // NOTIFY PLAYER JOINING
+            // Notify other players of the joined player
+            // self.notify_all(
+            //     Components::GameManager(GameManager::PlayerJoining),
+            //     PlayerJoining {
+            //         slot,
+            //         player,
+            //         game_id: self.id,
+            //     },
+            // );
+
+            // Update other players with the client details
+            self.add_user_sub(player.user.id, player.link.clone());
         }
+
+        self.notify_game_setup(&player, context);
+
+        player.link.push(Packet::notify(
+            4,
+            11,
+            NotifyPostJoinedGame {
+                game_id: self.id,
+                player_id: player.user.id,
+            },
+        ));
+
+        // Set current game of this player
+        player.set_game(Some(self.id));
     }
-}
 
-#[derive(Message)]
-pub struct UpdateGameAttrMessage {
-    pub attr: AttrMap,
-}
-
-impl Handler<UpdateGameAttrMessage> for Game {
-    type Response = ();
-    fn handle(
-        &mut self,
-        msg: UpdateGameAttrMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        self.notify_all(
-            components::game_manager::COMPONENT,
-            components::game_manager::NOTIFY_GAME_ATTR_UPDATE,
-            NotifyGameAttr {
-                attr: msg.attr.clone(),
-                gid: self.id,
+    fn notify_game_setup(&self, player: &Player, context: GameSetupContext) {
+        let packet = Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::GAME_SETUP,
+            GameSetupResponse {
+                game: self,
+                context,
             },
         );
-        self.attributes.insert_presorted(msg.attr.into_inner());
+        player.link.push(packet);
     }
-}
 
-#[derive(Message)]
-pub struct SetCompleteMissionMessage {
-    pub mission_data: CompleteMissionData,
-}
-
-impl Handler<SetCompleteMissionMessage> for Game {
-    type Response = ();
-
-    fn handle(
-        &mut self,
-        msg: SetCompleteMissionMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        self.mission_data = Some(msg.mission_data);
-        self.processed_data = None;
-    }
-}
-
-#[derive(TdfSerialize)]
-pub struct NotifyPlayerAttr {
-    #[tdf(tag = "ATTR")]
-    attr: AttrMap,
-    #[tdf(tag = "GID")]
-    pid: u32,
-    #[tdf(tag = "PID")]
-    gid: u32,
-}
-
-#[derive(TdfSerialize)]
-
-pub struct NotifyGameAttr {
-    #[tdf(tag = "ATTR")]
-    attr: AttrMap,
-    #[tdf(tag = "GID")]
-    gid: u32,
-}
-
-impl Game {
-    pub fn new(id: u32, attributes: TdfMap<String, String>) -> Link<Game> {
-        // TODO: Take attributes provided by client matchmaking
-        let this = Self {
-            id,
-            state: 1,
-            setting: 262144,
-            attributes,
-            players: Vec::with_capacity(4),
-            modifiers: Vec::new(),
-            mission_data: None,
-            processed_data: None,
-        };
-        this.start()
+    pub fn notify_game_replay(&self) {
+        self.notify_all(
+            4,
+            113,
+            NotifyGameReplay {
+                game_id: self.id,
+                grid: self.id,
+            },
+        )
     }
 
     /// Notifies all the session and the removed session that a
@@ -741,7 +723,7 @@ impl Game {
     fn notify_player_removed(&self, player: &Player, reason: RemoveReason) {
         let packet = Packet::notify(
             components::game_manager::COMPONENT,
-            components::game_manager::NOTIFY_PLAYER_REMOVED,
+            components::game_manager::PLAYER_REMOVED,
             PlayerRemoved {
                 cntx: 0,
                 game_id: self.id,
@@ -778,8 +760,8 @@ impl Game {
     fn notify_state(&self) {
         self.notify_all(
             components::game_manager::COMPONENT,
-            components::game_manager::NOTIFY_GAME_STATE_UPDATE,
-            NotifyStateUpdate {
+            components::game_manager::GAME_STATE_CHANGE,
+            NotifyGameStateChange {
                 game_id: self.id,
                 state: self.state,
             },
@@ -830,129 +812,6 @@ impl Game {
                     other_link.remove_subscriber(target_id).await;
                 });
             });
-    }
-}
-
-#[derive(TdfSerialize)]
-pub struct PlayerRemoved {
-    #[tdf(tag = "CNTX")]
-    pub cntx: u32,
-    #[tdf(tag = "GID")]
-    pub game_id: GameID,
-    #[tdf(tag = "PID")]
-    pub player_id: u32,
-    #[tdf(tag = "REAS")]
-    pub reason: RemoveReason,
-}
-
-#[derive(Debug, Clone, Copy, TdfDeserialize, TdfSerialize, TdfTyped)]
-#[repr(u8)]
-pub enum RemoveReason {
-    /// Hit timeout while joining
-    JoinTimeout = 0x0,
-    /// Player lost PTP conneciton
-    PlayerConnectionLost = 0x1,
-    /// Player lost connection with the Pocket Relay server
-    ServerConnectionLost = 0x2,
-    /// Game migration failed
-    MigrationFailed = 0x3,
-    GameDestroyed = 0x4,
-    GameEnded = 0x5,
-    /// Generic player left the game reason
-    #[tdf(default)]
-    PlayerLeft = 0x6,
-    GroupLeft = 0x7,
-    /// Player kicked
-    PlayerKicked = 0x8,
-    /// Player kicked and banned
-    PlayerKickedWithBan = 0x9,
-    /// Failed to join from the queue
-    PlayerJoinFromQueueFailed = 0xA,
-    PlayerReservationTimeout = 0xB,
-    HostEjected = 0xC,
-}
-
-#[derive(Message)]
-pub struct NotifyGameReplayMessage;
-
-impl Handler<NotifyGameReplayMessage> for Game {
-    type Response = ();
-
-    fn handle(
-        &mut self,
-        _msg: NotifyGameReplayMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        self.notify_all(4, 113, NotifyGameReplay { game_id: self.id })
-    }
-}
-
-/// Message to add a new player to this game
-#[derive(Message)]
-pub struct AddPlayerMessage {
-    /// The player to add to the game
-    pub player: Player,
-}
-
-/// Handler for adding a player to the game
-impl Handler<AddPlayerMessage> for Game {
-    type Response = ();
-    fn handle(
-        &mut self,
-        msg: AddPlayerMessage,
-        _ctx: &mut interlink::service::ServiceContext<Self>,
-    ) -> Self::Response {
-        let slot = self.players.len();
-
-        self.players.push(msg.player);
-
-        // Obtain the player that was just added
-        let player = self
-            .players
-            .last()
-            .expect("Player was added but is missing from players");
-
-        let is_other = slot != 0;
-        if is_other {
-            // NOTIFY PLAYER JOINING
-            // Notify other players of the joined player
-            // self.notify_all(
-            //     Components::GameManager(GameManager::PlayerJoining),
-            //     PlayerJoining {
-            //         slot,
-            //         player,
-            //         game_id: self.id,
-            //     },
-            // );
-
-            // Update other players with the client details
-            self.add_user_sub(player.user.id, player.link.clone());
-        }
-
-        // Game Setup
-        let packet = Packet::notify(
-            4,
-            20,
-            GameDetails {
-                game: self,
-                player_id: player.user.id,
-                // TODO: Type based on why player was added
-                ty: MatchmakingResultType::CreatedGame,
-            },
-        );
-
-        player.link.push(packet);
-        player.link.push(Packet::notify(
-            4,
-            11,
-            PostJoinMsg {
-                game_id: self.id,
-                player_id: player.user.id,
-            },
-        ));
-
-        // Set current game of this player
-        player.set_game(Some(self.id));
     }
 }
 
@@ -1027,218 +886,5 @@ impl Player {
         w.tag_owned(b"UID", self.user.id);
         w.tag_str(b"UUID", &self.link.uuid.to_string());
         w.tag_group_end();
-    }
-}
-
-pub struct GameDetails<'a> {
-    pub game: &'a Game,
-    pub ty: MatchmakingResultType,
-    pub player_id: u32,
-}
-
-impl<'a> TdfSerialize for GameDetails<'a> {
-    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
-        let game = self.game;
-        let host_player = match game.players.first() {
-            Some(value) => value,
-            None => return,
-        };
-
-        // Game details
-        w.group(b"GAME", |w| {
-            w.tag_list_iter_owned(b"ADMN", game.players.iter().map(|player| player.user.id));
-            w.tag_u8(b"APRS", 1);
-            w.tag_ref(b"ATTR", &game.attributes);
-            w.tag_list_slice(b"CAP", &[4, 0, 0, 0]);
-            w.tag_u8(b"CCMD", 3);
-            w.tag_str_empty(b"COID");
-            w.tag_str_empty(b"CSID");
-            w.tag_u64(b"CTIM", 1688851953868334);
-            w.group(b"DHST", |w| {
-                w.tag_zero(b"CONG");
-                w.tag_zero(b"CSID");
-                w.tag_zero(b"HPID");
-                w.tag_zero(b"HSES");
-                w.tag_zero(b"HSLT");
-            });
-            w.tag_zero(b"DRTO");
-            w.group(b"ESID", |w| {
-                w.group(b"PS\x20", |w| {
-                    w.tag_str_empty(b"NPSI");
-                });
-                w.group(b"XONE", |w| {
-                    w.tag_str_empty(b"COID");
-                    w.tag_str_empty(b"ESNM");
-                    w.tag_str_empty(b"STMN");
-                });
-            });
-
-            w.tag_str_empty(b"ESNM");
-            w.tag_zero(b"GGTY");
-
-            w.tag_u32(b"GID", game.id);
-            w.tag_zero(b"GMRG");
-            w.tag_str_empty(b"GNAM");
-
-            w.tag_u64(b"GPVH", 3788120962);
-            w.tag_u32(b"GSET", game.setting);
-            w.tag_u32(b"GSID", game.id); // SHOULD MATCH START MISSION RESPONSE ID
-            w.tag_ref(b"GSTA", &game.state);
-
-            w.tag_str_empty(b"GTYP");
-            w.tag_str_empty(b"GURL");
-            {
-                w.tag_list_start(b"HNET", TdfType::Group, 1);
-                w.write_byte(2);
-
-                if let NetworkAddress::AddressPair(addr) = &host_player.net.addr {
-                    addr.serialize(w);
-                }
-            }
-
-            w.tag_u8(b"MCAP", 1); // should be 4?
-            w.tag_u8(b"MNCP", 1);
-            w.tag_str_empty(b"NPSI");
-            // This should be the host QOS details?
-            w.group(b"NQOS", |w| {
-                w.tag_u32(b"BWHR", 0);
-                w.tag_u32(b"DBPS", 24000000);
-                w.tag_u32(b"NAHR", 0);
-                w.tag_u32(b"NATT", 0); // 1?
-                w.tag_u32(b"UBPS", 8000000);
-            });
-
-            w.tag_zero(b"NRES");
-            w.tag_zero(b"NTOP");
-            w.tag_str_empty(b"PGID");
-            w.tag_blob_empty(b"PGSR");
-
-            w.group(b"PHST", |w| {
-                w.tag_u32(b"CONG", host_player.user.id);
-                w.tag_u32(b"CSID", 0);
-                w.tag_u32(b"HPID", host_player.user.id);
-                w.tag_zero(b"HSLT");
-            });
-            w.tag_u8(b"PRES", 0x1);
-            w.tag_u8(b"PRTO", 0);
-            w.tag_str(b"PSAS", "bio-syd");
-            w.tag_u8(b"PSEU", 0);
-            w.tag_u8(b"QCAP", 0);
-            w.group(b"RNFO", |w| {
-                w.tag_map_start(b"CRIT", TdfType::String, TdfType::Group, 1);
-                write_empty_str(w);
-                w.tag_u8(b"RCAP", 1);
-                w.tag_group_end();
-            });
-            w.tag_str_empty(b"SCID");
-            w.tag_u32(b"SEED", 131492528);
-            w.tag_str_empty(b"STMN");
-
-            w.group(b"THST", |w| {
-                w.tag_u32(b"CONG", host_player.user.id);
-                w.tag_u8(b"CSID", 0x0);
-                w.tag_u32(b"HPID", host_player.user.id);
-                w.tag_u32(b"HSES", host_player.user.id);
-                w.tag_u8(b"HSLT", 0x0);
-            });
-
-            w.tag_list_slice(b"TIDS", &[65534]);
-            w.tag_str(b"UUID", "32d89cf8-6a83-4282-b0a0-5b7a8449de2e");
-            w.tag_u8(b"VOIP", 0);
-            w.tag_str(b"VSTR", "60-Future739583");
-        });
-
-        w.tag_u8(b"LFPJ", 0);
-        w.tag_str(b"MNAM", "coopGameVisibility");
-
-        // Player list
-        w.tag_list_start(b"PROS", TdfType::Group, game.players.len());
-        for (slot, player) in game.players.iter().enumerate() {
-            player.encode(game.id, slot, w);
-        }
-
-        w.group(b"QOSS", |w| {
-            w.tag_u8(b"DURA", 0);
-            w.tag_u8(b"INTV", 0);
-            w.tag_u8(b"SIZE", 0);
-        });
-        w.tag_u8(b"QOSV", 0);
-
-        w.tag_union_start(b"REAS", 0x3);
-        w.group(b"MMSC", |w| {
-            const FIT: u16 = 20000; // 24500
-
-            w.tag_u16(b"FIT", FIT);
-            w.tag_u16(b"FIT", 0);
-            w.tag_u16(b"MAXF", FIT);
-            w.tag_u32(b"MSCD", self.player_id);
-            w.tag_u32(b"MSID", self.player_id);
-
-            // TODO: Matchmaking result
-            // SUCCESS_CREATED_GAME = 0
-            // SUCCESS_JOINED_NEW_GAME = 1
-            // SUCCESS_JOINED_EXISTING_GAME = 2
-            // SESSION_TIMED_OUT = 3
-            // SESSION_CANCELED = 4
-            // SESSION_TERMINATED = 5
-            // SESSION_ERROR_GAME_SETUP_FAILED = 6
-            w.tag_owned(b"RSLT", self.ty);
-
-            w.tag_u32(b"TOUT", 15000000);
-            w.tag_u32(b"TTM", 51109);
-
-            w.tag_u32(b"USID", self.player_id);
-        });
-    }
-}
-
-#[derive(Debug, Clone, Copy, TdfSerialize, TdfTyped)]
-#[repr(u8)]
-pub enum MatchmakingResultType {
-    CreatedGame = 0,
-    JoinedNewGame = 1,
-    JoinedExistingGame = 2,
-}
-
-pub struct PostJoinMsg {
-    pub player_id: u32,
-    pub game_id: u32,
-}
-
-impl TdfSerialize for PostJoinMsg {
-    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
-        w.group(b"CONV", |w| {
-            w.tag_zero(b"FCNT");
-            w.tag_zero(b"NTOP");
-            w.tag_zero(b"TIER");
-        });
-        w.tag_u8(b"DISP", 1);
-        w.tag_owned(b"GID", self.game_id);
-
-        w.tag_alt(b"GRID", ObjectId::new_raw(0, 0, 0));
-
-        w.tag_owned(b"MSCD", self.player_id);
-        w.tag_owned(b"MSID", self.player_id);
-        w.tag_zero(b"QSVR");
-        w.tag_owned(b"USID", self.player_id);
-    }
-}
-
-#[derive(TdfSerialize)]
-struct NotifyStateUpdate {
-    #[tdf(tag = "GID")]
-    game_id: u32,
-    #[tdf(tag = "GSTA")]
-    state: u8,
-}
-
-struct NotifyGameReplay {
-    game_id: u32,
-}
-
-impl TdfSerialize for NotifyGameReplay {
-    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
-        w.tag_owned(b"GID", self.game_id);
-        w.tag_owned(b"GRID", self.game_id)
     }
 }

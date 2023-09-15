@@ -1,157 +1,117 @@
-use interlink::prelude::*;
-use std::collections::HashMap;
+use log::{debug, warn};
+use std::{
+    sync::{
+        atomic::{AtomicU32, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
+use tokio::sync::RwLock;
 
-use crate::blaze::models::PlayerState;
+use crate::{
+    blaze::models::{
+        game_manager::{GameSetupContext, MatchmakingResult},
+        PlayerState,
+    },
+    utils::hashing::IntHashMap,
+};
 
-use super::{AddPlayerMessage, AttrMap, Game, GameID, Player};
+use super::{AttrMap, Game, GameID, GameRef, Player, DEFAULT_FIT};
 
 /// Manager which controls all the active games on the server
 /// commanding them to do different actions and removing them
 /// once they are no longer used
-#[derive(Service)]
 pub struct GameManager {
     /// The map of games to the actual game address
-    games: HashMap<GameID, Link<Game>>,
+    games: RwLock<IntHashMap<GameID, GameRef>>,
     /// Stored value for the ID to give the next game
-    next_id: GameID,
+    next_id: AtomicU32,
 }
 
 impl GameManager {
+    /// Max number of times to poll a game for shutdown before erroring
+    const MAX_RELEASE_ATTEMPTS: u8 = 5;
+
     /// Starts a new game manager service returning its link
-    pub fn start() -> Link<GameManager> {
-        let this = GameManager {
+    pub fn new() -> Self {
+        Self {
             games: Default::default(),
-            next_id: 1,
-        };
-        this.start()
+            next_id: AtomicU32::new(1),
+        }
     }
-}
 
-/// Message for creating a new game using the game manager
-/// responds with a link to the created game and its ID
-#[derive(Message)]
-#[msg(rtype = "(Link<Game>, GameID)")]
-pub struct CreateMessage {
-    /// The host player for the game
-    pub host: Player,
+    pub async fn create(&self, mut host: Player, attributes: AttrMap) -> (GameRef, GameID) {
+        let games = &mut *self.games.write().await;
 
-    pub attributes: AttrMap,
-}
+        let id = self.next_id.fetch_add(1, Ordering::AcqRel);
 
-/// Handler for creating games
-impl Handler<CreateMessage> for GameManager {
-    type Response = Mr<CreateMessage>;
+        host.state = PlayerState::ActiveConnected;
 
-    fn handle(
-        &mut self,
-        mut msg: CreateMessage,
-        _ctx: &mut ServiceContext<Self>,
-    ) -> Self::Response {
-        let id = self.next_id;
+        let game = Arc::new(RwLock::new(Game::new(id, attributes)));
+        games.insert(id, game.clone());
 
-        self.next_id = self.next_id.wrapping_add(1);
+        let link = game.clone();
 
-        msg.host.state = PlayerState::ActiveConnected;
+        tokio::spawn(async move {
+            let context = GameSetupContext::Matchmaking {
+                fit_score: DEFAULT_FIT,
+                max_fit_score: DEFAULT_FIT,
+                id_1: host.user.id,
+                id_2: host.user.id,
+                result: MatchmakingResult::CreatedGame,
+                tout: 15000000,
+                ttm: 51109,
+                id_3: host.user.id,
+            };
 
-        let link = Game::new(id, msg.attributes);
-        self.games.insert(id, link.clone());
+            // TODO: Aquire lock outside of future? to prevent game usage before the games write lock is dropped
+            let link = &mut *link.write().await;
+            link.add_player(host, context);
+        });
 
-        let _ = link.do_send(AddPlayerMessage { player: msg.host });
-
-        Mr((link, id))
+        (game, id)
     }
-}
 
-/// Message for requesting a link to a game with the provided
-/// ID responds with a link to the game if it exists
-#[derive(Message)]
-#[msg(rtype = "Option<Link<Game>>")]
-pub struct GetGameMessage {
-    /// The ID of the game to get a link to
-    pub game_id: GameID,
-}
-
-/// Handler for getting a specific game
-impl Handler<GetGameMessage> for GameManager {
-    type Response = Mr<GetGameMessage>;
-
-    fn handle(&mut self, msg: GetGameMessage, _ctx: &mut ServiceContext<Self>) -> Self::Response {
-        let link = self.games.get(&msg.game_id).cloned();
-        Mr(link)
+    pub async fn get_game(&self, game_id: GameID) -> Option<GameRef> {
+        let games = &*self.games.read().await;
+        games.get(&game_id).cloned()
     }
-}
 
-// /// Message for attempting to add a player to any existing
-// /// games within this game manager
-// #[derive(Message)]
-// #[msg(rtype = "TryAddResult")]
-// pub struct TryAddMessage {
-//     /// The player to attempt to add
-//     pub player: Player,
-//     // The set of rules the player requires the game has
-//     // pub rule_set: Arc<RuleSet>,
-// }
+    pub async fn remove_game(&self, game_id: GameID) {
+        let games = &mut *self.games.write().await;
+        if let Some(mut game) = games.remove(&game_id) {
+            let mut attempt: u8 = 1;
 
-// /// Result of attempting to add a player. Success will
-// /// consume the game player and Failure will return the
-// /// game player back
-// pub enum TryAddResult {
-//     /// The player was added to the game
-//     Success,
-//     /// The player failed to be added and was returned back
-//     Failure(Player),
-// }
+            // Attempt to obtain the owned game
+            let game = loop {
+                if attempt > Self::MAX_RELEASE_ATTEMPTS {
+                    let references = Arc::strong_count(&game);
+                    warn!(
+                        "Failed to stop game {} there are still {} references to it",
+                        game_id, references
+                    );
+                    return;
+                }
 
-// /// Handler for attempting to add a player
-// impl Handler<TryAddMessage> for GameManager {
-//     type Response = Fr<TryAddMessage>;
+                match Arc::try_unwrap(game) {
+                    Ok(value) => break value,
+                    Err(arc) => {
+                        let wait = 5 * attempt as u64;
+                        let references = Arc::strong_count(&arc);
+                        debug!(
+                            "Game {} still has {} references to it, waiting {}s",
+                            game_id, references, wait
+                        );
+                        tokio::time::sleep(Duration::from_secs(wait)).await;
+                        game = arc;
+                        attempt += 1;
+                        continue;
+                    }
+                }
+            };
 
-//     fn handle(&mut self, msg: TryAddMessage, _ctx: &mut ServiceContext<Self>) -> Self::Response {
-//         // Take a copy of the current games list
-//         let games = self.games.clone();
-
-//         Fr::new(Box::pin(async move {
-//             let player = msg.player;
-
-//             // Message asking for the game joinable state
-//             let msg = CheckJoinableMessage {
-//                 rule_set: Some(msg.rule_set),
-//             };
-
-//             // Attempt to find a game thats joinable
-//             for (id, link) in games {
-//                 // Check if the game is joinable
-//                 if let Ok(GameJoinableState::Joinable) = link.send(msg.clone()).await {
-//                     debug!("Found matching game (GID: {})", id);
-//                     let msid = player.player.id;
-//                     let _ = link.do_send(AddPlayerMessage {
-//                         player,
-//                         context: GameSetupContext::Matchmaking(msid),
-//                     });
-//                     return TryAddResult::Success;
-//                 }
-//             }
-
-//             TryAddResult::Failure(player)
-//         }))
-//     }
-// }
-
-/// Message for removing a game from the manager
-#[derive(Message)]
-pub struct RemoveGameMessage {
-    /// The ID of the game to remove
-    pub game_id: GameID,
-}
-
-/// Handler for removing a game
-impl Handler<RemoveGameMessage> for GameManager {
-    type Response = ();
-
-    fn handle(&mut self, msg: RemoveGameMessage, _ctx: &mut ServiceContext<Self>) {
-        // Remove the game
-        if let Some(value) = self.games.remove(&msg.game_id) {
-            value.stop();
+            let game = game.into_inner();
+            game.stopped();
         }
     }
 }

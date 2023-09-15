@@ -7,11 +7,7 @@ use crate::{
         router::{Blaze, SessionAuth},
         session::{self, SessionLink},
     },
-    services::game::{
-        manager::{CreateMessage, GetGameMessage},
-        NotifyGameReplayMessage, Player, RemovePlayerMessage, UpdateGameAttrMessage,
-        UpdatePlayerAttr, UpdateStateMessage,
-    },
+    services::game::Player,
     state::App,
 };
 
@@ -34,20 +30,14 @@ pub async fn create_game(
             // - found one? send game details
         }
         MatchmakeType::CreatePublicGame => {
-            // TODO: Handle create vs matchmaking
-
-            let _game = services
-                .games
-                .send(CreateMessage {
-                    host: player,
-                    attributes: req
-                        .attributes
-                        .into_iter()
-                        .map(|(key, value)| (key, value.value))
-                        .collect(),
-                })
-                .await
-                .expect("Failed to create");
+            let attributes = req
+                .attributes
+                .into_iter()
+                .map(|(key, value)| (key, value.value))
+                .collect();
+            tokio::spawn(async move {
+                let (_link, _id) = services.games.create(player, attributes).await;
+            });
         }
     }
 
@@ -58,50 +48,51 @@ pub async fn update_game_attr(Blaze(req): Blaze<UpdateGameAttrRequest>) {
     let services = App::services();
     let game = services
         .games
-        .send(GetGameMessage { game_id: req.gid })
+        .get_game(req.gid)
         .await
-        .expect("Failed to create")
         .expect("Unknown game");
-    let _ = game.send(UpdateGameAttrMessage { attr: req.attr }).await;
+
+    let game = &mut *game.write().await;
+    game.set_attributes(req.attr);
 }
 
 pub async fn update_player_attr(Blaze(req): Blaze<UpdateAttrRequest>) {
     let services = App::services();
     let game = services
         .games
-        .send(GetGameMessage { game_id: req.gid })
+        .get_game(req.gid)
         .await
-        .expect("Failed to create")
         .expect("Unknown game");
-    let _ = game
-        .send(UpdatePlayerAttr {
-            attr: req.attr,
-            pid: req.pid,
-        })
-        .await;
+
+    let game = &mut *game.write().await;
+    game.set_player_attributes(req.pid, req.attr);
 }
 
 pub async fn update_game_state(Blaze(req): Blaze<UpdateStateRequest>) {
     let services = App::services();
+
     let game = services
         .games
-        .send(GetGameMessage { game_id: req.gid })
+        .get_game(req.gid)
         .await
-        .expect("Failed to create")
         .expect("Unknown game");
-    let _ = game.send(UpdateStateMessage { state: req.state }).await;
+
+    let game = &mut *game.write().await;
+    game.set_state(req.state);
 }
 
 pub async fn replay_game(Blaze(req): Blaze<ReplayGameRequest>) {
     let services = App::services();
+
     let game = services
         .games
-        .send(GetGameMessage { game_id: req.gid })
+        .get_game(req.gid)
         .await
-        .expect("Failed to create")
         .expect("Unknown game");
-    let _ = game.send(UpdateStateMessage { state: 130 }).await;
-    let _ = game.send(NotifyGameReplayMessage).await;
+
+    let game = &mut *game.write().await;
+    game.set_state(130);
+    game.notify_game_replay();
 }
 
 pub async fn leave_game(
@@ -110,16 +101,13 @@ pub async fn leave_game(
     Blaze(req): Blaze<LeaveGameRequest>,
 ) {
     let services = App::services();
+
     let game = services
         .games
-        .send(GetGameMessage { game_id: req.gid })
+        .get_game(req.gid)
         .await
-        .expect("Failed to create")
         .expect("Unknown game");
-    let _ = game
-        .send(RemovePlayerMessage {
-            user_id: user.id,
-            reason: req.reas,
-        })
-        .await;
+
+    let game = &mut *game.write().await;
+    game.remove_player(user.id, req.reas);
 }

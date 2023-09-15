@@ -3,10 +3,6 @@ use crate::{
         mission::{CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse},
         HttpError, RawJson,
     },
-    services::game::{
-        manager::GetGameMessage, GetMissionDataMessage, SetCompleteMissionMessage,
-        SetModifiersMessage,
-    },
     state::App,
 };
 use axum::{extract::Path, Extension, Json};
@@ -40,21 +36,16 @@ pub async fn get_mission(
     let services = App::services();
     let game = services
         .games
-        .send(GetGameMessage {
-            game_id: mission_id,
-        })
+        .get_game(mission_id)
         .await
-        .map_err(|_| HttpError::new("Game service down", StatusCode::SERVICE_UNAVAILABLE))?
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
 
-    let mission_data = game
-        .send(GetMissionDataMessage(db))
-        .await
-        .map_err(|_| HttpError::new("Failed to send message", StatusCode::INTERNAL_SERVER_ERROR))?
-        .ok_or(HttpError::new(
-            "Missing mission data",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        ))?;
+    let game = &mut *game.write().await;
+
+    let mission_data = game.get_mission_details(&db).await.ok_or(HttpError::new(
+        "Missing mission data",
+        StatusCode::INTERNAL_SERVER_ERROR,
+    ))?;
 
     Ok(Json(mission_data))
 }
@@ -71,18 +62,14 @@ pub async fn start_mission(
     let services = App::services();
     let game = services
         .games
-        .send(GetGameMessage {
-            game_id: mission_id,
-        })
+        .get_game(mission_id)
         .await
-        .map_err(|_| HttpError::new("Game service down", StatusCode::SERVICE_UNAVAILABLE))?
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
 
-    game.send(SetModifiersMessage {
-        modifiers: req.modifiers,
-    })
-    .await
-    .map_err(|_| HttpError::new("Failed to set modifiers", StatusCode::INTERNAL_SERVER_ERROR))?;
+    {
+        let game = &mut *game.write().await;
+        game.set_modifiers(req.modifiers);
+    }
 
     let res = StartMissionResponse {
         match_id: mission_id.to_string(),
@@ -102,20 +89,14 @@ pub async fn finish_mission(
     let services = App::services();
     let game = services
         .games
-        .send(GetGameMessage {
-            game_id: mission_id,
-        })
+        .get_game(mission_id)
         .await
-        .map_err(|_| HttpError::new("Game service down", StatusCode::SERVICE_UNAVAILABLE))?
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
-    game.send(SetCompleteMissionMessage { mission_data: req })
-        .await
-        .map_err(|_| {
-            HttpError::new(
-                "Failed to set finished data",
-                StatusCode::INTERNAL_SERVER_ERROR,
-            )
-        })?;
+
+    {
+        let game = &mut *game.write().await;
+        game.set_complete_mission(req)
+    }
 
     Ok(StatusCode::NO_CONTENT)
 }

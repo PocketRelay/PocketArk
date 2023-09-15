@@ -26,10 +26,12 @@ pub mod game_manager {
     pub const REPLAY_GAME: u16 = 19;
     pub const LEAVE_GAME_BY_GROUP: u16 = 22;
 
-    pub const NOTIFY_PLAYER_REMOVED: u16 = 40;
-    pub const NOTIFY_GAME_ATTR_UPDATE: u16 = 80;
-    pub const NOTIFY_PLAYER_ATTR_UPDATE: u16 = 90;
-    pub const NOTIFY_GAME_STATE_UPDATE: u16 = 100;
+    // Notifications
+    pub const GAME_SETUP: u16 = 20;
+    pub const PLAYER_REMOVED: u16 = 40;
+    pub const GAME_ATTR_UPDATE: u16 = 80;
+    pub const PLAYER_ATTR_UPDATE: u16 = 90;
+    pub const GAME_STATE_CHANGE: u16 = 100;
 
     pub const GAME_TYPE: ObjectType = ObjectType::new(COMPONENT, 1);
 }

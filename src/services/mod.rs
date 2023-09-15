@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use interlink::prelude::Link;
 
 use self::{
@@ -20,7 +22,7 @@ pub mod strike_teams;
 pub mod tokens;
 
 pub struct Services {
-    pub games: Link<GameManager>,
+    pub games: Arc<GameManager>,
     pub tokens: Tokens,
     pub match_data: MatchDataService,
     pub challenges: ChallengesService,
@@ -34,7 +36,7 @@ pub struct Services {
 
 impl Services {
     pub async fn init() -> Self {
-        let games = GameManager::start();
+        let games = Arc::new(GameManager::new());
         let tokens = Tokens::new().await;
         let match_data = MatchDataService::new();
         let challenges = ChallengesService::new();
