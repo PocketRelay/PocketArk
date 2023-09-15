@@ -43,7 +43,7 @@ argon2 = { version = "0.5", features = ["std"] }
 rand = "0.8.5"
 csv = "1.2.2"
 
-tdf = { version = "0.1", path = "../../tdf" }
+tdf = { version = "0.1", path = "../../tdf", features = ["bytes"] }
 
 
 [dependencies.log4rs]
