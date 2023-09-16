@@ -1,26 +1,15 @@
-use crate::http::middleware::upgrade::{BlazeScheme, UpgradedTarget};
+use crate::utils::constants::LOCAL_HTTP_PORT;
 use tdf::prelude::*;
 
 /// Alias used for ping sites
 pub const PING_SITE_ALIAS: &str = "bio-dub";
 
-pub struct PreAuthResponse {
-    pub target: UpgradedTarget,
-}
+pub struct PreAuthResponse;
 
 impl TdfSerialize for PreAuthResponse {
     fn serialize<S: TdfSerializer>(&self, w: &mut S) {
-        let host = &self.target.host;
-        let port = &self.target.port.to_string();
-        let secure = &matches!(self.target.scheme, BlazeScheme::Https).to_string();
-
-        let host_alt = format!(
-            "{}{}:{}/",
-            self.target.scheme.value(),
-            self.target.host,
-            self.target.port
-        );
-        let host_alt_2 = format!("{}{}", self.target.scheme.value(), self.target.host,);
+        let port = &LOCAL_HTTP_PORT.to_string();
+        let host_target = format!("https://localhost:{}/", LOCAL_HTTP_PORT);
 
         w.tag_str(b"ASRC", "310335");
         w.tag_list_slice(
@@ -37,13 +26,13 @@ impl TdfSerialize for PreAuthResponse {
                 &[
                     ("arubaDisabled", "false"),
                     ("arubaEndpoint", "PROD"),
-                    ("arubaHostname", &host_alt),
+                    ("arubaHostname", &host_target),
                     ("associationListSkipInitialSet", "1"),
                     ("autoReconnectEnabled", "0"),
                     // TODO: Replace bytevault with the local name
-                    ("bytevaultHostname", host),
+                    ("bytevaultHostname", "localhost"),
                     ("bytevaultPort", port),
-                    ("bytevaultSecure", secure),
+                    ("bytevaultSecure", "true"),
                     ("cachedUserRefreshInterval", "1s"),
                     ("connIdleTimeout", "40s"),
                     ("defaultRequestTimeout", "20s"),
@@ -56,7 +45,7 @@ impl TdfSerialize for PreAuthResponse {
                     ("pingPeriod", "20s"),
                     // TODO: Replace with local telemtry server
                     ("riverEnv", "prod"),
-                    ("riverHost", &host_alt_2),
+                    ("riverHost", "https://localhost"),
                     ("riverPort", port),
                     ("userManagerMaxCachedUsers", "0"),
                     ("voipHeadsetUpdateRate", "1000"),
@@ -86,8 +75,8 @@ impl TdfSerialize for PreAuthResponse {
                 w.group_body(|w| {
                     PING_SITE_ALIAS.serialize(w);
                     // TODO: Replace this host and port with the local QOS server when complete
-                    w.tag_str(b"PSA", &self.target.host);
-                    w.tag_u16(b"PSP", self.target.port);
+                    w.tag_str(b"PSA", "localhost");
+                    w.tag_u16(b"PSP", LOCAL_HTTP_PORT);
                     w.tag_str(b"SNA", "prod-sjc");
                 });
             }

@@ -1,31 +1,25 @@
-use axum::{Extension, Json};
-use chrono::Utc;
-use hyper::StatusCode;
-use log::debug;
-use sea_orm::DatabaseConnection;
-
 use crate::{
-    database::entity::User,
-    http::models::{
-        auth::{AuthRequest, AuthResponse, AuthUser},
-        HttpError, HttpResult,
+    http::{
+        middleware::user::Auth,
+        models::{
+            auth::{AuthRequest, AuthResponse, AuthUser},
+            HttpResult,
+        },
     },
     services::tokens::Tokens,
-    state::App,
 };
+use axum::{Extension, Json};
+use chrono::Utc;
+use log::debug;
 
 /// POST /auth
 pub async fn authenticate(
-    Extension(db): Extension<DatabaseConnection>,
+    Auth(user): Auth,
     Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
-    let user = User::get_user(&db, req.persona_id)
-        .await?
-        .ok_or(HttpError::new("Invalid user", StatusCode::BAD_REQUEST))?;
-
-    let token = Tokens::service_claim(req.persona_id);
+    let token = Tokens::service_claim(user.id);
 
     Ok(Json(AuthResponse {
         session_id: token,

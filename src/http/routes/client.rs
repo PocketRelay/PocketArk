@@ -23,7 +23,6 @@ use axum::{
     Extension, Json,
 };
 use hyper::{header, http::HeaderValue, StatusCode};
-use interlink::service::Service;
 use log::error;
 use sea_orm::DatabaseConnection;
 use serde::Serialize;
@@ -93,7 +92,7 @@ pub async fn upgrade(
     Extension(db): Extension<DatabaseConnection>,
     upgrade: BlazeUpgrade,
 ) -> Result<Response, HttpError> {
-    let user = Tokens::service_verify(&db, upgrade.host_target.token.as_ref())
+    let user = Tokens::service_verify(&db, upgrade.token.as_ref())
         .await
         .map_err(|err| HttpError::new_owned(err.to_string(), StatusCode::BAD_REQUEST))?;
 
@@ -106,7 +105,7 @@ pub async fn upgrade(
             }
         };
 
-        Session::start(socket.upgrade, socket.host_target, user, router);
+        Session::start(socket.upgrade, user, router);
     });
 
     let mut response = Empty::new().into_response();

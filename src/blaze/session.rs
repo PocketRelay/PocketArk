@@ -14,7 +14,6 @@ use super::{
 use crate::{
     blaze::packet::PacketDebug,
     database::entity::{users::UserId, User},
-    http::middleware::upgrade::UpgradedTarget,
     services::game::{GameID, Player},
     state::App,
 };
@@ -24,7 +23,6 @@ use futures::{
     SinkExt, StreamExt,
 };
 use hyper::upgrade::Upgraded;
-use interlink::prelude::*;
 use log::{debug, error, warn};
 use serde::Serialize;
 use std::{io, sync::Arc};
@@ -39,7 +37,6 @@ use uuid::Uuid;
 pub struct Session {
     pub uuid: Uuid,
     writer: mpsc::UnboundedSender<WriteMessage>,
-    pub host_target: UpgradedTarget,
     pub data: RwLock<SessionExtData>,
 
     router: Arc<BlazeRouter>,
@@ -225,7 +222,7 @@ impl SessionReader {
 pub type SessionLink = Arc<Session>;
 
 impl Session {
-    pub fn start(io: Upgraded, host_target: UpgradedTarget, user: User, router: Arc<BlazeRouter>) {
+    pub fn start(io: Upgraded, user: User, router: Arc<BlazeRouter>) {
         let framed = Framed::new(io, PacketCodec);
         let (write, read) = framed.split();
         let (tx, rx) = mpsc::unbounded_channel();
@@ -233,7 +230,6 @@ impl Session {
         let session = Arc::new(Self {
             uuid: Uuid::new_v4(),
             writer: tx,
-            host_target,
             data: RwLock::new(SessionExtData::new(user)),
             router,
         });

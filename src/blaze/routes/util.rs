@@ -6,9 +6,7 @@ use crate::blaze::session::SessionLink;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn pre_auth(session: SessionLink) -> Blaze<PreAuthResponse> {
-    Blaze(PreAuthResponse {
-        target: session.host_target.clone(),
-    })
+    Blaze(PreAuthResponse)
 }
 
 pub async fn post_auth() -> Blaze<PostAuthResponse> {

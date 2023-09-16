@@ -649,7 +649,7 @@ impl Game {
         }
     }
 
-    pub fn add_player(&mut self, mut player: Player, context: GameSetupContext) {
+    pub fn add_player(&mut self, player: Player, context: GameSetupContext) {
         let slot = self.players.len();
 
         self.players.push(player);
@@ -677,7 +677,7 @@ impl Game {
             self.add_user_sub(player.user.id, player.link.clone());
         }
 
-        self.notify_game_setup(&player, context);
+        self.notify_game_setup(player, context);
 
         player.link.push(Packet::notify(
             4,
@@ -733,6 +733,8 @@ impl Game {
         );
         self.push_all(&packet);
         player.link.push(packet);
+
+        self.rem_user_sub(player.user.id, player.link.clone());
     }
 
     /// Writes the provided packet to all connected sessions.
@@ -754,18 +756,6 @@ impl Game {
     fn notify_all<C: TdfSerialize>(&self, component: u16, command: u16, contents: C) {
         let packet = Packet::notify(component, command, contents);
         self.push_all(&packet);
-    }
-
-    /// Notifies all players of the current game state
-    fn notify_state(&self) {
-        self.notify_all(
-            components::game_manager::COMPONENT,
-            components::game_manager::GAME_STATE_CHANGE,
-            NotifyGameStateChange {
-                game_id: self.id,
-                state: self.state,
-            },
-        );
     }
 
     /// Creates a subscription between all the users and the the target player

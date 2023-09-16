@@ -8,7 +8,7 @@ use crate::{database::entity::User, http::models::HttpError, services::tokens::T
 pub struct Auth(pub User);
 
 /// The HTTP header that contains the authentication token
-const TOKEN_HEADER: &str = "x-orbit-sid";
+const TOKEN_HEADER: &str = "X-Token";
 
 impl<S> FromRequestParts<S> for Auth {
     type Rejection = HttpError;
