@@ -37,6 +37,7 @@ use uuid::Uuid;
 pub struct Session {
     pub uuid: Uuid,
     writer: mpsc::UnboundedSender<WriteMessage>,
+    uid: UserId,
     pub data: RwLock<SessionExtData>,
 
     router: Arc<BlazeRouter>,
@@ -229,6 +230,7 @@ impl Session {
 
         let session = Arc::new(Self {
             uuid: Uuid::new_v4(),
+            uid: user.id,
             writer: tx,
             data: RwLock::new(SessionExtData::new(user)),
             router,
@@ -340,13 +342,13 @@ impl Session {
         // },
 
         // TODO: Notify context may need to be appended elsewhere instead
-        // if packet.header.flags.contains(PacketFlags::FLAG_NOTIFY) {
-        //     let msg = NotifyContext {
-        //         uid: self.user.id,
-        //         error: 0,
-        //     };
-        //     packet.pre_msg = Bytes::from(serialize_vec(&msg));
-        // }
+        if packet.header.flags.contains(PacketFlags::FLAG_NOTIFY) {
+            let msg = NotifyContext {
+                uid: self.uid,
+                error: 0,
+            };
+            packet.pre_msg = Bytes::from(serialize_vec(&msg));
+        }
 
         _ = self.writer.send(WriteMessage::Write(packet))
     }

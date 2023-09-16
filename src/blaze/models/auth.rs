@@ -46,6 +46,7 @@ pub struct AuthResponse {
 
 impl TdfSerialize for AuthResponse {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.tag_zero(b"ANON");
         w.group(b"SESS", |w| {
             w.tag_zero(b"7CON");
             w.tag_u32(b"BUID", self.user.id);

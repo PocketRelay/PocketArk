@@ -1,15 +1,20 @@
 use tdf::TdfMap;
 
-use crate::blaze::models::util::*;
 use crate::blaze::router::Blaze;
 use crate::blaze::session::SessionLink;
+use crate::blaze::{models::util::*, router::SessionAuth};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn pre_auth(session: SessionLink) -> Blaze<PreAuthResponse> {
     Blaze(PreAuthResponse)
 }
 
-pub async fn post_auth() -> Blaze<PostAuthResponse> {
+pub async fn post_auth(
+    session: SessionLink,
+    SessionAuth(user): SessionAuth,
+) -> Blaze<PostAuthResponse> {
+    session.add_subscriber(user.id, session.clone()).await;
+
     Blaze(PostAuthResponse)
 }
 

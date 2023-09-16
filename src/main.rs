@@ -26,18 +26,15 @@ async fn main() {
 
     let database = crate::database::init().await;
 
-    let addr: SocketAddr =
-        SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(0, 0, 0, 0), SERVER_PORT));
-
     let mut router = blaze::routes::router();
     router.add_extension(database.clone());
-
     let router = router.build();
 
     let router = http::routes::router()
         .layer(Extension(router))
         .layer(Extension(database));
 
+    let addr: SocketAddr = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, SERVER_PORT));
     if let Err(err) = axum::Server::bind(&addr)
         .serve(router.into_make_service())
         .with_graceful_shutdown(async move {

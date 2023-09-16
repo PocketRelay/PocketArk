@@ -20,8 +20,6 @@ pub async fn auth(
     packet.header.notify = 1;
     session.push(packet);
 
-    session.add_subscriber(user.id, session.clone()).await;
-
     Blaze(AuthResponse { user })
 }
 

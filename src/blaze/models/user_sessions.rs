@@ -231,7 +231,6 @@ impl TdfSerialize for UserIdentification<'_> {
             w.tag_str(b"NAME", self.name);
             // Namespace?
             w.tag_str(b"NASP", "cem_ea_id");
-            w.tag_owned(b"ID", self.id);
             w.tag_owned(b"ORIG", self.id);
             w.tag_owned(b"PIDI", self.id);
         });

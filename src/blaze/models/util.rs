@@ -45,7 +45,7 @@ impl TdfSerialize for PreAuthResponse {
                     ("pingPeriod", "20s"),
                     // TODO: Replace with local telemtry server
                     ("riverEnv", "prod"),
-                    ("riverHost", "https://localhost"),
+                    ("riverHost", "https://localhost:42230"),
                     ("riverPort", port),
                     ("userManagerMaxCachedUsers", "0"),
                     ("voipHeadsetUpdateRate", "1000"),
@@ -101,15 +101,15 @@ impl TdfSerialize for PostAuthResponse {
     fn serialize<S: TdfSerializer>(&self, w: &mut S) {
         // TODO: Update creds with localhost for using client handler
         w.group(b"TELE", |w| {
-            w.tag_str(b"ADRS", "https://river.data.ea.com");
+            w.tag_str(b"ADRS", "https://localhost:42230");
             w.tag_zero(b"ANON");
             w.tag_str(b"DISA", "AD,AF,AG,AI,AL,AM,AN,AO,AQ,AR,AS,AW,AX,AZ,BA,BB,BD,BF,BH,BI,BJ,BM,BN,BO,BR,BS,BT,BV,BW,BY,BZ,CC,CD,CF,CG,CI,CK,CL,CM,CN,CO,CR,CU,CV,CX,DJ,DM,DO,DZ,EC,EG,EH,ER,ET,FJ,FK,FM,FO,GA,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GS,GT,GU,GW,GY,HM,HN,HT,ID,IL,IM,IN,IO,IQ,IR,IS,JE,JM,JO,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LY,MA,MC,MD,ME,MG,MH,ML,MM,MN,MO,MP,MQ,MR,MS,MU,MV,MW,MY,MZ,NA,NC,NE,NF,NG,NI,NP,NR,NU,OM,PA,PE,PF,PG,PH,PK,PM,PN,PS,PW,PY,QA,RE,RS,RW,SA,SB,SC,SD,SG,SH,SJ,SL,SM,SN,SO,SR,ST,SV,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TT,TV,TZ,UA,UG,UM,UY,UZ,VA,VC,VE,VG,VN,VU,WF,WS,YE,YT,ZM,ZW,ZZ");
             w.tag_zero(b"EDCT");
             w.tag_str(b"FILT", "-UION/****");
             w.tag_u32(b"LOC", 1701727834);
             w.tag_zero(b"MINR");
-            w.tag_str(b"NOOK", "US,CA,MX");
-            w.tag_u16(b"LOC", 443);
+            w.tag_str(b"NOOK", "US,CA,MX,NZ");
+            w.tag_u16(b"PORT", LOCAL_HTTP_PORT);
             w.tag_u16(b"SDLY", 15000);
             w.tag_str(b"SESS", "4QiqktOCVpD");
             w.tag_str(b"SKEY", "^�¦��Δ�ۍ��ڍ���騊�웱�䕋ƌ������������֦̉���ʉ��ؗ��͛�̙�����¦����ı�������ɣ�˲��Ҁ�");
