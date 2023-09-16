@@ -35,7 +35,6 @@ dotenvy = "0.15.7"
 ring = "0.16"
 
 base64ct = { version = "1.5", features = ["alloc"] }
-interlink = "0.1"
 serde_with = "3.0.0"
 
 # Password hashing
