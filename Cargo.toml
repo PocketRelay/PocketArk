@@ -8,9 +8,7 @@ keywords = ["EA", "PocketArk", "MassEffectAndromeda"]
 authors = ["Jacobtread <jacobtread@gmail.com>"]
 
 [dependencies]
-openssl = "^0.10"
 axum = { version = "^0.6", features = ["tracing", "tower-log"] }
-axum-server = { version = "^0.5", features = ["tls-openssl"] }
 
 hyper = { version = "^0.14", features = ["full"] }
 tokio = { version = "^1", features = ["full"] }
