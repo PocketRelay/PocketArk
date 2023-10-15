@@ -17,8 +17,8 @@ pub async fn auth(
         AuthNotify { user: user.clone() },
     );
 
-    packet.header.notify = 1;
-    session.push(packet);
+    packet.frame.notify = 1;
+    session.notify_handle().notify(packet);
 
     Blaze(AuthResponse { user })
 }

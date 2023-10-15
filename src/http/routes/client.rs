@@ -105,7 +105,7 @@ pub async fn upgrade(
             }
         };
 
-        Session::start(socket.upgrade, user, router);
+        Session::start(socket.upgrade, user, router).await;
     });
 
     let mut response = Empty::new().into_response();

@@ -6,7 +6,7 @@ use std::{
 use chrono::Utc;
 use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
-use tdf::{ObjectId, TdfMap, TdfSerialize};
+use tdf::{ObjectId, TdfMap};
 use thiserror::Error;
 use tokio::sync::RwLock;
 use uuid::Uuid;
@@ -28,7 +28,7 @@ use crate::{
             PlayerState,
         },
         packet::Packet,
-        session::{NetData, SessionLink},
+        session::{NetData, SessionLink, SessionNotifyHandle},
     },
     database::entity::{
         challenge_progress::ProgressUpdateType, users::UserId, ChallengeProgress, Character,
@@ -466,7 +466,7 @@ impl Game {
 
         debug!("Updated game attributes");
 
-        self.push_all(&packet);
+        self.notify_all(packet);
     }
 
     pub fn set_player_attributes(&mut self, user_id: UserId, attributes: AttrMap) {
@@ -482,7 +482,7 @@ impl Game {
 
         debug!("Updated player attributes");
 
-        self.push_all(&packet);
+        self.notify_all(packet);
 
         let player = self
             .players
@@ -578,7 +578,7 @@ impl Game {
 
         debug!("Updated game state (Value: {:?})", &state);
 
-        self.push_all(&Packet::notify(
+        self.notify_all(Packet::notify(
             game_manager::COMPONENT,
             game_manager::GAME_STATE_CHANGE,
             NotifyGameStateChange {
@@ -650,8 +650,6 @@ impl Game {
     }
 
     pub fn add_player(&mut self, player: Player, context: GameSetupContext) {
-        let slot = self.players.len();
-
         self.players.push(player);
 
         // Obtain the player that was just added
@@ -660,26 +658,30 @@ impl Game {
             .last()
             .expect("Player was added but is missing from players");
 
-        let is_other = slot != 0;
-        if is_other {
-            // NOTIFY PLAYER JOINING
-            // Notify other players of the joined player
-            // self.notify_all(
-            //     Components::GameManager(GameManager::PlayerJoining),
-            //     PlayerJoining {
-            //         slot,
-            //         player,
-            //         game_id: self.id,
-            //     },
-            // );
+        // NOTIFY PLAYER JOINING
+        // Notify other players of the joined player
+        // self.notify_all(
+        //     Components::GameManager(GameManager::PlayerJoining),
+        //     PlayerJoining {
+        //         slot,
+        //         player,
+        //         game_id: self.id,
+        //     },
+        // );
 
-            // Update other players with the client details
-            self.add_user_sub(player.user.id, player.link.clone());
-        }
+        // Update other players with the client details
+        self.add_user_sub(player);
 
-        self.notify_game_setup(player, context);
+        player.notify(Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::GAME_SETUP,
+            GameSetupResponse {
+                game: self,
+                context,
+            },
+        ));
 
-        player.link.push(Packet::notify(
+        player.notify(Packet::notify(
             4,
             11,
             NotifyPostJoinedGame {
@@ -692,27 +694,15 @@ impl Game {
         player.set_game(Some(self.id));
     }
 
-    fn notify_game_setup(&self, player: &Player, context: GameSetupContext) {
-        let packet = Packet::notify(
-            game_manager::COMPONENT,
-            game_manager::GAME_SETUP,
-            GameSetupResponse {
-                game: self,
-                context,
-            },
-        );
-        player.link.push(packet);
-    }
-
     pub fn notify_game_replay(&self) {
-        self.notify_all(
+        self.notify_all(Packet::notify(
             4,
             113,
             NotifyGameReplay {
                 game_id: self.id,
                 grid: self.id,
             },
-        )
+        ));
     }
 
     /// Notifies all the session and the removed session that a
@@ -731,10 +721,10 @@ impl Game {
                 reason,
             },
         );
-        self.push_all(&packet);
-        player.link.push(packet);
+        self.notify_all(packet.clone());
+        player.notify(packet);
 
-        self.rem_user_sub(player.user.id, player.link.clone());
+        self.rem_user_sub(player);
     }
 
     /// Writes the provided packet to all connected sessions.
@@ -742,65 +732,43 @@ impl Game {
     /// it to be placed into each sessions write buffers.
     ///
     /// `packet` The packet to write
-    fn push_all(&self, packet: &Packet) {
+    fn notify_all(&self, packet: Packet) {
         self.players
             .iter()
-            .for_each(|value| value.link.push(packet.clone()));
-    }
-
-    /// Sends a notification packet to all the connected session
-    /// with the provided component and contents
-    ///
-    /// `component` The packet component
-    /// `contents`  The packet contents
-    fn notify_all<C: TdfSerialize>(&self, component: u16, command: u16, contents: C) {
-        let packet = Packet::notify(component, command, contents);
-        self.push_all(&packet);
+            .for_each(|value| value.notify(packet.clone()));
     }
 
     /// Creates a subscription between all the users and the the target player
-    fn add_user_sub(&self, target_id: UserId, target_link: SessionLink) {
+    fn add_user_sub(&self, target: &Player) {
         debug!("Adding user subscriptions");
 
         // Subscribe all the clients to eachother
         self.players
             .iter()
-            .filter(|other| other.user.id.ne(&target_id))
+            .filter(|other| other.user.id != target.user.id)
             .for_each(|other| {
-                let other_id = other.user.id;
-                let other_link = other.link.clone();
-                let target_link = target_link.clone();
-
-                tokio::spawn(async move {
-                    target_link
-                        .add_subscriber(other_id, other_link.clone())
-                        .await;
-                    other_link
-                        .add_subscriber(target_id, target_link.clone())
-                        .await;
-                });
+                target
+                    .link
+                    .add_subscriber(other.user.id, other.notify_handle.clone());
+                other
+                    .link
+                    .add_subscriber(target.user.id, target.notify_handle.clone());
             });
     }
 
     /// Notifies the provided player and all other players
     /// in the game that they should remove eachother from
     /// their player data list
-    fn rem_user_sub(&self, target_id: UserId, target_link: SessionLink) {
+    fn rem_user_sub(&self, target: &Player) {
         debug!("Removing user subscriptions");
 
         // Unsubscribe all the clients from eachother
         self.players
             .iter()
-            .filter(|other| other.user.id.ne(&target_id))
+            .filter(|other| other.user.id != target.user.id)
             .for_each(|other| {
-                let other_id = other.user.id;
-                let other_link = other.link.clone();
-                let target_link = target_link.clone();
-
-                tokio::spawn(async move {
-                    target_link.remove_subscriber(other_id).await;
-                    other_link.remove_subscriber(target_id).await;
-                });
+                target.link.remove_subscriber(other.user.id);
+                other.link.remove_subscriber(target.user.id);
             });
     }
 }
@@ -811,6 +779,7 @@ pub type AttrMap = TdfMap<String, String>;
 pub struct Player {
     pub user: Arc<User>,
     pub link: SessionLink,
+    pub notify_handle: SessionNotifyHandle,
     pub net: Arc<NetData>,
     pub state: PlayerState,
     pub attr: AttrMap,
@@ -823,10 +792,16 @@ impl Drop for Player {
 }
 
 impl Player {
-    pub fn new(user: Arc<User>, link: SessionLink, net: Arc<NetData>) -> Self {
+    pub fn new(
+        user: Arc<User>,
+        link: SessionLink,
+        notify_handle: SessionNotifyHandle,
+        net: Arc<NetData>,
+    ) -> Self {
         Self {
             user,
             link,
+            notify_handle,
             net,
             state: PlayerState::ActiveConnecting,
             attr: AttrMap::default(),
@@ -834,10 +809,12 @@ impl Player {
     }
 
     pub fn set_game(&self, game: Option<GameID>) {
-        let link = self.link.clone();
-        tokio::spawn(async move {
-            link.set_game(game).await;
-        });
+        self.link.set_game(game);
+    }
+
+    #[inline]
+    pub fn notify(&self, packet: Packet) {
+        self.notify_handle.notify(packet);
     }
 
     pub fn encode<S: tdf::TdfSerializer>(&self, game_id: u32, slot: usize, w: &mut S) {

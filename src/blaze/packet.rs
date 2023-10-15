@@ -17,7 +17,7 @@ use tokio_util::codec::{Decoder, Encoder};
 
 bitflags! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-    pub struct PacketFlags: u8 {
+    pub struct FrameFlags: u8 {
         const FLAG_DEFAULT = 0;
         const FLAG_RESPONSE = 32;
         const FLAG_NOTIFY = 64;
@@ -26,22 +26,22 @@ bitflags! {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct PacketHeader {
+pub struct FireFrame2 {
     pub component: u16,
     pub command: u16,
     pub seq: u32,
-    pub flags: PacketFlags,
+    pub flags: FrameFlags,
     pub notify: u8,
     pub unused: u8,
 }
 
-impl PacketHeader {
+impl FireFrame2 {
     pub const fn notify(component: u16, command: u16) -> Self {
         Self {
             component,
             command,
             seq: 0,
-            flags: PacketFlags::FLAG_NOTIFY,
+            flags: FrameFlags::FLAG_NOTIFY,
             notify: 0,
             unused: 0,
         }
@@ -52,7 +52,7 @@ impl PacketHeader {
             component,
             command,
             seq,
-            flags: PacketFlags::FLAG_DEFAULT,
+            flags: FrameFlags::FLAG_DEFAULT,
             notify: 0,
             unused: 0,
         }
@@ -60,7 +60,7 @@ impl PacketHeader {
 
     pub const fn response(&self) -> Self {
         let mut header = *self;
-        header.flags = header.flags.union(PacketFlags::FLAG_RESPONSE);
+        header.flags = header.flags.union(FrameFlags::FLAG_RESPONSE);
         header
     }
 
@@ -68,7 +68,7 @@ impl PacketHeader {
     /// that of the other packet header
     ///
     /// `other` The packet header to compare to
-    pub fn path_matches(&self, other: &PacketHeader) -> bool {
+    pub fn path_matches(&self, other: &FireFrame2) -> bool {
         self.component.eq(&other.component) && self.command.eq(&other.command)
     }
 }
@@ -80,29 +80,29 @@ impl PacketHeader {
 /// the content is stored as Bytes.
 #[derive(Debug, Clone)]
 pub struct Packet {
-    pub header: PacketHeader,
+    pub frame: FireFrame2,
     pub pre_msg: Bytes,
     pub contents: Bytes,
 }
 
 impl Packet {
-    pub const fn new(header: PacketHeader, pre_msg: Bytes, contents: Bytes) -> Self {
+    pub const fn new(header: FireFrame2, pre_msg: Bytes, contents: Bytes) -> Self {
         Self {
-            header,
+            frame: header,
             pre_msg,
             contents,
         }
     }
 
     #[inline]
-    pub const fn new_empty(header: PacketHeader) -> Self {
+    pub const fn new_empty(header: FireFrame2) -> Self {
         Self::new(header, Bytes::new(), Bytes::new())
     }
 
     #[inline]
     pub const fn new_request(seq: u32, component: u16, command: u16, contents: Bytes) -> Packet {
         Self::new(
-            PacketHeader::request(seq, component, command),
+            FireFrame2::request(seq, component, command),
             Bytes::new(),
             contents,
         )
@@ -110,13 +110,13 @@ impl Packet {
 
     #[inline]
     pub const fn new_response(packet: &Packet, contents: Bytes) -> Self {
-        Self::new(packet.header.response(), Bytes::new(), contents)
+        Self::new(packet.frame.response(), Bytes::new(), contents)
     }
 
     #[inline]
     pub const fn new_notify(component: u16, command: u16, contents: Bytes) -> Packet {
         Self::new(
-            PacketHeader::notify(component, command),
+            FireFrame2::notify(component, command),
             Bytes::new(),
             contents,
         )
@@ -124,17 +124,17 @@ impl Packet {
 
     #[inline]
     pub const fn request_empty(seq: u32, component: u16, command: u16) -> Packet {
-        Self::new_empty(PacketHeader::request(seq, component, command))
+        Self::new_empty(FireFrame2::request(seq, component, command))
     }
 
     #[inline]
     pub const fn response_empty(packet: &Packet) -> Self {
-        Self::new_empty(packet.header.response())
+        Self::new_empty(packet.frame.response())
     }
 
     #[inline]
     pub const fn notify_empty(component: u16, command: u16) -> Packet {
-        Self::new_empty(PacketHeader::notify(component, command))
+        Self::new_empty(FireFrame2::notify(component, command))
     }
 
     #[inline]
@@ -187,7 +187,7 @@ impl Packet {
         src.take(3).copy_to_slice(&mut seq[1..]);
         let seq = u32::from_be_bytes(seq);
         let mty = src.get_u8();
-        let flags = PacketFlags::from_bits_retain(mty);
+        let flags = FrameFlags::from_bits_retain(mty);
         let notify = src.get_u8();
         let unused = src.get_u8();
 
@@ -198,7 +198,7 @@ impl Packet {
         let body = src.split_to(length as usize);
 
         Some(Packet {
-            header: PacketHeader {
+            frame: FireFrame2 {
                 component,
                 command,
                 seq,
@@ -218,16 +218,16 @@ impl Packet {
     pub fn write(&self, dst: &mut BytesMut) {
         dst.put_u32(self.contents.len() as u32);
         dst.put_u16(self.pre_msg.len() as u16);
-        dst.put_u16(self.header.component);
-        dst.put_u16(self.header.command);
+        dst.put_u16(self.frame.component);
+        dst.put_u16(self.frame.command);
 
-        let seq = self.header.seq.to_be_bytes();
+        let seq = self.frame.seq.to_be_bytes();
         dst.put_slice(&seq[1..]);
 
-        let ty = self.header.flags.bits();
+        let ty = self.frame.flags.bits();
         dst.put_u8(ty);
-        dst.put_u8(self.header.notify);
-        dst.put_u8(self.header.unused);
+        dst.put_u8(self.frame.notify);
+        dst.put_u8(self.frame.unused);
         dst.extend_from_slice(&self.pre_msg);
         dst.extend_from_slice(&self.contents);
     }
@@ -276,7 +276,7 @@ pub struct PacketDebug<'a> {
 impl<'a> Debug for PacketDebug<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Append basic header information
-        let header = &self.packet.header;
+        let header = &self.packet.frame;
 
         writeln!(f, "Component: {:#06x}", header.component)?;
         writeln!(f, "Command: {:#06x}", header.command)?;

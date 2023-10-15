@@ -3,7 +3,7 @@
 
 use bytes::Bytes;
 use futures::future::BoxFuture;
-use log::error;
+use log::{debug, error};
 use std::{
     any::{Any, TypeId},
     convert::Infallible,
@@ -24,7 +24,7 @@ use crate::{
 use super::{
     components::{component_key, ComponentKey},
     models::errors::BlazeError,
-    packet::{Packet, PacketHeader},
+    packet::{FireFrame2, Packet},
     session::SessionLink,
 };
 
@@ -132,24 +132,25 @@ pub struct BlazeRouter {
 }
 
 impl BlazeRouter {
-    pub fn handle(
-        &self,
-        state: SessionLink,
-        packet: Packet,
-    ) -> Result<BoxFuture<'_, Packet>, Packet> {
-        let route = match self.routes.get(&component_key(
-            packet.header.component,
-            packet.header.command,
-        )) {
-            Some(value) => value,
-            None => return Err(packet),
-        };
-
-        Ok(route.handle(PacketRequest {
-            state,
-            packet,
-            extensions: self.extensions.clone(),
-        }))
+    pub fn handle(&self, state: SessionLink, packet: Packet) -> BoxFuture<'_, Packet> {
+        match self
+            .routes
+            .get(&component_key(packet.frame.component, packet.frame.command))
+        {
+            Some(route) => route.handle(PacketRequest {
+                state,
+                packet,
+                extensions: self.extensions.clone(),
+            }),
+            // Respond with a default empty packet
+            None => {
+                debug!(
+                    "Missing packet handler for {:#06x}->{:#06x}",
+                    packet.frame.component, packet.frame.command
+                );
+                Box::pin(ready(Packet::response_empty(&packet)))
+            }
+        }
     }
 }
 
@@ -174,7 +175,7 @@ pub struct Blaze<V>(pub V);
 /// responses
 pub struct BlazeWithHeader<V> {
     pub req: V,
-    pub header: PacketHeader,
+    pub header: FireFrame2,
 }
 
 /// [Blaze] tdf type for contents that have already been
@@ -223,11 +224,9 @@ impl FromPacketRequest for SessionAuth {
     where
         Self: 'a,
     {
-        Box::pin(async move {
-            let data = &*req.state.data.read().await;
-            let user = data.user.clone();
-            Ok(SessionAuth(user))
-        })
+        let data = &*req.state.data.lock();
+        let user = data.user.clone();
+        Box::pin(ready(Ok(SessionAuth(user))))
     }
 }
 
@@ -240,14 +239,13 @@ impl FromPacketRequest for Player {
     where
         Self: 'a,
     {
-        Box::pin(async move {
-            let data = &*req.state.data.read().await;
-            Ok(Player::new(
-                data.user.clone(),
-                req.state.clone(),
-                data.net.clone(),
-            ))
-        })
+        let data = &*req.state.data.lock();
+        Box::pin(ready(Ok(Player::new(
+            data.user.clone(),
+            req.state.clone(),
+            req.state.notify_handle(),
+            data.net.clone(),
+        ))))
     }
 }
 
@@ -313,7 +311,7 @@ where
             V::deserialize(&mut r)
                 .map(|value| BlazeWithHeader {
                     req: value,
-                    header: req.packet.header,
+                    header: req.packet.frame,
                 })
                 .map_err(|err| {
                     error!("Error while decoding packet: {:?}", err);

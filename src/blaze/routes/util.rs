@@ -13,7 +13,7 @@ pub async fn post_auth(
     session: SessionLink,
     SessionAuth(user): SessionAuth,
 ) -> Blaze<PostAuthResponse> {
-    session.add_subscriber(user.id, session.clone()).await;
+    session.add_subscriber(user.id, session.notify_handle());
 
     Blaze(PostAuthResponse)
 }
