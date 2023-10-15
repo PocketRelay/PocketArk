@@ -41,6 +41,7 @@ rand = "0.8.5"
 csv = "1.2.2"
 
 tdf = { version = "0.1", path = "../../tdf", features = ["bytes"] }
+parking_lot = "0.12.1"
 
 
 [dependencies.log4rs]
