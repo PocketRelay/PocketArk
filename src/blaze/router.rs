@@ -242,7 +242,7 @@ impl FromPacketRequest for Player {
         let data = &*req.state.data.lock();
         Box::pin(ready(Ok(Player::new(
             data.user.clone(),
-            req.state.clone(),
+            Arc::downgrade(&req.state),
             req.state.notify_handle(),
             data.net.clone(),
         ))))

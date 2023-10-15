@@ -8,7 +8,7 @@ use crate::{
     },
     services::tokens::Tokens,
 };
-use axum::{Extension, Json};
+use axum::Json;
 use chrono::Utc;
 use log::debug;
 

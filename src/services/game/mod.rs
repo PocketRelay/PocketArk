@@ -28,7 +28,7 @@ use crate::{
             PlayerState,
         },
         packet::Packet,
-        session::{NetData, SessionLink, SessionNotifyHandle},
+        session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
     database::entity::{
         challenge_progress::ProgressUpdateType, users::UserId, ChallengeProgress, Character,
@@ -747,12 +747,8 @@ impl Game {
             .iter()
             .filter(|other| other.user.id != target.user.id)
             .for_each(|other| {
-                target
-                    .link
-                    .add_subscriber(other.user.id, other.notify_handle.clone());
-                other
-                    .link
-                    .add_subscriber(target.user.id, target.notify_handle.clone());
+                target.try_subscribe(other.user.id, other.notify_handle.clone());
+                other.try_subscribe(target.user.id, target.notify_handle.clone());
             });
     }
 
@@ -767,8 +763,8 @@ impl Game {
             .iter()
             .filter(|other| other.user.id != target.user.id)
             .for_each(|other| {
-                target.link.remove_subscriber(other.user.id);
-                other.link.remove_subscriber(target.user.id);
+                target.try_unsubscribe(other.user.id);
+                other.try_unsubscribe(target.user.id);
             });
     }
 }
@@ -778,7 +774,7 @@ pub type AttrMap = TdfMap<String, String>;
 
 pub struct Player {
     pub user: Arc<User>,
-    pub link: SessionLink,
+    pub link: WeakSessionLink,
     pub notify_handle: SessionNotifyHandle,
     pub net: Arc<NetData>,
     pub state: PlayerState,
@@ -794,7 +790,7 @@ impl Drop for Player {
 impl Player {
     pub fn new(
         user: Arc<User>,
-        link: SessionLink,
+        link: WeakSessionLink,
         notify_handle: SessionNotifyHandle,
         net: Arc<NetData>,
     ) -> Self {
@@ -809,7 +805,21 @@ impl Player {
     }
 
     pub fn set_game(&self, game: Option<GameID>) {
-        self.link.set_game(game);
+        if let Some(link) = self.link.upgrade() {
+            link.set_game(game);
+        }
+    }
+
+    pub fn try_subscribe(&self, user_id: UserId, subscriber: SessionNotifyHandle) {
+        if let Some(link) = self.link.upgrade() {
+            link.add_subscriber(user_id, subscriber);
+        }
+    }
+
+    pub fn try_unsubscribe(&self, user_id: UserId) {
+        if let Some(link) = self.link.upgrade() {
+            link.remove_subscriber(user_id);
+        }
     }
 
     #[inline]
@@ -851,7 +861,14 @@ impl Player {
         );
 
         w.tag_owned(b"UID", self.user.id);
-        w.tag_str(b"UUID", &self.link.uuid.to_string());
+
+        let uuid = self
+            .link
+            .upgrade()
+            .map(|value| value.uuid.to_string())
+            .unwrap_or_default();
+
+        w.tag_str(b"UUID", &uuid);
         w.tag_group_end();
     }
 }

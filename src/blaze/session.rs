@@ -31,6 +31,7 @@ use serde::Serialize;
 use std::{
     future::Future,
     pin::Pin,
+    sync::Weak,
     task::{Context, Poll},
 };
 use std::{io, sync::Arc, task::ready};
@@ -116,7 +117,7 @@ impl SessionExtData {
             },
         ));
 
-        self.subscribers.push((user_id, subscriber.clone()));
+        self.subscribers.push((user_id, subscriber));
     }
 
     fn remove_subscriber(&mut self, user_id: UserId) {
@@ -185,6 +186,7 @@ impl NetData {
 }
 
 pub type SessionLink = Arc<Session>;
+pub type WeakSessionLink = Weak<Session>;
 
 impl Session {
     pub async fn start(io: Upgraded, user: User, router: Arc<BlazeRouter>) {
