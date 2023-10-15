@@ -183,10 +183,10 @@ pub enum MatchmakingResult {
     CreatedGame = 0x0,
     JoinedNewGame = 0x1,
     JoinedExistingGame = 0x2,
-    // TimedOut = 0x3,
-    // Canceled = 0x4,
-    // Terminated = 0x5,
-    // GameSetupFailed = 0x6,
+    TimedOut = 0x3,
+    Canceled = 0x4,
+    Terminated = 0x5,
+    GameSetupFailed = 0x6,
 }
 
 #[derive(Debug, Copy, Clone, TdfSerialize, TdfTyped)]
