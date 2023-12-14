@@ -28,7 +28,7 @@ pub struct Services {
 }
 
 impl Services {
-    pub async fn init() -> Self {
+    pub fn init() -> Self {
         let match_data = MatchDataService::new();
         let challenges = ChallengesService::new();
         let activity = ActivityService::new();

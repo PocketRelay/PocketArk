@@ -15,9 +15,9 @@ pub struct App {
 static mut GLOBAL_STATE: Option<App> = None;
 
 impl App {
-    pub async fn init() {
+    pub fn init() {
         // Initialize session router
-        let services = Services::init().await;
+        let services = Services::init();
 
         unsafe {
             GLOBAL_STATE = Some(App { services });

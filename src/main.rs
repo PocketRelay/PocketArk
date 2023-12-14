@@ -29,7 +29,7 @@ async fn main() {
 
     utils::logging::setup(LevelFilter::Debug);
 
-    App::init().await;
+    App::init();
 
     let (database, signing_key) = join!(crate::database::init(), SigningKey::global());
 
