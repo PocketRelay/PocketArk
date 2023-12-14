@@ -1,9 +1,13 @@
+use crate::{
+    database::entity::User,
+    http::models::HttpError,
+    services::sessions::{Sessions, VerifyError},
+};
 use axum::extract::FromRequestParts;
 use futures::future::BoxFuture;
 use hyper::StatusCode;
 use sea_orm::DatabaseConnection;
-
-use crate::{database::entity::User, http::models::HttpError, services::tokens::Tokens};
+use std::sync::Arc;
 
 pub struct Auth(pub User);
 
@@ -28,6 +32,12 @@ impl<S> FromRequestParts<S> for Auth {
             .expect("Database connection extension missing")
             .clone();
 
+        let sessions: Arc<Sessions> = parts
+            .extensions
+            .get::<Arc<Sessions>>()
+            .expect("Sessions extension missing")
+            .clone();
+
         Box::pin(async move {
             // Extract the token from the headers
             let token = parts
@@ -36,10 +46,12 @@ impl<S> FromRequestParts<S> for Auth {
                 .and_then(|value| value.to_str().ok())
                 .ok_or(HttpError::new("Missing session", StatusCode::BAD_REQUEST))?;
 
-            // Verify the token claim
-            let user: User = Tokens::service_verify(&db, token)
-                .await
-                .map_err(|_err| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
+            let user_id: u32 = sessions.verify_token(token)?;
+
+            let user = User::get_user(&db, user_id)
+                .await?
+                .ok_or(VerifyError::Invalid)
+                .map_err(|_| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
 
             Ok(Self(user))
         })

@@ -13,7 +13,7 @@ use crate::{
             HttpError, HttpResult,
         },
     },
-    services::tokens::Tokens,
+    services::sessions::{Sessions, VerifyError},
     state::VERSION,
     utils::hashing::{hash_password, verify_password},
 };
@@ -47,6 +47,7 @@ pub async fn details() -> Json<ServerDetails> {
 pub async fn login(
     Extension(db): Extension<DatabaseConnection>,
     Json(req): Json<AuthRequest>,
+    Extension(sessions): Extension<Arc<Sessions>>,
 ) -> HttpResult<AuthResponse> {
     let user = User::get_by_username(&db, &req.username)
         .await?
@@ -59,7 +60,7 @@ pub async fn login(
         ));
     }
 
-    let token = Tokens::service_claim(user.id);
+    let token = sessions.create_token(user.id);
 
     Ok(Json(AuthResponse { token }))
 }
@@ -68,6 +69,7 @@ pub async fn login(
 pub async fn create(
     Extension(db): Extension<DatabaseConnection>,
     Json(req): Json<AuthRequest>,
+    Extension(sessions): Extension<Arc<Sessions>>,
 ) -> HttpResult<AuthResponse> {
     if User::get_by_username(&db, &req.username).await?.is_some() {
         return Err(HttpError::new(
@@ -81,7 +83,7 @@ pub async fn create(
     })?;
 
     let user = User::create_user(req.username, password, &db).await?;
-    let token = Tokens::service_claim(user.id);
+    let token = sessions.create_token(user.id);
 
     Ok(Json(AuthResponse { token }))
 }
@@ -90,11 +92,18 @@ pub async fn create(
 pub async fn upgrade(
     Extension(router): Extension<Arc<BlazeRouter>>,
     Extension(db): Extension<DatabaseConnection>,
+    Extension(sessions): Extension<Arc<Sessions>>,
+
     upgrade: BlazeUpgrade,
 ) -> Result<Response, HttpError> {
-    let user = Tokens::service_verify(&db, upgrade.token.as_ref())
-        .await
-        .map_err(|err| HttpError::new_owned(err.to_string(), StatusCode::BAD_REQUEST))?;
+    let user_id: u32 = sessions
+        .verify_token(&upgrade.token)
+        .map_err(|err| HttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
+
+    let user = User::get_user(&db, user_id)
+        .await?
+        .ok_or(VerifyError::Invalid)
+        .map_err(|err| HttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
 
     tokio::spawn(async move {
         let socket = match upgrade.upgrade().await {
@@ -105,7 +114,7 @@ pub async fn upgrade(
             }
         };
 
-        Session::start(socket.upgrade, user, router).await;
+        Session::start(socket.upgrade, user, router, sessions).await;
     });
 
     let mut response = Empty::new().into_response();

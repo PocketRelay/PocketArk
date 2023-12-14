@@ -43,6 +43,11 @@ csv = "1.2.2"
 tdf = { version = "0.3", path = "../../tdf", features = ["bytes"] }
 parking_lot = "0.12.1"
 
+# Const safe HashMaps (Can be replaced with std HashMap after https://github.com/rust-lang/rust/issues/102575 is resolved)
+hashbrown = { version = "0.14.3", default-features = false, features = [
+    "allocator-api2",
+    "inline-more",
+] }
 
 [dependencies.log4rs]
 version = "1.2.0"

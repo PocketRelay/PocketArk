@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     http::{
         middleware::user::Auth,
@@ -6,20 +8,21 @@ use crate::{
             HttpResult,
         },
     },
-    services::tokens::Tokens,
+    services::sessions::Sessions,
 };
-use axum::Json;
+use axum::{Extension, Json};
 use chrono::Utc;
 use log::debug;
 
 /// POST /auth
 pub async fn authenticate(
     Auth(user): Auth,
+    Extension(sessions): Extension<Arc<Sessions>>,
     Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 
-    let token = Tokens::service_claim(user.id);
+    let token = sessions.create_token(user.id);
 
     Ok(Json(AuthResponse {
         session_id: token,

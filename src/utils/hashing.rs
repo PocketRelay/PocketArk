@@ -2,7 +2,7 @@
 
 use std::{
     collections::HashMap,
-    hash::{BuildHasherDefault, Hasher},
+    hash::{BuildHasher, BuildHasherDefault, Hasher},
 };
 
 use argon2::{
@@ -36,7 +36,27 @@ pub fn verify_password(password: &str, hash: &str) -> bool {
     argon2.verify_password(password.as_bytes(), &hash).is_ok()
 }
 
-pub type IntHashMap<K, V> = HashMap<K, V, BuildHasherDefault<IntHasher>>;
+/// Alias for a [`HashMap`] that used [`IntHasher`] as its [`Hasher`]
+pub type IntHashMap<K, V> = HashMap<K, V, BuildIntHasher>;
+
+/// Const safe [`BuildHasher`] implementation for [`IntHasher`]
+#[derive(Default)]
+pub struct BuildIntHasher;
+
+impl BuildHasher for BuildIntHasher {
+    type Hasher = IntHasher;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        IntHasher(0)
+    }
+}
+
+/// Const safe init shorthand function for [`IntHashMap`] that
+/// doesn't allocate anything until used
+#[inline(always)]
+pub const fn int_hash_map<K, V>() -> IntHashMap<K, V> {
+    IntHashMap::with_hasher(BuildIntHasher)
+}
 
 /// Hasher implementation that directly uses an integer value
 /// instead of any specific hashing algorithm

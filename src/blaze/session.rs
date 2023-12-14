@@ -14,7 +14,10 @@ use super::{
 use crate::{
     blaze::packet::PacketDebug,
     database::entity::{users::UserId, User},
-    services::game::{GameID, Player, WeakGameRef},
+    services::{
+        game::{GameID, Player, WeakGameRef},
+        sessions::Sessions,
+    },
     state::App,
     utils::lock::{QueueLock, QueueLockGuard, TicketAquireFuture},
 };
@@ -48,13 +51,13 @@ pub type WeakSessionLink = Weak<Session>;
 
 pub struct Session {
     pub uuid: Uuid,
-    uid: UserId,
+
     busy_lock: QueueLock,
     tx: mpsc::UnboundedSender<Packet>,
 
     pub data: Mutex<SessionExtData>,
     // Add when session service implemented:
-    // sessions: Arc<Sessions>,
+    sessions: Arc<Sessions>,
 }
 
 #[derive(Clone)]
@@ -196,16 +199,27 @@ impl NetData {
 }
 
 impl Session {
-    pub async fn start(io: Upgraded, user: User, router: Arc<BlazeRouter>) {
+    pub async fn start(
+        io: Upgraded,
+        user: User,
+        router: Arc<BlazeRouter>,
+        sessions: Arc<Sessions>,
+    ) {
         let (tx, rx) = mpsc::unbounded_channel();
+
+        let user_id = user.id;
 
         let session = Arc::new(Self {
             uuid: Uuid::new_v4(),
-            uid: user.id,
             busy_lock: QueueLock::new(),
             tx,
             data: Mutex::new(SessionExtData::new(user)),
+            sessions,
         });
+
+        // Add the session to the sessions service
+        let weak_link = Arc::downgrade(&session);
+        session.sessions.add_session(user_id, weak_link);
 
         debug!("Session started {}", &session.uuid);
 
@@ -301,8 +315,7 @@ impl Session {
         // Existing sessions must be unsubscribed
         data.subscribers.clear();
 
-        // Remove the session from the sessions service
-        // self.sessions.remove_session(data.player.id);
+        self.sessions.remove_session(data.user.id);
     }
 
     #[inline]
@@ -456,10 +469,12 @@ impl SessionFuture<'_> {
 
                         // TODO: Notify context may need to be appended elsewhere instead
                         if packet.frame.flags.contains(FrameFlags::FLAG_NOTIFY) {
-                            let msg = NotifyContext {
-                                uid: self.session.uid,
-                                error: 0,
+                            let uid = {
+                                let data = &*self.session.data.lock();
+                                data.user.id
                             };
+
+                            let msg = NotifyContext { uid, error: 0 };
                             packet.pre_msg = Bytes::from(serialize_vec(&msg));
                         }
                     }
