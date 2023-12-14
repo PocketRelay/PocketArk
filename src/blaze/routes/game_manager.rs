@@ -27,7 +27,6 @@ pub async fn start_matchmaking_scenario(
 
     match req.ty {
         MatchmakeType::QuickMatch => {
-
             // TODO:
             // - Add to matchmaking queue
             // - Send async matchmaking update (4, 12)

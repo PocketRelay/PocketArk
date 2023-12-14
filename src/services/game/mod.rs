@@ -445,6 +445,8 @@ fn compute_modifiers(
 pub const DEFAULT_FIT: u16 = 21600;
 
 impl Game {
+    pub const MAX_PLAYERS: usize = 4;
+
     pub fn new(
         id: u32,
         attributes: TdfMap<String, String>,
