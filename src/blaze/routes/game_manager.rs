@@ -2,9 +2,10 @@ use crate::{
     blaze::{
         models::{
             game_manager::{
-                GameSetupContext, LeaveGameRequest, MatchmakeRequest, MatchmakeType,
-                MatchmakingResponse, MatchmakingResult, ReplayGameRequest, UpdateAttrRequest,
-                UpdateGameAttrRequest, UpdateStateRequest,
+                GameSetupContext, LeaveGameRequest, MatchmakeType, MatchmakingResult,
+                ReplayGameRequest, StartMatchmakingScenarioRequest,
+                StartMatchmakingScenarioResponse, UpdateAttrRequest, UpdateGameAttrRequest,
+                UpdateStateRequest,
             },
             PlayerState,
         },
@@ -19,9 +20,9 @@ use std::sync::Arc;
 pub async fn create_game(
     session: SessionLink,
     mut player: Player,
-    Blaze(req): Blaze<MatchmakeRequest>,
+    Blaze(req): Blaze<StartMatchmakingScenarioRequest>,
     Extension(game_manager): Extension<Arc<GameManager>>,
-) -> Blaze<MatchmakingResponse> {
+) -> Blaze<StartMatchmakingScenarioResponse> {
     let user_id = player.user.id;
 
     match req.ty {
@@ -37,7 +38,14 @@ pub async fn create_game(
             let attributes = req
                 .attributes
                 .into_iter()
-                .map(|(key, value)| (key, value.value))
+                .filter_map(|(key, value)| {
+                    let inner = value.inner?;
+                    let value = match inner.value {
+                        tdf::TdfGenericValue::String(value) => value,
+                        _ => return None,
+                    };
+                    Some((key, value))
+                })
                 .collect();
 
             // Player is the host player (They are connected by default)
@@ -68,7 +76,7 @@ pub async fn create_game(
         }
     }
 
-    Blaze(MatchmakingResponse { user_id })
+    Blaze(StartMatchmakingScenarioResponse { user_id })
 }
 
 pub async fn update_game_attr(

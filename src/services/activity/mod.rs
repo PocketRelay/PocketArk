@@ -12,7 +12,7 @@ use crate::{
     state::App,
 };
 
-pub struct ActivityService {}
+pub struct ActivityService;
 
 #[allow(unused)]
 impl ActivityService {

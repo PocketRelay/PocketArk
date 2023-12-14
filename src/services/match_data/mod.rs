@@ -1,12 +1,10 @@
-use std::{collections::HashMap, process::exit};
-
+use crate::http::models::mission::{MissionActivity, MissionActivityAttributes};
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
+use std::{collections::HashMap, process::exit};
 use uuid::Uuid;
-
-use crate::http::models::mission::{MissionActivity, MissionActivityAttributes};
 
 pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
 pub const MATCH_MODIFIER_DEFINITIONS: &str =

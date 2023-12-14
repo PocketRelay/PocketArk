@@ -140,14 +140,16 @@ pub async fn consume_inventory(
 
         match definition.category.as_str() {
             Category::ITEM_PACK => {
-                let pack = items_service.packs.get(&definition.name).ok_or_else(|| {
-                    warn!(
-                        "Don't know how to handle item pack: {} ({:?})",
-                        &definition.name,
-                        &definition.locale.name()
-                    );
-                    HttpError::new("Pack item not implemented", StatusCode::NOT_IMPLEMENTED)
-                })?;
+                let pack = items_service
+                    .pack_by_name(&definition.name)
+                    .ok_or_else(|| {
+                        warn!(
+                            "Don't know how to handle item pack: {} ({:?})",
+                            &definition.name,
+                            &definition.locale.name()
+                        );
+                        HttpError::new("Pack item not implemented", StatusCode::NOT_IMPLEMENTED)
+                    })?;
 
                 let mut rng = StdRng::from_entropy();
 

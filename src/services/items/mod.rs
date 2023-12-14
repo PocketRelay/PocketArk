@@ -19,7 +19,7 @@ pub struct ItemsService {
     /// Lookup table for item definitions based on their name
     defs_by_name: HashMap<Uuid, usize>,
     /// Available unlock packs
-    pub packs: HashMap<Uuid, Pack>,
+    packs: HashMap<Uuid, Pack>,
 }
 
 impl ItemsService {
@@ -440,6 +440,10 @@ impl ItemsService {
         let index = self.defs_by_name.get(name).copied()?;
         let def = &self.defs[index];
         Some(def)
+    }
+
+    pub fn pack_by_name(&self, name: &Uuid) -> Option<&Pack> {
+        self.packs.get(name)
     }
 
     /// Single item packs

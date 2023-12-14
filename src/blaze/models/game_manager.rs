@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use tdf::{
-    types::string::write_empty_str, ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfMap,
-    TdfSerialize, TdfType, TdfTyped, U12,
+    types::string::write_empty_str, ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfGeneric,
+    TdfMap, TdfSerialize, TdfType, TdfTyped,
 };
 
 use crate::{
@@ -13,9 +13,9 @@ use crate::{
 use super::user_sessions::NetworkAddress;
 
 #[derive(TdfDeserialize)]
-pub struct MatchmakeRequest {
+pub struct StartMatchmakingScenarioRequest {
     #[tdf(tag = "SCNA")]
-    pub attributes: TdfMap<String, U12>,
+    pub attributes: TdfMap<String, TdfGeneric>,
     #[tdf(tag = "SCNM", into = &str)]
     pub ty: MatchmakeType,
 }
@@ -34,11 +34,11 @@ impl From<&str> for MatchmakeType {
     }
 }
 
-pub struct MatchmakingResponse {
+pub struct StartMatchmakingScenarioResponse {
     pub user_id: u32,
 }
 
-impl TdfSerialize for MatchmakingResponse {
+impl TdfSerialize for StartMatchmakingScenarioResponse {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.tag_str_empty(b"COID");
         w.tag_str_empty(b"ESNM");
