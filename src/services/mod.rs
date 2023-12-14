@@ -11,7 +11,6 @@ pub mod character;
 pub mod game;
 pub mod i18n;
 pub mod items;
-pub mod leaderboard;
 pub mod match_data;
 pub mod sessions;
 pub mod store;
