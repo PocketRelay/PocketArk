@@ -53,7 +53,7 @@ pub struct StrikeTeamService {
 }
 
 impl StrikeTeamService {
-    pub const STRIKE_TEAM_COSTS: &[u32] = &[0, 40, 80, 120, 160, 200];
+    pub const STRIKE_TEAM_COSTS: &'static [u32] = &[0, 40, 80, 120, 160, 200];
     pub const MAX_STRIKE_TEAMS: usize = Self::STRIKE_TEAM_COSTS.len();
 
     pub fn new() -> Self {

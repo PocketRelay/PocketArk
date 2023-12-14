@@ -1,23 +1,27 @@
 use crate::{
     blaze::{
-        models::game_manager::{
-            LeaveGameRequest, MatchmakeRequest, MatchmakeType, MatchmakingResponse,
-            ReplayGameRequest, UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
+        models::{
+            game_manager::{
+                GameSetupContext, LeaveGameRequest, MatchmakeRequest, MatchmakeType,
+                MatchmakingResponse, MatchmakingResult, ReplayGameRequest, UpdateAttrRequest,
+                UpdateGameAttrRequest, UpdateStateRequest,
+            },
+            PlayerState,
         },
-        router::{Blaze, SessionAuth},
+        router::{Blaze, Extension, SessionAuth},
         session::{self, SessionLink},
     },
-    services::game::Player,
+    services::game::{self, manager::GameManager, Player, DEFAULT_FIT},
     state::App,
 };
+use std::sync::Arc;
 
 pub async fn create_game(
     session: SessionLink,
-    player: Player,
+    mut player: Player,
     Blaze(req): Blaze<MatchmakeRequest>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
 ) -> Blaze<MatchmakingResponse> {
-    let services = App::services();
-
     let user_id = player.user.id;
 
     match req.ty {
@@ -35,60 +39,73 @@ pub async fn create_game(
                 .into_iter()
                 .map(|(key, value)| (key, value.value))
                 .collect();
-            tokio::spawn(async move {
-                let (_link, _id) = services.games.create(player, attributes).await;
-            });
+
+            // Player is the host player (They are connected by default)
+            player.state = PlayerState::ActiveConnected;
+
+            // Create the new game
+            let (game_ref, game_id) = game_manager.create(attributes).await;
+
+            // Add the player to the game
+            game_manager
+                .add_to_game(
+                    game_ref,
+                    player,
+                    session,
+                    GameSetupContext::Matchmaking {
+                        fit_score: DEFAULT_FIT,
+                        fit_score_2: 0,
+                        max_fit_score: DEFAULT_FIT,
+                        id_1: user_id,
+                        id_2: user_id,
+                        result: MatchmakingResult::CreatedGame,
+                        tout: 15000000,
+                        ttm: 51109,
+                        id_3: user_id,
+                    },
+                )
+                .await;
         }
     }
 
     Blaze(MatchmakingResponse { user_id })
 }
 
-pub async fn update_game_attr(Blaze(req): Blaze<UpdateGameAttrRequest>) {
-    let services = App::services();
-    let game = services
-        .games
-        .get_game(req.gid)
-        .await
-        .expect("Unknown game");
+pub async fn update_game_attr(
+    Blaze(req): Blaze<UpdateGameAttrRequest>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
+) {
+    let game = game_manager.get_game(req.gid).await.expect("Unknown game");
 
     let game = &mut *game.write().await;
     game.set_attributes(req.attr);
 }
 
-pub async fn update_player_attr(Blaze(req): Blaze<UpdateAttrRequest>) {
-    let services = App::services();
-    let game = services
-        .games
-        .get_game(req.gid)
-        .await
-        .expect("Unknown game");
+pub async fn update_player_attr(
+    Blaze(req): Blaze<UpdateAttrRequest>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
+) {
+    let game = game_manager.get_game(req.gid).await.expect("Unknown game");
 
     let game = &mut *game.write().await;
     game.set_player_attributes(req.pid, req.attr);
 }
 
-pub async fn update_game_state(Blaze(req): Blaze<UpdateStateRequest>) {
-    let services = App::services();
-
-    let game = services
-        .games
-        .get_game(req.gid)
-        .await
-        .expect("Unknown game");
+pub async fn update_game_state(
+    Blaze(req): Blaze<UpdateStateRequest>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
+) {
+    let game = game_manager.get_game(req.gid).await.expect("Unknown game");
 
     let game = &mut *game.write().await;
     game.set_state(req.state);
 }
 
-pub async fn replay_game(Blaze(req): Blaze<ReplayGameRequest>) {
-    let services = App::services();
-
-    let game = services
-        .games
-        .get_game(req.gid)
-        .await
-        .expect("Unknown game");
+pub async fn replay_game(
+    Blaze(req): Blaze<ReplayGameRequest>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
+) {
+    let game = game_manager.get_game(req.gid).await.expect("Unknown game");
 
     let game = &mut *game.write().await;
     game.set_state(130);
@@ -99,14 +116,9 @@ pub async fn leave_game(
     session: SessionLink,
     SessionAuth(user): SessionAuth,
     Blaze(req): Blaze<LeaveGameRequest>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
 ) {
-    let services = App::services();
-
-    let game = services
-        .games
-        .get_game(req.gid)
-        .await
-        .expect("Unknown game");
+    let game = game_manager.get_game(req.gid).await.expect("Unknown game");
 
     let game = &mut *game.write().await;
     game.remove_player(user.id, req.reas);

@@ -1,6 +1,6 @@
 use std::{
     collections::{BTreeMap, HashMap},
-    sync::Arc,
+    sync::{Arc, Weak},
 };
 
 use chrono::Utc;
@@ -10,6 +10,8 @@ use tdf::{ObjectId, TdfMap};
 use thiserror::Error;
 use tokio::sync::RwLock;
 use uuid::Uuid;
+
+use self::manager::GameManager;
 
 use super::{
     activity::{PrestigeData, PrestigeProgression},
@@ -47,6 +49,7 @@ pub mod manager;
 
 pub type GameID = u32;
 pub type GameRef = Arc<RwLock<Game>>;
+pub type WeakGameRef = Weak<RwLock<Game>>;
 
 pub struct Game {
     /// Unique ID for this game
@@ -63,6 +66,9 @@ pub struct Game {
     pub modifiers: Vec<MissionModifier>,
     pub mission_data: Option<CompleteMissionData>,
     pub processed_data: Option<MissionDetails>,
+
+    /// Services access
+    pub game_manager: Arc<GameManager>,
 }
 
 #[derive(Debug, Error)]
@@ -436,10 +442,14 @@ fn compute_modifiers(
         });
 }
 
-const DEFAULT_FIT: u16 = 21600;
+pub const DEFAULT_FIT: u16 = 21600;
 
 impl Game {
-    pub fn new(id: u32, attributes: TdfMap<String, String>) -> Game {
+    pub fn new(
+        id: u32,
+        attributes: TdfMap<String, String>,
+        game_manager: Arc<GameManager>,
+    ) -> Game {
         Self {
             id,
             state: 1,
@@ -449,6 +459,7 @@ impl Game {
             modifiers: Vec::new(),
             mission_data: None,
             processed_data: None,
+            game_manager,
         }
     }
 
@@ -598,12 +609,11 @@ impl Game {
         // Mark the game as stopping
         // self.state = GameState::Destructing;
 
+        let game_manager = self.game_manager.clone();
         // Remove the stopping game
         let game_id = self.id;
         tokio::spawn(async move {
-            let services = App::services();
-
-            services.games.remove_game(game_id).await;
+            game_manager.remove_game(game_id).await;
         });
     }
 
@@ -626,7 +636,7 @@ impl Game {
         let player = self.players.remove(index);
 
         // Set current game of this player
-        player.set_game(None);
+        player.try_clear_game();
 
         // Update the other players
         self.notify_player_removed(&player, reason);
@@ -649,7 +659,9 @@ impl Game {
         }
     }
 
-    pub fn add_player(&mut self, player: Player, context: GameSetupContext) {
+    pub fn add_player(&mut self, player: Player, context: GameSetupContext) -> usize {
+        let slot = self.players.len();
+
         self.players.push(player);
 
         // Obtain the player that was just added
@@ -690,8 +702,7 @@ impl Game {
             },
         ));
 
-        // Set current game of this player
-        player.set_game(Some(self.id));
+        slot
     }
 
     pub fn notify_game_replay(&self) {
@@ -783,7 +794,7 @@ pub struct Player {
 
 impl Drop for Player {
     fn drop(&mut self) {
-        self.set_game(None);
+        self.try_clear_game();
     }
 }
 
@@ -804,9 +815,9 @@ impl Player {
         }
     }
 
-    pub fn set_game(&self, game: Option<GameID>) {
+    pub fn try_clear_game(&self) {
         if let Some(link) = self.link.upgrade() {
-            link.set_game(game);
+            link.clear_game();
         }
     }
 

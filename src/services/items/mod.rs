@@ -771,10 +771,10 @@ impl ItemsService {
 pub struct Rarity {}
 
 impl Rarity {
-    pub const COMMON: &str = "0";
-    pub const UNCOMMON: &str = "1";
-    pub const RARE: &str = "2";
-    pub const ULTRA_RARE: &str = "3";
+    pub const COMMON: &'static str = "0";
+    pub const UNCOMMON: &'static str = "1";
+    pub const RARE: &'static str = "2";
+    pub const ULTRA_RARE: &'static str = "3";
 }
 
 pub struct Category;
@@ -782,62 +782,62 @@ pub struct Category;
 #[allow(unused)]
 impl Category {
     /// Character items
-    pub const CHARACTERS: &str = "0";
+    pub const CHARACTERS: &'static str = "0";
 
     // Weapons
-    pub const WEAPONS: &str = "1:";
-    pub const ASSAULT_RIFLE: &str = "1:AssaultRifle";
-    pub const PISTOL: &str = "1:Pistol";
-    pub const SHOTGUN: &str = "1:Shotgun";
-    pub const SNIPER_RIFLE: &str = "1:SniperRifle";
+    pub const WEAPONS: &'static str = "1:";
+    pub const ASSAULT_RIFLE: &'static str = "1:AssaultRifle";
+    pub const PISTOL: &'static str = "1:Pistol";
+    pub const SHOTGUN: &'static str = "1:Shotgun";
+    pub const SNIPER_RIFLE: &'static str = "1:SniperRifle";
 
     // Weapon mods
-    pub const WEAPON_MODS: &str = "2:";
-    pub const ASSAULT_RIFLE_MODS: &str = "2:AssaultRifle";
-    pub const PISTOL_MODS: &str = "2:Pistol";
-    pub const SHOTGUN_MODS: &str = "2:Shotgun";
-    pub const SNIPER_RIFLE_MODS: &str = "2:SniperRifle";
+    pub const WEAPON_MODS: &'static str = "2:";
+    pub const ASSAULT_RIFLE_MODS: &'static str = "2:AssaultRifle";
+    pub const PISTOL_MODS: &'static str = "2:Pistol";
+    pub const SHOTGUN_MODS: &'static str = "2:Shotgun";
+    pub const SNIPER_RIFLE_MODS: &'static str = "2:SniperRifle";
 
     /// Boosters such as "AMMO CAPACITY MOD I", "ASSAULT RIFLE RAIL AMP", "CRYO AMMO"
-    pub const BOOSTERS: &str = "3";
+    pub const BOOSTERS: &'static str = "3";
 
     // Consumable items such as "AMMO PACK", "COBTRA RPG", "REVIVE PACK"
-    pub const CONSUMABLE: &str = "4";
+    pub const CONSUMABLE: &'static str = "4";
 
     /// Equipment such as "ADAPTIVE WAR AMP", and "ASSAULT LOADOUT"
-    pub const EQUIPMENT: &str = "5";
+    pub const EQUIPMENT: &'static str = "5";
 
     /// Rewards from challenges
-    pub const CHALLENGE_REWARD: &str = "7";
+    pub const CHALLENGE_REWARD: &'static str = "7";
 
     /// Non droppable rewards for apex points
-    pub const APEX_POINTS: &str = "8";
+    pub const APEX_POINTS: &'static str = "8";
 
     /// Upgrades for capacity such as "AMMO PACK CAPACITY INCREASE" and
     /// "CHARACTER RESPEC" items
-    pub const CAPACITY_UPGRADE: &str = "9";
+    pub const CAPACITY_UPGRADE: &'static str = "9";
 
     /// Rewards from strike team missions (Loot boxes)
-    pub const STRIKE_TEAM_REWARD: &str = "11";
+    pub const STRIKE_TEAM_REWARD: &'static str = "11";
 
     /// Item loot box packs /
-    pub const ITEM_PACK: &str = "12";
+    pub const ITEM_PACK: &'static str = "12";
 
     // Specialized gun variants
-    pub const WEAPONS_SPECIALIZED: &str = "13:";
-    pub const ASSAULT_RIFLE_SPECIALIZED: &str = "13:AssaultRifle";
-    pub const PISTOL_SPECIALIZED: &str = "13:Pistol";
-    pub const SHOTGUN_SPECIALIZED: &str = "13:Shotgun";
-    pub const SNIPER_RIFLE_SPECIALIZED: &str = "13:SniperRifle";
+    pub const WEAPONS_SPECIALIZED: &'static str = "13:";
+    pub const ASSAULT_RIFLE_SPECIALIZED: &'static str = "13:AssaultRifle";
+    pub const PISTOL_SPECIALIZED: &'static str = "13:Pistol";
+    pub const SHOTGUN_SPECIALIZED: &'static str = "13:Shotgun";
+    pub const SNIPER_RIFLE_SPECIALIZED: &'static str = "13:SniperRifle";
 
     // Enhanced weapon mod variants
-    pub const WEAPON_MODS_ENHANCED: &str = "14:";
-    pub const ASSAULT_RIFLE_MODS_ENHANCED: &str = "14:AssaultRifle";
-    pub const PISTOL_MODS_ENHANCED: &str = "14:Pistol";
-    pub const SHOTGUN_MODS_ENHANCED: &str = "14:Shotgun";
-    pub const SNIPER_RIFLE_MODS_ENHANCED: &str = "14:SniperRifle";
+    pub const WEAPON_MODS_ENHANCED: &'static str = "14:";
+    pub const ASSAULT_RIFLE_MODS_ENHANCED: &'static str = "14:AssaultRifle";
+    pub const PISTOL_MODS_ENHANCED: &'static str = "14:Pistol";
+    pub const SHOTGUN_MODS_ENHANCED: &'static str = "14:Shotgun";
+    pub const SNIPER_RIFLE_MODS_ENHANCED: &'static str = "14:SniperRifle";
 
-    pub const ITEMS: &[&'static str] = &[
+    pub const ITEMS: &'static [&'static str] = &[
         Self::BOOSTERS,
         Self::CONSUMABLE,
         Self::EQUIPMENT,
@@ -847,7 +847,7 @@ impl Category {
         Self::WEAPON_MODS_ENHANCED,
     ];
 
-    pub const ITEMS_NO_WEAPONS: &[&'static str] = &[
+    pub const ITEMS_NO_WEAPONS: &'static [&'static str] = &[
         Self::BOOSTERS,
         Self::CONSUMABLE,
         Self::EQUIPMENT,
@@ -856,7 +856,7 @@ impl Category {
         Self::WEAPON_MODS_ENHANCED,
     ];
 
-    pub const ITEMS_WITH_CHARACTERS: &[&'static str] = &[
+    pub const ITEMS_WITH_CHARACTERS: &'static [&'static str] = &[
         Self::BOOSTERS,
         Self::CONSUMABLE,
         Self::EQUIPMENT,

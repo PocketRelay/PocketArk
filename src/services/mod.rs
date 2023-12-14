@@ -19,7 +19,6 @@ pub mod strike_teams;
 pub mod tokens;
 
 pub struct Services {
-    pub games: Arc<GameManager>,
     pub tokens: Tokens,
     pub match_data: MatchDataService,
     pub challenges: ChallengesService,
@@ -33,7 +32,6 @@ pub struct Services {
 
 impl Services {
     pub async fn init() -> Self {
-        let games = Arc::new(GameManager::new());
         let tokens = Tokens::new().await;
         let match_data = MatchDataService::new();
         let challenges = ChallengesService::new();
@@ -45,7 +43,6 @@ impl Services {
         let strike_teams = StrikeTeamService::new();
 
         Self {
-            games,
             tokens,
             match_data,
             challenges,

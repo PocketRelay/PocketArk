@@ -1,9 +1,11 @@
+use std::sync::Arc;
+
 use crate::{
     http::models::{
         mission::{CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse},
         HttpError, RawJson,
     },
-    state::App,
+    services::game::manager::GameManager,
 };
 use axum::{extract::Path, Extension, Json};
 use hyper::StatusCode;
@@ -30,12 +32,11 @@ pub async fn current_missions() -> RawJson {
 pub async fn get_mission(
     Path(mission_id): Path<u32>,
     Extension(db): Extension<DatabaseConnection>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
 ) -> Result<Json<MissionDetails>, HttpError> {
     debug!("Requested mission details: {}", mission_id);
 
-    let services = App::services();
-    let game = services
-        .games
+    let game = game_manager
         .get_game(mission_id)
         .await
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
@@ -55,13 +56,12 @@ pub async fn get_mission(
 /// Starts a mission
 pub async fn start_mission(
     Path(mission_id): Path<u32>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
     Json(req): Json<StartMissionRequest>,
 ) -> Result<Json<StartMissionResponse>, HttpError> {
     debug!("Mission started: {} {:?}", mission_id, req);
 
-    let services = App::services();
-    let game = services
-        .games
+    let game = game_manager
         .get_game(mission_id)
         .await
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
@@ -82,13 +82,12 @@ pub async fn start_mission(
 /// Submits the details of a mission that has been finished
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
+    Extension(game_manager): Extension<Arc<GameManager>>,
     Json(req): Json<CompleteMissionData>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Mission finished: {} {:#?}", mission_id, req);
 
-    let services = App::services();
-    let game = services
-        .games
+    let game = game_manager
         .get_game(mission_id)
         .await
         .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;

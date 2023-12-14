@@ -17,15 +17,15 @@ pub struct ActivityService {}
 #[allow(unused)]
 impl ActivityService {
     // Hardcoded activity types
-    pub const ITEM_CONSUMED: &str = "_itemConsumed";
-    pub const BADGE_EARNED: &str = "_badgeEarned";
-    pub const ARTICLE_PURCHASED: &str = "_articlePurchased";
-    pub const MISSION_FINISHED: &str = "_missionFinished";
-    pub const EQUIPMENT_ATTACHMENT_UPDATED: &str = "_equipmentAttachmentUpdated";
-    pub const EQUIPMENT_UPDATED: &str = "_equipmentUpdated";
-    pub const SKILL_PURCHASED: &str = "_skillPurchased";
-    pub const CHARACTER_LEVEL_UP: &str = "_characterLevelUp";
-    pub const STRIKE_TEAM_RECRUITED: &str = "_strikeTeamRecruited";
+    pub const ITEM_CONSUMED: &'static str = "_itemConsumed";
+    pub const BADGE_EARNED: &'static str = "_badgeEarned";
+    pub const ARTICLE_PURCHASED: &'static str = "_articlePurchased";
+    pub const MISSION_FINISHED: &'static str = "_missionFinished";
+    pub const EQUIPMENT_ATTACHMENT_UPDATED: &'static str = "_equipmentAttachmentUpdated";
+    pub const EQUIPMENT_UPDATED: &'static str = "_equipmentUpdated";
+    pub const SKILL_PURCHASED: &'static str = "_skillPurchased";
+    pub const CHARACTER_LEVEL_UP: &'static str = "_characterLevelUp";
+    pub const STRIKE_TEAM_RECRUITED: &'static str = "_strikeTeamRecruited";
 
     pub fn new() -> Self {
         Self {}

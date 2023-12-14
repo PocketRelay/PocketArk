@@ -9,14 +9,11 @@ use std::{
 use tokio::sync::RwLock;
 
 use crate::{
-    blaze::models::{
-        game_manager::{GameSetupContext, MatchmakingResult},
-        PlayerState,
-    },
+    blaze::{models::game_manager::GameSetupContext, session::SessionLink},
     utils::hashing::IntHashMap,
 };
 
-use super::{AttrMap, Game, GameID, GameRef, Player, DEFAULT_FIT};
+use super::{AttrMap, Game, GameID, GameRef, Player};
 
 /// Manager which controls all the active games on the server
 /// commanding them to do different actions and removing them
@@ -40,37 +37,33 @@ impl GameManager {
         }
     }
 
-    pub async fn create(&self, mut host: Player, attributes: AttrMap) -> (GameRef, GameID) {
+    pub async fn create(self: &Arc<Self>, attributes: AttrMap) -> (GameRef, GameID) {
         let games = &mut *self.games.write().await;
 
         let id = self.next_id.fetch_add(1, Ordering::AcqRel);
 
-        host.state = PlayerState::ActiveConnected;
-
-        let game = Arc::new(RwLock::new(Game::new(id, attributes)));
+        let game = Arc::new(RwLock::new(Game::new(id, attributes, self.clone())));
         games.insert(id, game.clone());
 
-        let link = game.clone();
-
-        tokio::spawn(async move {
-            let context = GameSetupContext::Matchmaking {
-                fit_score: DEFAULT_FIT,
-                fit_score_2: 0,
-                max_fit_score: DEFAULT_FIT,
-                id_1: host.user.id,
-                id_2: host.user.id,
-                result: MatchmakingResult::CreatedGame,
-                tout: 15000000,
-                ttm: 51109,
-                id_3: host.user.id,
-            };
-
-            // TODO: Aquire lock outside of future? to prevent game usage before the games write lock is dropped
-            let link = &mut *link.write().await;
-            link.add_player(host, context);
-        });
-
         (game, id)
+    }
+
+    pub async fn add_to_game(
+        &self,
+        game_ref: GameRef,
+        player: Player,
+        session: SessionLink,
+        context: GameSetupContext,
+    ) {
+        let (game_id, _slot) = {
+            let game = &mut *game_ref.write().await;
+            let slot = game.add_player(player, context);
+            (game.id, slot)
+        };
+
+        // TODO: Tunneling association
+
+        session.set_game(game_id, Arc::downgrade(&game_ref));
     }
 
     pub async fn get_game(&self, game_id: GameID) -> Option<GameRef> {
