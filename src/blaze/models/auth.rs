@@ -84,7 +84,7 @@ impl Entitlement {
     pub const TAG_CONTENT: &'static str = "ME4PCContent";
     pub const TAG_PC: &'static str = "ME4PC";
 
-    pub const fn new_offer(
+    pub const fn offer(
         id: u64,
         pjid: &'static str,
         prca: u8,
@@ -103,7 +103,7 @@ impl Entitlement {
         }
     }
 
-    pub const fn new_content(
+    pub const fn content(
         id: u64,
         pjid: &'static str,
         prca: u8,
@@ -121,7 +121,7 @@ impl Entitlement {
             ty,
         }
     }
-    pub const fn new_pc(
+    pub const fn pc(
         id: u64,
         pjid: &'static str,
         prca: u8,
