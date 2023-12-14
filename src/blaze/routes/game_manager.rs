@@ -17,7 +17,7 @@ use crate::{
 };
 use std::sync::Arc;
 
-pub async fn create_game(
+pub async fn start_matchmaking_scenario(
     session: SessionLink,
     mut player: Player,
     Blaze(req): Blaze<StartMatchmakingScenarioRequest>,

@@ -58,8 +58,8 @@ pub fn router() -> BlazeRouterBuilder {
 
     router.route(
         components::game_manager::COMPONENT,
-        components::game_manager::START_MATCHMAKING,
-        game_manager::create_game,
+        components::game_manager::START_MATCHMAKING_SCENARIO,
+        game_manager::start_matchmaking_scenario,
     );
     router.route(
         components::game_manager::COMPONENT,

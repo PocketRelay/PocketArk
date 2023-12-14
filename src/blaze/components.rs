@@ -22,7 +22,7 @@ pub mod game_manager {
     pub const UPDATE_GAME_STATE: u16 = 3;
     pub const UPDATE_GAME_ATTR: u16 = 7;
     pub const UPDATE_PLAYER_ATTR: u16 = 8;
-    pub const START_MATCHMAKING: u16 = 16;
+    pub const START_MATCHMAKING_SCENARIO: u16 = 16;
     pub const REPLAY_GAME: u16 = 19;
     pub const LEAVE_GAME_BY_GROUP: u16 = 22;
 
