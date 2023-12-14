@@ -313,17 +313,9 @@ impl<'a> Debug for PacketDebug<'a> {
         let mut r = TdfDeserializer::new(&self.packet.contents);
         let mut out = String::new();
 
-        out.push_str("{\n");
         let mut s = TdfStringifier::new(r, &mut out);
 
         let _ = s.stringify();
-
-        if out.len() == 2 {
-            // Remove new line if nothing else was appended
-            out.pop();
-        }
-
-        out.push('}');
 
         write!(f, "Content: {}", out)
     }
