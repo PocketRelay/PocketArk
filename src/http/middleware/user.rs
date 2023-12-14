@@ -46,7 +46,9 @@ impl<S> FromRequestParts<S> for Auth {
                 .and_then(|value| value.to_str().ok())
                 .ok_or(HttpError::new("Missing session", StatusCode::BAD_REQUEST))?;
 
-            let user_id: u32 = sessions.verify_token(token)?;
+            let user_id: u32 = sessions
+                .verify_token(token)
+                .map_err(|_| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
 
             let user = User::get_user(&db, user_id)
                 .await?

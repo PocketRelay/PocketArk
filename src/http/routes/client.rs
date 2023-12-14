@@ -46,8 +46,8 @@ pub async fn details() -> Json<ServerDetails> {
 /// POST /ark/client/login
 pub async fn login(
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<AuthRequest>,
     Extension(sessions): Extension<Arc<Sessions>>,
+    Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     let user = User::get_by_username(&db, &req.username)
         .await?
@@ -68,8 +68,8 @@ pub async fn login(
 /// POST /ark/client/create
 pub async fn create(
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<AuthRequest>,
     Extension(sessions): Extension<Arc<Sessions>>,
+    Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     if User::get_by_username(&db, &req.username).await?.is_some() {
         return Err(HttpError::new(
