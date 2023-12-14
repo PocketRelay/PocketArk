@@ -85,6 +85,8 @@ pub async fn finish_mission(
     Extension(game_manager): Extension<Arc<GameManager>>,
     Json(req): Json<CompleteMissionData>,
 ) -> Result<StatusCode, HttpError> {
+    // TODO: Handling, JSON structure here is possibly incorrect? Got 400 error
+
     debug!("Mission finished: {} {:#?}", mission_id, req);
 
     let game = game_manager
