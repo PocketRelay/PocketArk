@@ -162,6 +162,38 @@ pub struct Class {
     pub locale: LocaleNameWithDesc,
 }
 
+impl Class {
+    /// Attempts to parse the item link from the class `item_link` as the
+    /// item [Uuid]
+    pub fn linked_item(&self) -> Option<Uuid> {
+        None
+        // let ()
+
+        // // Parse item link from class
+        // let item = match class.item_link.split_once(':') {
+        //     Some((_, item)) => Uuid::from_str(item),
+        //     None => {
+        //         error!(
+        //             "Class {} has an invalid item link: '{}'",
+        //             class.name, class.item_link
+        //         );
+        //         return;
+        //     }
+        // };
+
+        // let item = match item {
+        //     Ok(value) => value,
+        //     Err(err) => {
+        //         error!(
+        //             "Class {} item link UUID invalid '{}': {}",
+        //             class.name, class.item_link, err
+        //         );
+        //         return;
+        //     }
+        // };
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SkillDefinition {

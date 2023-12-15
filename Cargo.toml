@@ -47,6 +47,7 @@ hashbrown = { version = "0.14", default-features = false, features = [
     "inline-more",
 ] }
 serde_path_to_error = "0.1.14"
+num_enum = "0.7.1"
 
 [dependencies.log4rs]
 version = "1.2.0"

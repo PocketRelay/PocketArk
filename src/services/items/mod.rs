@@ -13,6 +13,11 @@ use uuid::{uuid, Uuid};
 pub const INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
 
+pub mod v2;
+
+/// Type of the name for items, names are [Uuid]s with some exceptions (Thanks EA)
+pub type ItemName = Uuid;
+
 pub struct ItemsService {
     /// Item definitions
     defs: Vec<ItemDefinition>,
