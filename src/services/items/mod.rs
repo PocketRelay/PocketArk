@@ -13,6 +13,7 @@ use uuid::{uuid, Uuid};
 pub const INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
 
+pub mod pack;
 pub mod v2;
 
 /// Type of the name for items, names are [Uuid]s with some exceptions (Thanks EA)
