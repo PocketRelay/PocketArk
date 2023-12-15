@@ -17,19 +17,20 @@ pub struct StartMatchmakingScenarioRequest {
     #[tdf(tag = "SCNA")]
     pub attributes: TdfMap<String, TdfGeneric>,
     #[tdf(tag = "SCNM", into = &str)]
-    pub ty: MatchmakeType,
+    pub ty: MatchmakeScenario,
 }
 
-pub enum MatchmakeType {
+pub enum MatchmakeScenario {
     QuickMatch,       // standardQuickMatch
     CreatePublicGame, // createPublicGame
 }
 
-impl From<&str> for MatchmakeType {
+impl From<&str> for MatchmakeScenario {
     fn from(value: &str) -> Self {
         match value {
             "standardQuickMatch" => Self::QuickMatch,
             _ => Self::CreatePublicGame,
+            // TODO: Handle unknown properly
         }
     }
 }

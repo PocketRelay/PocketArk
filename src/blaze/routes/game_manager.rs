@@ -2,7 +2,7 @@ use crate::{
     blaze::{
         models::{
             game_manager::{
-                GameSetupContext, LeaveGameRequest, MatchmakeType, MatchmakingResult,
+                GameSetupContext, LeaveGameRequest, MatchmakeScenario, MatchmakingResult,
                 ReplayGameRequest, StartMatchmakingScenarioRequest,
                 StartMatchmakingScenarioResponse, UpdateAttrRequest, UpdateGameAttrRequest,
                 UpdateStateRequest,
@@ -26,14 +26,14 @@ pub async fn start_matchmaking_scenario(
     let user_id = player.user.id;
 
     match req.ty {
-        MatchmakeType::QuickMatch => {
+        MatchmakeScenario::QuickMatch => {
             // TODO:
             // - Add to matchmaking queue
             // - Send async matchmaking update (4, 12)
             // - Couldn't find one? create new one
             // - found one? send game details
         }
-        MatchmakeType::CreatePublicGame => {
+        MatchmakeScenario::CreatePublicGame => {
             let attributes = req
                 .attributes
                 .into_iter()
