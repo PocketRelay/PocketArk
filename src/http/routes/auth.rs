@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     http::{
-        middleware::user::Auth,
+        middleware::{user::Auth, JsonDump},
         models::{
             auth::{AuthRequest, AuthResponse, AuthUser},
             HttpResult,
@@ -18,7 +18,7 @@ use log::debug;
 pub async fn authenticate(
     Auth(user): Auth,
     Extension(sessions): Extension<Arc<Sessions>>,
-    Json(req): Json<AuthRequest>,
+    JsonDump(req): JsonDump<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     debug!("Authenticate: {:?}", &req);
 

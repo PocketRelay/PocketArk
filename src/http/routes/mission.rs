@@ -1,9 +1,14 @@
 use std::sync::Arc;
 
 use crate::{
-    http::models::{
-        mission::{CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse},
-        HttpError, RawJson,
+    http::{
+        middleware::JsonDump,
+        models::{
+            mission::{
+                CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse,
+            },
+            HttpError, RawJson,
+        },
     },
     services::game::manager::GameManager,
 };
@@ -57,7 +62,7 @@ pub async fn get_mission(
 pub async fn start_mission(
     Path(mission_id): Path<u32>,
     Extension(game_manager): Extension<Arc<GameManager>>,
-    Json(req): Json<StartMissionRequest>,
+    JsonDump(req): JsonDump<StartMissionRequest>,
 ) -> Result<Json<StartMissionResponse>, HttpError> {
     debug!("Mission started: {} {:?}", mission_id, req);
 
@@ -83,7 +88,7 @@ pub async fn start_mission(
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
     Extension(game_manager): Extension<Arc<GameManager>>,
-    Json(req): Json<CompleteMissionData>,
+    JsonDump(req): JsonDump<CompleteMissionData>,
 ) -> Result<StatusCode, HttpError> {
     // TODO: Handling, JSON structure here is possibly incorrect? Got 400 error
 
@@ -103,7 +108,7 @@ pub async fn finish_mission(
 }
 
 /// PUT /mission/seen
-pub async fn update_seen(Json(req): Json<Value>) -> StatusCode {
+pub async fn update_seen(JsonDump(req): JsonDump<Value>) -> StatusCode {
     debug!("Update mission seen: {:?}", req);
     StatusCode::NO_CONTENT
 }

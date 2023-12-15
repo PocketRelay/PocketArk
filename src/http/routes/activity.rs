@@ -1,16 +1,23 @@
 use crate::{
-    http::{middleware::user::Auth, models::RawJson},
+    http::{
+        middleware::{user::Auth, JsonDump},
+        models::RawJson,
+    },
     services::activity::ActivityResult,
 };
 use axum::Json;
 use log::debug;
+use serde_json::Value;
 
 /// POST /activity
 ///
 /// This endpoint recieves requests whenever in game activities
 /// from the activity metadata definitions are completed. The request
 /// contains details about the activity
-pub async fn create_report(Auth(user): Auth, req: String) -> Json<ActivityResult> {
+pub async fn create_report(
+    Auth(user): Auth,
+    JsonDump(req): JsonDump<Value>,
+) -> Json<ActivityResult> {
     debug!("Activity reported: {} {}", user.username, req);
 
     // TODO: actually handle activities

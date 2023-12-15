@@ -4,7 +4,7 @@ use crate::{
         Character, ClassData, SharedData,
     },
     http::{
-        middleware::user::Auth,
+        middleware::{user::Auth, JsonDump},
         models::{
             character::{
                 CharacterClasses, CharacterEquipmentList, CharacterLevelTables, CharacterResponse,
@@ -107,7 +107,7 @@ pub async fn update_character_equip(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<CharacterEquipmentList>,
+    JsonDump(req): JsonDump<CharacterEquipmentList>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Update character equipment: {} - {:?}", character_id, req);
 
@@ -131,7 +131,7 @@ pub async fn update_character_equip(
 pub async fn update_shared_equip(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<CharacterEquipmentList>,
+    JsonDump(req): JsonDump<CharacterEquipmentList>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Update shared equipment: {:?}", req);
 
@@ -146,7 +146,7 @@ pub async fn update_character_customization(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<UpdateCustomizationRequest>,
+    JsonDump(req): JsonDump<UpdateCustomizationRequest>,
 ) -> Result<StatusCode, HttpError> {
     debug!(
         "Update character customization: {} - {:?}",
@@ -203,7 +203,7 @@ pub async fn update_skill_tree(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<UpdateSkillTreesRequest>,
+    JsonDump(req): JsonDump<UpdateSkillTreesRequest>,
 ) -> Result<Json<Character>, HttpError> {
     debug!("Req update skill tree: {} {:?}", character_id, req);
 

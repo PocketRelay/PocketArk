@@ -1,7 +1,7 @@
 use crate::{
     database::entity::{Currency, InventoryItem},
     http::{
-        middleware::user::Auth,
+        middleware::{user::Auth, JsonDump},
         models::{
             store::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
@@ -49,7 +49,7 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
 pub async fn obtain_article(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<ObtainStoreItemRequest>,
+    JsonDump(req): JsonDump<ObtainStoreItemRequest>,
 ) -> Result<Json<ObtainStoreItemResponse>, HttpError> {
     debug!("Requested buy store article: {:?}", req);
 

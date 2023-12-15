@@ -1,7 +1,7 @@
 use crate::{
     database::entity::{Currency, InventoryItem},
     http::{
-        middleware::user::Auth,
+        middleware::{user::Auth, JsonDump},
         models::{
             inventory::{
                 ConsumeRequest, InventoryRequestQuery, InventoryResponse, InventorySeenRequest,
@@ -78,7 +78,7 @@ pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
 pub async fn update_inventory_seen(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<InventorySeenRequest>,
+    JsonDump(req): JsonDump<InventorySeenRequest>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Inventory seen change requested: {:?}", req);
 
@@ -97,7 +97,7 @@ pub async fn update_inventory_seen(
 pub async fn consume_inventory(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-    Json(req): Json<ConsumeRequest>,
+    JsonDump(req): JsonDump<ConsumeRequest>,
 ) -> Result<Json<ActivityResult>, HttpError> {
     debug!("Consume inventory items: {:?}", req);
 
