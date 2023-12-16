@@ -5,26 +5,47 @@
 //! be accurate to the actual game loot tables.
 
 use crate::services::items::v2::{Category, ItemDefinition, ItemName, ItemRarity};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 use uuid::uuid;
 
 use super::v2::BaseCategory;
 
+#[derive(Debug)]
+pub struct ComputedPacks {
+    /// Mapping between the pack item and the computed pack
+    packs: HashMap<ItemName, ComputedPack>,
+}
+
+impl ComputedPacks {
+    /// Loads computed packs from the provided JSON string
+    pub fn from_str(value: &str) -> serde_json::Result<Self> {
+        let packs: HashMap<ItemName, ComputedPack> = serde_json::from_str(value)?;
+
+        Ok(Self { packs })
+    }
+}
+
 /// Precomputed representation of a [Pack]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComputedPack {
     items: Vec<ComputedPackCollection>,
 }
 
 /// A [PackCollection] that has been computed from its filter
 /// resulting in a collection of items that are applicable
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComputedPackCollection {
     /// Collection of items and their weights
     items: Vec<(ItemName, Weight)>,
     /// The size of each stack generated
     stack_size: u32,
-    /// The amount of items to produce
-    amount: u32,
+    /// The amount of items to produce from the collection
+    /// if [None] they should be given one of every item
+    amount: Option<u32>,
 }
 
 /// Represents a pack
@@ -49,6 +70,34 @@ impl Pack {
         self.items.push(chance);
         self
     }
+
+    /// Creates a computed version of this pack using the provided list
+    /// of item definitions.
+    fn compute(&self, definitions: &[ItemDefinition]) -> ComputedPack {
+        let items: Vec<ComputedPackCollection> = self
+            .items
+            .iter()
+            .map(|collection| {
+                // Collect all matching items and their weights
+                let mut items: Vec<(ItemName, Weight)> = definitions
+                    .iter()
+                    .filter_map(|item| {
+                        let weight = collection.filter.apply_filter(item)?;
+
+                        Some((item.name, weight))
+                    })
+                    .collect();
+
+                ComputedPackCollection {
+                    items,
+                    amount: collection.amount,
+                    stack_size: collection.stack_size,
+                }
+            })
+            .collect();
+
+        ComputedPack { items }
+    }
 }
 
 /// Chance for gaining an item from a specific filter
@@ -58,8 +107,9 @@ struct PackCollection {
     filter: Filter,
     /// The stack size of each item produced from this collection
     stack_size: u32,
-    /// The amount of items to produce from this collection
-    amount: usize,
+    /// The amount of items to produce from the collection
+    /// if [None] they should be given one of every item
+    amount: Option<u32>,
 }
 
 impl PackCollection {
@@ -68,7 +118,7 @@ impl PackCollection {
         Self {
             filter,
             stack_size: 1,
-            amount: 1,
+            amount: Some(1),
         }
     }
 
@@ -80,8 +130,8 @@ impl PackCollection {
     }
 
     /// Update the amount of items to produce
-    fn amount(mut self, amount: usize) -> Self {
-        self.amount = amount;
+    fn amount(mut self, amount: u32) -> Self {
+        self.amount = Some(amount);
         self
     }
 
@@ -91,14 +141,10 @@ impl PackCollection {
         self
     }
 
-    fn is_all(&self) -> bool {
-        self.amount == usize::MAX
-    }
-
     /// Tells the pack item to provide *all* the items that
     /// match the filter rather than a specific amount
     fn all(mut self) -> Self {
-        self.amount = usize::MAX;
+        self.amount = None;
         self
     }
 }
@@ -118,8 +164,8 @@ enum Filter {
     Rarity(ItemRarity),
     /// Item from a selection of a category
     Category(Category),
-    /// Filter based on matching item attributes
-    Attributes(HashMap<String, Value>),
+    /// Filter based on a specific item attribute
+    Attribute(String, Value),
 
     /// Filter matching many filters. Only one of the filters needs to
     /// pass, will compare all the filters and the weight will become
@@ -137,6 +183,17 @@ enum Filter {
 }
 
 impl Filter {
+    /// Creates a new filter matching all of the provided filters
+    pub fn all<I>(filters: I) -> Self
+    where
+        I: IntoIterator<Item = Filter>,
+    {
+        filters
+            .into_iter()
+            .reduce(|accum, value| accum.and(value))
+            .unwrap_or(Filter::Never)
+    }
+
     /// Creates a new filter matching any of the provided filters
     pub fn any<I>(filters: I) -> Self
     where
@@ -186,19 +243,27 @@ impl Filter {
         Self::any(categories.into_iter().map(Self::base_category))
     }
 
+    /// Creates an attribute filter from the provided key and value
+    pub fn attribute<K, V>(key: K, value: V) -> Self
+    where
+        K: Into<String>,
+        V: Into<Value>,
+    {
+        Self::Attribute(key.into(), value.into())
+    }
+
     /// Creates an attributes filter from an iterator of key
-    /// value pairs
+    /// value pairs requires all the attribute match
     pub fn attributes<I, K, V>(attributes: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
         K: Into<String>,
         V: Into<Value>,
     {
-        Self::Attributes(
+        Self::all(
             attributes
                 .into_iter()
-                .map(|(key, value)| (key.into(), value.into()))
-                .collect(),
+                .map(|(key, value)| Self::attribute(key, value)),
         )
     }
 
@@ -268,7 +333,18 @@ impl Filter {
 
                 Some(0)
             }
-            Filter::Attributes(attributes) => todo!(),
+            Filter::Attribute(key, value) => {
+                let matches = item
+                    .custom_attributes
+                    .get(key)
+                    .is_some_and(|attr| attr.eq(value));
+
+                if matches {
+                    Some(0)
+                } else {
+                    None
+                }
+            }
             Filter::Many(filters) => {
                 let mut weight_sum = 0;
                 let mut matches = false;
@@ -286,10 +362,29 @@ impl Filter {
                     None
                 }
             }
-            Filter::And(_, _) => todo!(),
-            Filter::Or(_, _) => todo!(),
-            Filter::Not(_) => todo!(),
-            Filter::Weighted(_, _) => todo!(),
+            Filter::And(left, right) => {
+                let left = left.apply_filter(item)?;
+                let right = right.apply_filter(item)?;
+                Some(left + right)
+            }
+            Filter::Or(left, right) => {
+                if let Some(left) = left.apply_filter(item) {
+                    Some(left)
+                } else {
+                    right.apply_filter(item)
+                }
+            }
+            Filter::Not(filter) => {
+                if filter.apply_filter(item).is_some() {
+                    None
+                } else {
+                    Some(0)
+                }
+            }
+            Filter::Weighted(filter, weight) => filter
+                .apply_filter(item)
+                // Add the additional weight
+                .map(|filter_weight| filter_weight + *weight),
             Filter::Never => None,
         }
     }
@@ -301,7 +396,10 @@ impl Filter {
 #[test]
 #[ignore]
 fn generate_packs() {
-    use crate::services::items::ItemFilter;
+    use crate::services::items::{
+        v2::{ItemDefinitions, INVENTORY_DEFINITIONS},
+        ItemFilter,
+    };
 
     use super::v2::BaseCategory;
 
@@ -1014,4 +1112,22 @@ fn generate_packs() {
         // [BUG] I am a banner!
         todo(uuid!("694577c3-0d92-4e85-ad41-de54a4c91154")),
     ];
+
+    let definitions = ItemDefinitions::from_str(INVENTORY_DEFINITIONS).unwrap();
+    let definitions = definitions.all();
+
+    // Generate the computed packs
+    let mut computed_packs = HashMap::new();
+
+    for pack in packs {
+        let item_name = pack.name;
+        let computed = pack.compute(definitions);
+
+        computed_packs.insert(item_name, computed);
+    }
+
+    // Serialize the packs
+    let out = serde_json::to_string(&computed_packs).unwrap();
+
+    std::fs::write("packs.json", out).unwrap();
 }
