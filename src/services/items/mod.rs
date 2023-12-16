@@ -1,3 +1,4 @@
+use crate::database::entity::inventory_items::ItemId;
 use crate::utils::models::LocaleNameWithDesc;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
 use pack::Packs;
@@ -182,7 +183,7 @@ pub struct ItemEvents {
 #[derive(Debug)]
 pub struct ItemChanged {
     /// ID of the item
-    pub item_id: Uuid,
+    pub item_id: ItemId,
     /// The previous stack size of the item
     pub prev_stack_size: u32,
     /// The new stack size of the item

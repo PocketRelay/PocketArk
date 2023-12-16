@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{Currency, InventoryItem},
+    database::entity::{Character, Currency, InventoryItem},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -10,7 +10,10 @@ use crate::{
             HttpError,
         },
     },
-    services::activity::{ActivityItemDetails, ActivityResult},
+    services::{
+        activity::{ActivityItemDetails, ActivityResult},
+        items::{BaseCategory, Category},
+    },
     state::App,
 };
 use axum::{Extension, Json};
@@ -112,8 +115,18 @@ pub async fn obtain_article(
     );
 
     // Create the purchased item
-    let mut item = InventoryItem::create_or_append(&db, &user, article_item, 1).await?;
+    let mut item =
+        InventoryItem::add_item(&db, &user, article_item.name, 1, article_item.capacity).await?;
     item.stack_size = 1;
+
+    // Handle character creation if the item is a character item
+    if article_item
+        .category
+        .is_within(&Category::Base(BaseCategory::Characters))
+    {
+        let services = App::services();
+        Character::create_from_item(&db, &services.character, &user, &article_item.name).await?;
+    }
 
     let definitions = vec![article_item];
     let items_earned = vec![item];

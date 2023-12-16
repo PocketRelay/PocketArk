@@ -1,6 +1,6 @@
 use crate::http::models::mission::MissionActivity;
 
-use super::match_data::ActivityDescriptor;
+use super::{items::ItemName, match_data::ActivityDescriptor};
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -130,7 +130,7 @@ pub struct CurrencyReward {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ItemReward {
-    pub name: Uuid,
+    pub name: ItemName,
     pub count: u32,
     pub namespace: String,
 }

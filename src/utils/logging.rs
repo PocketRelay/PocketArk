@@ -45,7 +45,7 @@ pub fn setup(logging_level: LevelFilter) {
             Logger::builder()
                 .appenders(APPENDERS)
                 .additive(false)
-                .build("sqlx", LevelFilter::Warn),
+                .build("sqlx", LevelFilter::Debug),
         )
         .build(
             Root::builder()

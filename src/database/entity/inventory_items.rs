@@ -5,32 +5,41 @@ use crate::{
         entity::{Character, InventoryItem, User, ValueMap},
         DbResult,
     },
-    services::items::{pack::ItemReward, BaseCategory, Category, ItemDefinition},
+    services::items::{pack::ItemReward, BaseCategory, Category, ItemDefinition, ItemName},
     state::App,
 };
 use chrono::Utc;
+use futures::Future;
 use log::debug;
 use sea_orm::{
     entity::prelude::*,
-    sea_query::Expr,
+    sea_query::{Expr, OnConflict, Query, SimpleExpr},
     ActiveValue::{NotSet, Set},
-    IntoActiveModel,
+    IntoActiveModel, UpdateResult,
 };
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use uuid::uuid;
 
+use super::users::UserId;
+
+/// Item ID keying has been replaced with integer keys rather than the UUIDs
+/// used by the official game, this is because its *very* annoying to work with
+/// UUIDs as primary keys in the SQLite database (Basically defeats the purpose of SeaORM)
+pub type ItemId = u32;
+
+#[serde_as]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "inventory_items")]
 #[serde(rename_all = "camelCase")]
-
 pub struct Model {
+    #[serde(rename = "itemId")]
     #[sea_orm(primary_key)]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub id: ItemId,
     #[serde(skip)]
-    pub id: u32,
-    pub item_id: Uuid,
-    #[serde(skip)]
-    pub user_id: u32,
-    pub definition_name: Uuid,
+    pub user_id: UserId,
+    pub definition_name: ItemName,
     pub stack_size: u32,
     pub seen: bool,
     pub instance_attributes: ValueMap,
@@ -51,81 +60,58 @@ pub enum Relation {
     User,
 }
 
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::User.def()
-    }
-}
-
-impl ActiveModelBehavior for ActiveModel {}
-
 impl Model {
-    /// Createsa a new item from the provided definition
-    pub async fn create_item<C>(
-        db: &C,
+    /// Adds an item for the provided player. If an item with a matching `definition_name`
+    /// already exists in the database the `stack_size` and `last_grant` columns will be updated
+    ///
+    /// ## Argumnets
+    /// * `db`              - The database connection
+    /// * `user`            - The user this item belongs to
+    /// * `definition_name` - The name of the item definition
+    /// * `stack_size`      - The stack size to use / add for the item
+    /// * `capacity`        - The stack max capacity if the definition defines one
+    pub fn add_item<'db, C>(
+        db: &'db C,
         user: &User,
-        definition: &ItemDefinition,
+        definition_name: ItemName,
         stack_size: u32,
-    ) -> DbResult<Self>
+        capacity: Option<u32>,
+    ) -> impl Future<Output = DbResult<Self>> + Send + 'db
     where
         C: ConnectionTrait + Send,
     {
         let now = Utc::now();
-        let model = ActiveModel {
+
+        Entity::insert(ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
-            item_id: Set(Uuid::new_v4()),
-            definition_name: Set(definition.name),
+            definition_name: Set(definition_name),
             stack_size: Set(stack_size),
-            seen: Set(false),
             instance_attributes: Set(ValueMap::default()),
             created: Set(now),
             last_grant: Set(now),
             earned_by: Set("granted".to_string()),
-            restricted: Set(false),
-        }
-        .insert(db)
-        .await?;
-
-        // Handle character creation
-        if definition
-            .category
-            .is_within(&Category::Base(BaseCategory::Characters))
-        {
-            let services = App::services();
-            Character::create_from_item(db, &services.character, user, &definition.name).await?;
-        }
-
-        Ok(model)
-    }
-
-    /// Creates a new item if there are no matching item definitions in
-    /// the inventory otherwise appends the stack size to the existing item
-    pub async fn create_or_append<C>(
-        db: &C,
-        user: &User,
-        definition: &ItemDefinition,
-        stack_size: u32,
-    ) -> DbResult<Self>
-    where
-        C: ConnectionTrait + Send,
-    {
-        if let Some(existing) = user
-            .find_related(Entity)
-            .filter(Column::DefinitionName.eq(definition.name))
-            .one(db)
-            .await?
-        {
-            let capacity = definition.capacity.as_ref().copied().unwrap_or(u32::MAX);
-            let stack_size = existing.stack_size.saturating_add(stack_size).min(capacity);
-
-            let mut model = existing.into_active_model();
-            model.stack_size = Set(stack_size);
-            model.last_grant = Set(Utc::now());
-            model.update(db).await
-        } else {
-            Self::create_item(db, user, definition, stack_size).await
-        }
+            ..Default::default()
+        })
+        .on_conflict(
+            // Update the value column if a key already exists
+            OnConflict::columns([Column::UserId, Column::DefinitionName])
+                .value(
+                    Column::StackSize,
+                    // Add the stack size but don't add above the capacity.
+                    //
+                    // The query below adds the stack size without surpassing
+                    // the maximum capacity value
+                    Expr::cust_with_values(
+                        "(SELECT MIN(`stack_size` + ?, ?))",
+                        [stack_size, capacity.unwrap_or(u32::MAX)],
+                    ),
+                )
+                // Update the last granted column
+                .update_column(Column::LastGrant)
+                .to_owned(),
+        )
+        .exec_with_returning(db)
     }
 
     /// Creates a new item if there are no matching item definitions in
@@ -172,45 +158,72 @@ impl Model {
         let services = App::services();
 
         for item in items {
-            let def = match services.items.items.by_name(&item) {
+            let definition = match services.items.items.by_name(&item) {
                 Some(value) => value,
                 None => continue,
             };
 
-            Self::create_item(db, user, def, 1).await?;
+            Self::add_item(db, user, definition.name, 1, definition.capacity)
+                .await
+                .unwrap();
+
+            // Handle character creation if the item is a character item
+            if definition
+                .category
+                .is_within(&Category::Base(BaseCategory::Characters))
+            {
+                let services = App::services();
+                Character::create_from_item(db, &services.character, user, &definition.name)
+                    .await?;
+            }
         }
 
         Ok(())
     }
 
-    pub async fn update_seen<C>(db: &C, user: &User, list: Vec<Uuid>) -> DbResult<()>
+    pub fn update_seen<'db, C>(
+        db: &'db C,
+        user: &User,
+        list: Vec<ItemId>,
+    ) -> impl Future<Output = DbResult<UpdateResult>> + Send + 'db
     where
         C: ConnectionTrait + Send,
     {
         // Updates all the matching items seen state
         Entity::update_many()
             .col_expr(Column::Seen, Expr::value(true))
-            .filter(Column::ItemId.is_in(list).and(Column::UserId.eq(user.id)))
+            .filter(Column::Id.is_in(list).and(Column::UserId.eq(user.id)))
             .exec(db)
-            .await?;
-
-        Ok(())
     }
 
-    pub async fn get_all_items<C>(db: &C, user: &User) -> DbResult<Vec<InventoryItem>>
+    pub fn get_all_items<'db, C>(
+        db: &'db C,
+        user: &User,
+    ) -> impl Future<Output = DbResult<Vec<InventoryItem>>> + Send + 'db
     where
         C: ConnectionTrait + Send,
     {
-        user.find_related(Entity).all(db).await
+        user.find_related(Entity).all(db)
     }
 
-    pub async fn get_items<C>(db: &C, user: &User, ids: Vec<Uuid>) -> DbResult<Vec<InventoryItem>>
+    pub fn get_items<'db, C>(
+        db: &'db C,
+        user: &User,
+        ids: Vec<ItemId>,
+    ) -> impl Future<Output = DbResult<Vec<InventoryItem>>> + Send + 'db
     where
         C: ConnectionTrait + Send,
     {
         user.find_related(Entity)
-            .filter(Column::ItemId.is_in(ids))
+            .filter(Column::Id.is_in(ids))
             .all(db)
-            .await
     }
 }
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
+
+impl ActiveModelBehavior for ActiveModel {}

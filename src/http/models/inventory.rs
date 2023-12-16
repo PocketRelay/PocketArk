@@ -1,10 +1,10 @@
 use crate::{
-    database::entity::InventoryItem,
+    database::entity::{inventory_items::ItemId, InventoryItem},
     services::items::{ItemDefinition, ItemNamespace},
 };
 use serde::{Deserialize, Serialize};
 
-use serde_with::skip_serializing_none;
+use serde_with::{serde_as, skip_serializing_none};
 use uuid::Uuid;
 
 /// Paramas for requesting inventory
@@ -35,10 +35,12 @@ pub struct ItemDefinitionsResponse {
 }
 
 /// Request updating inventory item seen states
+#[serde_as]
 #[derive(Debug, Deserialize)]
 pub struct InventorySeenRequest {
     /// The list of item IDs to mark as seen
-    pub list: Vec<Uuid>,
+    #[serde_as(as = "Vec<serde_with::DisplayFromStr>")]
+    pub list: Vec<ItemId>,
 }
 
 /// Item consume request body
@@ -52,10 +54,12 @@ pub struct ConsumeRequest {
 }
 
 /// Target item that should be consumed
+#[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConsumeTarget {
     /// ID of the item to consume
-    pub item_id: Uuid,
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub item_id: ItemId,
     // pub target_id: String, *unused*
 }

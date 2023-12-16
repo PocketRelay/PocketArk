@@ -1,8 +1,9 @@
 use super::{User, ValueMap};
 use crate::{
     database::{entity::ClassData, DbResult},
-    services::character::{
-        CharacterEquipment, CharacterService, CustomizationEntry, SkillTreeEntry, Xp,
+    services::{
+        character::{CharacterEquipment, CharacterService, CustomizationEntry, SkillTreeEntry, Xp},
+        items::ItemName,
     },
     utils::models::Sku,
 };
@@ -95,7 +96,7 @@ impl Model {
         db: &C,
         characters: &CharacterService,
         user: &User,
-        item_name: &Uuid,
+        item_name: &ItemName,
     ) -> DbResult<()>
     where
         C: ConnectionTrait + Send,

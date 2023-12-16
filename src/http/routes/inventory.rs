@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{Currency, InventoryItem},
+    database::entity::{Character, Currency, InventoryItem},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -13,8 +13,8 @@ use crate::{
     services::{
         activity::{ActivityItemDetails, ActivityResult},
         items::{
-            pack::RewardCollection, BaseCategory, Category, ItemChanged, ItemDefinition,
-            ItemNamespace,
+            pack::{ItemReward, RewardCollection},
+            BaseCategory, Category, ItemChanged, ItemDefinition, ItemNamespace,
         },
     },
     state::App,
@@ -129,7 +129,7 @@ pub async fn consume_inventory(
         // Find the owned item to consume
         let (item, definition) = owned_items
             .iter()
-            .find(|(item, _)| item.item_id.eq(&target.item_id))
+            .find(|(item, _)| item.id.eq(&target.item_id))
             .ok_or(HttpError::new(
                 "The user does not own the item.",
                 StatusCode::NOT_FOUND,
@@ -192,7 +192,7 @@ pub async fn consume_inventory(
 
         // Take 1 from the item we just consumed
         items_changed.push(ItemChanged {
-            item_id: item.item_id,
+            item_id: item.id,
             prev_stack_size: item.stack_size,
             stack_size: item.stack_size.saturating_sub(1),
         });
@@ -202,11 +202,11 @@ pub async fn consume_inventory(
     for (item, definition) in owned_items {
         let change = items_changed
             .iter()
-            .find(|value| value.item_id.eq(&item.item_id));
+            .find(|value| value.item_id.eq(&item.id));
         if let Some(change) = change {
             debug!(
                 "Consumed item stack size {} ({}) new stack size: x{}",
-                item.item_id,
+                item.id,
                 definition.locale.name(),
                 change.stack_size,
             );
@@ -218,25 +218,38 @@ pub async fn consume_inventory(
     let mut earned: Vec<InventoryItem> = Vec::with_capacity(rewards.len());
     let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(rewards.len());
 
-    for reward in rewards {
+    for ItemReward {
+        definition,
+        stack_size,
+    } in rewards
+    {
         debug!(
             "Item reward {} x{} ({:?} to {}",
-            reward.definition.name,
-            reward.stack_size,
-            reward.definition.locale.name(),
+            definition.name,
+            stack_size,
+            definition.locale.name(),
             user.username
         );
 
         let mut item =
-            InventoryItem::create_or_append(&db, &user, reward.definition, reward.stack_size)
+            InventoryItem::add_item(&db, &user, definition.name, stack_size, definition.capacity)
                 .await?;
 
         // Update the returning item stack size to the correct size
         // (Response should be the amount earned *not* total amount)
-        item.stack_size = reward.stack_size;
+        item.stack_size = stack_size;
+
+        // Handle character creation if the item is a character item
+        if definition
+            .category
+            .is_within(&Category::Base(BaseCategory::Characters))
+        {
+            let services = App::services();
+            Character::create_from_item(&db, &services.character, &user, &definition.name).await?;
+        }
 
         earned.push(item);
-        definitions.push(reward.definition);
+        definitions.push(definition);
     }
 
     let currencies = Currency::get_from_user(&db, &user).await?;

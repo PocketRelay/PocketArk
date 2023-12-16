@@ -34,6 +34,43 @@ pub enum Relation {
     StrikeTeams,
 }
 
+impl Model {
+    pub async fn create_user(
+        username: String,
+        password: String,
+        db: &DatabaseConnection,
+    ) -> DbResult<Self> {
+        let user = ActiveModel {
+            id: NotSet,
+            username: Set(username),
+            password: Set(password),
+        }
+        .insert(db)
+        .await?;
+
+        InventoryItem::create_default(db, &user).await?;
+        Currency::create_default(db, &user).await?;
+        SharedData::create_default(db, &user).await?;
+        StrikeTeam::create_default(db, &user).await?;
+
+        Ok(user)
+    }
+
+    pub async fn get_user(db: &DatabaseConnection, id: u32) -> DbResult<Option<Self>> {
+        Entity::find_by_id(id).one(db).await
+    }
+
+    pub async fn get_by_username(
+        db: &DatabaseConnection,
+        username: &str,
+    ) -> DbResult<Option<Self>> {
+        Entity::find()
+            .filter(Column::Username.eq(username))
+            .one(db)
+            .await
+    }
+}
+
 impl Related<super::currency::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Currencies.def()
@@ -83,40 +120,3 @@ impl Related<super::strike_teams::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
-
-impl Model {
-    pub async fn create_user(
-        username: String,
-        password: String,
-        db: &DatabaseConnection,
-    ) -> DbResult<Self> {
-        let user = ActiveModel {
-            id: NotSet,
-            username: Set(username),
-            password: Set(password),
-        }
-        .insert(db)
-        .await?;
-
-        InventoryItem::create_default(db, &user).await?;
-        Currency::create_default(db, &user).await?;
-        SharedData::create_default(db, &user).await?;
-        StrikeTeam::create_default(db, &user).await?;
-
-        Ok(user)
-    }
-
-    pub async fn get_user(db: &DatabaseConnection, id: u32) -> DbResult<Option<Self>> {
-        Entity::find_by_id(id).one(db).await
-    }
-
-    pub async fn get_by_username(
-        db: &DatabaseConnection,
-        username: &str,
-    ) -> DbResult<Option<Self>> {
-        Entity::find()
-            .filter(Column::Username.eq(username))
-            .one(db)
-            .await
-    }
-}
