@@ -171,6 +171,20 @@ pub enum ItemRarity {
     Max = 4,
 }
 
+impl ItemRarity {
+    /// Provides the weight to use for this rarity value
+    /// (Lower rarity has a higher weight)
+    pub const fn weight(&self) -> u32 {
+        match self {
+            ItemRarity::Common => 32,
+            ItemRarity::Uncommon => 24,
+            ItemRarity::Rare => 16,
+            ItemRarity::UltraRare => 8,
+            ItemRarity::Max => 1,
+        }
+    }
+}
+
 /// Represents an item category
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum Category {
