@@ -4,99 +4,140 @@
 //! The randomness used for these packs are only guesses and may not
 //! be accurate to the actual game loot tables.
 
-use crate::services::items::v2::{Category, ItemDefinition, ItemName, ItemRarity};
+use crate::{
+    database::entity::InventoryItem,
+    services::items::v2::{Category, ItemDefinition, ItemName, ItemRarity},
+};
+use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
+use thiserror::Error;
 use uuid::uuid;
 
-use super::v2::BaseCategory;
+use super::v2::{BaseCategory, ItemDefinitions, ItemLink};
 
-#[derive(Debug)]
-pub struct ComputedPacks {
-    /// Mapping between the pack item and the computed pack
-    packs: HashMap<ItemName, ComputedPack>,
+/// Collection of defined [Pack]s
+pub struct Packs {
+    /// Lookup for packs by [ItemName]
+    packs: HashMap<ItemName, Pack>,
 }
 
-impl ComputedPacks {
-    /// Loads computed packs from the provided JSON string
-    pub fn from_str(value: &str) -> serde_json::Result<Self> {
-        let packs: HashMap<ItemName, ComputedPack> = serde_json::from_str(value)?;
-
-        Ok(Self { packs })
-    }
-}
-
-/// Precomputed representation of a [Pack]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComputedPack {
-    items: Vec<ComputedPackCollection>,
-}
-
-/// A [PackCollection] that has been computed from its filter
-/// resulting in a collection of items that are applicable
-#[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComputedPackCollection {
-    /// Collection of items and their weights
-    items: Vec<(ItemName, Weight)>,
-    /// The size of each stack generated
-    stack_size: u32,
-    /// The amount of items to produce from the collection
-    /// if [None] they should be given one of every item
-    amount: Option<u32>,
-}
-
-/// Represents a pack
-struct Pack {
-    /// The name of the pack item
-    name: ItemName,
-    /// The collection of item reward this pack provides
-    items: Vec<PackCollection>,
-}
-
-impl Pack {
-    /// Creates a new pack using the provided name
-    pub fn new(name: ItemName) -> Self {
+impl Packs {
+    pub fn new() -> Self {
         Self {
-            name,
-            items: Vec::new(),
+            packs: generate_packs(),
         }
     }
 
-    /// Adds a new item to the pack
-    fn add_item(mut self, chance: PackCollection) -> Self {
-        self.items.push(chance);
+    pub fn by_name(&self, name: &ItemName) -> Option<&Pack> {
+        self.packs.get(name)
+    }
+}
+
+/// Builder for creating [Pack]s
+struct PackBuilder {
+    /// The name of the pack item
+    name: ItemName,
+    /// The collection of item reward this pack provides
+    collections: Vec<PackCollection>,
+}
+
+impl PackBuilder {
+    /// Creates a new pack builder using the provided name
+    fn new(name: ItemName) -> Self {
+        Self {
+            name,
+            collections: Vec::new(),
+        }
+    }
+
+    /// Adds a new collection to the pack
+    fn add(mut self, chance: PackCollection) -> Self {
+        self.collections.push(chance);
         self
     }
 
-    /// Creates a computed version of this pack using the provided list
-    /// of item definitions.
-    fn compute(&self, definitions: &[ItemDefinition]) -> ComputedPack {
-        let items: Vec<ComputedPackCollection> = self
-            .items
+    /// Builds the finished [Pack]
+    fn build(mut self) -> Pack {
+        Pack {
+            name: self.name,
+            collections: self.collections.into_boxed_slice(),
+        }
+    }
+}
+
+/// Represents a pack that can be used to generate items
+pub struct Pack {
+    /// The name of the pack item
+    pub name: ItemName,
+    /// The collection of item reward this pack provides
+    collections: Box<[PackCollection]>,
+}
+
+impl Pack {
+    /// Creates a new pack builder using the provided name
+    #[inline]
+    fn builder(name: ItemName) -> PackBuilder {
+        PackBuilder::new(name)
+    }
+
+    /// Generates a [RewardCollection] from this [Pack] using the provided
+    /// random number generator `rng`
+    pub fn generate_rewards(
+        &self,
+        rng: &mut StdRng,
+        defs: &ItemDefinitions,
+        owned_items: &[InventoryItem],
+    ) -> Result<RewardCollection<'_>, GenerateError> {
+        // Creates a list of items that are applicable for dropping (If they match filters)
+        // this step is done so unlock definitions and droppability don't have to be
+        // done for every single collection filter
+        let mut items: Vec<&ItemDefinition> = defs
+            // Iterate all the definitions
+            .all()
             .iter()
-            .map(|collection| {
-                // Collect all matching items and their weights
-                let mut items: Vec<(ItemName, Weight)> = definitions
+            // Only include droppable items
+            .filter(|item| item.is_droppable())
+            // Check if we meet the item locked requirement
+            .filter(|item| {
+                let unlock_def_name: &ItemName = match item.unlock_definition.as_ref() {
+                    Some(value) => value,
+                    // No unlock requirement
+                    None => return true,
+                };
+
+                let unlock_def: &ItemDefinition = match defs.by_name(unlock_def_name) {
+                    Some(value) => value,
+                    // Unlock definition doesn't exist
+                    None => return false,
+                };
+
+                let owned_item: &InventoryItem = match owned_items
                     .iter()
-                    .filter_map(|item| {
-                        let weight = collection.filter.apply_filter(item)?;
+                    .find(|item| item.definition_name.eq(unlock_def_name))
+                {
+                    Some(value) => value,
+                    // Player missing required unlock item
+                    None => return false,
+                };
 
-                        Some((item.name, weight))
-                    })
-                    .collect();
-
-                ComputedPackCollection {
-                    items,
-                    amount: collection.amount,
-                    stack_size: collection.stack_size,
-                }
+                // If there is a max capacity for the item ensure its been reacheds
+                unlock_def
+                    .capacity
+                    .is_some_and(|capacity| owned_item.stack_size == capacity)
             })
             .collect();
 
-        ComputedPack { items }
+        let mut rewards: RewardCollection = RewardCollection::default();
+
+        // Generate rewards from each collection
+        for collection in self.collections.iter() {
+            collection.generate_rewards(rng, &items, &mut rewards)?;
+        }
+
+        Ok(rewards)
     }
 }
 
@@ -147,6 +188,91 @@ impl PackCollection {
         self.amount = None;
         self
     }
+
+    fn generate_rewards(
+        &self,
+        rng: &mut StdRng,
+        items: &[&ItemDefinition],
+        rewards: &mut RewardCollection<'_>,
+    ) -> Result<(), GenerateError> {
+        // Collection of items with the filter and weights applied
+        let weighted_items: Vec<(&ItemDefinition, Weight)> = items
+            .iter()
+            .filter_map(|item| {
+                let weight = self.filter.apply_filter(item)?;
+                // Ensure non zero weights
+                let weight = weight.max(1);
+
+                Some((*item, weight))
+            })
+            .collect();
+
+        // Handle complete collection rewards
+        let amount = match self.amount {
+            Some(value) => value,
+            None => {
+                // Add all the matching items
+                weighted_items
+                    .into_iter()
+                    .for_each(|(definition, _)| rewards.add_reward(definition, self.stack_size));
+
+                return Ok(());
+            }
+        };
+
+        // There was no applicable items
+        if weighted_items.is_empty() {
+            return Ok(());
+        }
+
+        // Sample random items from the collection
+        weighted_items
+            .choose_multiple_weighted(rng, amount as usize, |value| value.1)?
+            // Add the reward
+            .for_each(|(definition, _)| rewards.add_reward(definition, self.stack_size));
+
+        Ok(())
+    }
+}
+
+/// Error generating pack rewards
+#[derive(Debug, Error)]
+pub enum GenerateError {
+    #[error(transparent)]
+    Weight(#[from] WeightedError),
+}
+
+/// Wrapper around a collection of rewards to make adding
+/// new rewards without duplicates easier
+#[derive(Default)]
+pub struct RewardCollection<'a> {
+    pub rewards: Vec<ItemReward<'a>>,
+}
+
+/// Represents an awarded item along with the amount of the item
+/// that was rewarded
+pub struct ItemReward<'a> {
+    pub definition: &'a ItemDefinition,
+    pub stack_size: u32,
+}
+
+impl<'a> RewardCollection<'a> {
+    fn add_reward(&mut self, definition: &'a ItemDefinition, stack_size: u32) {
+        let existing = self
+            .rewards
+            .iter_mut()
+            .find(|value| value.definition.name.eq(&definition.name));
+
+        // Increase stack size for existing items
+        if let Some(existing) = existing {
+            existing.stack_size += stack_size;
+        } else {
+            self.rewards.push(ItemReward {
+                definition,
+                stack_size,
+            })
+        }
+    }
 }
 
 /// Type used for the weight of a filter result
@@ -184,7 +310,7 @@ enum Filter {
 
 impl Filter {
     /// Creates a new filter matching all of the provided filters
-    pub fn all<I>(filters: I) -> Self
+    fn all<I>(filters: I) -> Self
     where
         I: IntoIterator<Item = Filter>,
     {
@@ -195,7 +321,7 @@ impl Filter {
     }
 
     /// Creates a new filter matching any of the provided filters
-    pub fn any<I>(filters: I) -> Self
+    fn any<I>(filters: I) -> Self
     where
         I: IntoIterator<Item = Filter>,
     {
@@ -206,14 +332,15 @@ impl Filter {
     }
 
     /// Creates a filter that matches all the provided `rarities`
-    pub fn rarities<I>(rarities: I) -> Self
+    fn rarities<I>(rarities: I) -> Self
     where
         I: IntoIterator<Item = ItemRarity>,
     {
         Self::any(rarities.into_iter().map(Self::Rarity))
     }
 
-    pub fn any_rarity() -> Self {
+    /// Filter that accepts any rarity
+    fn any_rarity() -> Self {
         Self::rarities([
             ItemRarity::Common,
             ItemRarity::Uncommon,
@@ -223,7 +350,7 @@ impl Filter {
     }
 
     /// Creates a filter that matches all the provided `categories`
-    pub fn categories<I>(categories: I) -> Self
+    fn categories<I>(categories: I) -> Self
     where
         I: IntoIterator<Item = Category>,
     {
@@ -231,12 +358,12 @@ impl Filter {
     }
 
     #[inline]
-    pub const fn base_category(category: BaseCategory) -> Self {
+    const fn base_category(category: BaseCategory) -> Self {
         Self::Category(Category::Base(category))
     }
 
     /// Creates a filter that matches all the provided `base_categories`
-    pub fn base_categories<I>(categories: I) -> Self
+    fn base_categories<I>(categories: I) -> Self
     where
         I: IntoIterator<Item = BaseCategory>,
     {
@@ -244,7 +371,7 @@ impl Filter {
     }
 
     /// Creates an attribute filter from the provided key and value
-    pub fn attribute<K, V>(key: K, value: V) -> Self
+    fn attribute<K, V>(key: K, value: V) -> Self
     where
         K: Into<String>,
         V: Into<Value>,
@@ -254,7 +381,7 @@ impl Filter {
 
     /// Creates an attributes filter from an iterator of key
     /// value pairs requires all the attribute match
-    pub fn attributes<I, K, V>(attributes: I) -> Self
+    fn attributes<I, K, V>(attributes: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
         K: Into<String>,
@@ -267,22 +394,31 @@ impl Filter {
         )
     }
 
-    pub fn and(self, other: Self) -> Self {
+    /// Combines the current filter with another filter using
+    /// AND logic
+    fn and(self, other: Self) -> Self {
         Self::And(Box::new(self), Box::new(other))
     }
-    pub fn or(self, other: Self) -> Self {
+
+    /// Combines the current filter with another filter using
+    /// OR logic
+    fn or(self, other: Self) -> Self {
         Self::Or(Box::new(self), Box::new(other))
     }
 
-    pub fn not(self) -> Self {
+    /// Inverts the current filter
+    fn not(self) -> Self {
         Self::Not(Box::new(self))
     }
 
-    pub fn weight(self, weight: u32) -> Self {
+    /// Applies a weight to the filter
+    fn weight(self, weight: u32) -> Self {
         Self::Weighted(Box::new(self), weight)
     }
 
-    pub fn many<I>(iter: I) -> Self
+    /// Creates a new [Filter::Many] filter from an iterator
+    /// of filters
+    fn many<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = Self>,
     {
@@ -291,13 +427,13 @@ impl Filter {
 
     /// Combines the two filters, used to merge additional weights
     #[inline]
-    pub fn merge(self, filter: Filter) -> Self {
+    fn merge(self, filter: Filter) -> Self {
         Self::many([self, filter])
     }
 
     /// Combines the many filters, used to merge additional weights
     #[inline]
-    pub fn merge_many<I>(self, filters: I) -> Self
+    fn merge_many<I>(self, filters: I) -> Self
     where
         I: IntoIterator<Item = Self>,
     {
@@ -307,7 +443,7 @@ impl Filter {
     /// Applies the filter against the provided `item` definition
     /// returns [None] if the value did not match otherwise returns
     /// [Some] with the calculated [FilterWeight]
-    pub fn apply_filter(&self, item: &ItemDefinition) -> Option<Weight> {
+    fn apply_filter(&self, item: &ItemDefinition) -> Option<Weight> {
         match self {
             Filter::Named(name) => {
                 if name != &item.name {
@@ -390,19 +526,8 @@ impl Filter {
     }
 }
 
-/// Generates JSON files for the server to use as definitions for
-/// deciding pack rewards
-#[cfg(test)]
-#[test]
-#[ignore]
-fn generate_packs() {
-    use crate::services::items::{
-        v2::{ItemDefinitions, INVENTORY_DEFINITIONS},
-        ItemFilter,
-    };
-
-    use super::v2::BaseCategory;
-
+/// Generates the collection of packs to use
+fn generate_packs() -> HashMap<ItemName, Pack> {
     // Category filter based on normal items
     let items_filter = Filter::base_categories([
         BaseCategory::Weapons,
@@ -420,32 +545,33 @@ fn generate_packs() {
         .or(Filter::base_category(BaseCategory::Characters));
 
     // "Includes the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as a Random Booster."
-    let supply_pack = Pack::new(uuid!("c5b3d9e6-7932-4579-ba8a-fd469ed43fda"))
+    let supply_pack = Pack::builder(uuid!("c5b3d9e6-7932-4579-ba8a-fd469ed43fda"))
         // COBRA RPG
-        .add_item(PackCollection::named(uuid!(
+        .add(PackCollection::named(uuid!(
             "eaefec2a-d892-498b-a175-e5d2048ae39a"
         )))
         // REVIVE PACK
-        .add_item(PackCollection::named(uuid!(
+        .add(PackCollection::named(uuid!(
             "af39be6b-0542-4997-b524-227aa41ae2eb"
         )))
         // AMMO PACK
-        .add_item(PackCollection::named(uuid!(
+        .add(PackCollection::named(uuid!(
             "2cc0d932-8e9d-48a6-a6e8-a5665b77e835"
         )))
         // FIRST AID PACK
-        .add_item(PackCollection::named(uuid!(
+        .add(PackCollection::named(uuid!(
             "4d790010-1a79-4bd0-a79b-d52cac068a3a"
         )))
         // Random Boosters
-        .add_item(PackCollection::new(Filter::Category(Category::Base(
+        .add(PackCollection::new(Filter::Category(Category::Base(
             BaseCategory::Boosters,
-        ))));
+        ))))
+        .build();
 
     // "Contains 5 random items or characters, with a small chance that 1 will be Uncommon"
-    let basic_pack = Pack::new(uuid!("c6d431eb-325f-4765-ab8f-e48d7b58aa36"))
+    let basic_pack = Pack::builder(uuid!("c6d431eb-325f-4765-ab8f-e48d7b58aa36"))
         // 4 common items/characters
-        .add_item(
+        .add(
             PackCollection::new(
                 Filter::Rarity(ItemRarity::Common)
                     // That are normal items or characters
@@ -454,38 +580,32 @@ fn generate_packs() {
             .amount(4),
         )
         // 1 item/character that is uncommon or common
-        .add_item(PackCollection::new(
+        .add(PackCollection::new(
             // 8:1 chance for getting common over uncommon
             Filter::rarities([ItemRarity::Common, ItemRarity::Uncommon])
                 .and(items_and_characters_filter.clone()),
-        ));
+        ))
+        .build();
 
     // "Includes 5 each of the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as 5 Random Boosters."
-    let jumbo_supply_pack = Pack::new(uuid!("e4f4d32a-90c3-4f5c-9362-3bb5933706c7"))
+    let jumbo_supply_pack = Pack::builder(uuid!("e4f4d32a-90c3-4f5c-9362-3bb5933706c7"))
         // 5x COBRA RPG
-        .add_item(
-            PackCollection::named(uuid!("eaefec2a-d892-498b-a175-e5d2048ae39a")).stack_size(5),
-        )
+        .add(PackCollection::named(uuid!("eaefec2a-d892-498b-a175-e5d2048ae39a")).stack_size(5))
         // 5x REVIVE PACK
-        .add_item(
-            PackCollection::named(uuid!("af39be6b-0542-4997-b524-227aa41ae2eb")).stack_size(5),
-        )
+        .add(PackCollection::named(uuid!("af39be6b-0542-4997-b524-227aa41ae2eb")).stack_size(5))
         // 5x AMMO PACK
-        .add_item(
-            PackCollection::named(uuid!("2cc0d932-8e9d-48a6-a6e8-a5665b77e835")).stack_size(5),
-        )
+        .add(PackCollection::named(uuid!("2cc0d932-8e9d-48a6-a6e8-a5665b77e835")).stack_size(5))
         // 5x FIRST AID PACK
-        .add_item(
-            PackCollection::named(uuid!("4d790010-1a79-4bd0-a79b-d52cac068a3a")).stack_size(5),
-        )
+        .add(PackCollection::named(uuid!("4d790010-1a79-4bd0-a79b-d52cac068a3a")).stack_size(5))
         // 5 Random Boosters
-        .add_item(
+        .add(
             PackCollection::new(Filter::Category(Category::Base(BaseCategory::Boosters))).amount(5),
-        );
+        )
+        .build();
 
     // "Contains 2 of each Uncommon ammo booster, plus 2 additional boosters, at least 1 of which is Rare or better."
-    let ammo_priming_pack = Pack::new(uuid!("eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6"))
-        .add_item(
+    let ammo_priming_pack = Pack::builder(uuid!("eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6"))
+        .add(
             PackCollection::new(
                 // Uncommon ammo booster
                 Filter::Category(Category::Base(BaseCategory::Boosters))
@@ -497,18 +617,19 @@ fn generate_packs() {
             .stack_size(2),
         )
         // First booster (Can be any rarity)
-        .add_item(PackCollection::new(Filter::Category(Category::Base(
+        .add(PackCollection::new(Filter::Category(Category::Base(
             BaseCategory::Boosters,
         ))))
         // Second booster (Must be rare or better)
-        .add_item(PackCollection::new(
+        .add(PackCollection::new(
             Filter::Category(Category::Base(BaseCategory::Boosters))
                 .and(Filter::rarities([ItemRarity::Rare, ItemRarity::UltraRare])),
-        ));
+        ))
+        .build();
 
     // "Contains 5 random consumables or weapon mods, including at least 1 Uncommon, with a small chance for a Rare."
-    let technical_mods_pack = Pack::new(uuid!("975f87f5-0242-4c73-9e0f-6e4033b22ee9"))
-        .add_item(
+    let technical_mods_pack = Pack::builder(uuid!("975f87f5-0242-4c73-9e0f-6e4033b22ee9"))
+        .add(
             PackCollection::new(
                 Filter::base_categories([
                     BaseCategory::Consumable,
@@ -519,18 +640,19 @@ fn generate_packs() {
             )
             .amount(4),
         )
-        .add_item(PackCollection::new(
+        .add(PackCollection::new(
             Filter::base_categories([
                 BaseCategory::Consumable,
                 BaseCategory::WeaponMods,
                 BaseCategory::WeaponModsEnhanced,
             ])
             .and(Filter::rarities([ItemRarity::Uncommon, ItemRarity::Rare])),
-        ));
+        ))
+        .build();
 
     // "Contains 5 random items or characters, including at least 1 Uncommon, with a small chance for a Rare"
-    let advanced_pack = Pack::new(uuid!("974a8c8e-08bc-4fdb-bede-43337c255df8"))
-        .add_item(
+    let advanced_pack = Pack::builder(uuid!("974a8c8e-08bc-4fdb-bede-43337c255df8"))
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -538,15 +660,16 @@ fn generate_packs() {
             )
             .amount(4),
         )
-        .add_item(PackCollection::new(
+        .add(PackCollection::new(
             items_and_characters_filter
                 .clone()
                 .and(Filter::rarities([ItemRarity::Uncommon, ItemRarity::Rare])),
-        ));
+        ))
+        .build();
 
     // "Contains 5 random items or characters, including at least 1 Rare, with a small chance for an Ultra-Rare "
-    let expert_pack = Pack::new(uuid!("b6fe6a9f-de70-463a-bcc5-a1b146067470"))
-        .add_item(
+    let expert_pack = Pack::builder(uuid!("b6fe6a9f-de70-463a-bcc5-a1b146067470"))
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -554,15 +677,16 @@ fn generate_packs() {
             )
             .amount(4),
         )
-        .add_item(PackCollection::new(
+        .add(PackCollection::new(
             items_and_characters_filter
                 .clone()
                 .and(Filter::rarities([ItemRarity::Uncommon, ItemRarity::Rare])),
-        ));
+        ))
+        .build();
 
     // "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for characters."
-    let reserves_pack = Pack::new(uuid!("731b16c9-3a97-4166-a2f7-e79c8b45128a"))
-        .add_item(
+    let reserves_pack = Pack::builder(uuid!("731b16c9-3a97-4166-a2f7-e79c8b45128a"))
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -573,7 +697,7 @@ fn generate_packs() {
             )
             .amount(3),
         )
-        .add_item(
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -583,11 +707,12 @@ fn generate_packs() {
                     .and(Filter::rarities([ItemRarity::Rare, ItemRarity::UltraRare])),
             )
             .amount(2),
-        );
+        )
+        .build();
 
     // "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for weapons."
-    let arsenal_pack = Pack::new(uuid!("29c47d42-5830-435b-943f-bf6cf04145e1"))
-        .add_item(
+    let arsenal_pack = Pack::builder(uuid!("29c47d42-5830-435b-943f-bf6cf04145e1"))
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -604,7 +729,7 @@ fn generate_packs() {
             )
             .amount(3),
         )
-        .add_item(
+        .add(
             PackCollection::new(
                 // Items or characters weighted on weapons
                 items_and_characters_filter
@@ -621,11 +746,12 @@ fn generate_packs() {
                     .and(Filter::rarities([ItemRarity::Rare, ItemRarity::UltraRare])),
             )
             .amount(2),
-        );
+        )
+        .build();
 
     // "Contains 5 random items or characters, including at least 2 that are Rare, with a higher chance for at least 1 Ultra-Rare"
-    let premium_pack = Pack::new(uuid!("8344cd62-2aed-468d-b155-6ae01f1f2405"))
-        .add_item(
+    let premium_pack = Pack::builder(uuid!("8344cd62-2aed-468d-b155-6ae01f1f2405"))
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -634,19 +760,20 @@ fn generate_packs() {
             )
             .amount(3),
         )
-        .add_item(
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
                     .and(Filter::Rarity(ItemRarity::Rare)),
             )
             .amount(2),
-        );
+        )
+        .build();
 
     // "Contains 25 random items or characters, including at least 10 that are Rare, with 5 improved chances for an Ultra-Rare."
-    let jumbo_premium_pack = Pack::new(uuid!("e3e56e89-b995-475f-8e75-84bf27dc8297"))
-        .add_item(PackCollection::new(items_and_characters_filter.clone()).amount(10))
-        .add_item(
+    let jumbo_premium_pack = Pack::builder(uuid!("e3e56e89-b995-475f-8e75-84bf27dc8297"))
+        .add(PackCollection::new(items_and_characters_filter.clone()).amount(10))
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
@@ -655,20 +782,21 @@ fn generate_packs() {
             )
             .amount(5),
         )
-        .add_item(
+        .add(
             PackCollection::new(
                 items_and_characters_filter
                     .clone()
                     .and(Filter::Rarity(ItemRarity::Rare)),
             )
             .amount(10),
-        );
+        )
+        .build();
 
     // "Contains 5 random items or characters, including at least 1 Uncommon, with a small chance for a Rare"
     let bonus_reward_pack = |name: ItemName| {
-        Pack::new(name)
-            .add_item(PackCollection::new(items_and_characters_filter.clone()).amount(4))
-            .add_item(
+        Pack::builder(name)
+            .add(PackCollection::new(items_and_characters_filter.clone()).amount(4))
+            .add(
                 PackCollection::new(
                     items_and_characters_filter
                         .clone()
@@ -676,37 +804,48 @@ fn generate_packs() {
                 )
                 .amount(1),
             )
+            .build()
     };
 
     let random_mod_pack = |name: ItemName, rarity: ItemRarity| -> Pack {
-        Pack::new(name).add_item(PackCollection::new(
-            Filter::base_categories([BaseCategory::WeaponMods, BaseCategory::WeaponModsEnhanced])
+        Pack::builder(name)
+            .add(PackCollection::new(
+                Filter::base_categories([
+                    BaseCategory::WeaponMods,
+                    BaseCategory::WeaponModsEnhanced,
+                ])
                 .and(Filter::Rarity(rarity)),
-        ))
+            ))
+            .build()
     };
 
     let random_weapon_pack = |name: ItemName, rarity: ItemRarity| -> Pack {
-        Pack::new(name).add_item(PackCollection::new(
-            Filter::base_categories([BaseCategory::Weapons, BaseCategory::WeaponsSpecialized])
-                .and(Filter::Rarity(rarity)),
-        ))
+        Pack::builder(name)
+            .add(PackCollection::new(
+                Filter::base_categories([BaseCategory::Weapons, BaseCategory::WeaponsSpecialized])
+                    .and(Filter::Rarity(rarity)),
+            ))
+            .build()
     };
 
     let random_character_pack = |name: ItemName, rarity: ItemRarity| -> Pack {
-        Pack::new(name).add_item(PackCollection::new(
-            Filter::base_category(BaseCategory::Characters).and(Filter::Rarity(rarity)),
-        ))
+        Pack::builder(name)
+            .add(PackCollection::new(
+                Filter::base_category(BaseCategory::Characters).and(Filter::Rarity(rarity)),
+            ))
+            .build()
     };
 
     // Pack containing a single item
-    let item_pack =
-        |name: ItemName, item: ItemName| Pack::new(name).add_item(PackCollection::named(item));
+    let item_pack = |name: ItemName, item: ItemName| {
+        Pack::builder(name).add(PackCollection::named(item)).build()
+    };
 
     /// Marker for a pack that is not yet implemented
-    let todo = |name: ItemName| Pack::new(name);
+    let todo = |name: ItemName| Pack::builder(name).build();
 
     // List of all the packs
-    let packs: [Pack; 138] = [
+    [
         supply_pack,
         basic_pack,
         jumbo_supply_pack,
@@ -1111,23 +1250,8 @@ fn generate_packs() {
         todo(uuid!("f8aecee2-3add-4b73-a520-961ef9932ea2")),
         // [BUG] I am a banner!
         todo(uuid!("694577c3-0d92-4e85-ad41-de54a4c91154")),
-    ];
-
-    let definitions = ItemDefinitions::from_str(INVENTORY_DEFINITIONS).unwrap();
-    let definitions = definitions.all();
-
-    // Generate the computed packs
-    let mut computed_packs = HashMap::new();
-
-    for pack in packs {
-        let item_name = pack.name;
-        let computed = pack.compute(definitions);
-
-        computed_packs.insert(item_name, computed);
-    }
-
-    // Serialize the packs
-    let out = serde_json::to_string(&computed_packs).unwrap();
-
-    std::fs::write("packs.json", out).unwrap();
+    ]
+    .into_iter()
+    .map(|pack| (pack.name, pack))
+    .collect()
 }

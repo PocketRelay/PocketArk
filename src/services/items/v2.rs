@@ -15,8 +15,23 @@ use uuid::Uuid;
 
 use crate::utils::models::LocaleNameWithDesc;
 
+use super::pack::Packs;
+
 pub const INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
+
+pub struct ItemsService {
+    pub items: ItemDefinitions,
+    pub packs: Packs,
+}
+
+impl ItemsService {
+    pub fn new() -> Self {
+        let items = ItemDefinitions::from_str(INVENTORY_DEFINITIONS).unwrap();
+        let packs = Packs::new();
+        Self { items, packs }
+    }
+}
 
 /// Type of the name for items, names are [Uuid]s with some exceptions (Thanks EA)
 pub type ItemName = Uuid;
@@ -132,6 +147,23 @@ pub struct ItemDefinition {
     pub secret: Option<Value>,
 }
 
+impl ItemDefinition {
+    #[inline]
+    pub fn is_consumable(&self) -> bool {
+        self.consumable.unwrap_or_default()
+    }
+
+    #[inline]
+    pub fn is_droppable(&self) -> bool {
+        self.droppable.unwrap_or_default()
+    }
+
+    #[inline]
+    pub fn is_deletable(&self) -> bool {
+        self.deletable.unwrap_or_default()
+    }
+}
+
 /// Activity events that should be created when
 /// different things happen to the item
 #[skip_serializing_none]
@@ -144,6 +176,18 @@ pub struct ItemEvents {
     pub on_add: Option<Vec<Value>>,
     /// Activity event that should be created when the item is removed
     pub on_remove: Option<Vec<Value>>,
+}
+
+/// Structure for tracking a change in stack size
+/// for a specific item
+#[derive(Debug)]
+pub struct ItemChanged {
+    /// ID of the item
+    pub item_id: Uuid,
+    /// The previous stack size of the item
+    pub prev_stack_size: u32,
+    /// The new stack size of the item
+    pub stack_size: u32,
 }
 
 /// Known namespaces for the game
