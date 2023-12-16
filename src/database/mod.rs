@@ -8,6 +8,9 @@ use std::{
 
 pub mod entity;
 mod migration;
+/// Testing seeding logic
+#[cfg(test)]
+mod seed;
 
 // Re-exports of database types
 pub use sea_orm::DatabaseConnection;
@@ -21,7 +24,11 @@ const DATABASE_PATH_URL: &str = "sqlite:data/app.db";
 
 pub async fn init() -> DatabaseConnection {
     info!("Connected to database..");
+    connect_database().await
+}
 
+/// Connects to the database
+async fn connect_database() -> DatabaseConnection {
     let path = Path::new(&DATABASE_PATH);
 
     // Create path to database file if missing

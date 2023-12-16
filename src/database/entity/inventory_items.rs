@@ -13,7 +13,10 @@ use crate::{
         entity::{Character, InventoryItem, User, ValueMap},
         DbResult,
     },
-    services::items::{pack::ItemReward, BaseCategory, Category, ItemDefinition, ItemName},
+    services::{
+        character::CharacterService,
+        items::{pack::ItemReward, BaseCategory, Category, ItemDefinition, ItemName, ItemsService},
+    },
     state::App,
 };
 use chrono::Utc;
@@ -37,6 +40,7 @@ use super::users::UserId;
 /// UUIDs as primary keys in the SQLite database (Basically defeats the purpose of SeaORM)
 pub type ItemId = u32;
 
+/// Inventory Item database structure
 #[serde_as]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "inventory_items")]
@@ -79,18 +83,19 @@ impl Model {
     /// * `definition_name` - The name of the item definition
     /// * `stack_size`      - The stack size to use / add for the item
     /// * `capacity`        - The stack max capacity if the definition defines one
-    pub fn add_item<'db, C>(
+    pub async fn add_item<'db, C>(
         db: &'db C,
         user: &User,
         definition_name: ItemName,
         stack_size: u32,
         capacity: Option<u32>,
-    ) -> impl Future<Output = DbResult<Self>> + Send + 'db
+    ) -> DbResult<Self>
     where
         C: ConnectionTrait + Send,
     {
         let now = Utc::now();
 
+        // Upsert the inventory item
         Entity::insert(ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
@@ -120,7 +125,20 @@ impl Model {
                 .update_column(Column::LastGrant)
                 .to_owned(),
         )
-        .exec_with_returning(db)
+        .exec(db)
+        .await?;
+
+        // Find the item that was updated or inserted
+        let item = Entity::find()
+            .filter(
+                Column::UserId
+                    .eq(user.id)
+                    .and(Column::DefinitionName.eq(definition_name)),
+            )
+            .one(db)
+            .await?;
+
+        item.ok_or(DbErr::RecordNotInserted)
     }
 
     /// Creates a new item if there are no matching item definitions in
@@ -140,7 +158,12 @@ impl Model {
         }
     }
 
-    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<()>
+    pub async fn create_default<C>(
+        db: &C,
+        user: &User,
+        items_service: &ItemsService,
+        characters: &CharacterService,
+    ) -> DbResult<()>
     where
         C: ConnectionTrait + Send,
     {
@@ -164,10 +187,8 @@ impl Model {
             uuid!("ca7d0f24-fc19-4a78-9d25-9c84eb01e3a5"), // M-23 KATANA
         ];
 
-        let services = App::services();
-
         for item in items {
-            let definition = match services.items.items.by_name(&item) {
+            let definition = match items_service.items.by_name(&item) {
                 Some(value) => value,
                 None => continue,
             };
@@ -181,9 +202,7 @@ impl Model {
                 .category
                 .is_within(&Category::Base(BaseCategory::Characters))
             {
-                let services = App::services();
-                Character::create_from_item(db, &services.character, user, &definition.name)
-                    .await?;
+                Character::create_from_item(db, characters, user, &definition.name).await?;
             }
         }
 

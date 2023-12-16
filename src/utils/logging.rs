@@ -59,3 +59,22 @@ pub fn setup(logging_level: LevelFilter) {
     // Include panics in logging
     log_panics::init();
 }
+
+#[cfg(test)]
+pub fn setup_test_logging() {
+    // Enable tracing
+    std::env::set_var("RUST_LOG", "trace");
+
+    let pattern = Box::new(PatternEncoder::new(LOGGING_PATTERN));
+    let console = Box::new(ConsoleAppender::builder().encoder(pattern.clone()).build());
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("stdout", console))
+        .build(Root::builder().appender("stdout").build(LevelFilter::Debug))
+        .expect("Failed to create logging config");
+
+    init_config(config).expect("Unable to initialize logger");
+
+    // Include panics in logging
+    log_panics::init();
+}

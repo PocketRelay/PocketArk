@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
-    database::entity::User,
+    database::entity::{Currency, InventoryItem, SharedData, StrikeTeam, User},
     http::{
         middleware::upgrade::BlazeUpgrade,
         models::{
@@ -14,7 +14,7 @@ use crate::{
         },
     },
     services::sessions::{Sessions, VerifyError},
-    state::VERSION,
+    state::{App, VERSION},
     utils::hashing::{hash_password, verify_password},
 };
 use axum::{
@@ -82,7 +82,16 @@ pub async fn create(
         HttpError::new("Failed to hash password", StatusCode::INTERNAL_SERVER_ERROR)
     })?;
 
-    let user = User::create_user(req.username, password, &db).await?;
+    let user = User::create_user(&db, req.username, password).await?;
+
+    let services = App::services();
+
+    // Initialize the users data
+    InventoryItem::create_default(&db, &user, &services.items, &services.character).await?;
+    Currency::create_default(&db, &user).await?;
+    SharedData::create_default(&db, &user).await?;
+    StrikeTeam::create_default(&db, &user).await?;
+
     let token = sessions.create_token(user.id);
 
     Ok(Json(AuthResponse { token }))

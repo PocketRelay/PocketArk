@@ -23,7 +23,7 @@ use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;
 use log::{debug, error, warn};
 use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::DatabaseConnection;
+use sea_orm::{DatabaseConnection, DatabaseTransaction};
 
 /// GET /inventory
 ///
@@ -104,6 +104,8 @@ pub async fn consume_inventory(
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ConsumeRequest>,
 ) -> Result<Json<ActivityResult>, HttpError> {
+    // TODO: Database transaction to rollback changes on consume failure
+
     debug!("Consume inventory items: {:?}", req);
 
     let services = App::services();

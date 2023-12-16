@@ -1,5 +1,8 @@
+use std::future::Future;
+
 use super::{Currency, SharedData, StrikeTeam};
 use crate::database::{entity::InventoryItem, DbResult};
+use crate::state::App;
 use sea_orm::entity::prelude::*;
 use sea_orm::ActiveValue::{NotSet, Set};
 
@@ -35,25 +38,17 @@ pub enum Relation {
 }
 
 impl Model {
-    pub async fn create_user(
+    pub fn create_user(
+        db: &DatabaseConnection,
         username: String,
         password: String,
-        db: &DatabaseConnection,
-    ) -> DbResult<Self> {
-        let user = ActiveModel {
+    ) -> impl Future<Output = DbResult<Self>> + Send + '_ {
+        ActiveModel {
             id: NotSet,
             username: Set(username),
             password: Set(password),
         }
         .insert(db)
-        .await?;
-
-        InventoryItem::create_default(db, &user).await?;
-        Currency::create_default(db, &user).await?;
-        SharedData::create_default(db, &user).await?;
-        StrikeTeam::create_default(db, &user).await?;
-
-        Ok(user)
     }
 
     pub async fn get_user(db: &DatabaseConnection, id: u32) -> DbResult<Option<Self>> {
