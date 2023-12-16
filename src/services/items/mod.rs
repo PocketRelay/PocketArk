@@ -112,83 +112,83 @@ impl ItemsService {
                 "4d790010-1a79-4bd0-a79b-d52cac068a3a",
             ),
             // APEX PACK
-            Self::todo_pack("80a9babf-3088-4ce9-a986-804f6ce9660c"),
+            Self::todo("80a9babf-3088-4ce9-a986-804f6ce9660c"),
             // APEX POINTS
-            Self::todo_pack("3b2c8ed8-df9a-4659-aeda-786e06cc7dd9"),
+            Self::todo("3b2c8ed8-df9a-4659-aeda-786e06cc7dd9"),
             // LOYALTY PACK (ME3)
-            Self::todo_pack("47088308-e623-494e-a436-cccfd7f4150f"),
+            Self::todo("47088308-e623-494e-a436-cccfd7f4150f"),
             // LOYALTY PACK (DA:I)
-            Self::todo_pack("523226d2-8a17-4081-9c22-71c890d1b4ab"),
+            Self::todo("523226d2-8a17-4081-9c22-71c890d1b4ab"),
             // BONUS REWARD PACK
-            Self::todo_pack("ab939baf-3cc0-46a8-8983-5c8e92754a25"),
+            Self::todo("ab939baf-3cc0-46a8-8983-5c8e92754a25"),
             // PRE-ORDER BOOSTER PACK
-            Self::todo_pack("aa7b57df-d0a7-4275-8623-38575565fe15"),
+            Self::todo("aa7b57df-d0a7-4275-8623-38575565fe15"),
             // ANDROMEDA INITIATIVE PACK
-            Self::todo_pack("9dba3f79-7c9f-4526-96f0-7eaec177eccf"),
+            Self::todo("9dba3f79-7c9f-4526-96f0-7eaec177eccf"),
             // SUPER DELUXE EDITION PACK - 1/20
-            Self::todo_pack("51e008c4-018c-477e-b99a-e8b44a86483b"),
+            Self::todo("51e008c4-018c-477e-b99a-e8b44a86483b"),
             // SUPER DELUXE EDITION PACK - 2/20
-            Self::todo_pack("80304bc9-e704-4b5d-9193-e35f8de7b871"),
+            Self::todo("80304bc9-e704-4b5d-9193-e35f8de7b871"),
             // SUPER DELUXE EDITION PACK - 3/20
-            Self::todo_pack("efcc43cf-5877-4ef4-a52b-c35a88a154d2"),
+            Self::todo("efcc43cf-5877-4ef4-a52b-c35a88a154d2"),
             // SUPER DELUXE EDITION PACK - 4/20
-            Self::todo_pack("3ff3ff1b-d2f1-4912-9612-9c50cf7138e2"),
+            Self::todo("3ff3ff1b-d2f1-4912-9612-9c50cf7138e2"),
             // SUPER DELUXE EDITION PACK - 5/20
-            Self::todo_pack("22a72362-620c-4c86-bf83-83848336a6fb"),
+            Self::todo("22a72362-620c-4c86-bf83-83848336a6fb"),
             // SUPER DELUXE EDITION PACK - 6/20
-            Self::todo_pack("66e5a516-443c-4062-953c-d34ffec0e4c5"),
+            Self::todo("66e5a516-443c-4062-953c-d34ffec0e4c5"),
             // SUPER DELUXE EDITION PACK - 7/20
-            Self::todo_pack("06a249fd-324d-4a9e-9f46-7cb7e620652d"),
+            Self::todo("06a249fd-324d-4a9e-9f46-7cb7e620652d"),
             // SUPER DELUXE EDITION PACK - 8/20
-            Self::todo_pack("384e4424-0421-4793-b713-13d68616505e"),
+            Self::todo("384e4424-0421-4793-b713-13d68616505e"),
             // SUPER DELUXE EDITION PACK - 9/20
-            Self::todo_pack("e78760b4-2c64-45be-9906-e3183c64a424"),
+            Self::todo("e78760b4-2c64-45be-9906-e3183c64a424"),
             // SUPER DELUXE EDITION PACK - 10/20
-            Self::todo_pack("5baa0a3d-86e3-45cc-8ab1-d26591c46a3c"),
+            Self::todo("5baa0a3d-86e3-45cc-8ab1-d26591c46a3c"),
             // SUPER DELUXE EDITION PACK - 11/20
-            Self::todo_pack("03d7ec5a-d729-4fb3-91d2-2db11f8dfa40"),
+            Self::todo("03d7ec5a-d729-4fb3-91d2-2db11f8dfa40"),
             // SUPER DELUXE EDITION PACK - 12/20
-            Self::todo_pack("bed2b13e-1cca-4981-b81f-985c051565a4"),
+            Self::todo("bed2b13e-1cca-4981-b81f-985c051565a4"),
             // SUPER DELUXE EDITION PACK - 13/20
-            Self::todo_pack("d21b1767-cb37-4bfa-ad30-12a9d2240775"),
+            Self::todo("d21b1767-cb37-4bfa-ad30-12a9d2240775"),
             // SUPER DELUXE EDITION PACK - 14/20
-            Self::todo_pack("cbe39480-8473-4aa4-8a06-ce1524a5af2e"),
+            Self::todo("cbe39480-8473-4aa4-8a06-ce1524a5af2e"),
             // SUPER DELUXE EDITION PACK - 15/20
-            Self::todo_pack("317d54fd-0596-44ea-84ee-30b5fec1ab1d"),
+            Self::todo("317d54fd-0596-44ea-84ee-30b5fec1ab1d"),
             // SUPER DELUXE EDITION PACK - 16/20
-            Self::todo_pack("db74221c-1e7e-41af-9a20-cb8176d5d00b"),
+            Self::todo("db74221c-1e7e-41af-9a20-cb8176d5d00b"),
             // SUPER DELUXE EDITION PACK - 17/20
-            Self::todo_pack("c1a96446-ae8e-47f5-8770-caeb69f862bd"),
+            Self::todo("c1a96446-ae8e-47f5-8770-caeb69f862bd"),
             // SUPER DELUXE EDITION PACK - 18/20
-            Self::todo_pack("774be722-7814-4c72-9d6f-08e5bf98aa47"),
+            Self::todo("774be722-7814-4c72-9d6f-08e5bf98aa47"),
             // SUPER DELUXE EDITION PACK - 19/20
-            Self::todo_pack("b0fce148-f9d8-4098-b767-0e3e523f6e0d"),
+            Self::todo("b0fce148-f9d8-4098-b767-0e3e523f6e0d"),
             // SUPER DELUXE EDITION PACK - 20/20
-            Self::todo_pack("23f98283-f960-46d6-85f9-4bf85d60e2cd"),
+            Self::todo("23f98283-f960-46d6-85f9-4bf85d60e2cd"),
             // APEX REINFORCEMENT PACK
-            Self::todo_pack("c4b1ebe3-e0b0-42fb-a51c-c6c2d688ac71"),
+            Self::todo("c4b1ebe3-e0b0-42fb-a51c-c6c2d688ac71"),
             // APEX COMMENDATION PACK
-            Self::todo_pack("203ce2dc-962f-44c8-a513-76ee2286d0b7"),
+            Self::todo("203ce2dc-962f-44c8-a513-76ee2286d0b7"),
             // APEX CHALLENGE PACK
-            Self::todo_pack("17f90be7-8d74-4593-a85f-0b4cdb9f57ba"),
+            Self::todo("17f90be7-8d74-4593-a85f-0b4cdb9f57ba"),
             // LOGITECH WEAPON PACK
-            Self::todo_pack("7f2a365a-9f08-412f-8490-ce55fd34aad6"),
+            Self::todo("7f2a365a-9f08-412f-8490-ce55fd34aad6"),
             // BONUS BOOSTER PACK
-            Self::todo_pack("33cb8ec3-efce-4744-a858-db5e60e11424"),
+            Self::todo("33cb8ec3-efce-4744-a858-db5e60e11424"),
             // SUPPORT PACK
-            Self::todo_pack("fcc1fbf1-fa53-445b-b2e9-561702795627"),
+            Self::todo("fcc1fbf1-fa53-445b-b2e9-561702795627"),
             // TOTINO'S BOOSTER PACK
-            Self::todo_pack("d8b62c9a-31f2-4e7e-82fe-43b9e72cbc7f"),
+            Self::todo("d8b62c9a-31f2-4e7e-82fe-43b9e72cbc7f"),
             // APEX HQ PACK
-            Self::todo_pack("8a072bab-e849-475d-b552-e18704b150c4"),
+            Self::todo("8a072bab-e849-475d-b552-e18704b150c4"),
             // ADVANCED COMMUNITY PACK
-            Self::todo_pack("6fcbb0d5-b4ed-406d-8056-029ce7a91fd0"),
+            Self::todo("6fcbb0d5-b4ed-406d-8056-029ce7a91fd0"),
             // STARTER PACK
-            Self::todo_pack("cba5b757-cf67-40e1-a500-66dad3840088"),
+            Self::todo("cba5b757-cf67-40e1-a500-66dad3840088"),
             // TUTORIAL PACK
-            Self::todo_pack("37101bb8-e5c0-44d7-bcd9-bf49ceecc1de"),
+            Self::todo("37101bb8-e5c0-44d7-bcd9-bf49ceecc1de"),
             // DELUXE EDITION PACK
-            Self::todo_pack("cc15e17f-1b06-4413-9c6c-544d01b50f2a"),
+            Self::todo("cc15e17f-1b06-4413-9c6c-544d01b50f2a"),
             // NAMEPLATE: APEX MASTERY - BRONZE
             Self::item_pack(
                 "208aa537-19d0-4bea-9ac9-f11713cd85e8",
@@ -385,52 +385,53 @@ impl ItemsService {
                 "c072a185-7173-4a4b-87ce-c76e2ac9cead",
             ),
             // AESTHETIC
-            Self::todo_pack("53a5fc5e-3ba9-476f-a537-555bac6014f3"),
-            Self::todo_pack("8425ccb0-37f4-4d5e-915c-0806602f2593"),
-            Self::todo_pack("361895d8-49b0-4d0c-b359-60e7c343f194"),
-            Self::todo_pack("1e6627c8-f8ee-4c70-86b2-0c2dd4c65ff4"),
-            Self::todo_pack("c869e5a6-cb6c-4580-a162-d5ac3f72b737"),
-            Self::todo_pack("6e67e5e2-89c7-44cc-89fb-432e8e99734a"),
-            Self::todo_pack("55d1d22f-0ee7-41bf-939a-0aa372bb2e72"),
-            Self::todo_pack("e3f10da1-312a-4ba4-ad33-0c503e6c2a8f"),
-            Self::todo_pack("c9d603e7-9e20-4d72-a672-81c1a188a320"),
+            Self::todo("53a5fc5e-3ba9-476f-a537-555bac6014f3"),
+            Self::todo("8425ccb0-37f4-4d5e-915c-0806602f2593"),
+            Self::todo("361895d8-49b0-4d0c-b359-60e7c343f194"),
+            Self::todo("1e6627c8-f8ee-4c70-86b2-0c2dd4c65ff4"),
+            Self::todo("c869e5a6-cb6c-4580-a162-d5ac3f72b737"),
+            Self::todo("6e67e5e2-89c7-44cc-89fb-432e8e99734a"),
+            Self::todo("55d1d22f-0ee7-41bf-939a-0aa372bb2e72"),
+            Self::todo("e3f10da1-312a-4ba4-ad33-0c503e6c2a8f"),
+            Self::todo("c9d603e7-9e20-4d72-a672-81c1a188a320"),
             // DELUXE EDITION PACK #2
-            Self::todo_pack("e57690fe-4b17-4b11-b1de-a1fd4b0b4a55"),
+            Self::todo("e57690fe-4b17-4b11-b1de-a1fd4b0b4a55"),
             // EA ACCESS PACK
-            Self::todo_pack("77459eda-2eab-4aae-b8f0-d26964f269eb"),
+            Self::todo("77459eda-2eab-4aae-b8f0-d26964f269eb"),
             // TECH TEST SIGN-UP - BRONZE
-            Self::todo_pack("e28207db-3b14-4ba7-9dc6-d0826d76b78d"),
+            Self::todo("e28207db-3b14-4ba7-9dc6-d0826d76b78d"),
             // ORIGIN ACCESS PACK
-            Self::todo_pack("7c4118cd-53fa-4c15-951c-6c250549db1d"),
+            Self::todo("7c4118cd-53fa-4c15-951c-6c250549db1d"),
             // SUPPORT PACK
-            Self::todo_pack("0d9a69e0-cad5-4242-8052-9f0c2ded0236"),
+            Self::todo("0d9a69e0-cad5-4242-8052-9f0c2ded0236"),
             // APEX ELITE PACK
-            Self::todo_pack("5e7cf499-4f72-47d8-b87b-04162ef4e406"),
+            Self::todo("5e7cf499-4f72-47d8-b87b-04162ef4e406"),
             // MEA DEVELOPER - GOLD
-            Self::todo_pack("0b2986da-3d0d-45fd-b0b7-2adfca9d2994"),
+            Self::todo("0b2986da-3d0d-45fd-b0b7-2adfca9d2994"),
             // CELEBRATORY PACK
-            Self::todo_pack("a883a017-1b11-41ea-b98a-127b25dd3032"),
-            Self::todo_pack("5aebef08-b14c-40df-95fe-59fc78274ad5"),
+            Self::todo("a883a017-1b11-41ea-b98a-127b25dd3032"),
+            Self::todo("5aebef08-b14c-40df-95fe-59fc78274ad5"),
             // MP DLC PACK - COLLECTION ITEMS
-            Self::todo_pack("eed5b4df-736d-4b4c-b683-96c19dc5088d"),
-            Self::todo_pack("eb4fe1a6-c942-43f9-91f5-7b981ccbbb55"),
-            Self::todo_pack("ccb3f225-e808-4057-99b8-48a33c966be1"),
-            Self::todo_pack("ef8d85dc-74c5-4554-86c2-4e2f5c7e0fb8"),
-            Self::todo_pack("f1473ab2-55c1-4b22-a8d2-344dba5b4e09"),
-            Self::todo_pack("43eed42a-643a-4ddc-b0b7-51e6ed5ccbf8"),
-            Self::todo_pack("67416130-bd36-4cf4-94df-e276f7642472"),
-            Self::todo_pack("a1e73511-3672-40b0-9a9f-8c24faa8b831"),
-            Self::todo_pack("23b6647a-0b54-43a8-85fb-0a382522bf97"),
-            Self::todo_pack("609be685-d3c3-43a6-b0a1-484701c19172"),
-            Self::todo_pack("e4e12a1d-6f0a-4191-a740-26e715e42abe"),
-            Self::todo_pack("f8aecee2-3add-4b73-a520-961ef9932ea2"),
+            Self::todo("eed5b4df-736d-4b4c-b683-96c19dc5088d"),
+            Self::todo("eb4fe1a6-c942-43f9-91f5-7b981ccbbb55"),
+            Self::todo("ccb3f225-e808-4057-99b8-48a33c966be1"),
+            Self::todo("ef8d85dc-74c5-4554-86c2-4e2f5c7e0fb8"),
+            Self::todo("f1473ab2-55c1-4b22-a8d2-344dba5b4e09"),
+            Self::todo("43eed42a-643a-4ddc-b0b7-51e6ed5ccbf8"),
+            Self::todo("67416130-bd36-4cf4-94df-e276f7642472"),
+            Self::todo("a1e73511-3672-40b0-9a9f-8c24faa8b831"),
+            Self::todo("23b6647a-0b54-43a8-85fb-0a382522bf97"),
+            Self::todo("609be685-d3c3-43a6-b0a1-484701c19172"),
+            Self::todo("e4e12a1d-6f0a-4191-a740-26e715e42abe"),
+            Self::todo("f8aecee2-3add-4b73-a520-961ef9932ea2"),
             // [BUG] I am a banner!
-            Self::todo_pack("694577c3-0d92-4e85-ad41-de54a4c91154"),
+            Self::todo("694577c3-0d92-4e85-ad41-de54a4c91154"),
         ]
         .into_iter()
         .map(|pack| (pack.name, pack))
         .collect();
 
+        let packs: HashMap<Uuid, Pack> = HashMap::new();
         Self {
             defs,
             defs_by_name,
@@ -460,7 +461,7 @@ impl ItemsService {
     }
 
     // Pack thats not yet implemented
-    fn todo_pack(uuid: &str) -> Pack {
+    fn todo(uuid: &str) -> Pack {
         Pack::new(uuid)
     }
 
@@ -848,11 +849,11 @@ impl Category {
     pub const SNIPER_RIFLE_MODS_ENHANCED: &'static str = "14:SniperRifle";
 
     pub const ITEMS: &'static [&'static str] = &[
+        Self::WEAPONS,
+        Self::WEAPON_MODS,
         Self::BOOSTERS,
         Self::CONSUMABLE,
         Self::EQUIPMENT,
-        Self::WEAPONS,
-        Self::WEAPON_MODS,
         Self::WEAPONS_SPECIALIZED,
         Self::WEAPON_MODS_ENHANCED,
     ];
