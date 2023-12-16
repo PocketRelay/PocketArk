@@ -1,4 +1,12 @@
-use std::str::FromStr;
+//! Inventory item database models
+//!
+//!
+//! Note: when manually querying the database for the `definition_name` column, its stored as
+//! a BLOB TEXT, so to query it you must prefix the string with "x" like the following query:
+//! ```sql
+//! SELECT `definition_name` FROM `inventory_items` WHERE `definition_name` = x'af3a2cf0dff74ca8919973ce546c3e7b'`
+//! ```
+//! (Don't include hyphens in the definition name)
 
 use crate::{
     database::{
@@ -19,6 +27,7 @@ use sea_orm::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use std::str::FromStr;
 use uuid::uuid;
 
 use super::users::UserId;
