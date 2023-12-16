@@ -6,7 +6,9 @@
 
 use crate::{
     database::entity::InventoryItem,
-    services::items::v2::{Category, ItemDefinition, ItemName, ItemRarity},
+    services::items::{
+        BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemLink, ItemName, ItemRarity,
+    },
 };
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
@@ -15,8 +17,6 @@ use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 use thiserror::Error;
 use uuid::uuid;
-
-use super::v2::{BaseCategory, ItemDefinitions, ItemLink};
 
 /// Collection of defined [Pack]s
 pub struct Packs {
@@ -85,12 +85,13 @@ impl Pack {
 
     /// Generates a [RewardCollection] from this [Pack] using the provided
     /// random number generator `rng`
-    pub fn generate_rewards(
+    pub fn generate_rewards<'def>(
         &self,
         rng: &mut StdRng,
-        defs: &ItemDefinitions,
-        owned_items: &[InventoryItem],
-    ) -> Result<RewardCollection<'_>, GenerateError> {
+        defs: &'def ItemDefinitions,
+        owned_items: &[(InventoryItem, &'def ItemDefinition)],
+        rewards: &mut RewardCollection<'def>,
+    ) -> Result<(), GenerateError> {
         // Creates a list of items that are applicable for dropping (If they match filters)
         // this step is done so unlock definitions and droppability don't have to be
         // done for every single collection filter
@@ -116,9 +117,9 @@ impl Pack {
 
                 let owned_item: &InventoryItem = match owned_items
                     .iter()
-                    .find(|item| item.definition_name.eq(unlock_def_name))
+                    .find(|(_, definition)| definition.name.eq(unlock_def_name))
                 {
-                    Some(value) => value,
+                    Some((item, _)) => item,
                     // Player missing required unlock item
                     None => return false,
                 };
@@ -130,14 +131,12 @@ impl Pack {
             })
             .collect();
 
-        let mut rewards: RewardCollection = RewardCollection::default();
-
         // Generate rewards from each collection
         for collection in self.collections.iter() {
-            collection.generate_rewards(rng, &items, &mut rewards)?;
+            collection.generate_rewards(rng, &items, rewards)?;
         }
 
-        Ok(rewards)
+        Ok(())
     }
 }
 
@@ -189,11 +188,11 @@ impl PackCollection {
         self
     }
 
-    fn generate_rewards(
+    fn generate_rewards<'def>(
         &self,
         rng: &mut StdRng,
-        items: &[&ItemDefinition],
-        rewards: &mut RewardCollection<'_>,
+        items: &[&'def ItemDefinition],
+        rewards: &mut RewardCollection<'def>,
     ) -> Result<(), GenerateError> {
         // Collection of items with the filter and weights applied
         let weighted_items: Vec<(&ItemDefinition, Weight)> = items

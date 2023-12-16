@@ -67,6 +67,7 @@ pub async fn obtain_article(
     // Find the item the user is trying to buy from the article
     let article_item = services
         .items
+        .items
         .by_name(&article.item_name)
         .ok_or(HttpError::new(
             "Unknown article item",

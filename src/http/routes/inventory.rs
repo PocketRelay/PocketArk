@@ -12,7 +12,10 @@ use crate::{
     },
     services::{
         activity::{ActivityItemDetails, ActivityResult},
-        items::{Category, GrantedItem, ItemChanged, ItemDefinition},
+        items::{
+            pack::RewardCollection, BaseCategory, Category, ItemChanged, ItemDefinition,
+            ItemNamespace,
+        },
     },
     state::App,
 };
@@ -34,11 +37,13 @@ pub async fn get_inventory(
     let services = App::services();
     let mut items = InventoryItem::get_all_items(&db, &user).await?;
 
+    // TODO: Possibly store namespace with item itself then only query that namespace directly
     if let Some(namespace) = query.namespace {
-        if !namespace.is_empty() && namespace != "default" {
+        if !matches!(namespace, ItemNamespace::None | ItemNamespace::Default) {
             // Remove items that aren't in the same namespace
             items.retain(|item| {
                 services
+                    .items
                     .items
                     .by_name(&item.definition_name)
                     .is_some_and(|def| def.default_namespace.eq(&namespace))
@@ -49,7 +54,7 @@ pub async fn get_inventory(
     let definitions = if query.include_definitions {
         let defs = items
             .iter()
-            .filter_map(|item| services.items.by_name(&item.definition_name))
+            .filter_map(|item| services.items.items.by_name(&item.definition_name))
             .collect();
         Some(defs)
     } else {
@@ -65,7 +70,7 @@ pub async fn get_inventory(
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
     let services = App::services();
-    let list: &'static [ItemDefinition] = services.items.defs();
+    let list: &'static [ItemDefinition] = services.items.items.all();
     Json(ItemDefinitionsResponse {
         total_count: list.len(),
         list,
@@ -110,15 +115,15 @@ pub async fn consume_inventory(
             .await?
             .into_iter()
             .filter_map(|value| {
-                let definition = items_service.by_name(&value.definition_name)?;
+                let definition = items_service.items.by_name(&value.definition_name)?;
                 Some((value, definition))
             })
             .collect();
 
     // List of changed item stack sizes
     let mut items_changed: Vec<ItemChanged> = Vec::new();
-    // List of items granted to the user
-    let mut items_granted: Vec<GrantedItem> = Vec::new();
+    // Collection of rewards
+    let mut rewards: RewardCollection = RewardCollection::default();
 
     for target in req.items {
         // Find the owned item to consume
@@ -131,17 +136,24 @@ pub async fn consume_inventory(
             ))?;
 
         // Ignore items that arent consumable
-        if !definition.consumable.unwrap_or_default() {
+        if !definition.is_consumable() {
             return Err(HttpError::new(
                 "Item not consumable",
                 StatusCode::BAD_REQUEST,
             ));
         }
 
-        match definition.category.as_str() {
-            Category::ITEM_PACK => {
+        // Obtain the base category of the item
+        let base_category = match &definition.category {
+            Category::Base(base) => *base,
+            Category::Sub(sub) => sub.0,
+        };
+
+        match base_category {
+            BaseCategory::ItemPack => {
                 let pack = items_service
-                    .pack_by_name(&definition.name)
+                    .packs
+                    .by_name(&definition.name)
                     .ok_or_else(|| {
                         warn!(
                             "Don't know how to handle item pack: {} ({:?})",
@@ -153,31 +165,28 @@ pub async fn consume_inventory(
 
                 let mut rng = StdRng::from_entropy();
 
-                pack.grant_items(
-                    &mut rng,
-                    items_service.defs(),
-                    &owned_items,
-                    &mut items_granted,
-                )
-                .map_err(|err| {
-                    error!("Failed to grant pack items: {} {}", &pack.name, err);
-                    HttpError::new(
-                        "Failed to grant pack items",
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                    )
-                })?;
+                pack.generate_rewards(&mut rng, &items_service.items, &owned_items, &mut rewards)
+                    .map_err(|err| {
+                        error!("Failed to grant pack items: {} {}", &pack.name, err);
+                        HttpError::new(
+                            "Failed to grant pack items",
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                        )
+                    })?;
 
                 // TODO: Pack consumed activity
             }
-            Category::APEX_POINTS => {
+
+            BaseCategory::ApexPoints => {
                 // TODO: Apex point awards
             }
-            Category::STRIKE_TEAM_REWARD => {
+            BaseCategory::StrikeTeamReward => {
                 // TODO: Strike team rewards
             }
-            Category::CONSUMABLE => {}
-            Category::BOOSTERS => {}
-            Category::CAPACITY_UPGRADE => {}
+            BaseCategory::Consumable => {}
+            BaseCategory::Boosters => {}
+            BaseCategory::CapacityUpgrade => {}
+
             _ => {}
         }
 
@@ -205,7 +214,31 @@ pub async fn consume_inventory(
         }
     }
 
-    let (earned, definitions) = InventoryItem::grant_items(&db, &user, items_granted).await?;
+    let rewards = rewards.rewards;
+    let mut earned: Vec<InventoryItem> = Vec::with_capacity(rewards.len());
+    let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(rewards.len());
+
+    for reward in rewards {
+        debug!(
+            "Item reward {} x{} ({:?} to {}",
+            reward.definition.name,
+            reward.stack_size,
+            reward.definition.locale.name(),
+            user.username
+        );
+
+        let mut item =
+            InventoryItem::create_or_append(&db, &user, reward.definition, reward.stack_size)
+                .await?;
+
+        // Update the returning item stack size to the correct size
+        // (Response should be the amount earned *not* total amount)
+        item.stack_size = reward.stack_size;
+
+        earned.push(item);
+        definitions.push(reward.definition);
+    }
+
     let currencies = Currency::get_from_user(&db, &user).await?;
 
     let activity = ActivityResult {

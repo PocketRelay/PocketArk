@@ -1,4 +1,7 @@
-use crate::{database::entity::InventoryItem, services::items::ItemDefinition};
+use crate::{
+    database::entity::InventoryItem,
+    services::items::{ItemDefinition, ItemNamespace},
+};
 use serde::{Deserialize, Serialize};
 
 use serde_with::skip_serializing_none;
@@ -11,7 +14,7 @@ pub struct InventoryRequestQuery {
     /// Whether to include definitions in the response
     pub include_definitions: bool,
     /// Optional namespace to filter by
-    pub namespace: Option<String>,
+    pub namespace: Option<ItemNamespace>,
 }
 
 /// Response containing all the inventory items and their definitions
