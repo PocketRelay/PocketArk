@@ -31,13 +31,41 @@ impl MigrationTrait for Migration {
                     )
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        // Create a unique index accross the user ID and class name
+        // (Users should only have a single item per definition)
+        manager
+            .create_index(
+                Index::create()
+                    .unique()
+                    .name("idx-class-data-uid-name")
+                    .table(ClassData::Table)
+                    .col(ClassData::UserId)
+                    .col(ClassData::Name)
+                    .to_owned(),
+            )
+            .await?;
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .drop_table(Table::drop().table(ClassData::Table).to_owned())
-            .await
+            .await?;
+
+        // Drop the index
+        manager
+            .drop_index(
+                Index::drop()
+                    .table(ClassData::Table)
+                    .name("idx-class-data-uid-name")
+                    .to_owned(),
+            )
+            .await?;
+
+        Ok(())
     }
 }
 
