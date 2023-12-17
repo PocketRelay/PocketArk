@@ -1,10 +1,11 @@
 use crate::{
-    database::entity::{Character, SharedData},
+    database::entity::{characters::CharacterId, Character, SharedData},
     services::character::{
         CharacterEquipment, Class, CustomizationEntry, LevelTable, SkillDefinition, SkillTreeEntry,
     },
 };
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -66,10 +67,12 @@ pub struct ClassWithState {
 }
 
 /// List of unlocked characters (Usage not yet known)
+#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UnlockedCharacters {
-    pub active_character_id: Uuid,
+    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
+    pub active_character_id: Option<CharacterId>,
     pub list: Vec<Character>,
 }
 

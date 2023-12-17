@@ -1,6 +1,6 @@
 use crate::{
     database::entity::{
-        characters::{self, CustomizationMap, EquipmentList},
+        characters::{self, CharacterId, CustomizationMap, EquipmentList},
         Character, ClassData, SharedData,
     },
     http::{
@@ -47,7 +47,7 @@ pub async fn get_character(
 ) -> Result<Json<CharacterResponse>, HttpError> {
     let character = user
         .find_related(characters::Entity)
-        .filter(characters::Column::CharacterId.eq(character_id))
+        .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -64,7 +64,7 @@ pub async fn get_character(
 ///
 /// Sets the currently active character
 pub async fn set_active(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<StatusCode, HttpError> {
@@ -81,7 +81,7 @@ pub async fn set_active(
 ///
 /// Gets the current equipment of the provided character
 pub async fn get_character_equip(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<Json<CharacterEquipmentList>, HttpError> {
@@ -89,7 +89,7 @@ pub async fn get_character_equip(
 
     let character = user
         .find_related(characters::Entity)
-        .filter(characters::Column::CharacterId.eq(character_id))
+        .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -104,7 +104,7 @@ pub async fn get_character_equip(
 /// Updates the equipment for the provided character using
 /// the provided equipment list
 pub async fn update_character_equip(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<CharacterEquipmentList>,
@@ -113,7 +113,7 @@ pub async fn update_character_equip(
 
     let character = user
         .find_related(characters::Entity)
-        .filter(characters::Column::CharacterId.eq(character_id))
+        .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -143,7 +143,7 @@ pub async fn update_shared_equip(
 ///
 /// Updates the customization settings for a character
 pub async fn update_character_customization(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<UpdateCustomizationRequest>,
@@ -155,7 +155,7 @@ pub async fn update_character_customization(
 
     let character = user
         .find_related(characters::Entity)
-        .filter(characters::Column::CharacterId.eq(character_id))
+        .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -188,7 +188,7 @@ pub async fn get_character_equip_history(
 
     let character = user
         .find_related(characters::Entity)
-        .filter(characters::Column::CharacterId.eq(character_id))
+        .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
@@ -200,7 +200,7 @@ pub async fn get_character_equip_history(
 
 /// PUT /character/:id/skillTrees
 pub async fn update_skill_tree(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<UpdateSkillTreesRequest>,
@@ -209,7 +209,7 @@ pub async fn update_skill_tree(
 
     let mut character = user
         .find_related(characters::Entity)
-        .filter(characters::Column::CharacterId.eq(character_id))
+        .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;

@@ -207,7 +207,12 @@ async fn process_player_data(
 
     debug!("Loaded shared data");
 
-    let mut character = Character::find_by_id_user(&db, &user, shared_data.active_character_id)
+    // Ensure the player actually has a character selected
+    let active_character_id = shared_data
+        .active_character_id
+        .ok_or(PlayerDataProcessError::MissingCharacter)?;
+
+    let mut character = Character::find_by_id_user(&db, &user, active_character_id)
         .await?
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
@@ -401,7 +406,7 @@ async fn process_player_data(
         pid: user.id,
         persona_id: user.id,
         persona_display_name: user.username,
-        character_id: character.character_id,
+        character_id: character.id,
         character_class: character.class_name,
         modifiers: vec![],
         session_id: Uuid::new_v4(),

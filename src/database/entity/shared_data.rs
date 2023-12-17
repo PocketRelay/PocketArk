@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use super::characters::CharacterId;
 use super::User;
 use crate::database::DbResult;
 use crate::services::character::{CharacterEquipment, Xp};
@@ -8,8 +9,10 @@ use sea_orm::FromJsonQueryResult;
 use sea_orm::{entity::prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_json::Number;
+use serde_with::serde_as;
 use uuid::uuid;
 
+#[serde_as]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "shared_data")]
 #[serde(rename_all = "camelCase")]
@@ -19,8 +22,9 @@ pub struct Model {
     pub id: u32,
     #[serde(skip)]
     pub user_id: u32,
-    #[serde(default)]
-    pub active_character_id: Uuid,
+    // TODO: Manual serialization impl
+    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
+    pub active_character_id: Option<CharacterId>,
     pub shared_stats: SharedStats,
     pub shared_equipment: CharacterSharedEquipment,
     pub shared_progression: SharedProgressionList,
@@ -72,9 +76,6 @@ impl Model {
     where
         C: ConnectionTrait + Send,
     {
-        // Create models from initial item defs
-        let active_character = uuid!("af3a2cf0-dff7-4ca8-9199-73ce546c3e7b"); // HUMAN MALE SOLDIER;
-
         let mut shared_stats = HashMap::new();
         shared_stats.insert(
             "pathfinderRating".to_string(),
@@ -84,7 +85,7 @@ impl Model {
         let model = ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
-            active_character_id: Set(active_character),
+            active_character_id: Set(None),
             shared_equipment: Set(Default::default()),
             shared_progression: Set(Default::default()),
             shared_stats: Set(SharedStats(shared_stats)),
@@ -117,13 +118,17 @@ impl Model {
         shared_data.update(db).await
     }
 
-    pub async fn set_active_character<C>(db: &C, user: &User, uuid: Uuid) -> DbResult<Self>
+    pub async fn set_active_character<C>(
+        db: &C,
+        user: &User,
+        character_id: CharacterId,
+    ) -> DbResult<Self>
     where
         C: ConnectionTrait + Send,
     {
         let shared_data = Self::get_from_user(db, user).await?;
         let mut shared_data = shared_data.into_active_model();
-        shared_data.active_character_id = Set(uuid);
+        shared_data.active_character_id = Set(Some(character_id));
         shared_data.update(db).await
     }
 

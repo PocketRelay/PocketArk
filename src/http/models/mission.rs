@@ -3,10 +3,11 @@ use std::collections::{BTreeMap, HashMap};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use serde_with::serde_as;
 use uuid::Uuid;
 
 use crate::{
-    database::entity::InventoryItem,
+    database::entity::{characters::CharacterId, InventoryItem},
     services::{
         activity::{ChallengeUpdate, PrestigeProgression},
         challenges::CurrencyReward,
@@ -99,6 +100,7 @@ pub struct MissionDetails {
     pub modifiers: Vec<MissionModifier>,
 }
 
+#[serde_as]
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionPlayerInfo {
@@ -111,7 +113,8 @@ pub struct MissionPlayerInfo {
     pub pid: u32,
     pub persona_id: u32,
     pub persona_display_name: String,
-    pub character_id: Uuid,
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub character_id: CharacterId,
     pub character_class: Uuid,
     pub modifiers: Vec<Value>,
     pub session_id: Uuid,

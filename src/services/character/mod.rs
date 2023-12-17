@@ -64,6 +64,27 @@ impl CharacterService {
         }
     }
 
+    /// Obtains the xp structure which contains the current, next, and last
+    /// xp requirements for the provided level using the level tables
+    pub fn xp_from_level(&self, level_name: Uuid, level: u32) -> Xp {
+        let (current, last, next) = match self.level_table(&level_name) {
+            Some(table) => {
+                let current = table.get_entry_xp(level).unwrap_or(0);
+                let last = table.get_entry_xp(level - 1).unwrap_or(0);
+                let next = table.get_entry_xp(level + 1).unwrap_or(0);
+                (current, last, next)
+            }
+            // Empty values when level table is unknwon
+            None => (0, 0, 0),
+        };
+
+        Xp {
+            current,
+            next,
+            last,
+        }
+    }
+
     pub fn level_table(&self, name: &Uuid) -> Option<&LevelTable> {
         self.level_tables
             .iter()
