@@ -247,7 +247,7 @@ pub async fn get_classes(
 ) -> Result<Json<CharacterClasses>, HttpError> {
     let services = App::services();
 
-    let class_data = ClassData::get_from_user(&db, &user).await?;
+    let class_data = ClassData::all(&db, &user).await?;
 
     // Combine classes with unlocked class data states
     let list: Vec<ClassWithState> = services
@@ -258,7 +258,7 @@ pub async fn get_classes(
         .map(|class| {
             let unlocked = class_data
                 .iter()
-                .find(|class_data| class_data.name == class.name)
+                .find(|class_data| class_data.class_name == class.name)
                 .is_some_and(|class_data| class_data.unlocked);
 
             ClassWithState { class, unlocked }

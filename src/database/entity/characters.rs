@@ -168,7 +168,7 @@ impl Model {
         };
         let _ = model.insert(db).await?;
 
-        ClassData::create(db, user, class_def.name, true).await?;
+        ClassData::set(db, user, class_def.name, true).await?;
 
         Ok(())
     }

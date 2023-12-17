@@ -43,17 +43,19 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         // Create models for initial currency values
-        let items = ["MTXCurrency", "GrindCurrency", "MissionCurrency"]
-            .into_iter()
-            .map(|name| ActiveModel {
-                id: NotSet,
-                user_id: Set(user.id),
-                name: Set(name.to_string()),
-                balance: Set(0),
-            });
-        Entity::insert_many(items)
-            .exec_without_returning(db)
-            .await?;
+        Entity::insert_many(
+            ["MTXCurrency", "GrindCurrency", "MissionCurrency"]
+                .into_iter()
+                .map(|name| ActiveModel {
+                    id: NotSet,
+                    user_id: Set(user.id),
+                    name: Set(name.to_string()),
+                    // TODO: Set this as the database default
+                    balance: Set(0),
+                }),
+        )
+        .exec_without_returning(db)
+        .await?;
         Ok(())
     }
 

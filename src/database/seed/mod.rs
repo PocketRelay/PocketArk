@@ -8,11 +8,12 @@ use std::fmt::Write;
 use tokio::{task::JoinSet, try_join};
 
 use crate::{
+    database::entity::{Currency, SharedData, StrikeTeam},
     services::{
         character::CharacterService,
         items::{BaseCategory, Category, ItemsService},
     },
-    utils::logging::setup_test_logging,
+    utils::{hashing::hash_password, logging::setup_test_logging},
 };
 
 use super::{
@@ -27,10 +28,20 @@ pub async fn seed() {
 
     let db = connect_database().await;
 
-    let user = User::get_user(&db, 1).await.unwrap().unwrap();
+    let user = User::create_user(&db, "test".to_string(), hash_password("test").unwrap())
+        .await
+        .unwrap();
 
     let items = ItemsService::new();
     let characters = CharacterService::new();
+
+    // Initialize the users data
+    // InventoryItem::create_default(&db, &user, &items, &characters)
+    //     .await
+    //     .unwrap();
+    Currency::create_default(&db, &user).await.unwrap();
+    SharedData::create_default(&db, &user).await.unwrap();
+    // StrikeTeam::create_default(&db, &user).await.unwrap();
 
     for definition in items.items.all() {
         let item = InventoryItem::add_item(

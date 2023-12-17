@@ -8,21 +8,25 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        // Create the class data table
         manager
             .create_table(
                 Table::create()
                     .table(ClassData::Table)
                     .if_not_exists()
-                    .col(
-                        ColumnDef::new(ClassData::Id)
-                            .unsigned()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
+                    // This table uses a composite key over the UserId and ClassName
+                    .primary_key(
+                        Index::create()
+                            .col(ClassData::UserId)
+                            .col(ClassData::ClassName),
                     )
+                    // ID of the user this data belongs to
                     .col(ColumnDef::new(ClassData::UserId).unsigned().not_null())
-                    .col(ColumnDef::new(ClassData::Name).uuid().not_null())
+                    // Name of the class definition this data is for
+                    .col(ColumnDef::new(ClassData::ClassName).uuid().not_null())
+                    // Whether this class is unlocked
                     .col(ColumnDef::new(ClassData::Unlocked).boolean().not_null())
+                    // Foreign key linking for the User ID
                     .foreign_key(
                         ForeignKey::create()
                             .from(ClassData::Table, ClassData::UserId)
@@ -33,16 +37,13 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        // Create a unique index accross the user ID and class name
-        // (Users should only have a single item per definition)
+        // Additional index for per-user class data collections
         manager
             .create_index(
                 Index::create()
-                    .unique()
-                    .name("idx-class-data-uid-name")
+                    .name("idx-class-data-uid")
                     .table(ClassData::Table)
                     .col(ClassData::UserId)
-                    .col(ClassData::Name)
                     .to_owned(),
             )
             .await?;
@@ -60,7 +61,7 @@ impl MigrationTrait for Migration {
             .drop_index(
                 Index::drop()
                     .table(ClassData::Table)
-                    .name("idx-class-data-uid-name")
+                    .name("idx-class-data-uid")
                     .to_owned(),
             )
             .await?;
@@ -69,12 +70,11 @@ impl MigrationTrait for Migration {
     }
 }
 
-/// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
 pub enum ClassData {
     Table,
     Id,
     UserId,
-    Name,
+    ClassName,
     Unlocked,
 }

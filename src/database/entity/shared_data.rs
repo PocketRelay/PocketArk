@@ -82,16 +82,16 @@ impl Model {
             serde_json::Value::Number(Number::from_f64(0.0).unwrap()),
         );
 
-        let model = ActiveModel {
+        ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
             active_character_id: Set(None),
             shared_equipment: Set(Default::default()),
             shared_progression: Set(Default::default()),
             shared_stats: Set(SharedStats(shared_stats)),
-        };
-
-        model.insert(db).await
+        }
+        .insert(db)
+        .await
     }
 
     pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Model>
