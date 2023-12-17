@@ -34,7 +34,11 @@ impl ActivityService {
     pub fn process_activity(&self, activity: &MissionActivity) -> Option<ChallengeProgressUpdate> {
         let services = App::services();
         let (definition, counter, descriptor) = services.challenges.get_by_activity(activity)?;
-        let progress = descriptor.get_progress(&activity.attributes);
+
+        let progress = activity
+            .get_progress(&descriptor.progress_key)
+            .unwrap_or_default();
+
         Some(ChallengeProgressUpdate {
             progress,
             counter,

@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use chrono::{DateTime, Utc};
+use log::warn;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::serde_as;
@@ -9,7 +10,7 @@ use uuid::Uuid;
 use crate::{
     database::entity::{characters::CharacterId, currency::CurrencyType, InventoryItem},
     services::{
-        activity::{ChallengeUpdate, PrestigeProgression},
+        activity::{self, ChallengeUpdate, PrestigeProgression},
         challenges::CurrencyReward,
     },
     utils::models::Sku,
@@ -54,20 +55,64 @@ pub struct MissionActivityReport {
     pub options: Value,
 }
 
+impl MissionActivityReport {
+    /// Provides the total score earned across all of the
+    /// activities
+    pub fn activity_total_score(&self) -> u32 {
+        self.activities
+            .iter()
+            .filter_map(|activity| activity.get_score())
+            .sum()
+    }
+}
+
+/// Mapping between a attribute [String] key and some value [serde_json::Value]
+pub type MissionActivityAttributes = HashMap<String, serde_json::Value>;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MissionActivity {
+    /// Name of the activity
+    /// (Can be a [Uuid] or just text such as: "_itemConsumed")
     pub name: String,
+    /// Attributes associated to this activity
     pub attributes: MissionActivityAttributes,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MissionActivityAttributes {
-    pub count: u32,
-    pub score: u32,
+impl MissionActivity {
+    /// Obtains the current progress from the activity attributes
+    /// based on the provided `key`.
+    ///
+    /// Returns [None] if the progress value was invalid
+    /// or missing
+    pub fn get_progress(&self, key: &str) -> Option<u32> {
+        self.attributes
+            // Get the progress value
+            .get(key)
+            // Take the number progress value
+            .and_then(|value| value.as_u64())
+            // Don't need full precision of 64bit only need 32bit
+            .map(|value| value as u32)
+    }
 
-    #[serde(flatten)]
-    pub extra: Map<String, Value>,
+    /// Obtains the score from the mission activity if it
+    /// is present within the attributes
+    #[inline]
+    pub fn get_score(&self) -> Option<u32> {
+        self.get_progress("score")
+    }
+
+    /// Checks if this activity `attributes` match the provided filter
+    pub fn matches_filter(&self, filter: &HashMap<String, serde_json::Value>) -> bool {
+        filter
+            .iter()
+            // Ensure all attributes match
+            .all(|(key, value)| {
+                self.attributes
+                    .get(key)
+                    // Ensure the value exists and matches
+                    .is_some_and(|other_value| value == other_value)
+            })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

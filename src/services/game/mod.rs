@@ -33,14 +33,18 @@ use crate::{
         session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
     database::entity::{
-        challenge_progress::ProgressUpdateType, currency::CurrencyType, users::UserId,
-        ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
+        challenge_progress::ProgressUpdateType, currency::CurrencyType,
+        shared_data::SharedProgression, users::UserId, ChallengeProgress, Character, Currency,
+        InventoryItem, SharedData, User,
     },
     http::models::mission::{
-        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
-        PlayerInfoBadge, PlayerInfoResult, RewardSource,
+        CompleteMissionData, MissionActivity, MissionDetails, MissionModifier, MissionPlayerData,
+        MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::activity::{ChallengeStatusChange, ChallengeUpdate},
+    services::{
+        activity::{ChallengeStatusChange, ChallengeUpdate},
+        character::LevelTable,
+    },
     state::App,
     utils::models::Sku,
 };
@@ -198,6 +202,8 @@ async fn process_player_data(
     debug!("Processing player data");
 
     let services = App::services();
+    let character_service = &services.character;
+
     let user = User::get_user(&db, data.nucleus_id)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
@@ -216,8 +222,7 @@ async fn process_player_data(
         .await?
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
-    let class = services
-        .character
+    let class = character_service
         .classes
         .by_name(&character.class_name)
         .ok_or(PlayerDataProcessError::MissingClass)?;
@@ -226,46 +231,16 @@ async fn process_player_data(
 
     debug!("Processing score");
 
-    // Tally up initial base scores awarded from all activities
-    data_builder.score = data
-        .activity_report
-        .activities
-        .iter()
-        .map(|value| value.attributes.score)
-        .sum();
+    // Set the initial score from the activity scores
+    data_builder.score = data.activity_report.activity_total_score();
 
     debug!("Processing badges");
 
-    // Gives awards and badges for each activity
-    data.activity_report
-        .activities
-        .iter()
-        .filter_map(|activity| services.match_data.get_by_activity(activity))
-        .for_each(|(badge, progress, levels)| {
-            let level_name = levels.last().map(|value| value.name.to_string());
-            if let Some(level_name) = level_name {
-                let badge_name = badge.name.to_string();
-                let mut xp_reward: u32 = 0;
-                let mut currency_reward = 0;
-                let mut level_names = Vec::with_capacity(levels.len());
-
-                levels.into_iter().for_each(|badge_level| {
-                    xp_reward += badge_level.xp_reward;
-                    currency_reward += badge_level.currency_reward;
-                    level_names.push(badge_level.name.clone());
-                });
-
-                data_builder.add_reward_xp(&badge_name, xp_reward);
-                data_builder.add_reward_currency(&badge_name, badge.currency, currency_reward);
-
-                data_builder.badges.push(PlayerInfoBadge {
-                    count: progress,
-                    level_name,
-                    rewarded_levels: level_names,
-                    name: badge.name,
-                });
-            }
-        });
+    process_badges(
+        &data.activity_report.activities,
+        &services.match_data,
+        &mut data_builder,
+    );
 
     debug!("Base score reward");
     // Base reward xp is the score earned
@@ -299,6 +274,9 @@ async fn process_player_data(
 
     // Insert the before change
     data_builder.append_prestige_before(&shared_data);
+
+    fn update_prestige_level(level_table: &LevelTable, shared_progression: &mut SharedProgression) {
+    }
 
     // Character prestige leveling
     {
@@ -421,6 +399,53 @@ async fn process_player_data(
         wave_participation: data.waves_in_match,
         present_at_end: data.present_at_end,
     })
+}
+
+/// Processes the `activities` from the game adding any rewards
+/// and badges from completed badge levels
+fn process_badges(
+    activities: &[MissionActivity],
+    match_data: &MatchDataService,
+    data_builder: &mut PlayerDataBuilder,
+) {
+    activities
+        .iter()
+        // Find matching badges for the activity
+        .filter_map(|activity| {
+            // Find a badge matching the activity
+            let (badge, progress, levels) = match_data.get_by_activity(activity)?;
+            // Only continue if they have a level achieved
+            let highest_level = *levels.last()?;
+
+            Some((badge, progress, levels, highest_level))
+        })
+        .for_each(|(badge, progress, levels, highest_level)| {
+            // Total accumulated XP and currency from achieved levels
+            let mut total_xp: u32 = 0;
+            let mut total_currency: u32 = 0;
+
+            // Names of the levels that have been earned
+            let mut level_names: Vec<String> = Vec::with_capacity(levels.len());
+
+            for level in levels {
+                total_xp += level.xp_reward;
+                total_currency += level.currency_reward;
+                level_names.push(level.name.clone());
+            }
+
+            // The reward source is the badge name
+            let reward_name = badge.name.to_string();
+
+            // Append the rewards
+            data_builder.add_reward_xp(&reward_name, total_xp);
+            data_builder.add_reward_currency(&reward_name, badge.currency, total_currency);
+            data_builder.badges.push(PlayerInfoBadge {
+                count: progress,
+                level_name: highest_level.name.to_string(),
+                rewarded_levels: level_names,
+                name: badge.name,
+            });
+        });
 }
 
 /// Computes the xp and currency rewards from the provided match modifiers

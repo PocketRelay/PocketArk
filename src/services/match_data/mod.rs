@@ -2,7 +2,7 @@ use crate::{
     database::entity::currency::CurrencyType,
     http::models::mission::{MissionActivity, MissionActivityAttributes},
 };
-use log::{debug, error};
+use log::{debug, error, warn};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
@@ -48,16 +48,23 @@ impl MatchDataService {
         &self,
         activity: &MissionActivity,
     ) -> Option<(&Badge, u32, Vec<&BadgeLevel>)> {
-        let (badge, badge_activity) = self
-            .badges
-            .iter()
-            .find_map(|value| value.get_by_activity(activity))?;
-        let progress = badge_activity.get_progress(&activity.attributes);
+        // Find a badge with an activity that can be applied
+        let (badge, badge_activity) = self.badges.iter().find_map(|badge| {
+            badge
+                .get_by_activity(activity)
+                .map(|activity| (badge, activity))
+        })?;
+
+        // Get the activity progression
+        let progress = activity.get_progress(&badge_activity.progress_key)?;
+
+        // Find all the badge levels that have been reached
         let levels: Vec<&BadgeLevel> = badge
             .levels
             .iter()
-            .filter(|value| value.target_count <= progress)
+            .take_while(|level| level.target_count <= progress)
             .collect();
+
         Some((badge, progress, levels))
     }
 
@@ -79,95 +86,93 @@ impl MatchDataService {
     }
 }
 
+/// Type alias for a [Uuid] that represents the name of a [Badge]
+pub type BadgeName = Uuid;
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Badge {
-    pub name: Uuid,
+    /// Unique badge name
+    pub name: BadgeName,
+    /// Description of the badge
     pub description: String,
+    /// Additional custom attributes
     pub custom_attributes: Map<String, Value>,
+    /// Whether the badge can be awarded (Appears unused)
     pub enabled: bool,
 
+    // Localization text
     pub i18n_title: Option<String>,
     pub i18n_description: Option<String>,
     pub loc_title: Option<String>,
     pub loc_description: Option<String>,
 
+    /// The type of currency given as a reward for this badge
     pub currency: CurrencyType,
 
+    /// [ActivityDescriptor]s describing how this badge can be awarded
     pub activities: Vec<ActivityDescriptor>,
+    /// The different tiers / levels of this badge
     pub levels: Vec<BadgeLevel>,
 }
 
 impl Badge {
-    /// Finds a badge activity details using the provided mission activity
-    /// matches against the name and attribute filter
-    pub fn get_by_activity(
-        &self,
-        activity: &MissionActivity,
-    ) -> Option<(&Self, &ActivityDescriptor)> {
-        self.activities.iter().find_map(|value| {
-            if value.matches(activity) {
-                Some((self, value))
-            } else {
-                None
-            }
-        })
+    /// Finds the [ActivityDescriptor] within this [Badge] that matches the
+    /// provided `activity` if there is one available
+    pub fn get_by_activity(&self, activity: &MissionActivity) -> Option<&ActivityDescriptor> {
+        self.activities
+            .iter()
+            .find(|descriptor| descriptor.matches(activity))
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityDescriptor {
+    /// Name of the [MissionActivity] this descriptor is for
+    /// (Can be a [Uuid] or just text such as: "_itemConsumed")
     pub activity_name: String,
-    pub filter: Map<String, Value>,
-    pub increment_progress_by: String,
+    /// Filtering based on the [MissionActivity::attributes] for
+    /// whether the activity is applicable
+    pub filter: HashMap<String, serde_json::Value>,
+    /// The key into [MissionActivity::attributes] that should be
+    /// used for tracking activity progress
+    #[serde(rename = "incrementProgressBy")]
+    pub progress_key: String,
 }
 
 impl ActivityDescriptor {
+    /// Checks if the provided `activity` matches this descriptor
     pub fn matches(&self, activity: &MissionActivity) -> bool {
-        self.activity_name.eq(&activity.name) && self.matches_filter(&activity.attributes.extra)
-    }
-
-    /// Checks if the badge activity filter matches the attributes of
-    /// the provided activity
-    pub fn matches_filter(&self, attributes: &Map<String, Value>) -> bool {
-        for (key, value) in self.filter.iter() {
-            let right = match attributes.get(key) {
-                Some(value) => value,
-                None => return false,
-            };
-            if value.ne(right) {
-                return false;
-            }
-        }
-
-        true
-    }
-
-    /// Obtains the progress value from the provided attributes based
-    /// on the progress increment target
-    pub fn get_progress(&self, attributes: &MissionActivityAttributes) -> u32 {
-        match self.increment_progress_by.as_str() {
-            "count" => attributes.count,
-            "score" => attributes.score,
-            _ => 0,
-        }
+        self.activity_name.eq(&activity.name) && activity.matches_filter(&self.filter)
     }
 }
+
+/// Alias for a string representing the name of a [BadgeLevel]
+pub type BadgeLevelName = String;
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BadgeLevel {
-    pub name: String,
+    /// Name of the badge level ("Bronze", "Silver", "Gold", "Platinum", ..etc)
+    pub name: BadgeLevelName,
+    /// Internal game path for the image used when displaying the badge
     pub img_path: Option<String>,
+    /// Appears to be unused
     #[serde(rename = "imgURLFull")]
     pub img_url_full: Option<String>,
+    /// The required progress count for the level to be reached
     pub target_count: u32,
+    /// The total XP to give for completing this level
     pub xp_reward: u32,
+    /// The total currency to give for completing this level the
+    /// type of currency awarded is [Badge::currency]
     pub currency_reward: u32,
+    /// Possibly item rewards? Haven't found this used yet
     pub rewards: Vec<Value>,
+    /// Additional attributes on the badge (Appears to be unused)
     pub custom_attributes: Map<String, Value>,
 }
 
