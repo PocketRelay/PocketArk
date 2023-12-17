@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                     // ID of the user this currency data belongs to
                     .col(ColumnDef::new(Currency::UserId).unsigned().not_null())
                     // The ty of the currency
-                    .col(ColumnDef::new(Currency::Ty).string().not_null())
+                    .col(ColumnDef::new(Currency::Ty).tiny_unsigned().not_null())
                     // The amount of currency the user has
                     .col(ColumnDef::new(Currency::Balance).big_integer().not_null())
                     // Foreign key linking for the User ID
