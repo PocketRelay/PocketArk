@@ -23,8 +23,8 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(SharedData::UserId).unsigned().not_null())
                     .col(
                         ColumnDef::new(SharedData::ActiveCharacterId)
-                            .uuid()
-                            .not_null(),
+                            .unsigned()
+                            .null(),
                     )
                     .col(ColumnDef::new(SharedData::SharedStats).json().not_null())
                     .col(
