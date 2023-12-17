@@ -1,49 +1,57 @@
-use std::collections::HashMap;
-
-use super::characters::CharacterId;
-use super::User;
-use crate::database::DbResult;
-use crate::services::character::{CharacterEquipment, Xp};
-use sea_orm::ActiveValue::{NotSet, Set};
-use sea_orm::FromJsonQueryResult;
-use sea_orm::{entity::prelude::*, IntoActiveModel};
-use serde::{Deserialize, Serialize};
+use super::{characters::CharacterId, User};
+use crate::{
+    database::DbResult,
+    services::character::{CharacterEquipment, Xp},
+};
+use sea_orm::{
+    entity::prelude::*,
+    ActiveValue::{NotSet, Set},
+    FromJsonQueryResult, IntoActiveModel,
+};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::Number;
 use serde_with::serde_as;
+use std::collections::HashMap;
+use std::future::Future;
 use uuid::uuid;
 
-#[serde_as]
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+/// Shared data database structure
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "shared_data")]
-#[serde(rename_all = "camelCase")]
 pub struct Model {
+    /// The ID of the user this data belongs to
     #[sea_orm(primary_key)]
-    #[serde(skip)]
-    pub id: u32,
-    #[serde(skip)]
     pub user_id: u32,
-    // TODO: Manual serialization impl
-    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
+    // ID of the currently active character for the user
     pub active_character_id: Option<CharacterId>,
+    // Shared statistis about the user
     pub shared_stats: SharedStats,
+    // Shared equipment configuration
     pub shared_equipment: CharacterSharedEquipment,
+    // Shared progression states
     pub shared_progression: SharedProgressionList,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct SharedStats(pub HashMap<String, serde_json::Value>);
+#[serde(rename_all = "camelCase")]
+pub struct SharedStats {
+    /// The pathfinder rating for the user
+    pub pathfinder_rating: f32,
+    /// Other shared stats
+    #[serde(flatten)]
+    pub other: HashMap<String, serde_json::Value>,
+}
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
 pub struct SharedProgressionList(pub Vec<SharedProgression>);
 
-#[derive(Debug, Clone, Default, Serialize, PartialEq, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 pub struct CharacterSharedEquipment {
     pub list: Vec<CharacterEquipment>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SharedProgression {
     pub name: Uuid,
@@ -63,76 +71,66 @@ pub enum Relation {
     User,
 }
 
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::User.def()
-    }
-}
-
-impl ActiveModelBehavior for ActiveModel {}
-
 impl Model {
-    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<Model>
+    pub fn create_default<'db, C>(
+        db: &'db C,
+        user: &User,
+    ) -> impl Future<Output = DbResult<Model>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        let mut shared_stats = HashMap::new();
-        shared_stats.insert(
-            "pathfinderRating".to_string(),
-            serde_json::Value::Number(Number::from_f64(0.0).unwrap()),
-        );
-
         ActiveModel {
-            id: NotSet,
             user_id: Set(user.id),
             active_character_id: Set(None),
             shared_equipment: Set(Default::default()),
             shared_progression: Set(Default::default()),
-            shared_stats: Set(SharedStats(shared_stats)),
+            shared_stats: Set(Default::default()),
         }
         .insert(db)
-        .await
     }
 
-    pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Model>
+    /// Loads the shared data for the provided `user`, will create
+    /// new shared data if they don't have one
+    pub async fn get<C>(db: &C, user: &User) -> DbResult<Model>
     where
         C: ConnectionTrait + Send,
     {
-        match user.find_related(Entity).one(db).await? {
-            Some(value) => Ok(value),
-            None => Self::create_default(db, user).await,
+        // User already has shared data defined
+        if let Some(shared_data) = user.find_related(Entity).one(db).await? {
+            return Ok(shared_data);
         }
+
+        // Create new default shared data
+        Self::create_default(db, user).await
     }
 
-    pub async fn set_shared_equipment<C>(
+    pub fn set_shared_equipment<C>(
+        self,
         db: &C,
-        user: &User,
         list: Vec<CharacterEquipment>,
-    ) -> DbResult<Self>
+    ) -> impl Future<Output = DbResult<Self>> + '_
     where
         C: ConnectionTrait + Send,
     {
-        let shared_data = Self::get_from_user(db, user).await?;
-        let mut shared_data = shared_data.into_active_model();
+        let mut shared_data = self.into_active_model();
         shared_data.shared_equipment = Set(CharacterSharedEquipment { list });
-        shared_data.update(db).await
+        shared_data.update(db)
     }
 
-    pub async fn set_active_character<C>(
+    pub fn set_active_character<C>(
+        self,
         db: &C,
-        user: &User,
         character_id: CharacterId,
-    ) -> DbResult<Self>
+    ) -> impl Future<Output = DbResult<Self>> + '_
     where
         C: ConnectionTrait + Send,
     {
-        let shared_data = Self::get_from_user(db, user).await?;
-        let mut shared_data = shared_data.into_active_model();
+        let mut shared_data = self.into_active_model();
         shared_data.active_character_id = Set(Some(character_id));
-        shared_data.update(db).await
+        shared_data.update(db)
     }
 
-    pub async fn save_progression<C>(self, db: &C) -> DbResult<Self>
+    pub fn save_progression<C>(self, db: &C) -> impl Future<Output = DbResult<Self>> + '_
     where
         C: ConnectionTrait + Send,
     {
@@ -141,6 +139,31 @@ impl Model {
             .shared_progression
             .take()
             .expect("Shared progression missing from take"));
-        model.update(db).await
+        model.update(db)
     }
 }
+
+impl Serialize for Model {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut value = serializer.serialize_struct("SharedData", 4)?;
+        value.serialize_field(
+            "activeCharacterId",
+            &self.active_character_id.map(|value| value.to_string()),
+        )?;
+        value.serialize_field("sharedStats", &self.shared_stats)?;
+        value.serialize_field("sharedEquipment", &self.shared_equipment)?;
+        value.serialize_field("sharedProgression", &self.shared_progression)?;
+        value.end()
+    }
+}
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
+
+impl ActiveModelBehavior for ActiveModel {}

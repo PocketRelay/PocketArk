@@ -31,7 +31,7 @@ pub async fn get_characters(
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<Json<CharactersResponse>, HttpError> {
     let list = user.find_related(characters::Entity).all(&db).await?;
-    let shared_data = SharedData::get_from_user(&db, &user).await?;
+    let shared_data = SharedData::get(&db, &user).await?;
 
     Ok(Json(CharactersResponse { list, shared_data }))
 }
@@ -51,7 +51,7 @@ pub async fn get_character(
         .await?
         .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
 
-    let shared_data = SharedData::get_from_user(&db, &user).await?;
+    let shared_data = SharedData::get(&db, &user).await?;
 
     Ok(Json(CharacterResponse {
         character,
@@ -70,8 +70,8 @@ pub async fn set_active(
     debug!("Requested set active character: {}", character_id);
 
     // TODO: validate the character is actually owned
-
-    let _ = SharedData::set_active_character(&db, &user, character_id).await?;
+    let shared_data = SharedData::get(&db, &user).await?;
+    shared_data.set_active_character(&db, character_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -133,8 +133,8 @@ pub async fn update_shared_equip(
     JsonDump(req): JsonDump<CharacterEquipmentList>,
 ) -> Result<StatusCode, HttpError> {
     debug!("Update shared equipment: {:?}", req);
-
-    let _ = SharedData::set_shared_equipment(&db, &user, req.list).await?;
+    let shared_data = SharedData::get(&db, &user).await?;
+    shared_data.set_shared_equipment(&db, req.list).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -292,7 +292,7 @@ pub async fn character_unlocked(
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<Json<UnlockedCharacters>, HttpError> {
     debug!("Unlocked request");
-    let shared_data = SharedData::get_from_user(&db, &user).await?;
+    let shared_data = SharedData::get(&db, &user).await?;
 
     // TODO: Should actually handle creating definitions for an unlocked character if they
     // are not already created
