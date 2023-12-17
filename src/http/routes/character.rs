@@ -24,7 +24,6 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, IntoActiveModel, ModelTrait,
     QueryFilter,
 };
-use uuid::Uuid;
 
 /// GET /characters
 pub async fn get_characters(
@@ -41,7 +40,7 @@ pub async fn get_characters(
 ///
 /// Gets the defintion and details for the character of the provided ID
 pub async fn get_character(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<Json<CharacterResponse>, HttpError> {
@@ -178,7 +177,7 @@ pub async fn update_character_customization(
 /// Obtains the history of the characters previous
 /// equipment
 pub async fn get_character_equip_history(
-    Path(character_id): Path<Uuid>,
+    Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<Json<CharacterEquipmentList>, HttpError> {
