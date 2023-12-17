@@ -33,7 +33,7 @@ use crate::{
         session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
     database::entity::{
-        challenge_progress::ProgressUpdateType, currency::CurrencyName, users::UserId,
+        challenge_progress::ProgressUpdateType, currency::CurrencyType, users::UserId,
         ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
     },
     http::models::mission::{
@@ -87,7 +87,7 @@ pub struct PlayerDataBuilder {
     pub score: u32,
     pub xp_earned: u32,
     pub reward_sources: Vec<RewardSource>,
-    pub total_currency: HashMap<CurrencyName, u32>,
+    pub total_currency: HashMap<CurrencyType, u32>,
     pub prestige_progression: PrestigeProgression,
     pub items_earned: Vec<InventoryItem>,
     pub challenges_updates: BTreeMap<String, ChallengeUpdate>,
@@ -156,7 +156,7 @@ impl PlayerDataBuilder {
         }
     }
 
-    pub fn add_reward_currency(&mut self, name: &str, currency: CurrencyName, value: u32) {
+    pub fn add_reward_currency(&mut self, name: &str, currency: CurrencyType, value: u32) {
         // Append currencies to total currrency
 
         if let Some(existing) = self.total_currency.get_mut(&currency) {

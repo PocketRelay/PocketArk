@@ -3,7 +3,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
-    database::entity::{currency::CurrencyName, Currency, InventoryItem},
+    database::entity::{currency::CurrencyType, Currency, InventoryItem},
     services::{activity::ActivityResult, items::ItemDefinition, store::StoreCatalog},
 };
 
@@ -21,7 +21,7 @@ pub struct UserCurrenciesResponse {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ObtainStoreItemRequest {
-    pub currency: CurrencyName,
+    pub currency: CurrencyType,
     pub article_name: String,
 }
 

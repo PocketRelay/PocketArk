@@ -13,12 +13,12 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(Currency::Table)
                     .if_not_exists()
-                    // This table uses a composite key over the UserId and currency Name
-                    .primary_key(Index::create().col(Currency::UserId).col(Currency::Name))
+                    // This table uses a composite key over the UserId and currency type
+                    .primary_key(Index::create().col(Currency::UserId).col(Currency::Ty))
                     // ID of the user this currency data belongs to
                     .col(ColumnDef::new(Currency::UserId).unsigned().not_null())
-                    // The name of the currency
-                    .col(ColumnDef::new(Currency::Name).string().not_null())
+                    // The ty of the currency
+                    .col(ColumnDef::new(Currency::Ty).string().not_null())
                     // The amount of currency the user has
                     .col(ColumnDef::new(Currency::Balance).big_integer().not_null())
                     // Foreign key linking for the User ID
@@ -68,7 +68,7 @@ impl MigrationTrait for Migration {
 #[derive(Iden)]
 enum Currency {
     Table,
-    Name,
+    Ty,
     UserId,
     Balance,
 }

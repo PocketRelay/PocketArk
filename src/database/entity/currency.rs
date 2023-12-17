@@ -6,20 +6,19 @@ use sea_orm::{
     ActiveValue::{NotSet, Set},
     InsertResult, IntoActiveModel,
 };
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use std::future::Future;
 
 /// Currency database structure
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "currency")]
 pub struct Model {
     // ID of the user this currency data belongs to
     #[sea_orm(primary_key)]
-    #[serde(skip)]
     pub user_id: UserId,
-    // The name of the currency
+    // The type of the currency
     #[sea_orm(primary_key)]
-    pub name: CurrencyName,
+    pub ty: CurrencyType,
     // The amount of currency the user has
     pub balance: u32,
 }
@@ -30,7 +29,7 @@ pub struct Model {
 )]
 #[sea_orm(rs_type = "u8", db_type = "Integer")]
 #[repr(u8)]
-pub enum CurrencyName {
+pub enum CurrencyType {
     #[serde(rename = "MTXCurrency")]
     Mtx = 0,
     #[serde(rename = "GrindCurrency")]
@@ -74,9 +73,9 @@ impl Model {
             db,
             user,
             [
-                (CurrencyName::Mtx, 0),
-                (CurrencyName::Grind, 0),
-                (CurrencyName::Mission, 0),
+                (CurrencyType::Mtx, 0),
+                (CurrencyType::Grind, 0),
+                (CurrencyType::Mission, 0),
             ],
         )
     }
@@ -85,19 +84,19 @@ impl Model {
     /// when a balance exists
     fn set_balance_conflict() -> OnConflict {
         // Update the value column if a key already exists
-        OnConflict::columns([Column::UserId, Column::Name])
+        OnConflict::columns([Column::UserId, Column::Ty])
             // Update the balance value
             .update_column(Column::Balance)
             .to_owned()
     }
 
-    /// Sets the balance of a specific `name` currency to `value`
+    /// Sets the balance of a specific `ty` currency to `value`
     /// for the specific `user`. Will create the currency if it
     /// doesn't exist.
     pub fn set<'db, C>(
         db: &'db C,
         user: &User,
-        name: CurrencyName,
+        ty: CurrencyType,
         value: u32,
     ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
@@ -105,7 +104,7 @@ impl Model {
     {
         Entity::insert(ActiveModel {
             user_id: Set(user.id),
-            name: Set(name),
+            ty: Set(ty),
             balance: Set(value),
         })
         .on_conflict(Self::set_balance_conflict())
@@ -121,11 +120,11 @@ impl Model {
     ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
         C: ConnectionTrait + Send,
-        I: IntoIterator<Item = (CurrencyName, u32)>,
+        I: IntoIterator<Item = (CurrencyType, u32)>,
     {
-        Entity::insert_many(values.into_iter().map(|(name, value)| ActiveModel {
+        Entity::insert_many(values.into_iter().map(|(ty, value)| ActiveModel {
             user_id: Set(user.id),
-            name: Set(name),
+            ty: Set(ty),
             // TODO: Set this as the database default
             balance: Set(value),
         }))
@@ -164,7 +163,7 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         user.find_related(Entity)
-            .filter(Column::Name.eq(name))
+            .filter(Column::Ty.eq(name))
             .one(db)
     }
 
@@ -172,7 +171,7 @@ impl Model {
     /// an existing balance
     fn add_balance_conflict() -> OnConflict {
         // Update the value column if a key already exists
-        OnConflict::columns([Column::UserId, Column::Name])
+        OnConflict::columns([Column::UserId, Column::Ty])
             .value(
                 Column::Balance,
                 // Adds the balance to the existing balance without surpassing
@@ -189,7 +188,7 @@ impl Model {
     pub fn add<'db, C>(
         db: &'db C,
         user: &User,
-        name: CurrencyName,
+        ty: CurrencyType,
         amount: u32,
     ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
@@ -197,7 +196,7 @@ impl Model {
     {
         Entity::insert(ActiveModel {
             user_id: Set(user.id),
-            name: Set(name),
+            ty: Set(ty),
             balance: Set(amount),
         })
         .on_conflict(Self::add_balance_conflict())
@@ -212,14 +211,26 @@ impl Model {
     ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
         C: ConnectionTrait + Send,
-        I: IntoIterator<Item = (CurrencyName, u32)>,
+        I: IntoIterator<Item = (CurrencyType, u32)>,
     {
-        Entity::insert_many(values.into_iter().map(|(name, value)| ActiveModel {
+        Entity::insert_many(values.into_iter().map(|(ty, value)| ActiveModel {
             user_id: Set(user.id),
-            name: Set(name),
+            ty: Set(ty),
             balance: Set(value),
         }))
         .on_conflict(Self::add_balance_conflict())
         .exec(db)
+    }
+}
+
+impl Serialize for Model {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut value = serializer.serialize_struct("Currency", 2)?;
+        value.serialize_field("name", &self.ty)?;
+        value.serialize_field("balance", &self.balance)?;
+        value.end()
     }
 }

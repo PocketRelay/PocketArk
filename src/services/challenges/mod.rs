@@ -1,4 +1,4 @@
-use crate::{database::entity::currency::CurrencyName, http::models::mission::MissionActivity};
+use crate::{database::entity::currency::CurrencyType, http::models::mission::MissionActivity};
 
 use super::{items::ItemName, match_data::ActivityDescriptor};
 use log::{debug, error};
@@ -124,7 +124,7 @@ pub struct ChallengeReward {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CurrencyReward {
-    pub name: CurrencyName,
+    pub name: CurrencyType,
     pub value: u32,
 }
 

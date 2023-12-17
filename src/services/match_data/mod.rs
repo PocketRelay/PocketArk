@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::currency::CurrencyName,
+    database::entity::currency::CurrencyType,
     http::models::mission::{MissionActivity, MissionActivityAttributes},
 };
 use log::{debug, error};
@@ -93,7 +93,7 @@ pub struct Badge {
     pub loc_title: Option<String>,
     pub loc_description: Option<String>,
 
-    pub currency: CurrencyName,
+    pub currency: CurrencyType,
 
     pub activities: Vec<ActivityDescriptor>,
     pub levels: Vec<BadgeLevel>,
@@ -184,7 +184,7 @@ pub struct MatchModifier {
 pub struct MatchModifierEntry {
     pub name: String,
     pub xp_data: Option<ModifierData>,
-    pub currency_data: HashMap<CurrencyName, ModifierData>,
+    pub currency_data: HashMap<CurrencyType, ModifierData>,
     pub custom_attributes: Map<String, Value>,
 }
 

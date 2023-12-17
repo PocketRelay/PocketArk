@@ -91,7 +91,7 @@ pub async fn obtain_article(
     let mut currencies = Vec::with_capacity(user_currencies.len());
     let mut paid: bool = false;
     for mut currency in user_currencies {
-        if currency.name == req.currency && currency.balance >= price.final_price {
+        if currency.ty == req.currency && currency.balance >= price.final_price {
             let new_balance = currency.balance - price.final_price;
 
             currency = currency.update(&db, new_balance).await?;

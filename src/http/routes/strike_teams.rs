@@ -123,7 +123,7 @@ pub async fn purchase_equipment(
 
     let equipment_cost = equipment
         .cost_by_currency
-        .get(&currency.name)
+        .get(&currency.ty)
         .copied()
         .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
 
