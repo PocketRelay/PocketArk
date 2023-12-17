@@ -33,8 +33,8 @@ use crate::{
         session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
     database::entity::{
-        challenge_progress::ProgressUpdateType, users::UserId, ChallengeProgress, Character,
-        Currency, InventoryItem, SharedData, User,
+        challenge_progress::ProgressUpdateType, currency::CurrencyName, users::UserId,
+        ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
     },
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
@@ -87,7 +87,7 @@ pub struct PlayerDataBuilder {
     pub score: u32,
     pub xp_earned: u32,
     pub reward_sources: Vec<RewardSource>,
-    pub total_currency: HashMap<String, u32>,
+    pub total_currency: HashMap<CurrencyName, u32>,
     pub prestige_progression: PrestigeProgression,
     pub items_earned: Vec<InventoryItem>,
     pub challenges_updates: BTreeMap<String, ChallengeUpdate>,
@@ -156,13 +156,13 @@ impl PlayerDataBuilder {
         }
     }
 
-    pub fn add_reward_currency(&mut self, name: &str, currency: &str, value: u32) {
+    pub fn add_reward_currency(&mut self, name: &str, currency: CurrencyName, value: u32) {
         // Append currencies to total currrency
 
-        if let Some(existing) = self.total_currency.get_mut(currency) {
+        if let Some(existing) = self.total_currency.get_mut(&currency) {
             *existing += value
         } else {
-            self.total_currency.insert(currency.to_string(), value);
+            self.total_currency.insert(currency, value);
         }
 
         if let Some(existing) = self
@@ -172,14 +172,14 @@ impl PlayerDataBuilder {
         {
             // Update currency within reward
 
-            if let Some(existing) = existing.currencies.get_mut(currency) {
+            if let Some(existing) = existing.currencies.get_mut(&currency) {
                 *existing = existing.saturating_add(value);
             } else {
-                existing.currencies.insert(currency.to_string(), value);
+                existing.currencies.insert(currency, value);
             }
         } else {
             let mut currencies = HashMap::new();
-            currencies.insert(currency.to_string(), value);
+            currencies.insert(currency, value);
 
             self.reward_sources.push(RewardSource {
                 currencies,
@@ -256,7 +256,7 @@ async fn process_player_data(
                 });
 
                 data_builder.add_reward_xp(&badge_name, xp_reward);
-                data_builder.add_reward_currency(&badge_name, &badge.currency, currency_reward);
+                data_builder.add_reward_currency(&badge_name, badge.currency, currency_reward);
 
                 data_builder.badges.push(PlayerInfoBadge {
                     count: progress,
@@ -370,8 +370,16 @@ async fn process_player_data(
 
     debug!("Updating currencies");
 
-    // Update currencies
-    Currency::create_or_update_many(&db, &user, &data_builder.total_currency).await?;
+    // Add all the new currency amounts
+    Currency::add_many(
+        &db,
+        &user,
+        data_builder
+            .total_currency
+            .iter()
+            .map(|(key, value)| (*key, *value)),
+    )
+    .await?;
 
     let total_currencies_earned = data_builder
         .total_currency
@@ -442,7 +450,7 @@ fn compute_modifiers(
                             .copied()
                             .unwrap_or_default(),
                     );
-                    data_builder.add_reward_currency(&modifier.name, key, amount);
+                    data_builder.add_reward_currency(&modifier.name, *key, amount);
                 });
         });
 }

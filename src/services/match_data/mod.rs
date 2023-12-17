@@ -1,4 +1,7 @@
-use crate::http::models::mission::{MissionActivity, MissionActivityAttributes};
+use crate::{
+    database::entity::currency::CurrencyName,
+    http::models::mission::{MissionActivity, MissionActivityAttributes},
+};
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -90,7 +93,7 @@ pub struct Badge {
     pub loc_title: Option<String>,
     pub loc_description: Option<String>,
 
-    pub currency: String,
+    pub currency: CurrencyName,
 
     pub activities: Vec<ActivityDescriptor>,
     pub levels: Vec<BadgeLevel>,
@@ -181,7 +184,7 @@ pub struct MatchModifier {
 pub struct MatchModifierEntry {
     pub name: String,
     pub xp_data: Option<ModifierData>,
-    pub currency_data: HashMap<String, ModifierData>,
+    pub currency_data: HashMap<CurrencyName, ModifierData>,
     pub custom_attributes: Map<String, Value>,
 }
 

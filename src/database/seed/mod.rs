@@ -39,7 +39,7 @@ pub async fn seed() {
     // InventoryItem::create_default(&db, &user, &items, &characters)
     //     .await
     //     .unwrap();
-    Currency::create_default(&db, &user).await.unwrap();
+    Currency::set_default(&db, &user).await.unwrap();
     SharedData::create_default(&db, &user).await.unwrap();
     // StrikeTeam::create_default(&db, &user).await.unwrap();
 

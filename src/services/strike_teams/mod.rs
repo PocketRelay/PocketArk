@@ -13,7 +13,7 @@ use std::{
 use uuid::{uuid, Uuid};
 
 use crate::{
-    database::entity::StrikeTeam,
+    database::entity::{currency::CurrencyName, StrikeTeam},
     http::models::mission::MissionModifier,
     services::{challenges::CurrencyReward, items::ItemDefinition},
     utils::models::{LocaleName, LocaleNameWithDesc},
@@ -126,7 +126,7 @@ pub struct StrikeTeamEquipment {
     pub level_required: u32,
     pub effectiveness: u32,
     pub tags: Option<Vec<String>>,
-    pub cost_by_currency: HashMap<String, u32>,
+    pub cost_by_currency: HashMap<CurrencyName, u32>,
     pub custom_attributes: Map<String, Value>,
 }
 
@@ -312,12 +312,12 @@ impl MissionRewards {
     ) -> Self {
         let currency_reward = match access {
             MissionAccessibility::SinglePlayer => CurrencyReward {
-                name: "MissionCurrency".to_string(),
+                name: CurrencyName::Mission,
                 value: 5,
             },
             // Apex mission rewards
             MissionAccessibility::Any | MissionAccessibility::MultiPlayer => CurrencyReward {
-                name: "MissionCurrency".to_string(),
+                name: CurrencyName::Mission,
                 value: 10,
             },
         };

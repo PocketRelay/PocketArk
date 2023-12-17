@@ -85,14 +85,16 @@ pub async fn obtain_article(
         .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
 
     // Obtain the user currency
-    let user_currencies = Currency::get_from_user(&db, &user).await?;
+    let user_currencies = Currency::all(&db, &user).await?;
 
     // Update the currencies (attempting to pay)
     let mut currencies = Vec::with_capacity(user_currencies.len());
     let mut paid: bool = false;
     for mut currency in user_currencies {
         if currency.name == req.currency && currency.balance >= price.final_price {
-            currency = currency.consume(&db, price.final_price).await?;
+            let new_balance = currency.balance - price.final_price;
+
+            currency = currency.update(&db, new_balance).await?;
             paid = true;
         }
 
@@ -165,7 +167,7 @@ pub async fn get_currencies(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<Json<UserCurrenciesResponse>, HttpError> {
-    let currencies = Currency::get_from_user(&db, &user).await?;
+    let currencies = Currency::all(&db, &user).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
 }

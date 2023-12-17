@@ -1,6 +1,5 @@
-use sea_orm_migration::prelude::*;
-
 use super::m20230714_105755_create_users::Users;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -8,21 +7,21 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        // Create the currency data table
         manager
             .create_table(
                 Table::create()
                     .table(Currency::Table)
                     .if_not_exists()
-                    .col(
-                        ColumnDef::new(Currency::Id)
-                            .unsigned()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
-                    )
-                    .col(ColumnDef::new(Currency::Name).string().not_null())
+                    // This table uses a composite key over the UserId and currency Name
+                    .primary_key(Index::create().col(Currency::UserId).col(Currency::Name))
+                    // ID of the user this currency data belongs to
                     .col(ColumnDef::new(Currency::UserId).unsigned().not_null())
+                    // The name of the currency
+                    .col(ColumnDef::new(Currency::Name).string().not_null())
+                    // The amount of currency the user has
                     .col(ColumnDef::new(Currency::Balance).big_integer().not_null())
+                    // Foreign key linking for the User ID
                     .foreign_key(
                         ForeignKey::create()
                             .from(Currency::Table, Currency::UserId)
@@ -31,21 +30,44 @@ impl MigrationTrait for Migration {
                     )
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        // Additional index for per-user currency data collections
+        manager
+            .create_index(
+                Index::create()
+                    .table(Currency::Table)
+                    .name("idx-currency-uid")
+                    .col(Currency::UserId)
+                    .to_owned(),
+            )
+            .await?;
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .drop_table(Table::drop().table(Currency::Table).to_owned())
-            .await
+            .await?;
+
+        // Drop the index
+        manager
+            .drop_index(
+                Index::drop()
+                    .table(Currency::Table)
+                    .name("idx-currency-uid")
+                    .to_owned(),
+            )
+            .await?;
+
+        Ok(())
     }
 }
 
-/// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
 enum Currency {
     Table,
-    Id,
     Name,
     UserId,
     Balance,

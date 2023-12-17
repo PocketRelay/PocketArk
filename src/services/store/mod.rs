@@ -8,7 +8,7 @@ use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-use crate::utils::models::LocaleNameWithDesc;
+use crate::{database::entity::currency::CurrencyName, utils::models::LocaleNameWithDesc};
 
 /// Definition file for the contents of the in-game store
 const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
@@ -79,7 +79,7 @@ pub struct StoreLimit {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StorePrice {
-    pub currency: String,
+    pub currency: CurrencyName,
     pub original_price: u32,
     pub final_price: u32,
 }

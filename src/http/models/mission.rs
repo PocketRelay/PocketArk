@@ -7,7 +7,7 @@ use serde_with::serde_as;
 use uuid::Uuid;
 
 use crate::{
-    database::entity::{characters::CharacterId, InventoryItem},
+    database::entity::{characters::CharacterId, currency::CurrencyName, InventoryItem},
     services::{
         activity::{ChallengeUpdate, PrestigeProgression},
         challenges::CurrencyReward,
@@ -159,5 +159,5 @@ pub struct PlayerInfoResult {
 pub struct RewardSource {
     pub name: String,
     pub xp: u32,
-    pub currencies: HashMap<String, u32>,
+    pub currencies: HashMap<CurrencyName, u32>,
 }

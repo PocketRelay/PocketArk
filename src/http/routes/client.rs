@@ -88,7 +88,7 @@ pub async fn create(
 
     // Initialize the users data
     InventoryItem::create_default(&db, &user, &services.items, &services.character).await?;
-    Currency::create_default(&db, &user).await?;
+    Currency::set_default(&db, &user).await?;
     SharedData::create_default(&db, &user).await?;
     StrikeTeam::create_default(&db, &user).await?;
 

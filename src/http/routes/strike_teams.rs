@@ -94,7 +94,7 @@ pub async fn purchase_equipment(
     Path((id, name)): Path<(Uuid, String)>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
-    let currency = Currency::get_type_from_user(&db, &user, &query.currency)
+    let currency = Currency::by_name(&db, &user, &query.currency)
         .await?
         .ok_or(HttpError::new(
             "Currency balance cannot be less than 0.",
@@ -137,8 +137,10 @@ pub async fn purchase_equipment(
 
     // TODO: Transaction to revert incase equipment setting fails
 
+    let new_balance = currency.balance - equipment_cost;
+
     // Consume currency
-    let currency_balance = currency.consume(&db, equipment_cost).await?;
+    let currency_balance = currency.update(&db, new_balance).await?;
     let team = team.set_equipment(&db, Some(equipment.clone())).await?;
 
     Ok(Json(PurchaseResponse {
@@ -208,7 +210,7 @@ pub async fn purchase(
             StatusCode::CONFLICT,
         ))?;
 
-    let currency = Currency::get_type_from_user(&db, &user, "MissionCurrency")
+    let currency = Currency::by_name(&db, &user, "MissionCurrency")
         .await?
         .ok_or(HttpError::new(
             "Currency balance cannot be less than 0.",
@@ -225,8 +227,10 @@ pub async fn purchase(
 
     // TODO: Transaction to revert incase strike team creation fails
 
+    let new_balance = currency.balance - strike_team_cost;
+
     // Consume currency
-    let currency_balance = currency.consume(&db, strike_team_cost).await?;
+    let currency_balance = currency.update(&db, new_balance).await?;
     let team = StrikeTeam::create_default(&db, &user).await?;
 
     // Get new cost

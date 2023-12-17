@@ -1,22 +1,42 @@
-use super::{Currency, User};
+use super::{users::UserId, Currency, User};
 use crate::database::DbResult;
 use sea_orm::{
     entity::prelude::*,
+    sea_query::OnConflict,
     ActiveValue::{NotSet, Set},
-    IntoActiveModel,
+    InsertResult, IntoActiveModel,
 };
 use serde::{Deserialize, Serialize};
+use std::future::Future;
 
+/// Currency database structure
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "currency")]
 pub struct Model {
-    #[serde(skip)]
+    // ID of the user this currency data belongs to
     #[sea_orm(primary_key)]
-    pub id: u32,
     #[serde(skip)]
-    pub user_id: u32,
-    pub name: String,
+    pub user_id: UserId,
+    // The name of the currency
+    #[sea_orm(primary_key)]
+    pub name: CurrencyName,
+    // The amount of currency the user has
     pub balance: u32,
+}
+
+/// Enum for the different known currency types
+#[derive(
+    Debug, EnumIter, DeriveActiveEnum, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash,
+)]
+#[sea_orm(rs_type = "u8", db_type = "Integer")]
+#[repr(u8)]
+pub enum CurrencyName {
+    #[serde(rename = "MTXCurrency")]
+    Mtx = 0,
+    #[serde(rename = "GrindCurrency")]
+    Grind = 1,
+    #[serde(rename = "MissionCurrency")]
+    Mission = 2,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -38,92 +58,168 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
-    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<()>
+    /// The maximum safe amount of currency to have before the game
+    /// wraps it to a negative unusable amount
+    pub const MAX_SAFE_CURRENCY: u32 = 100_000_000;
+
+    /// Sets the default currency values for the provided `user`
+    pub fn set_default<'db, C>(
+        db: &'db C,
+        user: &User,
+    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        // Create models for initial currency values
-        Entity::insert_many(
-            ["MTXCurrency", "GrindCurrency", "MissionCurrency"]
-                .into_iter()
-                .map(|name| ActiveModel {
-                    id: NotSet,
-                    user_id: Set(user.id),
-                    name: Set(name.to_string()),
-                    // TODO: Set this as the database default
-                    balance: Set(0),
-                }),
+        Self::set_many(
+            db,
+            user,
+            [
+                (CurrencyName::Mtx, 0),
+                (CurrencyName::Grind, 0),
+                (CurrencyName::Mission, 0),
+            ],
         )
-        .exec_without_returning(db)
-        .await?;
-        Ok(())
     }
 
-    pub async fn consume<C>(self, db: &C, amount: u32) -> DbResult<Self>
+    /// Conflict strategy for replacing the existing blance
+    /// when a balance exists
+    fn set_balance_conflict() -> OnConflict {
+        // Update the value column if a key already exists
+        OnConflict::columns([Column::UserId, Column::Name])
+            // Update the balance value
+            .update_column(Column::Balance)
+            .to_owned()
+    }
+
+    /// Sets the balance of a specific `name` currency to `value`
+    /// for the specific `user`. Will create the currency if it
+    /// doesn't exist.
+    pub fn set<'db, C>(
+        db: &'db C,
+        user: &User,
+        name: CurrencyName,
+        value: u32,
+    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        let balance = self.balance.saturating_sub(amount);
+        Entity::insert(ActiveModel {
+            user_id: Set(user.id),
+            name: Set(name),
+            balance: Set(value),
+        })
+        .on_conflict(Self::set_balance_conflict())
+        .exec(db)
+    }
+
+    /// Sets multiple currency balances from an iterator of [CurrencyName] and
+    /// balance pairs.
+    pub fn set_many<'db, C, I>(
+        db: &'db C,
+        user: &User,
+        values: I,
+    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
+    where
+        C: ConnectionTrait + Send,
+        I: IntoIterator<Item = (CurrencyName, u32)>,
+    {
+        Entity::insert_many(values.into_iter().map(|(name, value)| ActiveModel {
+            user_id: Set(user.id),
+            name: Set(name),
+            // TODO: Set this as the database default
+            balance: Set(value),
+        }))
+        .on_conflict(Self::set_balance_conflict())
+        .exec(db)
+    }
+
+    /// Updates the currency balance setting it to the provided `amount`
+    pub fn update<C>(self, db: &C, amount: u32) -> impl Future<Output = DbResult<Self>> + '_
+    where
+        C: ConnectionTrait + Send,
+    {
         let mut model = self.into_active_model();
-        model.balance = Set(balance);
-        model.update(db).await
+        model.balance = Set(amount);
+        model.update(db)
     }
 
-    pub async fn get_from_user<C>(db: &C, user: &User) -> DbResult<Vec<Currency>>
+    /// Finds all the currency entities for the provided `user`
+    pub fn all<'db, C>(
+        db: &'db C,
+        user: &User,
+    ) -> impl Future<Output = DbResult<Vec<Currency>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        user.find_related(Entity).all(db).await
+        user.find_related(Entity).all(db)
     }
 
-    pub async fn get_type_from_user<C>(
-        db: &C,
+    /// Retrieves a specific currency by name
+    pub fn by_name<'db, C>(
+        db: &'db C,
         user: &User,
         name: &str,
-    ) -> DbResult<Option<Currency>>
+    ) -> impl Future<Output = DbResult<Option<Currency>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
         user.find_related(Entity)
             .filter(Column::Name.eq(name))
             .one(db)
-            .await
     }
 
-    pub async fn create_or_update_many<'a, C, I>(db: &C, user: &User, items: I) -> DbResult<()>
-    where
-        C: ConnectionTrait + Send,
-        I: IntoIterator<Item = (&'a String, &'a u32)>,
-    {
-        for (key, value) in items {
-            Self::create_or_update(db, user, key, *value).await?;
-        }
-        Ok(())
+    /// Conflict strategy for adding the balancing onto
+    /// an existing balance
+    fn add_balance_conflict() -> OnConflict {
+        // Update the value column if a key already exists
+        OnConflict::columns([Column::UserId, Column::Name])
+            .value(
+                Column::Balance,
+                // Adds the balance to the existing balance without surpassing
+                // the safe currency limit
+                Expr::cust_with_values(
+                    "(SELECT MIN(`balance` + `excluded`.`balance`, ?))",
+                    [Self::MAX_SAFE_CURRENCY],
+                ),
+            )
+            .to_owned()
     }
 
-    pub async fn create_or_update<C>(db: &C, user: &User, name: &str, value: u32) -> DbResult<Self>
+    /// Adds an amount to a specific currency balance
+    pub fn add<'db, C>(
+        db: &'db C,
+        user: &User,
+        name: CurrencyName,
+        amount: u32,
+    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        if let Some(model) = user
-            .find_related(Entity)
-            .filter(Column::Name.eq(name))
-            .one(db)
-            .await?
-        {
-            let value = model.balance.saturating_add(value).max(0);
-            let mut model = model.into_active_model();
-            model.balance = Set(value);
-            model.update(db).await
-        } else {
-            ActiveModel {
-                id: NotSet,
-                user_id: Set(user.id),
-                name: Set(name.to_string()),
-                balance: Set(value.max(0)),
-            }
-            .insert(db)
-            .await
-        }
+        Entity::insert(ActiveModel {
+            user_id: Set(user.id),
+            name: Set(name),
+            balance: Set(amount),
+        })
+        .on_conflict(Self::add_balance_conflict())
+        .exec(db)
+    }
+
+    /// Adds an amount to multiple balances
+    pub fn add_many<'db, C, I>(
+        db: &'db C,
+        user: &User,
+        values: I,
+    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
+    where
+        C: ConnectionTrait + Send,
+        I: IntoIterator<Item = (CurrencyName, u32)>,
+    {
+        Entity::insert_many(values.into_iter().map(|(name, value)| ActiveModel {
+            user_id: Set(user.id),
+            name: Set(name),
+            balance: Set(value),
+        }))
+        .on_conflict(Self::add_balance_conflict())
+        .exec(db)
     }
 }
