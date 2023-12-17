@@ -85,6 +85,9 @@ pub async fn start_mission(
 /// POST /user/mission/:id/finish
 ///
 /// Submits the details of a mission that has been finished
+///
+/// TODO: The JSON body given here seems to be not text, likey its been gzipped and
+/// isn't being handled on the client correctly
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
     Extension(game_manager): Extension<Arc<GameManager>>,
