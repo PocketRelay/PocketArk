@@ -1,5 +1,3 @@
-use std::future::Future;
-
 use super::{
     challenge_counter::{ChallengeCounterName, CounterUpdateType},
     users::UserId,
@@ -21,11 +19,13 @@ use sea_orm::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::future::Future;
 use uuid::Uuid;
 
 /// Type alias for a challenge ID
 pub type ChallengeId = Uuid;
 
+/// Challenge progress database structure
 #[skip_serializing_none]
 #[derive(Clone, Debug, DeriveEntityModel, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -80,24 +80,9 @@ pub enum Relation {
     Counter,
 }
 
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::User.def()
-    }
-}
-impl Related<super::challenge_counter::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Counter.def()
-    }
-}
-
-impl ActiveModelBehavior for ActiveModel {}
-
 impl Model {
-    pub async fn find_by_user(db: &DatabaseConnection, user: &User) -> DbResult<Vec<Self>> {
-        user.find_related(Entity).all(db).await
-    }
-
+    /// Obtains all the challenge progress (and associated counters) that
+    /// belong to the provided `user`
     pub async fn all_with_counters<C>(
         db: &C,
         user: &User,
@@ -105,18 +90,23 @@ impl Model {
     where
         C: ConnectionTrait + Send,
     {
-        let values = user
-            .find_related(Entity)
+        user.find_related(Entity)
             .find_with_related(super::challenge_counter::Entity)
             .all(db)
-            .await?
-            .into_iter()
-            .map(|(progress, counters)| ChallengeProgressWithCounters { progress, counters })
-            .collect();
-
-        Ok(values)
+            .await
+            .map(|values| {
+                // Combined the progress and counters into combined structures
+                values
+                    .into_iter()
+                    .map(|(progress, counters)| ChallengeProgressWithCounters {
+                        progress,
+                        counters,
+                    })
+                    .collect()
+            })
     }
 
+    /// Finds a specific [ChallengeProgress] by ID
     pub fn get<'db, C>(
         db: &'db C,
         user: &User,
@@ -146,6 +136,7 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         // TODO: How are challenges reset?
+        // TODO: Completion count should be independent from indvidual counters (Edit: )
 
         let now = Utc::now();
 
@@ -191,7 +182,6 @@ impl Model {
                 last_completed: Set(if completed { Some(now) } else { None }),
                 first_completed: Set(if first_completion { Some(now) } else { None }),
                 rewarded: Set(false),
-                ..Default::default()
             })
             // Returning doesn't work with composite key
             .exec_without_returning(db)
@@ -205,3 +195,16 @@ impl Model {
         Ok((model, counter, update_type))
     }
 }
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
+impl Related<super::challenge_counter::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Counter.def()
+    }
+}
+
+impl ActiveModelBehavior for ActiveModel {}

@@ -127,6 +127,7 @@ impl Badge {
     }
 }
 
+/// Describes an activity that can be used to track progress
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityDescriptor {

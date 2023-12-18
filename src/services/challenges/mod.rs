@@ -15,6 +15,22 @@ pub struct ChallengesService {
     pub defs: Vec<ChallengeDefinition>,
 }
 
+#[test]
+fn test() {
+    let defs: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS).unwrap();
+    for def in defs {
+        if def.counters.len() > 1 {
+            println!("MANY {} {}", def.name, def.counters.len());
+        } else {
+            let counter = def.counters.first().unwrap();
+            if counter.activities.len() < 1 {
+                println!("{}", counter.name);
+            }
+            // println!("{}", counter.chain_to);
+        }
+    }
+}
+
 impl ChallengesService {
     pub fn new() -> Self {
         debug!("Loading challenges");
@@ -60,14 +76,20 @@ pub struct ChallengeDefinition {
     pub categories: Vec<String>,
     pub can_repeat: bool,
     pub limited_availability: bool,
+
     pub i18n_title: Option<String>,
     pub i18n_incomplete: Option<String>,
     pub i18n_complete: Option<String>,
     pub i18n_notification: Option<String>,
     pub i18n_multi_player_notification: Option<String>,
     pub i18n_reward_description: Option<String>,
+
     pub point_value: Option<u32>,
+
+    /// Counters are stored as an array *however* from all of the challenges defined in
+    /// the based game they *always* only have one counter.
     pub counters: Vec<ChallengeCounter>,
+
     pub custom_attributes: Map<String, Value>,
     pub available_duration: Map<String, Value>,
     pub visible_duration: Map<String, Value>,
@@ -91,17 +113,32 @@ impl ChallengeDefinition {
     }
 }
 
+/// Definition for a counter that can be used to track challenge
+/// progression
+///
+/// Contains "i18nTitle" and "i18nDescription" fields however these
+/// are both blank and unused
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeCounter {
+    /// Name of the counter
     pub name: String,
+    /// Possibly used for combining counters...? No usage has been
+    /// seen in the actual game defined ones are all blank
     pub chain_to: String,
+    /// The value that when reached by [ChallengeCounter::activities] will
+    /// count as one completion for the challenge
     pub target_count: u32,
+    /// Possibly the interval that after which a challenge counter should be
+    /// reset..?
     pub interval: u32,
-    pub i18n_title: Option<String>,
-    pub i18n_description: Option<String>,
+    /// Collection of [ActivityDescriptor] that can be used for tracking progression
+    /// towards this counter.
+    ///
+    /// Can be empty if activities don't affect this counter
     pub activities: Vec<ActivityDescriptor>,
+    /// Usage unknown
     pub aggregate: Option<bool>,
 }
 
