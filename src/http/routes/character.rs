@@ -224,7 +224,9 @@ pub async fn update_skill_tree(
             for entry in tree.tree {
                 let par = par.tree.iter_mut().find(|value| value.tier == entry.tier);
                 if let Some(par) = par {
-                    par.skills = entry.skills;
+                    for (key, value) in entry.skills {
+                        par.skills.insert(key, value);
+                    }
                 }
             }
         }
