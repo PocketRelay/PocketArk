@@ -31,6 +31,11 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(ChallengeProgress::State).string().not_null())
                     .col(
+                        ColumnDef::new(ChallengeProgress::Counters)
+                            .json()
+                            .not_null(),
+                    )
+                    .col(
                         ColumnDef::new(ChallengeProgress::TimesCompleted)
                             .unsigned()
                             .not_null(),
@@ -80,6 +85,7 @@ pub enum ChallengeProgress {
     ChallengeId,
     UserId,
     State,
+    Counters,
     TimesCompleted,
     LastCompleted,
     FirstCompleted,

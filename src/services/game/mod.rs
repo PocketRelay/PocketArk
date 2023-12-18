@@ -16,7 +16,9 @@ use self::manager::GameManager;
 
 use super::{
     activity::{PrestigeData, PrestigeProgression},
-    challenges::{ChallengeName, ChallengesService, CurrencyReward},
+    challenges::{
+        ChallengeCounter, ChallengeDefinition, ChallengeName, ChallengesService, CurrencyReward,
+    },
     match_data::MatchDataService,
 };
 use crate::{
@@ -36,7 +38,7 @@ use crate::{
     database::{
         self,
         entity::{
-            challenge_counter::{ChallengeCounterName, CounterUpdateType},
+            challenge_progress::{ChallengeCounterName, CounterUpdateType},
             currency::CurrencyType,
             shared_data::SharedProgression,
             users::UserId,
@@ -148,9 +150,14 @@ impl PlayerDataBuilder {
     }
 
     pub fn add_challenge_progress(&mut self, update: ChallengeProgressChange) {
-        let existing = self.challenges_updates.iter_mut().find(|value| {
-            value.challenge == update.challenge && value.counter_name == update.counter_name
-        });
+        let existing = self
+            .challenges_updates
+            .iter_mut()
+            // Check if theres already a matching progress update
+            .find(|value| {
+                value.definition.name == update.definition.name
+                    && value.counter.name == update.counter.name
+            });
 
         if let Some(existing) = existing {
             existing.progress = existing.progress.saturating_add(update.progress);
@@ -474,23 +481,19 @@ fn process_badges(
 
 /// Temporary data for storing changes to challenges
 pub struct ChallengeProgressChange {
-    /// The name of the challenge the progress is for
-    pub challenge: ChallengeName,
+    /// The challenge definition
+    pub definition: &'static ChallengeDefinition,
+    /// The counter to change
+    pub counter: &'static ChallengeCounter,
     /// The progress made to the challenge
     pub progress: u32,
-    /// The name of the counter to update
-    pub counter_name: ChallengeCounterName,
-    /// Target for creating the counter if missing
-    pub target_count: u32,
-    /// Whether the challenge can be repeated
-    pub can_repeat: bool,
 }
 
 /// Processes challenge updates that may have occurred from the
 /// collection of `activities`
 fn process_challenges(
     activities: &[MissionActivity],
-    challenge_service: &ChallengesService,
+    challenge_service: &'static ChallengesService,
     data_builder: &mut PlayerDataBuilder,
 ) {
     activities
@@ -506,11 +509,9 @@ fn process_challenges(
         .for_each(|(definition, counter, progress)| {
             // Store the challenge changes
             data_builder.add_challenge_progress(ChallengeProgressChange {
-                challenge: definition.name,
+                definition,
+                counter,
                 progress,
-                counter_name: counter.name.clone(),
-                target_count: counter.target_count,
-                can_repeat: definition.can_repeat,
             })
         });
 }

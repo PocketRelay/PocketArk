@@ -1,8 +1,7 @@
 use sea_orm::FromJsonQueryResult;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Map;
 
-pub mod challenge_counter;
 pub mod challenge_progress;
 pub mod characters;
 pub mod class_data;
@@ -15,7 +14,6 @@ pub mod users;
 
 pub type Character = characters::Model;
 pub type ChallengeProgress = challenge_progress::Model;
-pub type ChallengeCounter = challenge_counter::Model;
 pub type Currency = currency::Model;
 pub type SharedData = shared_data::Model;
 pub type InventoryItem = inventory_items::Model;
