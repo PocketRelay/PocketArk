@@ -32,19 +32,22 @@ use crate::{
         packet::Packet,
         session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
-    database::entity::{
-        challenge_progress::{ChallengeCounterName, ProgressUpdateType},
-        currency::CurrencyType,
-        shared_data::SharedProgression,
-        users::UserId,
-        ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
+    database::{
+        self,
+        entity::{
+            challenge_counter::{ChallengeCounterName, CounterUpdateType},
+            currency::CurrencyType,
+            shared_data::SharedProgression,
+            users::UserId,
+            ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
+        },
     },
     http::models::mission::{
         CompleteMissionData, MissionActivity, MissionDetails, MissionModifier, MissionPlayerData,
         MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
     services::{
-        activity::{ChallengeStatusChange, ChallengeUpdate},
+        activity::{ChallengeStatusChange, ChallengeUpdate, ChallengeUpdateCounter},
         character::LevelTable,
     },
     state::App,
@@ -96,7 +99,7 @@ pub struct PlayerDataBuilder {
     pub total_currency: HashMap<CurrencyType, u32>,
     pub prestige_progression: PrestigeProgression,
     pub items_earned: Vec<InventoryItem>,
-    pub challenges_updates: BTreeMap<String, ChallengeUpdate>,
+    pub challenges_updates: Vec<ChallengeProgressChange>,
     pub badges: Vec<PlayerInfoBadge>,
 }
 
@@ -109,7 +112,7 @@ impl PlayerDataBuilder {
             total_currency: HashMap::new(),
             prestige_progression: PrestigeProgression::default(),
             items_earned: Vec::new(),
-            challenges_updates: BTreeMap::new(),
+            challenges_updates: Vec::new(),
             badges: Vec::new(),
         }
     }
@@ -141,6 +144,19 @@ impl PlayerDataBuilder {
             .after
             .get_or_insert(HashMap::new());
         Self::append_prestige(after, shared_data)
+    }
+
+    pub fn add_challenge_progress(&mut self, update: ChallengeProgressChange) {
+        let existing = self
+            .challenges_updates
+            .iter_mut()
+            .find(|value| value.name == update.name && value.counter_name == update.counter_name);
+
+        if let Some(existing) = existing {
+            existing.progress = existing.progress.saturating_add(update.progress);
+        } else {
+            self.challenges_updates.push(update);
+        }
     }
 
     pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
@@ -322,30 +338,34 @@ async fn process_player_data(
         &mut data_builder,
     );
 
-    // Update changed challenges
-    for (index, challenge_update) in data
-        .activity_report
-        .activities
-        .iter()
-        .filter_map(|activity| {
-            services
-                .activity
-                .process_activity(&services.challenges, activity)
-        })
-        .enumerate()
-    {
-        let (model, update_counter, status_change) =
-            ChallengeProgress::handle_update(&db, &user, challenge_update).await?;
-        let status_change = match status_change {
-            ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
-            ProgressUpdateType::Created => ChallengeStatusChange::Notify,
+    let mut challenges_updated: BTreeMap<String, ChallengeUpdate> = BTreeMap::new();
+
+    // Save challenge changes
+    for (index, change) in data_builder.challenges_updates.iter().enumerate() {
+        let (model, counter, change_type) = ChallengeProgress::update(
+            &db,
+            &user,
+            change.name,
+            change.counter_name.clone(),
+            change.progress,
+            change.counter_target,
+        )
+        .await?;
+
+        let status_change = match change_type {
+            CounterUpdateType::Changed => ChallengeStatusChange::Changed,
+            CounterUpdateType::Created => ChallengeStatusChange::Notify,
         };
 
-        data_builder.challenges_updates.insert(
+        // Store the updated challenge
+        challenges_updated.insert(
             (index + 1).to_string(),
             ChallengeUpdate {
                 challenge_id: model.challenge_id,
-                counters: vec![update_counter],
+                counters: vec![ChallengeUpdateCounter {
+                    name: counter.name,
+                    current_count: counter.current_count,
+                }],
                 status_change,
             },
         );
@@ -378,7 +398,7 @@ async fn process_player_data(
         .collect();
 
     let result = PlayerInfoResult {
-        challenges_updated: data_builder.challenges_updates,
+        challenges_updated,
         items_earned: data_builder.items_earned,
         xp_earned: data_builder.xp_earned,
         previous_xp: previous_xp.current,
@@ -491,36 +511,13 @@ fn process_challenges(
         })
         .for_each(|(challenge_name, counter, progress)| {
             // Store the challenge changes
-
-            data_builder.add_challenge_progress()
+            data_builder.add_challenge_progress(ChallengeProgressChange {
+                name: challenge_name,
+                progress,
+                counter_name: counter.name.clone(),
+                counter_target: counter.target_count,
+            })
         });
-
-    // Update changed challenges
-    for (index, challenge_update) in activities
-        .iter()
-        .filter_map(|activity| {
-            services
-                .activity
-                .process_activity(&services.challenges, activity)
-        })
-        .enumerate()
-    {
-        let (model, update_counter, status_change) =
-            ChallengeProgress::handle_update(&db, &user, challenge_update).await?;
-        let status_change = match status_change {
-            ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
-            ProgressUpdateType::Created => ChallengeStatusChange::Notify,
-        };
-
-        data_builder.challenges_updates.insert(
-            (index + 1).to_string(),
-            ChallengeUpdate {
-                challenge_id: model.challenge_id,
-                counters: vec![update_counter],
-                status_change,
-            },
-        );
-    }
 }
 
 /// Computes the xp and currency rewards from the provided match modifiers

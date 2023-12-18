@@ -33,24 +33,6 @@ impl ActivityService {
     pub fn new() -> Self {
         Self {}
     }
-
-    pub fn process_activity(
-        &self,
-        challenges: &ChallengesService,
-        activity: &MissionActivity,
-    ) -> Option<ChallengeProgressUpdate> {
-        let (definition, counter, descriptor) = challenges.get_by_activity(activity)?;
-
-        let progress = activity
-            .get_progress(&descriptor.progress_key)
-            .unwrap_or_default();
-
-        Some(ChallengeProgressUpdate {
-            progress,
-            counter,
-            definition,
-        })
-    }
 }
 
 #[skip_serializing_none]

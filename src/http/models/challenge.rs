@@ -2,7 +2,10 @@ use serde::Serialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;
 
-use crate::{database::entity::ChallengeProgress, services::challenges::ChallengeDefinition};
+use crate::{
+    database::entity::challenge_progress::ChallengeProgressWithCounters,
+    services::challenges::ChallengeDefinition,
+};
 
 #[derive(Debug, Serialize)]
 pub struct ChallengeCategories {
@@ -20,5 +23,5 @@ pub struct ChallengesResponse {
 pub struct ChallengeItem {
     #[serde(flatten)]
     pub definition: &'static ChallengeDefinition,
-    pub progress: Option<Vec<ChallengeProgress>>,
+    pub progress: Option<Vec<ChallengeProgressWithCounters>>,
 }

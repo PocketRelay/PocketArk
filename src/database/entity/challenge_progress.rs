@@ -1,4 +1,10 @@
-use super::User;
+use std::future::Future;
+
+use super::{
+    challenge_counter::{ChallengeCounterName, CounterUpdateType},
+    users::UserId,
+    ChallengeCounter, ChallengeProgress, User,
+};
 use crate::{
     database::DbResult,
     services::{
@@ -17,47 +23,48 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
+/// Type alias for a challenge ID
+pub type ChallengeId = Uuid;
+
 #[skip_serializing_none]
-#[derive(Clone, Debug, DeriveEntityModel, Serialize, Deserialize)]
+#[derive(Clone, Debug, DeriveEntityModel, Serialize)]
 #[serde(rename_all = "camelCase")]
 #[sea_orm(table_name = "challenge_progress")]
 pub struct Model {
     #[sea_orm(primary_key)]
     #[serde(skip)]
-    pub user_id: u32,
+    pub user_id: UserId,
     #[sea_orm(primary_key)]
-    pub challenge_id: Uuid,
-
-    pub counters: ChallengeCounters,
-    pub state: String,
+    pub challenge_id: ChallengeId,
+    /// The current state of the challenge
+    pub state: ChallengeState,
     pub times_completed: u32,
     pub last_completed: Option<DateTime<Utc>>,
     pub first_completed: Option<DateTime<Utc>>,
     pub last_changed: DateTime<Utc>,
     pub rewarded: bool,
 }
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct ChallengeCounters(Vec<ChallengeProgressCounter>);
 
-/// Type alias for a [String] representing the name of a [ChallengeProgressCounter]
-pub type ChallengeCounterName = String;
-
-#[derive(Debug, Clone, Serialize, PartialEq, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ChallengeProgressCounter {
-    pub name: ChallengeCounterName,
-    pub times_completed: u32,
-    pub total_count: u32,
-    pub current_count: u32,
-    pub target_count: u32,
-    pub reset_count: u32,
-    pub last_changed: DateTime<Utc>,
+#[derive(Debug, Clone, Serialize)]
+pub struct ChallengeProgressWithCounters {
+    /// The challenge progress
+    #[serde(flatten)]
+    pub progress: Model,
+    /// The counters associated with this challenge progress
+    pub counters: Vec<ChallengeCounter>,
 }
 
-pub enum ProgressUpdateType {
-    Changed,
-    Created,
+/// Enum for the different known challenge states
+#[derive(
+    Debug, EnumIter, DeriveActiveEnum, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash,
+)]
+#[sea_orm(rs_type = "u8", db_type = "Integer")]
+#[repr(u8)]
+pub enum ChallengeState {
+    #[serde(rename = "IN_PROGRESS")]
+    InProgress = 0,
+    #[serde(rename = "COMPLETED")]
+    Completed = 1,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -68,6 +75,9 @@ pub enum Relation {
         to = "super::users::Column::Id"
     )]
     User,
+
+    #[sea_orm(has_many = "super::challenge_counter::Entity")]
+    Counter,
 }
 
 impl Related<super::users::Entity> for Entity {
@@ -75,6 +85,12 @@ impl Related<super::users::Entity> for Entity {
         Relation::User.def()
     }
 }
+impl Related<super::challenge_counter::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Counter.def()
+    }
+}
+
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
@@ -82,105 +98,110 @@ impl Model {
         user.find_related(Entity).all(db).await
     }
 
-    pub async fn update<C>(
-        db: C,
-        user: &User,
-        change: ChallengeProgressChange,
-    ) -> DbResult<(Self, ChallengeStatusChange)> {
-        let now = Utc::now();
-
-        user.find_related(Entity).filter(Column::ChallengeId)
-    }
-
-    pub async fn handle_update<C>(
+    pub async fn all_with_counters<C>(
         db: &C,
         user: &User,
-        update: ChallengeProgressUpdate,
-    ) -> DbResult<(Self, ChallengeUpdateCounter, ProgressUpdateType)>
+    ) -> DbResult<Vec<ChallengeProgressWithCounters>>
     where
         C: ConnectionTrait + Send,
     {
-        let mut update_counter = ChallengeUpdateCounter {
-            current_count: update.progress,
-            name: update.counter.name.clone(),
-        };
-
-        // TODO: Handling for interval field and resetting?
-
-        if let Some(mut progress) = user
+        let values = user
             .find_related(Entity)
-            .filter(Column::ChallengeId.eq(update.definition.name))
-            .one(db)
+            .find_with_related(super::challenge_counter::Entity)
+            .all(db)
             .await?
-        {
-            let now = Utc::now();
-            let last_complete = progress.times_completed;
-            let mut times_complete = progress.times_completed;
-            let counter = progress
-                .counters
-                .0
-                .iter_mut()
-                .find(|counter| counter.name.eq(&update.counter.name));
+            .into_iter()
+            .map(|(progress, counters)| ChallengeProgressWithCounters { progress, counters })
+            .collect();
 
-            if let Some(counter) = counter {
-                counter.target_count = update.counter.target_count;
+        Ok(values)
+    }
 
-                let new_count = counter.current_count.saturating_add(update.progress);
-                counter.current_count = new_count.min(counter.target_count);
-                counter.total_count = counter.total_count.saturating_add(update.progress);
+    pub fn get<'db, C>(
+        db: &'db C,
+        user: &User,
+        challenge: ChallengeId,
+    ) -> impl Future<Output = DbResult<Option<Self>>> + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find()
+            .filter(
+                Column::UserId
+                    .eq(user.id)
+                    .and(Column::ChallengeId.eq(challenge)),
+            )
+            .one(db)
+    }
 
-                update_counter.current_count = counter.current_count;
+    pub async fn update<C>(
+        db: &C,
+        user: &User,
+        challenge: ChallengeId,
+        counter_name: ChallengeCounterName,
+        progress: u32,
+        counter_target: u32,
+    ) -> DbResult<(Self, ChallengeCounter, CounterUpdateType)>
+    where
+        C: ConnectionTrait + Send,
+    {
+        // TODO: How are challenges reset?
 
-                if counter.current_count == counter.target_count {
-                    counter.times_completed += 1;
-                    times_complete += 1;
-                }
+        let now = Utc::now();
 
-                counter.last_changed = now;
-            }
+        // Update the counter value
+        let (counter, update_type, original_times, times_completed) =
+            ChallengeCounter::increase(db, user, challenge, counter_name, progress, counter_target)
+                .await?;
 
-            let mut model = progress.into_active_model();
-            model.times_completed = Set(times_complete);
-            model.counters = Set(model.counters.take().expect("Missing counters"));
+        // First completion
+        let first_completion = original_times == 0 && times_completed > 0;
+        // Challenge counter was completed
+        let completed = original_times != times_completed;
+
+        let existing = Self::get(db, user, challenge).await?;
+        let model = if let Some(existing) = existing {
+            let mut model = existing.into_active_model();
+            model.times_completed = Set(times_completed);
             model.last_changed = Set(now);
 
-            if times_complete != last_complete {
-                model.last_completed = Set(Some(now));
-                if times_complete == 1 {
-                    model.first_completed = Set(Some(now))
-                }
+            // Update completion times
+            if first_completion {
+                model.first_completed = Set(Some(now));
             }
 
-            let model = model.update(db).await?;
+            if completed {
+                model.last_completed = Set(Some(now));
+                model.state = Set(ChallengeState::Completed);
+            }
 
-            Ok((model, update_counter, ProgressUpdateType::Changed))
+            model.update(db).await?
         } else {
-            let now = Utc::now();
-
-            let counter = ChallengeProgressCounter {
-                name: update.counter.name.to_string(),
-                times_completed: 0,
-                total_count: update.progress,
-                current_count: update.progress,
-                target_count: update.counter.target_count,
-                reset_count: 0,
-                last_changed: now,
-            };
-            let model = ActiveModel {
-                id: NotSet,
+            // Create new model
+            Entity::insert(ActiveModel {
                 user_id: Set(user.id),
-                challenge_id: Set(update.definition.name),
-                counters: Set(ChallengeCounters(vec![counter])),
-                state: Set("IN_PROGRESS".to_string()),
-                times_completed: Set(0),
+                challenge_id: Set(challenge),
+                state: Set(if completed {
+                    ChallengeState::Completed
+                } else {
+                    ChallengeState::InProgress
+                }),
+                times_completed: Set(times_completed),
                 last_changed: Set(now),
+                last_completed: Set(if completed { Some(now) } else { None }),
+                first_completed: Set(if first_completion { Some(now) } else { None }),
                 rewarded: Set(false),
-                last_completed: Set(None),
-                first_completed: Set(None),
-            };
-            // todo: apply rewards
-            let model = model.insert(db).await?;
-            Ok((model, update_counter, ProgressUpdateType::Created))
-        }
+                ..Default::default()
+            })
+            // Returning doesn't work with composite key
+            .exec_without_returning(db)
+            .await?;
+
+            // Progress must be loaded manually
+            Self::get(db, user, challenge)
+                .await?
+                .ok_or(DbErr::RecordNotInserted)?
+        };
+        Ok((model, counter, update_type))
     }
 }

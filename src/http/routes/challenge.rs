@@ -29,7 +29,7 @@ pub async fn get_challenges(
 ) -> Result<Json<ChallengesResponse>, HttpError> {
     let services = App::services();
 
-    let user_progress = ChallengeProgress::find_by_user(&db, &user).await?;
+    let user_progress = ChallengeProgress::all_with_counters(&db, &user).await?;
 
     let challenges: Vec<ChallengeItem> = services
         .challenges
@@ -38,7 +38,7 @@ pub async fn get_challenges(
         .map(|definition| {
             let progress = user_progress
                 .iter()
-                .filter(|value| value.challenge_id == definition.name)
+                .filter(|value| value.progress.challenge_id == definition.name)
                 .cloned()
                 .collect::<Vec<_>>();
             ChallengeItem {
@@ -65,7 +65,7 @@ pub async fn get_user_challenges(
 ) -> Result<Json<ChallengesResponse>, HttpError> {
     let services = App::services();
 
-    let user_progress = ChallengeProgress::find_by_user(&db, &user).await?;
+    let user_progress = ChallengeProgress::all_with_counters(&db, &user).await?;
 
     let challenges: Vec<ChallengeItem> = services
         .challenges
@@ -74,7 +74,7 @@ pub async fn get_user_challenges(
         .filter_map(|definition| {
             let progress = user_progress
                 .iter()
-                .filter(|value| value.challenge_id == definition.name)
+                .filter(|value| value.progress.challenge_id == definition.name)
                 .cloned()
                 .collect::<Vec<_>>();
             if progress.is_empty() {

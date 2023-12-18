@@ -29,11 +29,6 @@ impl MigrationTrait for Migration {
                             .uuid()
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(ChallengeProgress::Counters)
-                            .json()
-                            .not_null(),
-                    )
                     .col(ColumnDef::new(ChallengeProgress::State).string().not_null())
                     .col(
                         ColumnDef::new(ChallengeProgress::TimesCompleted)
@@ -80,12 +75,10 @@ impl MigrationTrait for Migration {
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum ChallengeProgress {
+pub enum ChallengeProgress {
     Table,
-    Id,
     ChallengeId,
     UserId,
-    Counters,
     State,
     TimesCompleted,
     LastCompleted,
