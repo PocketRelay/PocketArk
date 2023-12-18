@@ -5,10 +5,7 @@ use serde_json::Value;
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-use super::{
-    challenges::{ChallengeProgressUpdate, ChallengesService},
-    items::ItemDefinition,
-};
+use super::items::ItemDefinition;
 use crate::{
     database::entity::{Currency, InventoryItem},
     http::models::mission::MissionActivity,
@@ -29,10 +26,6 @@ impl ActivityService {
     pub const SKILL_PURCHASED: &'static str = "_skillPurchased";
     pub const CHARACTER_LEVEL_UP: &'static str = "_characterLevelUp";
     pub const STRIKE_TEAM_RECRUITED: &'static str = "_strikeTeamRecruited";
-
-    pub fn new() -> Self {
-        Self {}
-    }
 }
 
 #[skip_serializing_none]

@@ -5,7 +5,7 @@ use crate::{
     database::DbResult,
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter},
-        challenges::{ChallengeName, ChallengeProgressUpdate},
+        challenges::ChallengeName,
         game::ChallengeProgressChange,
     },
 };
@@ -140,34 +140,37 @@ impl Model {
     pub async fn increase<C>(
         db: &C,
         user: &User,
-        challenge: ChallengeId,
-        name: ChallengeCounterName,
-        progress: u32,
-        target_count: u32,
+        change: &ChallengeProgressChange,
     ) -> DbResult<(Self, CounterUpdateType, u32, u32)>
     where
         C: ConnectionTrait + Send,
     {
         let now = Utc::now();
 
-        let existing = Self::get(db, user, challenge, &name).await?;
+        let existing = Self::get(db, user, change.challenge, &change.counter_name).await?;
 
         if let Some(existing) = existing {
             // The original number of completions
             let mut original_times = existing.times_completed;
 
-            let mut progress = progress;
+            let mut progress = change.progress;
 
             let mut times_completed = existing.times_completed;
             let mut current_count = existing.current_count.saturating_add(progress);
             let mut total_count = existing.total_count.saturating_add(progress);
 
-            // Handle completions
-            while current_count > target_count {
-                // Remove the target amount
-                current_count -= target_count;
-                // Increase the times completed
-                times_completed += 1;
+            // Handle repeated
+            if change.can_repeat {
+                // Handle completions
+                while current_count > change.target_count {
+                    // Remove the target amount
+                    current_count -= change.target_count;
+                    // Increase the times completed
+                    times_completed += 1;
+                }
+            } else if current_count > change.target_count {
+                current_count = change.target_count;
+                times_completed = 1;
             }
 
             // Save the changes to the database
@@ -176,7 +179,7 @@ impl Model {
             model.current_count = Set(current_count);
             model.total_count = Set(total_count);
             // Override existing target count (DB is not source of truth)
-            model.target_count = Set(target_count);
+            model.target_count = Set(change.target_count);
             model.last_changed = Set(now);
             let model = model.update(db).await?;
 
@@ -188,24 +191,30 @@ impl Model {
             ))
         } else {
             let mut times_completed = 0;
-            let mut current_count = progress;
+            let mut current_count = change.progress;
 
-            // Handle completions
-            while current_count > target_count {
-                // Remove the target amount
-                current_count -= target_count;
-                // Increase the times completed
-                times_completed += 1;
+            // Handle repeated
+            if change.can_repeat {
+                // Handle completions
+                while current_count > change.target_count {
+                    // Remove the target amount
+                    current_count -= change.target_count;
+                    // Increase the times completed
+                    times_completed += 1;
+                }
+            } else if current_count > change.target_count {
+                current_count = change.target_count;
+                times_completed = 1;
             }
 
             // Create new model
             Entity::insert(ActiveModel {
                 user_id: Set(user.id),
-                challenge_id: Set(challenge),
-                name: Set(name.clone()),
-                total_count: Set(progress),
+                challenge_id: Set(change.challenge),
+                name: Set(change.counter_name.clone()),
+                total_count: Set(change.progress),
                 current_count: Set(current_count),
-                target_count: Set(target_count),
+                target_count: Set(change.target_count),
                 last_changed: Set(now),
                 times_completed: Set(times_completed),
                 ..Default::default()
@@ -215,7 +224,7 @@ impl Model {
             .await?;
 
             // Counter must be loaded manually
-            let counter = Self::get(db, user, challenge, &name)
+            let counter = Self::get(db, user, change.challenge, &change.counter_name)
                 .await?
                 .ok_or(DbErr::RecordNotInserted)?;
 

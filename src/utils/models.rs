@@ -1,3 +1,6 @@
+use std::str::FromStr;
+
+use sea_orm::prelude::DateTimeUtc;
 use serde::{
     de::{MapAccess, Visitor},
     ser::SerializeStruct,
@@ -118,4 +121,12 @@ impl<'de> Deserialize<'de> for Sku {
 
         Ok(Self)
     }
+}
+
+/// Represents a duration of time that something will be available for.
+/// Can be open ended by only specifying a start/end
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DateDuration {
+    pub start: Option<DateTimeUtc>,
+    pub end: Option<DateTimeUtc>,
 }

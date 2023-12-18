@@ -6,6 +6,7 @@ use std::{
 use chrono::Utc;
 use log::{debug, error};
 use sea_orm::{DatabaseConnection, DbErr};
+use serde::de;
 use tdf::{ObjectId, TdfMap};
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -147,10 +148,9 @@ impl PlayerDataBuilder {
     }
 
     pub fn add_challenge_progress(&mut self, update: ChallengeProgressChange) {
-        let existing = self
-            .challenges_updates
-            .iter_mut()
-            .find(|value| value.name == update.name && value.counter_name == update.counter_name);
+        let existing = self.challenges_updates.iter_mut().find(|value| {
+            value.challenge == update.challenge && value.counter_name == update.counter_name
+        });
 
         if let Some(existing) = existing {
             existing.progress = existing.progress.saturating_add(update.progress);
@@ -342,15 +342,7 @@ async fn process_player_data(
 
     // Save challenge changes
     for (index, change) in data_builder.challenges_updates.iter().enumerate() {
-        let (model, counter, change_type) = ChallengeProgress::update(
-            &db,
-            &user,
-            change.name,
-            change.counter_name.clone(),
-            change.progress,
-            change.counter_target,
-        )
-        .await?;
+        let (model, counter, change_type) = ChallengeProgress::update(&db, &user, change).await?;
 
         let status_change = match change_type {
             CounterUpdateType::Changed => ChallengeStatusChange::Changed,
@@ -483,13 +475,15 @@ fn process_badges(
 /// Temporary data for storing changes to challenges
 pub struct ChallengeProgressChange {
     /// The name of the challenge the progress is for
-    pub name: ChallengeName,
+    pub challenge: ChallengeName,
     /// The progress made to the challenge
     pub progress: u32,
     /// The name of the counter to update
     pub counter_name: ChallengeCounterName,
     /// Target for creating the counter if missing
-    pub counter_target: u32,
+    pub target_count: u32,
+    /// Whether the challenge can be repeated
+    pub can_repeat: bool,
 }
 
 /// Processes challenge updates that may have occurred from the
@@ -507,15 +501,16 @@ fn process_challenges(
             // Only include activities with current progress
             let progress = activity.get_progress(&descriptor.progress_key)?;
 
-            Some((definition.name, counter, progress))
+            Some((definition, counter, progress))
         })
-        .for_each(|(challenge_name, counter, progress)| {
+        .for_each(|(definition, counter, progress)| {
             // Store the challenge changes
             data_builder.add_challenge_progress(ChallengeProgressChange {
-                name: challenge_name,
+                challenge: definition.name,
                 progress,
                 counter_name: counter.name.clone(),
-                counter_target: counter.target_count,
+                target_count: counter.target_count,
+                can_repeat: definition.can_repeat,
             })
         });
 }

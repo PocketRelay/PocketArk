@@ -7,7 +7,7 @@ use crate::{
     database::DbResult,
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter},
-        challenges::{ChallengeName, ChallengeProgressUpdate},
+        challenges::ChallengeName,
         game::ChallengeProgressChange,
     },
 };
@@ -127,30 +127,25 @@ impl Model {
     pub async fn update<C>(
         db: &C,
         user: &User,
-        challenge: ChallengeId,
-        counter_name: ChallengeCounterName,
-        progress: u32,
-        counter_target: u32,
+        change: ChallengeProgressChange,
     ) -> DbResult<(Self, ChallengeCounter, CounterUpdateType)>
     where
         C: ConnectionTrait + Send,
     {
         // TODO: How are challenges reset?
-        // TODO: Completion count should be independent from indvidual counters (Edit: )
 
         let now = Utc::now();
 
         // Update the counter value
         let (counter, update_type, original_times, times_completed) =
-            ChallengeCounter::increase(db, user, challenge, counter_name, progress, counter_target)
-                .await?;
+            ChallengeCounter::increase(db, user, &change).await?;
 
         // First completion
         let first_completion = original_times == 0 && times_completed > 0;
         // Challenge counter was completed
         let completed = original_times != times_completed;
 
-        let existing = Self::get(db, user, challenge).await?;
+        let existing = Self::get(db, user, change.challenge).await?;
         let model = if let Some(existing) = existing {
             let mut model = existing.into_active_model();
             model.times_completed = Set(times_completed);
@@ -171,7 +166,7 @@ impl Model {
             // Create new model
             Entity::insert(ActiveModel {
                 user_id: Set(user.id),
-                challenge_id: Set(challenge),
+                challenge_id: Set(change.challenge),
                 state: Set(if completed {
                     ChallengeState::Completed
                 } else {
@@ -188,7 +183,7 @@ impl Model {
             .await?;
 
             // Progress must be loaded manually
-            Self::get(db, user, challenge)
+            Self::get(db, user, change.challenge)
                 .await?
                 .ok_or(DbErr::RecordNotInserted)?
         };
