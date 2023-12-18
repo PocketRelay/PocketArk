@@ -127,7 +127,7 @@ impl Model {
     pub async fn update<C>(
         db: &C,
         user: &User,
-        change: ChallengeProgressChange,
+        change: &ChallengeProgressChange,
     ) -> DbResult<(Self, ChallengeCounter, CounterUpdateType)>
     where
         C: ConnectionTrait + Send,
@@ -138,7 +138,7 @@ impl Model {
 
         // Update the counter value
         let (counter, update_type, original_times, times_completed) =
-            ChallengeCounter::increase(db, user, &change).await?;
+            ChallengeCounter::increase(db, user, change).await?;
 
         // First completion
         let first_completion = original_times == 0 && times_completed > 0;

@@ -58,6 +58,7 @@ impl ChallengesService {
 /// Type alias for a [Uuid] representing the name of a [ChallengeDefinition]
 pub type ChallengeName = Uuid;
 
+/// Defines a challenge
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -113,7 +114,8 @@ pub struct ChallengeDefinition {
 }
 
 impl ChallengeDefinition {
-    /// Attempts to find
+    /// Attempts to find a counter associated to this definition that
+    /// matches the provided `activity`
     pub fn get_by_activity(
         &self,
         activity: &MissionActivity,
