@@ -13,21 +13,20 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(ChallengeProgress::Table)
                     .if_not_exists()
-                    .col(
-                        ColumnDef::new(ChallengeProgress::Id)
-                            .unsigned()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
-                    )
-                    .col(
-                        ColumnDef::new(ChallengeProgress::ChallengeId)
-                            .uuid()
-                            .not_null(),
+                    // This table uses a composite key over the UserId and ChallengeId
+                    .primary_key(
+                        Index::create()
+                            .col(ChallengeProgress::UserId)
+                            .col(ChallengeProgress::ChallengeId),
                     )
                     .col(
                         ColumnDef::new(ChallengeProgress::UserId)
                             .unsigned()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(ChallengeProgress::ChallengeId)
+                            .uuid()
                             .not_null(),
                     )
                     .col(

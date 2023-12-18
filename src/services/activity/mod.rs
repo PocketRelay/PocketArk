@@ -5,7 +5,10 @@ use serde_json::Value;
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-use super::{challenges::ChallengeProgressUpdate, items::ItemDefinition};
+use super::{
+    challenges::{ChallengeProgressUpdate, ChallengesService},
+    items::ItemDefinition,
+};
 use crate::{
     database::entity::{Currency, InventoryItem},
     http::models::mission::MissionActivity,
@@ -31,9 +34,12 @@ impl ActivityService {
         Self {}
     }
 
-    pub fn process_activity(&self, activity: &MissionActivity) -> Option<ChallengeProgressUpdate> {
-        let services = App::services();
-        let (definition, counter, descriptor) = services.challenges.get_by_activity(activity)?;
+    pub fn process_activity(
+        &self,
+        challenges: &ChallengesService,
+        activity: &MissionActivity,
+    ) -> Option<ChallengeProgressUpdate> {
+        let (definition, counter, descriptor) = challenges.get_by_activity(activity)?;
 
         let progress = activity
             .get_progress(&descriptor.progress_key)

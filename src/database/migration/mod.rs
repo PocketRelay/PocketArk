@@ -9,6 +9,7 @@ mod m20230714_112535_create_shared_data;
 mod m20230714_113455_create_class_data;
 mod m20230720_145347_create_challenge_progress;
 mod m20230731_123814_create_strike_teams;
+mod m20231218_130320_create_challenge_counter;
 
 pub struct Migrator;
 
@@ -25,6 +26,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20230714_113455_create_class_data::Migration),
             Box::new(m20230720_145347_create_challenge_progress::Migration),
             Box::new(m20230731_123814_create_strike_teams::Migration),
+            Box::new(m20231218_130320_create_challenge_counter::Migration),
         ]
     }
 }

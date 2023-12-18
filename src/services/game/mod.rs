@@ -15,7 +15,7 @@ use self::manager::GameManager;
 
 use super::{
     activity::{PrestigeData, PrestigeProgression},
-    challenges::CurrencyReward,
+    challenges::{ChallengeName, ChallengesService, CurrencyReward},
     match_data::MatchDataService,
 };
 use crate::{
@@ -33,9 +33,11 @@ use crate::{
         session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
     database::entity::{
-        challenge_progress::ProgressUpdateType, currency::CurrencyType,
-        shared_data::SharedProgression, users::UserId, ChallengeProgress, Character, Currency,
-        InventoryItem, SharedData, User,
+        challenge_progress::{ChallengeCounterName, ProgressUpdateType},
+        currency::CurrencyType,
+        shared_data::SharedProgression,
+        users::UserId,
+        ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
     },
     http::models::mission::{
         CompleteMissionData, MissionActivity, MissionDetails, MissionModifier, MissionPlayerData,
@@ -314,12 +316,22 @@ async fn process_player_data(
 
     debug!("Process challenges");
 
+    process_challenges(
+        &data.activity_report.activities,
+        &services.challenges,
+        &mut data_builder,
+    );
+
     // Update changed challenges
     for (index, challenge_update) in data
         .activity_report
         .activities
         .iter()
-        .filter_map(|activity| services.activity.process_activity(activity))
+        .filter_map(|activity| {
+            services
+                .activity
+                .process_activity(&services.challenges, activity)
+        })
         .enumerate()
     {
         let (model, update_counter, status_change) =
@@ -446,6 +458,69 @@ fn process_badges(
                 name: badge.name,
             });
         });
+}
+
+/// Temporary data for storing changes to challenges
+pub struct ChallengeProgressChange {
+    /// The name of the challenge the progress is for
+    pub name: ChallengeName,
+    /// The progress made to the challenge
+    pub progress: u32,
+    /// The name of the counter to update
+    pub counter_name: ChallengeCounterName,
+    /// Target for creating the counter if missing
+    pub counter_target: u32,
+}
+
+/// Processes challenge updates that may have occurred from the
+/// collection of `activities`
+fn process_challenges(
+    activities: &[MissionActivity],
+    challenge_service: &ChallengesService,
+    data_builder: &mut PlayerDataBuilder,
+) {
+    activities
+        .iter()
+        // Find activities with associated challenges
+        .filter_map(|activity| {
+            let (definition, counter, descriptor) = challenge_service.get_by_activity(activity)?;
+            // Only include activities with current progress
+            let progress = activity.get_progress(&descriptor.progress_key)?;
+
+            Some((definition.name, counter, progress))
+        })
+        .for_each(|(challenge_name, counter, progress)| {
+            // Store the challenge changes
+
+            data_builder.add_challenge_progress()
+        });
+
+    // Update changed challenges
+    for (index, challenge_update) in activities
+        .iter()
+        .filter_map(|activity| {
+            services
+                .activity
+                .process_activity(&services.challenges, activity)
+        })
+        .enumerate()
+    {
+        let (model, update_counter, status_change) =
+            ChallengeProgress::handle_update(&db, &user, challenge_update).await?;
+        let status_change = match status_change {
+            ProgressUpdateType::Changed => ChallengeStatusChange::Changed,
+            ProgressUpdateType::Created => ChallengeStatusChange::Notify,
+        };
+
+        data_builder.challenges_updates.insert(
+            (index + 1).to_string(),
+            ChallengeUpdate {
+                challenge_id: model.challenge_id,
+                counters: vec![update_counter],
+                status_change,
+            },
+        );
+    }
 }
 
 /// Computes the xp and currency rewards from the provided match modifiers

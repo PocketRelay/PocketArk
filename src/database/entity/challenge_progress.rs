@@ -1,7 +1,11 @@
 use super::User;
 use crate::{
     database::DbResult,
-    services::{activity::ChallengeUpdateCounter, challenges::ChallengeProgressUpdate},
+    services::{
+        activity::{ChallengeStatusChange, ChallengeUpdateCounter},
+        challenges::{ChallengeName, ChallengeProgressUpdate},
+        game::ChallengeProgressChange,
+    },
 };
 use chrono::{DateTime, Utc};
 use sea_orm::{
@@ -20,11 +24,10 @@ use uuid::Uuid;
 pub struct Model {
     #[sea_orm(primary_key)]
     #[serde(skip)]
-    pub id: u32,
-    #[serde(skip)]
     pub user_id: u32,
-
+    #[sea_orm(primary_key)]
     pub challenge_id: Uuid,
+
     pub counters: ChallengeCounters,
     pub state: String,
     pub times_completed: u32,
@@ -37,10 +40,13 @@ pub struct Model {
 #[serde(transparent)]
 pub struct ChallengeCounters(Vec<ChallengeProgressCounter>);
 
+/// Type alias for a [String] representing the name of a [ChallengeProgressCounter]
+pub type ChallengeCounterName = String;
+
 #[derive(Debug, Clone, Serialize, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeProgressCounter {
-    pub name: String,
+    pub name: ChallengeCounterName,
     pub times_completed: u32,
     pub total_count: u32,
     pub current_count: u32,
@@ -74,6 +80,16 @@ impl ActiveModelBehavior for ActiveModel {}
 impl Model {
     pub async fn find_by_user(db: &DatabaseConnection, user: &User) -> DbResult<Vec<Self>> {
         user.find_related(Entity).all(db).await
+    }
+
+    pub async fn update<C>(
+        db: C,
+        user: &User,
+        change: ChallengeProgressChange,
+    ) -> DbResult<(Self, ChallengeStatusChange)> {
+        let now = Utc::now();
+
+        user.find_related(Entity).filter(Column::ChallengeId)
     }
 
     pub async fn handle_update<C>(

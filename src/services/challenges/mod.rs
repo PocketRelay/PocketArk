@@ -47,11 +47,14 @@ pub struct ChallengeProgressUpdate {
     pub definition: &'static ChallengeDefinition,
 }
 
+/// Type alias for a [Uuid] representing the name of a [ChallengeDefinition]
+pub type ChallengeName = Uuid;
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeDefinition {
-    pub name: Uuid,
+    pub name: ChallengeName,
     pub description: String,
     pub enabled: bool,
     pub categories: Vec<String>,
