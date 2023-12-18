@@ -18,7 +18,7 @@ use crate::{
 
 use super::{
     connect_database,
-    entity::{Character, InventoryItem, User},
+    entity::{currency::CurrencyType, Character, InventoryItem, User},
 };
 
 #[tokio::test]
@@ -39,7 +39,17 @@ pub async fn seed() {
     // InventoryItem::create_default(&db, &user, &items, &characters)
     //     .await
     //     .unwrap();
-    Currency::set_default(&db, &user).await.unwrap();
+    Currency::set_many(
+        &db,
+        &user,
+        [
+            (CurrencyType::Mtx, Currency::MAX_SAFE_CURRENCY),
+            (CurrencyType::Grind, Currency::MAX_SAFE_CURRENCY),
+            (CurrencyType::Mission, Currency::MAX_SAFE_CURRENCY),
+        ],
+    )
+    .await
+    .unwrap();
     SharedData::create_default(&db, &user).await.unwrap();
     // StrikeTeam::create_default(&db, &user).await.unwrap();
 

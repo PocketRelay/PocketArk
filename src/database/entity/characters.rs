@@ -132,8 +132,12 @@ impl Model {
     where
         C: ConnectionTrait + Send,
     {
-        const DEFAULT_LEVEL: u32 = 1;
-        const DEFAULT_SKILL_POINTS: u32 = 2;
+        // const DEFAULT_LEVEL: u32 = 1;
+        // const DEFAULT_SKILL_POINTS: u32 = 2;
+
+        // Testing values
+        const DEFAULT_LEVEL: u32 = 20;
+        const DEFAULT_SKILL_POINTS: u32 = 255;
 
         let class_def = match characters.classes.by_item(item_name) {
             Some(value) => value,
