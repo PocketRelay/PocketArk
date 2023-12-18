@@ -29,7 +29,11 @@ impl MigrationTrait for Migration {
                             .uuid()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(ChallengeProgress::State).string().not_null())
+                    .col(
+                        ColumnDef::new(ChallengeProgress::State)
+                            .unsigned()
+                            .not_null(),
+                    )
                     .col(
                         ColumnDef::new(ChallengeProgress::Counters)
                             .json()
