@@ -494,7 +494,7 @@ fn process_challenges(
         .filter_map(|activity| {
             let (definition, counter, descriptor) = challenge_service.get_by_activity(activity)?;
             // Only include activities with current progress
-            let progress = activity.get_progress(&descriptor.progress_key)?;
+            let progress = activity.attribute_u32(&descriptor.progress_key)?;
 
             Some((definition, counter, progress))
         })

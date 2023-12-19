@@ -57,19 +57,19 @@ pub async fn obtain_article(
     debug!("Requested buy store article: {:?}", req);
 
     let services = App::services();
+    let store_service = &services.store;
+    let items_service = &services.items;
 
     // Find the article we are looking for
-    let article = services
-        .store
+    let article = store_service
         .catalog
         .articles
         .iter()
-        .find(|value| value.name.ends_with(&req.article_name))
+        .find(|value| value.name == req.article_name)
         .ok_or(HttpError::new("Unknown article", StatusCode::NOT_FOUND))?;
 
     // Find the item the user is trying to buy from the article
-    let article_item = services
-        .items
+    let article_item = items_service
         .items
         .by_name(&article.item_name)
         .ok_or(HttpError::new(
@@ -89,6 +89,7 @@ pub async fn obtain_article(
 
     // Update the currencies (attempting to pay)
     let mut currencies = Vec::with_capacity(user_currencies.len());
+
     let mut paid: bool = false;
     for mut currency in user_currencies {
         if currency.ty == req.currency && currency.balance >= price.final_price {

@@ -8,17 +8,37 @@ use super::items::ItemDefinition;
 use crate::{
     database::entity::{
         challenge_progress::{ChallengeCounterName, ChallengeId},
-        Currency, InventoryItem,
+        Currency, InventoryItem, User,
     },
     state::App,
 };
+use sea_orm::DbErr;
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::{Number, Value};
 use serde_with::skip_serializing_none;
 use std::collections::{BTreeMap, HashMap};
+use thiserror::Error;
 use uuid::Uuid;
 
 pub struct ActivityService;
+
+#[derive(Debug, Error)]
+pub enum ActivityError {
+    #[error(transparent)]
+    Database(#[from] DbErr),
+}
+
+impl ActivityService {
+    pub async fn process_activity<'db, C>(
+        db: &'db C,
+        user: &User,
+        activity: ActivityEvent,
+    ) -> Result<ActivityResult, ActivityError> {
+        // TODO: Update challenges
+        // TODO: Process event
+        Ok(ActivityResult::default())
+    }
+}
 
 /// Represents the name for an activity, contains built in
 /// server activity types along with the [Uuid] variant for
@@ -26,12 +46,26 @@ pub struct ActivityService;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityName {
     /// Item was consumed
+    ///
+    /// Known attributes:
+    /// - category (string)
+    /// - definitionName (string uuid)
+    /// - count (number)
     #[serde(rename = "_itemConsumed")]
     ItemConsumed,
     /// Badge was earned on game completion
+    ///
+    /// Known attributes:
+    /// - badgeName (string)
+    /// - count (number)
     #[serde(rename = "_badgeEarned")]
     BadgeEarned,
     /// Article was purchased from the store
+    ///
+    /// Known attributes:
+    /// - currencyName (string)
+    /// - articleName (string uuid)
+    /// - count (number)
     #[serde(rename = "_articlePurchased")]
     ArticlePurchased,
     /// Mission was finished
@@ -126,16 +160,22 @@ pub enum ActivityAttribute {
 }
 
 impl ActivityEvent {
-    /// Obtains the current progress from the activity attributes
-    /// based on the provided `key`.
-    ///
-    /// Returns [None] if the progress value was invalid
-    /// or missing
-    pub fn get_progress(&self, key: &str) -> Option<u32> {
+    pub fn attribute_string(&self, key: &str) -> Option<&String> {
         self.attributes
             // Get the progress value
             .get(key)
-            // Take the number progress value
+            // Take the string value
+            .and_then(|value| match value {
+                ActivityAttribute::String(value) => Some(value),
+                ActivityAttribute::Number(_) => None,
+            })
+    }
+
+    pub fn attribute_u32(&self, key: &str) -> Option<u32> {
+        self.attributes
+            // Get the progress value
+            .get(key)
+            // Take the number value
             .and_then(|value| match value {
                 ActivityAttribute::String(_) => None,
                 ActivityAttribute::Number(value) => value.as_u64(),
@@ -148,7 +188,7 @@ impl ActivityEvent {
     /// is present within the attributes
     #[inline]
     pub fn get_score(&self) -> Option<u32> {
-        self.get_progress("score")
+        self.attribute_u32("score")
     }
 
     /// Checks if this activity `attributes` match the provided filter

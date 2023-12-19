@@ -57,7 +57,7 @@ impl MatchDataService {
         })?;
 
         // Get the activity progression
-        let progress = activity.get_progress(&badge_activity.progress_key)?;
+        let progress = activity.attribute_u32(&badge_activity.progress_key)?;
 
         // Find all the badge levels that have been reached
         let levels: Vec<&BadgeLevel> = badge

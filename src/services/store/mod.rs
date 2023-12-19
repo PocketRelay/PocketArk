@@ -45,6 +45,8 @@ pub struct StoreCatalog {
     pub locale: LocaleNameWithDesc,
 }
 
+pub type StoreArticleName = Uuid;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreArticle {
@@ -56,7 +58,7 @@ pub struct StoreArticle {
     pub prices: Vec<StorePrice>,
     pub limits: Vec<StoreLimit>,
     pub item_name: Uuid,
-    pub name: String,
+    pub name: StoreArticleName,
     pub auto_claim: bool,
     pub available_grace_in_seconds: u32,
     pub limited_availability: bool,

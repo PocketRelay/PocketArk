@@ -4,7 +4,11 @@ use uuid::Uuid;
 
 use crate::{
     database::entity::{currency::CurrencyType, Currency, InventoryItem},
-    services::{activity::ActivityResult, items::ItemDefinition, store::StoreCatalog},
+    services::{
+        activity::ActivityResult,
+        items::ItemDefinition,
+        store::{StoreArticleName, StoreCatalog},
+    },
 };
 
 #[derive(Debug, Serialize)]
@@ -22,7 +26,7 @@ pub struct UserCurrenciesResponse {
 #[serde(rename_all = "camelCase")]
 pub struct ObtainStoreItemRequest {
     pub currency: CurrencyType,
-    pub article_name: String,
+    pub article_name: StoreArticleName,
 }
 
 #[derive(Debug, Serialize)]
