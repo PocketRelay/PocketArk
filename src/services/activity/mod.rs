@@ -1,9 +1,8 @@
-use std::collections::{BTreeMap, HashMap};
-
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use serde_with::skip_serializing_none;
-use uuid::Uuid;
+//! The game and server publish different "Activities" which are used for tracking
+//! things like progression, challenges, and how much rewards should be given
+//!
+//! The [ActivityService] should process these activities and update stored information
+//! and rewards accordingly
 
 use super::items::ItemDefinition;
 use crate::{
@@ -11,6 +10,11 @@ use crate::{
     http::models::mission::MissionActivity,
     state::App,
 };
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use serde_with::skip_serializing_none;
+use std::collections::{BTreeMap, HashMap};
+use uuid::Uuid;
 
 pub struct ActivityService;
 
@@ -28,6 +32,85 @@ impl ActivityService {
     pub const STRIKE_TEAM_RECRUITED: &'static str = "_strikeTeamRecruited";
 }
 
+/// Represents the name for an activity, contains built in
+/// server activity types along with the [Uuid] variant for
+/// runtime defined activities
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum ActivityName {
+    /// Item was consumed
+    #[serde(rename = "_itemConsumed")]
+    ItemConsumed,
+    /// Badge was earned on game completion
+    #[serde(rename = "_badgeEarned")]
+    BadgeEarned,
+    /// Article was purchased from the store
+    #[serde(rename = "_articlePurchased")]
+    ArticlePurchased,
+    /// Mission was finished
+    ///
+    /// Known attributes:
+    /// - percentComplete (number)
+    /// - missionTypeName (string uuid)
+    /// - count (number)
+    #[serde(rename = "_missionFinished")]
+    MissionFinished,
+    /// Mission was finished by a strike team
+    ///
+    /// Known attributes:
+    /// - success (string boolean)
+    /// - count (number)
+    #[serde(rename = "_strikeTeamMissionFinished")]
+    StrikeTeamMissionFinished,
+    /// Equipment was updated
+    ///
+    /// Known attributes:
+    /// - slot (string)
+    /// - count (number)
+    /// - stackSize (number)
+    #[serde(rename = "_equipmentUpdated")]
+    EquipmentUpdated,
+    /// Equipment attachments were updated
+    ///
+    /// Known attributes:
+    /// - count (number)
+    #[serde(rename = "_equipmentAttachmentUpdated")]
+    EquipmentAttachmentUpdated,
+    /// Skills were purchased
+    ///
+    /// Known attributes:
+    /// - count (number)
+    #[serde(rename = "_skillPurchased")]
+    SkillPurchased,
+    /// Character was leveled up
+    ///
+    /// Known attributes:
+    /// - newLevel (number)
+    /// - characterClass (string uuid)
+    /// - count (number)
+    #[serde(rename = "_characterLevelUp")]
+    CharacterLevelUp,
+    /// Strike team was recruited
+    ///
+    /// Known attributes:
+    /// - count (number)
+    #[serde(rename = "_strikeTeamRecruited")]
+    StrikeTeamRecruited,
+    /// Activity represented by a [Uuid] these events can be
+    /// published by clients
+    #[serde(untagged)]
+    Named(Uuid),
+}
+
+/// Represents a published activity event
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActivityEvent {
+    /// The name of the activity event
+    pub name: ActivityName,
+    /// Data attributes associated with this activity event
+    pub attributes: HashMap<String, serde_json::Value>,
+}
+
+/// Represents the result produced from processing an [ActivityEvent]
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
