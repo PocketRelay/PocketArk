@@ -417,9 +417,10 @@ impl ActivityEvent {
 
     /// Obtains an attribute by attempting to parse it
     /// from a [ActivityAttribute::String] value
-    pub fn attribute_parsed<V>(&self, key: &str) -> Option<V>
+    pub fn attribute_parsed<V>(&self, key: &str) -> Result<V, AttributeError>
     where
         V: FromStr,
+        <V as FromStr>::Err: std::error::Error + 'static,
     {
         let attribute = self
             .attributes
