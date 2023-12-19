@@ -6,8 +6,9 @@ use sea_orm::{
     ActiveValue::{NotSet, Set},
     InsertResult, IntoActiveModel,
 };
-use serde::{ser::SerializeStruct, Deserialize, Serialize};
-use std::future::Future;
+use serde::{de::DeserializeOwned, ser::SerializeStruct, Deserialize, Serialize};
+use serde_with::{DeserializeAs, DisplayFromStr};
+use std::{fmt::Display, future::Future, str::FromStr};
 
 /// Currency database structure
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
@@ -24,17 +25,12 @@ pub struct Model {
 }
 
 /// Enum for the different known currency types
-#[derive(
-    Debug, EnumIter, DeriveActiveEnum, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash,
-)]
+#[derive(Debug, EnumIter, DeriveActiveEnum, Clone, Copy, PartialEq, Eq, Hash)]
 #[sea_orm(rs_type = "u8", db_type = "Integer")]
 #[repr(u8)]
 pub enum CurrencyType {
-    #[serde(rename = "MTXCurrency")]
     Mtx = 0,
-    #[serde(rename = "GrindCurrency")]
     Grind = 1,
-    #[serde(rename = "MissionCurrency")]
     Mission = 2,
 }
 
@@ -230,5 +226,58 @@ impl Serialize for Model {
         value.serialize_field("name", &self.ty)?;
         value.serialize_field("balance", &self.balance)?;
         value.end()
+    }
+}
+
+impl Display for CurrencyType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            CurrencyType::Mtx => "MTXCurrency",
+            CurrencyType::Grind => "GrindCurrency",
+            CurrencyType::Mission => "MissionCurrency",
+        })
+    }
+}
+
+/// Unknown currency error
+#[derive(Debug)]
+pub struct UnknownCurrency;
+
+impl FromStr for CurrencyType {
+    type Err = UnknownCurrency;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "MTXCurrency" => Self::Mtx,
+            "GrindCurrency" => Self::Grind,
+            "MissionCurrency" => Self::Mission,
+            _ => return Err(UnknownCurrency),
+        })
+    }
+}
+
+impl std::error::Error for UnknownCurrency {}
+
+impl Display for UnknownCurrency {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Unknown currency type")
+    }
+}
+
+impl Serialize for CurrencyType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for CurrencyType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        DisplayFromStr::deserialize_as(deserializer)
     }
 }
