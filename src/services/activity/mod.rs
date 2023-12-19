@@ -4,19 +4,29 @@
 //! The [ActivityService] should process these activities and update stored information
 //! and rewards accordingly
 
-use super::items::{Category, ItemDefinition};
+use super::{
+    items::{BaseCategory, Category, ItemDefinition},
+    store::StoreArticleName,
+    Services,
+};
 use crate::{
     database::entity::{
         challenge_progress::{ChallengeCounterName, ChallengeId},
-        Currency, InventoryItem, User,
+        currency::CurrencyType,
+        Character, Currency, InventoryItem, User,
     },
     state::App,
 };
+use log::debug;
 use sea_orm::DbErr;
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::{Number, Value};
 use serde_with::skip_serializing_none;
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fmt::Display,
+    str::FromStr,
+};
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -24,26 +34,127 @@ pub struct ActivityService;
 
 #[derive(Debug, Error)]
 pub enum ActivityError {
+    /// Error with an event attribute
     #[error(transparent)]
-    Database(#[from] DbErr),
+    Attribute(#[from] AttributeError),
+
+    /// Error occurred while processing
+    #[error(transparent)]
+    Processing(Box<dyn std::error::Error>),
 }
 
-impl ActivityService {
-    pub async fn process_activity<'db, C>(
-        db: &'db C,
-        user: &User,
-        activity: ActivityEvent,
-    ) -> Result<ActivityResult, ActivityError> {
-        // TODO: Update challenges
-        // TODO: Process event
-        Ok(ActivityResult::default())
+/// Errors that can occur while processing an
+/// article purchase
+#[derive(Debug, Error)]
+pub enum ArticlePurchaseError {
+    /// Database error occurred
+    #[error("Server error")]
+    Database(#[from] DbErr),
+    /// Couldn't find the article requested
+    #[error("Unknown article")]
+    UnknownArticle,
+    /// Server definition error, article associated item was
+    /// not present in the item definitions
+    #[error("Unknown article item")]
+    UnknownArticleItem,
+}
+
+impl From<ArticlePurchaseError> for ActivityError {
+    fn from(value: ArticlePurchaseError) -> Self {
+        Self::Processing(Box::new(value))
     }
 }
 
-pub trait ActivityAttributes: Sized {
-    /// Attempts to get the struct fields from the attributes. Will return [None]
-    /// if an attribute is missing or incorrectly typed
-    fn try_from_attributes(attributes: &HashMap<AttributeName, ActivityAttribute>) -> Option<Self>;
+impl ActivityService {
+    pub async fn process_event<'db, C>(
+        db: &'db C,
+        user: &User,
+        event: ActivityEvent,
+    ) -> Result<ActivityResult, ActivityError> {
+        debug!("Processing Activity: {:?}", event);
+
+        let mut result = ActivityResult::default();
+
+        match event.name {
+            ActivityName::ItemConsumed => {}
+            ActivityName::BadgeEarned => {}
+            ActivityName::ArticlePurchased => {
+                Self::process_article_purchased(db, user, event, &mut result).await
+            }
+            ActivityName::MissionFinished => {}
+            ActivityName::StrikeTeamMissionFinished => {}
+            ActivityName::EquipmentUpdated => {}
+            ActivityName::EquipmentAttachmentUpdated => {}
+            ActivityName::SkillPurchased => {}
+            ActivityName::CharacterLevelUp => {}
+            ActivityName::PrestigeLevelUp => {}
+            ActivityName::PathfinderRatingUpdated => {}
+            ActivityName::StrikeTeamRecruited => {}
+            ActivityName::Named(_) => {}
+        }
+
+        // Update the current user currencies
+        result.currencies = Currency::all(db, user).await?;
+
+        // TODO: Update challenges
+        // TODO: Process event
+        Ok(result)
+    }
+
+    pub async fn process_article_purchased<'db, C>(
+        db: &'db C,
+        user: &User,
+        event: ActivityEvent,
+        result: &mut ActivityResult,
+    ) -> Result<(), ActivityError> {
+        let Services {
+            store: store_service,
+            items: items_service,
+            character: characters_service,
+            ..
+        } = App::services();
+
+        let currency: CurrencyType = event.attribute_parsed("currencyName")?;
+        let article_name: StoreArticleName = event.attribute_uuid("articleName")?;
+        let stack_size: u32 = event.attribute_u32("count")?;
+
+        // Find the article we are looking for
+        let article = store_service
+            .catalog
+            .get_article(&article_name)
+            // Article doesn't exist anymore
+            .ok_or(ArticlePurchaseError::UnknownArticle)?;
+
+        // Find the item given by the article
+        let item_definition = items_service
+            .items
+            .by_name(&article.item_name)
+            .ok_or(ArticlePurchaseError::UnknownArticleItem)?;
+
+        // Give the user the article item
+        {
+            // TODO: Check that the user hasn't already reached the item capacity
+
+            let mut item = InventoryItem::add_item(
+                db,
+                user,
+                item_definition.name,
+                stack_size,
+                item_definition.capacity,
+            )
+            .await?;
+
+            result.add_item(item, stack_size, item_definition);
+
+            // Handle character creation for character items
+            if item_definition.category.base_eq(&BaseCategory::Characters) {
+                Character::create_from_item(db, characters_service, user, &item_definition.name)
+                    .await?;
+            }
+        }
+
+        Ok(())
+    }
 }
 
 /// Represents the name for an activity, contains built in
@@ -216,45 +327,140 @@ impl PartialEq for ActivityAttribute {
     }
 }
 
+#[derive(Debug)]
+pub struct AttributeError {
+    /// Name of the attribute
+    name: AttributeName,
+    /// Cause of the error
+    cause: AttributeErrorCause,
+}
+
+impl AttributeError {
+    fn new(name: &str, cause: AttributeErrorCause) -> Self {
+        Self {
+            name: name.to_string(),
+            cause,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum AttributeErrorCause {
+    /// Attribute was not found
+    Missing,
+    /// Attribute was an unexpected type
+    IncorrectType,
+    /// Failed to parse the value
+    ParseFailed(Box<dyn std::error::Error>),
+}
+
+impl std::error::Error for AttributeError {}
+
+impl Display for AttributeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!(
+            "Error with attribute '{}': {}",
+            self.name, self.cause
+        ))
+    }
+}
+
+impl Display for AttributeErrorCause {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AttributeErrorCause::Missing => f.write_str("Attribute is missing"),
+            AttributeErrorCause::IncorrectType => f.write_str("Unexpected attribute type"),
+            AttributeErrorCause::ParseFailed(err) => {
+                f.write_str("Failed to parse: ")?;
+                Display::fmt(err, f)
+            }
+        }
+    }
+}
+
 impl ActivityEvent {
-    pub fn attribute_string(&self, key: &str) -> Option<&String> {
-        self.attributes
-            // Get the progress value
+    /// Creates a new activity event
+    pub fn new(name: ActivityName) -> Self {
+        Self {
+            name,
+            attributes: Default::default(),
+        }
+    }
+
+    /// Adds an attribute to an activity event
+    pub fn with_attribute<V>(mut self, key: &str, value: V) -> Self
+    where
+        V: Into<ActivityAttribute>,
+    {
+        self.attributes.insert(key.to_string(), value.into());
+        self
+    }
+
+    pub fn attribute_string(&self, key: &str) -> Result<&String, AttributeError> {
+        let attribute = self
+            .attributes
             .get(key)
-            // Take the string value
-            .and_then(|value| match value {
-                ActivityAttribute::String(value) => Some(value),
-                _ => None,
+            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
+
+        match attribute {
+            ActivityAttribute::String(value) => Ok(value),
+            _ => Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
+        }
+    }
+
+    /// Obtains an attribute by attempting to parse it
+    /// from a [ActivityAttribute::String] value
+    pub fn attribute_parsed<V>(&self, key: &str) -> Option<V>
+    where
+        V: FromStr,
+    {
+        let attribute = self
+            .attributes
+            .get(key)
+            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
+
+        let value = match attribute {
+            ActivityAttribute::String(value) => value,
+            _ => return Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
+        };
+
+        value
+            .parse()
+            // Handle parsing error
+            .map_err(|err| {
+                AttributeError::new(key, AttributeErrorCause::ParseFailed(Box::new(err)))
             })
     }
 
-    pub fn attribute_uuid(&self, key: &str) -> Option<Uuid> {
-        self.attributes
-            // Get the progress value
+    pub fn attribute_uuid(&self, key: &str) -> Result<Uuid, AttributeError> {
+        let attribute = self
+            .attributes
             .get(key)
-            // Take the string value
-            .and_then(|value| match value {
-                ActivityAttribute::Uuid(value) => Some(*value),
-                _ => None,
-            })
+            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
+
+        match attribute {
+            ActivityAttribute::Uuid(value) => Ok(*value),
+            _ => Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
+        }
     }
 
-    pub fn attribute_u32(&self, key: &str) -> Option<u32> {
-        self.attributes
-            // Get the progress value
+    pub fn attribute_u32(&self, key: &str) -> Result<u32, AttributeError> {
+        let attribute = self
+            .attributes
             .get(key)
-            // Take the number value
-            .and_then(|value| match value {
-                ActivityAttribute::Integer(value) => Some(*value),
-                _ => None,
-            })
+            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
+
+        match attribute {
+            ActivityAttribute::Integer(value) => Ok(*value),
+            _ => Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
+        }
     }
 
     /// Obtains the score from the mission activity if it
     /// is present within the attributes
     #[inline]
     pub fn get_score(&self) -> Option<u32> {
-        self.attribute_u32("score")
+        self.attribute_u32("score").ok()
     }
 
     /// Checks if this activity `attributes` match the provided filter
@@ -360,6 +566,22 @@ pub struct ActivityResult {
 
     /// Prestige progression that resulted from the activity
     pub prestige_progression: PrestigeProgression,
+}
+
+impl ActivityResult {
+    /// Adds a new item to the result. Updates the `item` stack size to match
+    /// the provided `stack_size` to ensure its correct
+    pub fn add_item(
+        &mut self,
+        mut item: InventoryItem,
+        stack_size: u32,
+        definition: &'static ItemDefinition,
+    ) {
+        item.stack_size = stack_size;
+
+        self.items_earned.push(item);
+        self.item_definitions.push(definition);
+    }
 }
 
 impl Serialize for ActivityResult {

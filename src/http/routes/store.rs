@@ -11,7 +11,7 @@ use crate::{
         },
     },
     services::{
-        activity::ActivityResult,
+        activity::{ActivityError, ActivityEvent, ActivityName, ActivityResult, ActivityService},
         items::{BaseCategory, Category},
         store::StoreService,
     },
@@ -52,10 +52,6 @@ pub enum StoreError {
     /// Couldn't find the article requested
     #[error("Unknown article")]
     UnknownArticle,
-    /// Server definition error, article associated item was
-    /// not present in the item definitions
-    #[error("Unknown article item")]
-    UnknownArticleItem,
     /// Article cannot be purchased with the requested currency
     #[error("Invalid currency")]
     InvalidCurrency,
@@ -65,6 +61,9 @@ pub enum StoreError {
     /// User doesn't have enough currency to purchase the item
     #[error("Currency balance cannot be less than 0.")]
     InsufficientCurrency,
+    /// Error processing the activity
+    #[error(transparent)]
+    Activity(#[from] ActivityError),
 }
 
 impl From<StoreError> for HttpError {
@@ -73,9 +72,7 @@ impl From<StoreError> for HttpError {
         let status = match value {
             StoreError::UnknownArticle => StatusCode::NOT_FOUND,
             StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
-            StoreError::UnknownArticleItem | StoreError::Database(_) => {
-                StatusCode::INTERNAL_SERVER_ERROR
-            }
+            StoreError::Database(_) | StoreError::Activity(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         HttpError::new_owned(reason, status)
@@ -103,12 +100,6 @@ pub async fn obtain_article(
         .get_article(&req.article_name)
         .ok_or(StoreError::UnknownArticle)?;
 
-    // Find the item given by the article
-    let article_item = items_service
-        .items
-        .by_name(&article.item_name)
-        .ok_or(StoreError::UnknownArticleItem)?;
-
     // Find the price in the specified currency
     let price = article
         .price_by_currency(req.currency)
@@ -132,45 +123,19 @@ pub async fn obtain_article(
         currency.update(&db, new_balance).await?;
     }
 
-    // TODO: Pre check condition for can afford and allowed within limits
+    // Create the activity event
+    let event = ActivityEvent::new(ActivityName::ArticlePurchased)
+        .with_attribute("currencyName", req.currency.to_string())
+        .with_attribute("articleName", article.name)
+        .with_attribute("count", 1);
 
-    debug!(
-        "Purchased article: {} ({:?})",
-        &article_item.name,
-        &article_item.locale.name()
-    );
-
-    // Create the purchased item
-    let mut item =
-        InventoryItem::add_item(&db, &user, article_item.name, 1, article_item.capacity).await?;
-    item.stack_size = 1;
-
-    // Handle character creation if the item is a character item
-    if article_item
-        .category
-        .is_within(&Category::Base(BaseCategory::Characters))
-    {
-        let services = App::services();
-        Character::create_from_item(&db, &services.character, &user, &article_item.name).await?;
-    }
-
-    // Collect all the currency amounts for the activity result
-    let currencies = Currency::all(&db, &user).await?;
-    let definitions = vec![article_item];
-    let items_earned = vec![item];
-
-    let activity = ActivityResult {
-        currencies,
-        items_earned: items_earned.clone(),
-        item_definitions: definitions.clone(),
-
-        ..Default::default()
-    };
+    // Process the event
+    let result = ActivityService::process_event(&db, &user, event).await?;
 
     Ok(Json(ObtainStoreItemResponse {
-        generated_activity_result: activity,
-        items: items_earned,
-        definitions,
+        items: result.items_earned.clone(),
+        definitions: result.item_definitions.clone(),
+        generated_activity_result: result,
     }))
 }
 
