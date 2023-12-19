@@ -18,18 +18,6 @@ pub struct ChallengesService {
     pub defs: Vec<ChallengeDefinition>,
 }
 
-#[test]
-fn test() {
-    let defs: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS).unwrap();
-    let mut values = HashSet::new();
-    for def in defs {
-        for category in def.categories {
-            values.insert(category);
-        }
-    }
-    println!("{:?}", values);
-}
-
 impl ChallengesService {
     pub fn new() -> Self {
         debug!("Loading challenges");
@@ -203,4 +191,16 @@ pub struct ItemReward {
     pub count: u32,
     /// The namespace to store the item under
     pub namespace: String,
+}
+
+#[cfg(test)]
+mod test {
+    use super::{ChallengeDefinition, CHALLENGE_DEFINITIONS};
+
+    /// Tests ensuring the challenge definitions can be parsed
+    /// correctly from the resource file
+    #[test]
+    fn ensure_parsing_succeed() {
+        let _: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS).unwrap();
+    }
 }
