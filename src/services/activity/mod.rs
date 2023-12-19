@@ -44,7 +44,7 @@ pub enum ActivityError {
 
     /// Error occurred while processing
     #[error(transparent)]
-    Processing(Box<dyn std::error::Error>),
+    Processing(Box<dyn std::error::Error + Send + 'static>),
 }
 
 /// Errors that can occur while processing an
@@ -121,7 +121,6 @@ impl ActivityService {
             ..
         } = App::services();
 
-        let currency: CurrencyType = event.attribute_parsed("currencyName")?;
         let article_name: StoreArticleName = event.attribute_uuid("articleName")?;
         let stack_size: u32 = event.attribute_u32("count")?;
 
@@ -358,7 +357,7 @@ pub enum AttributeErrorCause {
     /// Attribute was an unexpected type
     IncorrectType,
     /// Failed to parse the value
-    ParseFailed(Box<dyn std::error::Error>),
+    ParseFailed(Box<dyn std::error::Error + Send + 'static>),
 }
 
 impl std::error::Error for AttributeError {}

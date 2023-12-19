@@ -6,7 +6,7 @@ use axum::{
 };
 use hyper::{header::CONTENT_TYPE, http::HeaderValue, StatusCode};
 use log::error;
-use sea_orm::DbErr;
+use sea_orm::{DbErr, TransactionError};
 use serde::Serialize;
 
 pub mod auth;
@@ -82,6 +82,18 @@ impl From<DbErr> for HttpError {
     fn from(err: DbErr) -> Self {
         error!("Database error: {}", err);
         Self::new("Server error", StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
+impl<E> From<TransactionError<E>> for HttpError
+where
+    E: std::error::Error + Into<HttpError>,
+{
+    fn from(value: TransactionError<E>) -> Self {
+        match value {
+            TransactionError::Connection(value) => value.into(),
+            TransactionError::Transaction(value) => value.into(),
+        }
     }
 }
 

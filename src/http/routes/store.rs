@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{Character, Currency, InventoryItem},
+    database::entity::{currency::CurrencyType, Character, Currency, InventoryItem, User},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -20,7 +20,7 @@ use crate::{
 use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{DatabaseConnection, DbErr};
+use sea_orm::{ConnectionTrait, DatabaseConnection, DbErr, TransactionError, TransactionTrait};
 use thiserror::Error;
 
 /// GET /store/catalogs
@@ -66,17 +66,34 @@ pub enum StoreError {
     Activity(#[from] ActivityError),
 }
 
-impl From<StoreError> for HttpError {
-    fn from(value: StoreError) -> Self {
-        let reason = value.to_string();
-        let status = match value {
-            StoreError::UnknownArticle => StatusCode::NOT_FOUND,
-            StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
-            StoreError::Database(_) | StoreError::Activity(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        };
+/// Attempts to spend the provided `amount` of the specified `currency`
+/// for the provided `user`
+async fn spend_currency<C>(
+    db: &C,
+    user: &User,
+    currency: CurrencyType,
+    amount: u32,
+) -> Result<(), StoreError>
+where
+    C: ConnectionTrait + Send,
+{
+    // Ensure the user owns some of the currency
+    let currency = Currency::get(db, user, currency)
+        .await?
+        // User doesn't have any of the requested currency
+        .ok_or(StoreError::InsufficientCurrency)?;
 
-        HttpError::new_owned(reason, status)
+    // Ensure they can afford the price
+    if currency.balance < amount {
+        return Err(StoreError::InsufficientCurrency.into());
     }
+
+    let new_balance = currency.balance - amount;
+
+    // Take the price from the currency balance
+    currency.update(db, new_balance).await?;
+
+    Ok(())
 }
 
 /// POST /store/article
@@ -88,8 +105,6 @@ pub async fn obtain_article(
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ObtainStoreItemRequest>,
 ) -> Result<Json<ObtainStoreItemResponse>, HttpError> {
-    debug!("Requested buy store article: {:?}", req);
-
     let services = App::services();
     let store_service = &services.store;
 
@@ -104,34 +119,25 @@ pub async fn obtain_article(
         .price_by_currency(req.currency)
         .ok_or(StoreError::InvalidCurrency)?;
 
-    // Find the currency to pay with
-    {
-        let currency = Currency::get(&db, &user, req.currency)
-            .await?
-            // User doesn't have any of the requested currency
-            .ok_or(StoreError::InsufficientCurrency)?;
+    let result: ActivityResult = db
+        .transaction(|db| {
+            Box::pin(async move {
+                // Spend the cost of the article
+                spend_currency(db, &user, req.currency, price.final_price).await?;
 
-        // Ensure they can afford the price
-        if currency.balance < price.final_price {
-            return Err(StoreError::InsufficientCurrency.into());
-        }
+                // Create the activity event
+                let event = ActivityEvent::new(ActivityName::ArticlePurchased)
+                    .with_attribute("currencyName", req.currency.to_string())
+                    .with_attribute("articleName", article.name)
+                    .with_attribute("count", 1);
 
-        let new_balance = currency.balance - price.final_price;
-
-        // Take the price from the currency balance
-        currency.update(&db, new_balance).await?;
-    }
-
-    // Create the activity event
-    let event = ActivityEvent::new(ActivityName::ArticlePurchased)
-        .with_attribute("currencyName", req.currency.to_string())
-        .with_attribute("articleName", article.name)
-        .with_attribute("count", 1);
-
-    // Process the event
-    let result = ActivityService::process_event(&db, &user, event)
-        .await
-        .map_err(StoreError::Activity)?;
+                // Process the event
+                ActivityService::process_event(db, &user, event)
+                    .await
+                    .map_err(StoreError::Activity)
+            })
+        })
+        .await?;
 
     Ok(Json(ObtainStoreItemResponse {
         items: result.items_earned.clone(),
@@ -161,4 +167,17 @@ pub async fn get_currencies(
     let currencies = Currency::all(&db, &user).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
+}
+
+impl From<StoreError> for HttpError {
+    fn from(value: StoreError) -> Self {
+        let reason = value.to_string();
+        let status = match value {
+            StoreError::UnknownArticle => StatusCode::NOT_FOUND,
+            StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
+            StoreError::Database(_) | StoreError::Activity(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        };
+
+        HttpError::new_owned(reason, status)
+    }
 }
