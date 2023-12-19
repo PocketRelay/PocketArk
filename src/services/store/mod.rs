@@ -8,7 +8,10 @@ use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-use crate::{database::entity::currency::CurrencyType, utils::models::LocaleNameWithDesc};
+use crate::{
+    database::entity::currency::CurrencyType,
+    utils::models::{DateDuration, LocaleNameWithDesc},
+};
 
 /// Definition file for the contents of the in-game store
 const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
@@ -73,8 +76,8 @@ pub struct StoreArticle {
     pub auto_claim: bool,
     pub available_grace_in_seconds: u32,
     pub limited_availability: bool,
-    pub available_duration: StoreDuration,
-    pub visible_duration: StoreDuration,
+    pub available_duration: DateDuration,
+    pub visible_duration: DateDuration,
     pub seen: bool,
 
     #[serde(flatten)]
@@ -106,11 +109,4 @@ pub struct StorePrice {
     pub currency: CurrencyType,
     pub original_price: u32,
     pub final_price: u32,
-}
-
-#[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StoreDuration {
-    pub start: Option<DateTime<Utc>>,
-    pub end: Option<DateTimeUtc>,
 }

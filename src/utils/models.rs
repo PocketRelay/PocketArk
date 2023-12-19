@@ -125,6 +125,7 @@ impl<'de> Deserialize<'de> for Sku {
 
 /// Represents a duration of time that something will be available for.
 /// Can be open ended by only specifying a start/end
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateDuration {
     pub start: Option<DateTimeUtc>,

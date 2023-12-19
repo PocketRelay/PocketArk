@@ -32,8 +32,6 @@ pub async fn get_catalogs() -> Json<StoreCatalogResponse> {
     let services = App::services();
     let catalog = &services.store.catalog;
 
-    // TODO: Catalog seen states loaded from db and added to response
-
     Json(StoreCatalogResponse {
         list: vec![catalog],
     })
@@ -44,6 +42,9 @@ pub async fn get_catalogs() -> Json<StoreCatalogResponse> {
 /// Updates the seen status of a specific store article
 pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> StatusCode {
     debug!("Update seen articles: {:?}", req);
+
+    // This is no-op, this implementation doesn't store article seen states
+
     StatusCode::NO_CONTENT
 }
 
@@ -85,7 +86,7 @@ where
 
     // Ensure they can afford the price
     if currency.balance < amount {
-        return Err(StoreError::InsufficientCurrency.into());
+        return Err(StoreError::InsufficientCurrency);
     }
 
     let new_balance = currency.balance - amount;
@@ -98,8 +99,7 @@ where
 
 /// POST /store/article
 ///
-/// Purchases an item from the store returning the results
-/// of the purchase
+/// User request to purchase an item from the in-game store
 pub async fn obtain_article(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
