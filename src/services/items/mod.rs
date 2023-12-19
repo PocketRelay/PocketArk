@@ -258,7 +258,7 @@ impl Serialize for Category {
 
 impl Category {
     /// Checks if this category has a matching base category
-    pub fn base_eq(&self, other: &BaseCategory) {
+    pub fn base_eq(&self, other: &BaseCategory) -> bool {
         match self {
             Self::Base(base) => base.eq(other),
             Self::Sub(sub) => sub.0.eq(other),

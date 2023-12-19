@@ -18,7 +18,7 @@ use crate::{
     state::App,
 };
 use log::debug;
-use sea_orm::DbErr;
+use sea_orm::{ConnectionTrait, DbErr};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::{Number, Value};
 use serde_with::skip_serializing_none;
@@ -34,6 +34,10 @@ pub struct ActivityService;
 
 #[derive(Debug, Error)]
 pub enum ActivityError {
+    /// Database error occurred
+    #[error("Server error")]
+    Database(#[from] DbErr),
+
     /// Error with an event attribute
     #[error(transparent)]
     Attribute(#[from] AttributeError),
@@ -47,9 +51,6 @@ pub enum ActivityError {
 /// article purchase
 #[derive(Debug, Error)]
 pub enum ArticlePurchaseError {
-    /// Database error occurred
-    #[error("Server error")]
-    Database(#[from] DbErr),
     /// Couldn't find the article requested
     #[error("Unknown article")]
     UnknownArticle,
@@ -70,7 +71,10 @@ impl ActivityService {
         db: &'db C,
         user: &User,
         event: ActivityEvent,
-    ) -> Result<ActivityResult, ActivityError> {
+    ) -> Result<ActivityResult, ActivityError>
+    where
+        C: ConnectionTrait + Send,
+    {
         debug!("Processing Activity: {:?}", event);
 
         let mut result = ActivityResult::default();
@@ -79,7 +83,7 @@ impl ActivityService {
             ActivityName::ItemConsumed => {}
             ActivityName::BadgeEarned => {}
             ActivityName::ArticlePurchased => {
-                Self::process_article_purchased(db, user, event, &mut result).await
+                Self::process_article_purchased(db, user, event, &mut result).await?;
             }
             ActivityName::MissionFinished => {}
             ActivityName::StrikeTeamMissionFinished => {}
@@ -106,7 +110,10 @@ impl ActivityService {
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> Result<(), ActivityError> {
+    ) -> Result<(), ActivityError>
+    where
+        C: ConnectionTrait + Send,
+    {
         let Services {
             store: store_service,
             items: items_service,

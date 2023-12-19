@@ -92,7 +92,6 @@ pub async fn obtain_article(
 
     let services = App::services();
     let store_service = &services.store;
-    let items_service = &services.items;
 
     // Find the article we are looking for
     let article = store_service
@@ -130,7 +129,9 @@ pub async fn obtain_article(
         .with_attribute("count", 1);
 
     // Process the event
-    let result = ActivityService::process_event(&db, &user, event).await?;
+    let result = ActivityService::process_event(&db, &user, event)
+        .await
+        .map_err(StoreError::Activity)?;
 
     Ok(Json(ObtainStoreItemResponse {
         items: result.items_earned.clone(),
