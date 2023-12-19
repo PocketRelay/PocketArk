@@ -6,7 +6,10 @@
 
 use super::items::ItemDefinition;
 use crate::{
-    database::entity::{challenge_progress::ChallengeId, Currency, InventoryItem},
+    database::entity::{
+        challenge_progress::{ChallengeCounterName, ChallengeId},
+        Currency, InventoryItem,
+    },
     state::App,
 };
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
@@ -294,41 +297,57 @@ impl Serialize for ActivityResult {
     }
 }
 
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Type alias for a [Uuid] representing the name of a prestige level table
+pub type PrestigeName = Uuid;
+
+/// Represents the difference between
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct PrestigeProgression {
-    pub before: Option<HashMap<Uuid, PrestigeData>>,
-    pub after: Option<HashMap<Uuid, PrestigeData>>,
+    /// The previous prestige data
+    pub before: HashMap<PrestigeName, PrestigeData>,
+    /// The new prestige data
+    pub after: HashMap<PrestigeName, PrestigeData>,
 }
 
+/// Prestige data
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrestigeData {
-    pub name: Uuid,
+    /// The name of the prestige level table
+    pub name: PrestigeName,
+    /// The prestige current level
     pub level: u32,
+    /// The prestige current xp
     pub xp: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Represents a challenge that was updated
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeUpdated {
-    pub challenge_id: Uuid,
+    /// The ID of the challenge that was updated
+    pub challenge_id: ChallengeId,
+    /// Counters that were updated
     pub counters: Vec<ChallengeUpdateCounter>,
+    /// The change of status for the challenge update
     pub status_change: ChallengeStatusChange,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ChallengeStatusChange {
+    /// Notifying the creation of the challenge progress
     Notify,
+    /// An existing challenge progress changes
     Changed,
-    #[serde(other)]
-    Unknown,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Represents a challenge counter that was updated
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeUpdateCounter {
-    pub name: String,
+    /// The name of the counter that was updated
+    pub name: ChallengeCounterName,
+    /// The new counter value
     pub current_count: u32,
 }

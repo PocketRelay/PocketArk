@@ -135,18 +135,10 @@ impl PlayerDataBuilder {
     }
 
     pub fn append_prestige_before(&mut self, shared_data: &SharedData) {
-        let before = self
-            .prestige_progression
-            .before
-            .get_or_insert(HashMap::new());
-        Self::append_prestige(before, shared_data)
+        Self::append_prestige(&mut self.prestige_progression.before, shared_data)
     }
     pub fn append_prestige_after(&mut self, shared_data: &SharedData) {
-        let after = self
-            .prestige_progression
-            .after
-            .get_or_insert(HashMap::new());
-        Self::append_prestige(after, shared_data)
+        Self::append_prestige(&mut self.prestige_progression.after, shared_data)
     }
 
     pub fn add_challenge_progress(&mut self, update: ChallengeProgressChange) {
