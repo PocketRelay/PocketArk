@@ -4,7 +4,7 @@ use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
 use pack::Packs;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use serde_with::{serde_as, skip_serializing_none};
+use serde_with::{serde_as, skip_serializing_none, DeserializeAs, DisplayFromStr};
 use std::collections::HashMap;
 use std::{
     borrow::Cow,
@@ -236,6 +236,24 @@ pub enum Category {
     Base(BaseCategory),
     /// Sub category
     Sub(SubCategory),
+}
+
+impl<'de> Deserialize<'de> for Category {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        DisplayFromStr::deserialize_as(deserializer)
+    }
+}
+
+impl Serialize for Category {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
 }
 
 impl Category {

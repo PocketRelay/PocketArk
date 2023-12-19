@@ -153,18 +153,16 @@ impl Model {
         user.find_related(Entity).all(db)
     }
 
-    /// Retrieves a specific currency by name
-    pub fn by_name<'db, C>(
+    /// Gets a specific currency type for this user
+    pub fn get<'db, C>(
         db: &'db C,
         user: &User,
-        name: &str,
+        ty: CurrencyType,
     ) -> impl Future<Output = DbResult<Option<Currency>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        user.find_related(Entity)
-            .filter(Column::Ty.eq(name))
-            .one(db)
+        user.find_related(Entity).filter(Column::Ty.eq(ty)).one(db)
     }
 
     /// Conflict strategy for adding the balancing onto

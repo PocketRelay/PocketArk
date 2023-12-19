@@ -13,13 +13,15 @@ use crate::{
     services::{
         activity::ActivityResult,
         items::{BaseCategory, Category},
+        store::StoreService,
     },
     state::App,
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::DatabaseConnection;
+use sea_orm::{DatabaseConnection, DbErr};
+use thiserror::Error;
 
 /// GET /store/catalogs
 ///
@@ -45,6 +47,41 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
     StatusCode::NO_CONTENT
 }
 
+#[derive(Debug, Error)]
+pub enum StoreError {
+    /// Couldn't find the article requested
+    #[error("Unknown article")]
+    UnknownArticle,
+    /// Server definition error, article associated item was
+    /// not present in the item definitions
+    #[error("Unknown article item")]
+    UnknownArticleItem,
+    /// Article cannot be purchased with the requested currency
+    #[error("Invalid currency")]
+    InvalidCurrency,
+    /// Database error occurred
+    #[error("Server error")]
+    Database(#[from] DbErr),
+    /// User doesn't have enough currency to purchase the item
+    #[error("Currency balance cannot be less than 0.")]
+    InsufficientCurrency,
+}
+
+impl From<StoreError> for HttpError {
+    fn from(value: StoreError) -> Self {
+        let reason = value.to_string();
+        let status = match value {
+            StoreError::UnknownArticle => StatusCode::NOT_FOUND,
+            StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
+            StoreError::UnknownArticleItem | StoreError::Database(_) => {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
+        };
+
+        HttpError::new_owned(reason, status)
+    }
+}
+
 /// POST /store/article
 ///
 /// Purchases an item from the store returning the results
@@ -63,50 +100,36 @@ pub async fn obtain_article(
     // Find the article we are looking for
     let article = store_service
         .catalog
-        .articles
-        .iter()
-        .find(|value| value.name == req.article_name)
-        .ok_or(HttpError::new("Unknown article", StatusCode::NOT_FOUND))?;
+        .get_article(&req.article_name)
+        .ok_or(StoreError::UnknownArticle)?;
 
-    // Find the item the user is trying to buy from the article
+    // Find the item given by the article
     let article_item = items_service
         .items
         .by_name(&article.item_name)
-        .ok_or(HttpError::new(
-            "Unknown article item",
-            StatusCode::NOT_FOUND,
-        ))?;
+        .ok_or(StoreError::UnknownArticleItem)?;
 
-    // Article price for currency
+    // Find the price in the specified currency
     let price = article
-        .prices
-        .iter()
-        .find(|price| price.currency.eq(&req.currency))
-        .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
+        .price_by_currency(req.currency)
+        .ok_or(StoreError::InvalidCurrency)?;
 
-    // Obtain the user currency
-    let user_currencies = Currency::all(&db, &user).await?;
+    // Find the currency to pay with
+    {
+        let currency = Currency::get(&db, &user, req.currency)
+            .await?
+            // User doesn't have any of the requested currency
+            .ok_or(StoreError::InsufficientCurrency)?;
 
-    // Update the currencies (attempting to pay)
-    let mut currencies = Vec::with_capacity(user_currencies.len());
-
-    let mut paid: bool = false;
-    for mut currency in user_currencies {
-        if currency.ty == req.currency && currency.balance >= price.final_price {
-            let new_balance = currency.balance - price.final_price;
-
-            currency = currency.update(&db, new_balance).await?;
-            paid = true;
+        // Ensure they can afford the price
+        if currency.balance < price.final_price {
+            return Err(StoreError::InsufficientCurrency.into());
         }
 
-        currencies.push(currency);
-    }
+        let new_balance = currency.balance - price.final_price;
 
-    if !paid {
-        return Err(HttpError::new(
-            "Currency balance cannot be less than 0.",
-            StatusCode::CONFLICT,
-        ));
+        // Take the price from the currency balance
+        currency.update(&db, new_balance).await?;
     }
 
     // TODO: Pre check condition for can afford and allowed within limits
@@ -131,6 +154,8 @@ pub async fn obtain_article(
         Character::create_from_item(&db, &services.character, &user, &article_item.name).await?;
     }
 
+    // Collect all the currency amounts for the activity result
+    let currencies = Currency::all(&db, &user).await?;
     let definitions = vec![article_item];
     let items_earned = vec![item];
 

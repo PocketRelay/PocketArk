@@ -4,7 +4,7 @@
 //! The [ActivityService] should process these activities and update stored information
 //! and rewards accordingly
 
-use super::items::ItemDefinition;
+use super::items::{Category, ItemDefinition};
 use crate::{
     database::entity::{
         challenge_progress::{ChallengeCounterName, ChallengeId},
@@ -38,6 +38,12 @@ impl ActivityService {
         // TODO: Process event
         Ok(ActivityResult::default())
     }
+}
+
+pub trait ActivityAttributes: Sized {
+    /// Attempts to get the struct fields from the attributes. Will return [None]
+    /// if an attribute is missing or incorrectly typed
+    fn try_from_attributes(attributes: &HashMap<AttributeName, ActivityAttribute>) -> Option<Self>;
 }
 
 /// Represents the name for an activity, contains built in
@@ -150,13 +156,64 @@ pub type AttributeName = String;
 
 /// Represents an attribute within an [ActivityEvent]. These
 /// can be numbers or strings
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ActivityAttribute {
+    /// Boolean value
+    Bool(bool),
+    /// Integer value
+    Integer(u32),
+    /// UUID value
+    Uuid(Uuid),
     /// String value
     String(String),
-    /// Number value
-    Number(Number),
+}
+
+impl From<u32> for ActivityAttribute {
+    fn from(value: u32) -> Self {
+        Self::Integer(value)
+    }
+}
+
+impl From<String> for ActivityAttribute {
+    fn from(value: String) -> Self {
+        Self::String(value)
+    }
+}
+
+impl From<&str> for ActivityAttribute {
+    fn from(value: &str) -> Self {
+        Self::String(value.to_string())
+    }
+}
+
+impl From<Uuid> for ActivityAttribute {
+    fn from(value: Uuid) -> Self {
+        Self::Uuid(value)
+    }
+}
+
+impl From<bool> for ActivityAttribute {
+    fn from(value: bool) -> Self {
+        Self::Bool(value)
+    }
+}
+
+impl PartialEq for ActivityAttribute {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            // Simple equality
+            (Self::Bool(left), Self::Bool(right)) => left.eq(right),
+            (Self::Integer(left), Self::Integer(right)) => left.eq(right),
+            (Self::String(left), Self::String(right)) => left.eq(right),
+            (Self::Uuid(left), Self::Uuid(right)) => left.eq(right),
+
+            // Additional equality for UUID strings (Can be removed once types are strict)
+            (Self::Uuid(left), Self::String(right)) => left.to_string().eq(right),
+            (Self::String(left), Self::Uuid(right)) => left.eq(&right.to_string()),
+            _ => false,
+        }
+    }
 }
 
 impl ActivityEvent {
@@ -167,7 +224,18 @@ impl ActivityEvent {
             // Take the string value
             .and_then(|value| match value {
                 ActivityAttribute::String(value) => Some(value),
-                ActivityAttribute::Number(_) => None,
+                _ => None,
+            })
+    }
+
+    pub fn attribute_uuid(&self, key: &str) -> Option<Uuid> {
+        self.attributes
+            // Get the progress value
+            .get(key)
+            // Take the string value
+            .and_then(|value| match value {
+                ActivityAttribute::Uuid(value) => Some(*value),
+                _ => None,
             })
     }
 
@@ -177,11 +245,9 @@ impl ActivityEvent {
             .get(key)
             // Take the number value
             .and_then(|value| match value {
-                ActivityAttribute::String(_) => None,
-                ActivityAttribute::Number(value) => value.as_u64(),
+                ActivityAttribute::Integer(value) => Some(*value),
+                _ => None,
             })
-            // Don't need full precision of 64bit only need 32bit
-            .map(|value| value as u32)
     }
 
     /// Obtains the score from the mission activity if it

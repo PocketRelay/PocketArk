@@ -10,7 +10,7 @@ use sea_orm::DatabaseConnection;
 use uuid::Uuid;
 
 use crate::{
-    database::entity::{Currency, StrikeTeam},
+    database::entity::{currency::CurrencyType, Currency, StrikeTeam},
     http::{
         middleware::user::Auth,
         models::{
@@ -94,7 +94,7 @@ pub async fn purchase_equipment(
     Path((id, name)): Path<(Uuid, String)>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
-    let currency = Currency::by_name(&db, &user, &query.currency)
+    let currency = Currency::get(&db, &user, query.currency)
         .await?
         .ok_or(HttpError::new(
             "Currency balance cannot be less than 0.",
@@ -210,7 +210,7 @@ pub async fn purchase(
             StatusCode::CONFLICT,
         ))?;
 
-    let currency = Currency::by_name(&db, &user, "MissionCurrency")
+    let currency = Currency::get(&db, &user, CurrencyType::Mission)
         .await?
         .ok_or(HttpError::new(
             "Currency balance cannot be less than 0.",

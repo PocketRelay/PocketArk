@@ -31,10 +31,13 @@ impl StoreService {
     }
 }
 
+/// Type alias for a string representing a store catalog name
+pub type StoreCatalogName = String;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreCatalog {
-    pub catalog_id: String,
+    pub catalog_id: StoreCatalogName,
     pub name: String,
 
     pub custom_attributes: Map<String, Value>,
@@ -45,12 +48,20 @@ pub struct StoreCatalog {
     pub locale: LocaleNameWithDesc,
 }
 
+impl StoreCatalog {
+    pub fn get_article(&self, article_name: &StoreArticleName) -> Option<&StoreArticle> {
+        self.articles
+            .iter()
+            .find(|article| article.name.eq(article_name))
+    }
+}
+
 pub type StoreArticleName = Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreArticle {
-    pub catalog_name: String,
+    pub catalog_name: StoreCatalogName,
 
     pub categories: Vec<String>,
     pub custom_attributes: Map<String, Value>,
@@ -68,6 +79,17 @@ pub struct StoreArticle {
 
     #[serde(flatten)]
     pub locale: LocaleNameWithDesc,
+}
+
+impl StoreArticle {
+    /// Retrieves the [StorePrice] for this article for a specific
+    /// currency type
+    pub fn price_by_currency(&self, currency: CurrencyType) -> Option<&StorePrice> {
+        self.prices
+            .iter()
+            // Find a price with the provided `currency`
+            .find(|price| price.currency == currency)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

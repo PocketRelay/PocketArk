@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    database::entity::{Currency, StrikeTeam},
+    database::entity::{currency::CurrencyType, Currency, StrikeTeam},
     services::{
         activity::ActivityResult,
         strike_teams::{StrikeTeamWithMission, TeamTrait},
@@ -29,7 +29,7 @@ pub struct PurchaseResponse {
 }
 #[derive(Debug, Deserialize)]
 pub struct PurchaseQuery {
-    pub currency: String,
+    pub currency: CurrencyType,
 }
 
 #[skip_serializing_none]
