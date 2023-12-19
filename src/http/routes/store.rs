@@ -43,7 +43,8 @@ pub async fn get_catalogs() -> Json<StoreCatalogResponse> {
 pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> StatusCode {
     debug!("Update seen articles: {:?}", req);
 
-    // This is no-op, this implementation doesn't store article seen states
+    // This is no-op, this implementation doesn't store article seen states. However
+    // this might change at some point.
 
     StatusCode::NO_CONTENT
 }

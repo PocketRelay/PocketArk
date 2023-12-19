@@ -13,6 +13,8 @@ use crate::{
     utils::models::{DateDuration, LocaleNameWithDesc},
 };
 
+use super::items::ItemName;
+
 /// Definition file for the contents of the in-game store
 const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
 
@@ -37,16 +39,23 @@ impl StoreService {
 /// Type alias for a string representing a store catalog name
 pub type StoreCatalogName = String;
 
+/// Catalog aka collection of [StoreArticle]s, in this case the game only
+/// has a "Standard" catalog
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreCatalog {
+    /// The ID of the catalog (Same as `name`)
     pub catalog_id: StoreCatalogName,
+    /// The name of the catalog
     pub name: String,
-
+    /// Custom attributes associated with the catalog (Haven't seen this with any values)
     pub custom_attributes: Map<String, Value>,
+    /// Categories this catalog falls under (Unknown value meanings, needs further attention)
     pub categories: Vec<String>,
+    /// Articles present in the catalog
     pub articles: Vec<StoreArticle>,
 
+    /// Localized naming for the catalog
     #[serde(flatten)]
     pub locale: LocaleNameWithDesc,
 }
@@ -59,27 +68,56 @@ impl StoreCatalog {
     }
 }
 
+/// Type alias for a [Uuid] representing the name of a [StoreArticle]
 pub type StoreArticleName = Uuid;
 
+/// Represents an item within a [StoreCatalog] that can be
+/// purchased
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreArticle {
+    /// Unique ID for this article item (Identifies which one to purchase)
+    pub name: StoreArticleName,
+    /// The name of the [StoreCatalog] this article belongs to
     pub catalog_name: StoreCatalogName,
 
+    /// Categories this article falls under (Unknown value meanings, needs further attention)
     pub categories: Vec<String>,
+    /// Attributes associated with the article, used for things such as the
+    /// image shown for the article
     pub custom_attributes: Map<String, Value>,
+    /// Filtering based on user entitlements. Haven't seen any usage of
+    /// this so structure is unknown, likely similar to attribute filters
     pub nucleus_entitlement_filter: Map<String, Value>,
+    /// Lists the price of the article across the different currencies
+    /// that can be used  
     pub prices: Vec<StorePrice>,
+    /// Limits on the amount of this article that can be purchased. This is
+    /// a vec because the limits can be applied to different scopes
+    ///
+    /// TODO: Per-article purchasing limits need to be created and this
+    /// needs to be store in the database to track [StoreLimit::quantity_remaining]
     pub limits: Vec<StoreLimit>,
-    pub item_name: Uuid,
-    pub name: StoreArticleName,
+    /// Name of the item definition this will grant upon purchase
+    pub item_name: ItemName,
+    /// Whether to automatically claim the article item
+    /// (Have only seen this set to false, so actual usage is unknown)
     pub auto_claim: bool,
+    /// Unknown usage. TODO: Investigate
     pub available_grace_in_seconds: u32,
+    /// Whether this article is a limited time item
     pub limited_availability: bool,
+    /// An optional duration this article should only be available for
     pub available_duration: DateDuration,
+    /// An optional duration this article should only be visible for
     pub visible_duration: DateDuration,
+    /// Seen state, currently not implemented. Will likely override this
+    /// later to always be true.
+    ///
+    /// TODO: If per-item limits are added this can probabbly be included in that
+    /// database table for simplicity
     pub seen: bool,
-
+    /// Localized name and description
     #[serde(flatten)]
     pub locale: LocaleNameWithDesc,
 }
@@ -95,18 +133,28 @@ impl StoreArticle {
     }
 }
 
+/// Limit for a [StoreArticle]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreLimit {
+    /// The scope of the limit (Seen: "USER")
     pub scope: String,
+    /// The maximum number of times the article can be purchased
     pub maximum: u32,
+    /// The remaining number of items that can be purchased.
+    ///
+    /// TODO: This should probabbly be store in the database..?
     pub quantity_remaining: u32,
 }
 
+/// Price of a [StoreArticle] for a specific currency
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StorePrice {
+    /// The type of currency this price is for
     pub currency: CurrencyType,
+    /// The original price of the item if the item is on discount
     pub original_price: u32,
+    /// The final cost price of the item (The actual price)
     pub final_price: u32,
 }
