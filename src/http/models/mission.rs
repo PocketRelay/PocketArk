@@ -11,7 +11,7 @@ use crate::{
     database::entity::{characters::CharacterId, currency::CurrencyType, InventoryItem},
     services::{
         activity::{
-            self, ActivityAttribute, ActivityEvent, ActivityName, AttributeName, ChallengeUpdate,
+            self, ActivityAttribute, ActivityEvent, ActivityName, AttributeName, ChallengeUpdated,
             PrestigeProgression,
         },
         challenges::CurrencyReward,
@@ -133,7 +133,8 @@ pub struct PlayerInfoBadge {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlayerInfoResult {
-    pub challenges_updated: BTreeMap<String, ChallengeUpdate>,
+    /// Serialized as a map but its really just a list
+    pub challenges_updated: BTreeMap<String, ChallengeUpdated>,
 
     pub xp_earned: u32,
     pub previous_xp: u32,

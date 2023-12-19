@@ -11,7 +11,7 @@ use crate::{
         },
     },
     services::{
-        activity::{ActivityItemDetails, ActivityResult},
+        activity::ActivityResult,
         items::{
             pack::{ItemReward, RewardCollection},
             BaseCategory, Category, ItemChanged, ItemDefinition, ItemNamespace,
@@ -258,10 +258,8 @@ pub async fn consume_inventory(
 
     let activity = ActivityResult {
         currencies,
-        items: ActivityItemDetails {
-            earned,
-            definitions,
-        },
+        items_earned: earned,
+        item_definitions: definitions,
         ..Default::default()
     };
 

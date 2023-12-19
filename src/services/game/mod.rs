@@ -50,7 +50,7 @@ use crate::{
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
     services::{
-        activity::{ChallengeStatusChange, ChallengeUpdate, ChallengeUpdateCounter},
+        activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
         character::LevelTable,
     },
     state::App,
@@ -345,7 +345,7 @@ async fn process_player_data(
         &mut data_builder,
     );
 
-    let mut challenges_updated: BTreeMap<String, ChallengeUpdate> = BTreeMap::new();
+    let mut challenges_updated: BTreeMap<String, ChallengeUpdated> = BTreeMap::new();
 
     // Save challenge changes
     for (index, change) in data_builder.challenges_updates.iter().enumerate() {
@@ -359,7 +359,7 @@ async fn process_player_data(
         // Store the updated challenge
         challenges_updated.insert(
             (index + 1).to_string(),
-            ChallengeUpdate {
+            ChallengeUpdated {
                 challenge_id: model.challenge_id,
                 counters: vec![ChallengeUpdateCounter {
                     name: counter.name,

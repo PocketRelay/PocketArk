@@ -6,30 +6,16 @@
 
 use super::items::ItemDefinition;
 use crate::{
-    database::entity::{Currency, InventoryItem},
+    database::entity::{challenge_progress::ChallengeId, Currency, InventoryItem},
     state::App,
 };
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::{Number, Value};
 use serde_with::skip_serializing_none;
 use std::collections::{BTreeMap, HashMap};
 use uuid::Uuid;
 
 pub struct ActivityService;
-
-#[allow(unused)]
-impl ActivityService {
-    // Hardcoded activity types
-    pub const ITEM_CONSUMED: &'static str = "_itemConsumed";
-    pub const BADGE_EARNED: &'static str = "_badgeEarned";
-    pub const ARTICLE_PURCHASED: &'static str = "_articlePurchased";
-    pub const MISSION_FINISHED: &'static str = "_missionFinished";
-    pub const EQUIPMENT_ATTACHMENT_UPDATED: &'static str = "_equipmentAttachmentUpdated";
-    pub const EQUIPMENT_UPDATED: &'static str = "_equipmentUpdated";
-    pub const SKILL_PURCHASED: &'static str = "_skillPurchased";
-    pub const CHARACTER_LEVEL_UP: &'static str = "_characterLevelUp";
-    pub const STRIKE_TEAM_RECRUITED: &'static str = "_strikeTeamRecruited";
-}
 
 /// Represents the name for an activity, contains built in
 /// server activity types along with the [Uuid] variant for
@@ -207,6 +193,7 @@ pub enum ActivityFilter {
 }
 
 impl ActivityFilter {
+    /// Checks whether the provided [ActivityAttribute] matches this filter
     pub fn matches(&self, other: &ActivityAttribute) -> bool {
         match self {
             Self::Value(value) => value.eq(other),
@@ -223,70 +210,88 @@ impl ActivityDescriptor {
 }
 
 /// Represents the result produced from processing an [ActivityEvent]
-#[skip_serializing_none]
-#[derive(Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Default)]
 pub struct ActivityResult {
-    #[serde(flatten)]
-    pub xp: ActivityXpDetails,
+    /// The previous character XP
+    pub previous_xp: u32,
+    /// The current character XP
+    pub current_xp: u32,
+    /// The amount of XP gained
+    pub gained_xp: u32,
 
-    #[serde(flatten)]
-    pub level: ActivityLevelDetails,
+    /// The previous character level
+    pub previous_level: u32,
+    /// The current character level
+    pub current_level: u32,
 
+    /// Present in strike team activity resolves
     pub character_class_name: Option<Uuid>,
 
-    #[serde(flatten)]
-    pub challenge: ActivityChallengeDetails,
+    /// The number of challenges completed
+    pub challeges_completed: u32,
+    /// Challenges that were updates
+    pub challenges_updated: Vec<ChallengeUpdated>,
 
+    /// Unknown field
     pub news_triggered: u32,
-    /// The new total currency amounts
+    /// The currrent currency amounts that the player has
     pub currencies: Vec<Currency>,
-    /// The amounts that were earned
+    /// The different currency amounts that were earned
     pub currency_earned: Vec<Currency>,
 
-    #[serde(flatten)]
-    pub items: ActivityItemDetails,
+    /// Items that were earned from the activity
+    pub items_earned: Vec<InventoryItem>,
+    /// Definitions for the items from `items_earned`
+    pub item_definitions: Vec<&'static ItemDefinition>,
 
+    /// Entitlements that were granted from the activity
+    ///
+    /// TODO: Haven't encounted a value for this yet so its untyped
     pub entitlements_granted: Vec<Value>,
-    #[serde(rename = "prestigeProgressionMap")]
-    pub prestige: PrestigeProgression,
+
+    /// Prestige progression that resulted from the activity
+    pub prestige_progression: PrestigeProgression,
 }
 
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ActivityItemDetails {
-    #[serde(rename = "itemsEarned")]
-    pub earned: Vec<InventoryItem>,
-    #[serde(rename = "itemDefinitions")]
-    pub definitions: Vec<&'static ItemDefinition>,
-}
+impl Serialize for ActivityResult {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut value = serializer.serialize_struct("ActivityResult", 18)?;
+        value.serialize_field("previousXp", &self.previous_xp)?;
+        value.serialize_field("xp", &self.current_xp)?;
+        value.serialize_field("xpGained", &self.gained_xp)?;
 
-#[derive(Debug, Default, Serialize)]
-pub struct ActivityChallengeDetails {
-    #[serde(rename = "challengesUpdatedCount")]
-    pub updated_count: u32,
-    #[serde(rename = "challengesCompletedCount")]
-    pub completed_count: u32,
-    #[serde(rename = "challengesUpdated")]
-    pub challenges_updated: BTreeMap<String, ChallengeUpdate>,
-    #[serde(rename = "updatedChallengeIds")]
-    pub updated_ids: Vec<Value>,
-}
+        value.serialize_field("previousLevel", &self.previous_level)?;
+        value.serialize_field("level", &self.current_level)?;
+        value.serialize_field("levelUp", &(self.current_level != self.previous_level))?;
 
-#[derive(Debug, Clone, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ActivityLevelDetails {
-    pub previous_level: u32,
-    pub level: u32,
-    pub level_up: bool,
-}
+        if let Some(character_class_name) = &self.character_class_name {
+            value.serialize_field("characterClassName", character_class_name)?;
+        }
 
-#[derive(Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ActivityXpDetails {
-    pub xp: u32,
-    pub previous_xp: u32,
-    pub xp_gained: u32,
+        value.serialize_field("challengesUpdatedCount", &self.challenges_updated.len())?;
+        value.serialize_field("challengesCompletedCount", &self.challeges_completed)?;
+        value.serialize_field("challengesUpdated", &self.challenges_updated)?;
+
+        /// Collect the updated challenge IDs for serialization
+        let challenge_ids: Vec<ChallengeId> = self
+            .challenges_updated
+            .iter()
+            .map(|value| value.challenge_id)
+            .collect();
+
+        value.serialize_field("updatedChallengeIds", &challenge_ids)?;
+        value.serialize_field("newsTriggered", &self.news_triggered)?;
+        value.serialize_field("currencies", &self.currencies)?;
+        value.serialize_field("currencyEarned", &self.currency_earned)?;
+        value.serialize_field("itemsEarned", &self.items_earned)?;
+        value.serialize_field("itemDefinitions", &self.item_definitions)?;
+        value.serialize_field("entitlementsGranted", &self.entitlements_granted)?;
+        value.serialize_field("prestigeProgressionMap", &self.prestige_progression)?;
+        value.end()
+    }
 }
 
 #[skip_serializing_none]
@@ -306,7 +311,7 @@ pub struct PrestigeData {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ChallengeUpdate {
+pub struct ChallengeUpdated {
     pub challenge_id: Uuid,
     pub counters: Vec<ChallengeUpdateCounter>,
     pub status_change: ChallengeStatusChange,

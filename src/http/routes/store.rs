@@ -11,7 +11,7 @@ use crate::{
         },
     },
     services::{
-        activity::{ActivityItemDetails, ActivityResult},
+        activity::ActivityResult,
         items::{BaseCategory, Category},
     },
     state::App,
@@ -135,10 +135,9 @@ pub async fn obtain_article(
 
     let activity = ActivityResult {
         currencies,
-        items: ActivityItemDetails {
-            earned: items_earned.clone(),
-            definitions: definitions.clone(),
-        },
+        items_earned: items_earned.clone(),
+        item_definitions: definitions.clone(),
+
         ..Default::default()
     };
 
