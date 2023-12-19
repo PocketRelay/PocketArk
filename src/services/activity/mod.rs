@@ -7,11 +7,10 @@
 use super::items::ItemDefinition;
 use crate::{
     database::entity::{Currency, InventoryItem},
-    http::models::mission::MissionActivity,
     state::App,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Number, Value};
 use serde_with::skip_serializing_none;
 use std::collections::{BTreeMap, HashMap};
 use uuid::Uuid;
@@ -35,7 +34,7 @@ impl ActivityService {
 /// Represents the name for an activity, contains built in
 /// server activity types along with the [Uuid] variant for
 /// runtime defined activities
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityName {
     /// Item was consumed
     #[serde(rename = "_itemConsumed")]
@@ -89,6 +88,19 @@ pub enum ActivityName {
     /// - count (number)
     #[serde(rename = "_characterLevelUp")]
     CharacterLevelUp,
+    /// Prestige was leveled up
+    ///
+    /// Known attributes:
+    /// - newLevel (number)
+    /// - count (number)
+    #[serde(rename = "_prestigeLevelUp")]
+    PrestigeLevelUp,
+    /// Pathfinder rating has changed
+    ///
+    /// Known attributes
+    /// - pathfinderRatingDelta (number)
+    #[serde(rename = "_pathfinderRatingUpdated")]
+    PathfinderRatingUpdated,
     /// Strike team was recruited
     ///
     /// Known attributes:
@@ -107,7 +119,107 @@ pub struct ActivityEvent {
     /// The name of the activity event
     pub name: ActivityName,
     /// Data attributes associated with this activity event
-    pub attributes: HashMap<String, serde_json::Value>,
+    pub attributes: HashMap<AttributeName, ActivityAttribute>,
+}
+
+/// Type alias for a string representing an attribute name
+pub type AttributeName = String;
+
+/// Represents an attribute within an [ActivityEvent]. These
+/// can be numbers or strings
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ActivityAttribute {
+    /// String value
+    String(String),
+    /// Number value
+    Number(Number),
+}
+
+impl ActivityEvent {
+    /// Obtains the current progress from the activity attributes
+    /// based on the provided `key`.
+    ///
+    /// Returns [None] if the progress value was invalid
+    /// or missing
+    pub fn get_progress(&self, key: &str) -> Option<u32> {
+        self.attributes
+            // Get the progress value
+            .get(key)
+            // Take the number progress value
+            .and_then(|value| match value {
+                ActivityAttribute::String(_) => None,
+                ActivityAttribute::Number(value) => value.as_u64(),
+            })
+            // Don't need full precision of 64bit only need 32bit
+            .map(|value| value as u32)
+    }
+
+    /// Obtains the score from the mission activity if it
+    /// is present within the attributes
+    #[inline]
+    pub fn get_score(&self) -> Option<u32> {
+        self.get_progress("score")
+    }
+
+    /// Checks if this activity `attributes` match the provided filter
+    pub fn matches_filter(&self, filter: &HashMap<AttributeName, ActivityFilter>) -> bool {
+        filter
+            .iter()
+            // Ensure all attributes match
+            .all(|(key, filter)| {
+                self.attributes
+                    .get(key)
+                    // Ensure the value exists and matches
+                    .is_some_and(|value| filter.matches(value))
+            })
+    }
+}
+
+/// Describes an activity that can be used to track progress
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityDescriptor {
+    /// Name of the [ActivityEvent] this descriptor is for
+    /// (Can be a [Uuid] or just text such as: "_itemConsumed")
+    pub activity_name: ActivityName,
+    /// Filtering based on the [ActivityEvent::attributes] for
+    /// whether the activity is applicable
+    pub filter: HashMap<AttributeName, ActivityFilter>,
+    /// The key into [ActivityEvent::attributes] that should be
+    /// used for tracking activity progress
+    #[serde(rename = "incrementProgressBy")]
+    pub progress_key: String,
+}
+
+/// Enum for different ways an activity can be filtered against
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ActivityFilter {
+    /// Direct value comparison
+    Value(ActivityAttribute),
+    /// Not equal comparison
+    NotEqual {
+        /// The value to compare not equal against
+        #[serde(rename = "$ne")]
+        ne: ActivityAttribute,
+    },
+}
+
+impl ActivityFilter {
+    pub fn matches(&self, other: &ActivityAttribute) -> bool {
+        match self {
+            Self::Value(value) => value.eq(other),
+            Self::NotEqual { ne } => ne.ne(other),
+        }
+    }
+}
+
+impl ActivityDescriptor {
+    /// Checks if the provided `activity` matches this descriptor
+    pub fn matches(&self, activity: &ActivityEvent) -> bool {
+        self.activity_name.eq(&activity.name) && activity.matches_filter(&self.filter)
+    }
 }
 
 /// Represents the result produced from processing an [ActivityEvent]

@@ -1,9 +1,9 @@
-use crate::{
-    database::entity::currency::CurrencyType, http::models::mission::MissionActivity,
-    utils::models::DateDuration,
-};
+use crate::{database::entity::currency::CurrencyType, utils::models::DateDuration};
 
-use super::{items::ItemName, match_data::ActivityDescriptor};
+use super::{
+    activity::{ActivityDescriptor, ActivityEvent},
+    items::ItemName,
+};
 use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -47,7 +47,7 @@ impl ChallengesService {
 
     pub fn get_by_activity(
         &self,
-        activity: &MissionActivity,
+        activity: &ActivityEvent,
     ) -> Option<(&ChallengeDefinition, &ChallengeCounter, &ActivityDescriptor)> {
         self.defs
             .iter()
@@ -60,7 +60,7 @@ pub type ChallengeName = Uuid;
 
 /// Defines a challenge
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeDefinition {
     /// Unique name for the challenge (UUID)
@@ -118,7 +118,7 @@ impl ChallengeDefinition {
     /// matches the provided `activity`
     pub fn get_by_activity(
         &self,
-        activity: &MissionActivity,
+        activity: &ActivityEvent,
     ) -> Option<(&Self, &ChallengeCounter, &ActivityDescriptor)> {
         self.counters
             .iter()
@@ -133,7 +133,7 @@ impl ChallengeDefinition {
 /// Contains "i18nTitle" and "i18nDescription" fields however these
 /// are both blank and unused
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeCounter {
     /// Name of the counter
@@ -161,7 +161,7 @@ impl ChallengeCounter {
     /// that matches the provided mission `activity`
     pub fn get_by_activity(
         &self,
-        activity: &MissionActivity,
+        activity: &ActivityEvent,
     ) -> Option<(&Self, &ActivityDescriptor)> {
         self.activities
             .iter()

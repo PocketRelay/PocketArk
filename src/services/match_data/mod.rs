@@ -1,13 +1,14 @@
-use crate::{
-    database::entity::currency::CurrencyType,
-    http::models::mission::{MissionActivity, MissionActivityAttributes},
-};
+use crate::database::entity::currency::CurrencyType;
 use log::{debug, error, warn};
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_json::{Map, Number, Value};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, process::exit};
 use uuid::Uuid;
+
+use super::activity::{
+    ActivityAttribute, ActivityDescriptor, ActivityEvent, ActivityName, AttributeName,
+};
 
 pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
 pub const MATCH_MODIFIER_DEFINITIONS: &str =
@@ -46,7 +47,7 @@ impl MatchDataService {
 
     pub fn get_by_activity(
         &self,
-        activity: &MissionActivity,
+        activity: &ActivityEvent,
     ) -> Option<(&Badge, u32, Vec<&BadgeLevel>)> {
         // Find a badge with an activity that can be applied
         let (badge, badge_activity) = self.badges.iter().find_map(|badge| {
@@ -90,7 +91,7 @@ impl MatchDataService {
 pub type BadgeName = Uuid;
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Badge {
     /// Unique badge name
@@ -120,33 +121,10 @@ pub struct Badge {
 impl Badge {
     /// Finds the [ActivityDescriptor] within this [Badge] that matches the
     /// provided `activity` if there is one available
-    pub fn get_by_activity(&self, activity: &MissionActivity) -> Option<&ActivityDescriptor> {
+    pub fn get_by_activity(&self, activity: &ActivityEvent) -> Option<&ActivityDescriptor> {
         self.activities
             .iter()
             .find(|descriptor| descriptor.matches(activity))
-    }
-}
-
-/// Describes an activity that can be used to track progress
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ActivityDescriptor {
-    /// Name of the [MissionActivity] this descriptor is for
-    /// (Can be a [Uuid] or just text such as: "_itemConsumed")
-    pub activity_name: String,
-    /// Filtering based on the [MissionActivity::attributes] for
-    /// whether the activity is applicable
-    pub filter: HashMap<String, serde_json::Value>,
-    /// The key into [MissionActivity::attributes] that should be
-    /// used for tracking activity progress
-    #[serde(rename = "incrementProgressBy")]
-    pub progress_key: String,
-}
-
-impl ActivityDescriptor {
-    /// Checks if the provided `activity` matches this descriptor
-    pub fn matches(&self, activity: &MissionActivity) -> bool {
-        self.activity_name.eq(&activity.name) && activity.matches_filter(&self.filter)
     }
 }
 

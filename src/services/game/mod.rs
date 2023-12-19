@@ -15,7 +15,7 @@ use uuid::Uuid;
 use self::manager::GameManager;
 
 use super::{
-    activity::{PrestigeData, PrestigeProgression},
+    activity::{ActivityEvent, PrestigeData, PrestigeProgression},
     challenges::{
         ChallengeCounter, ChallengeDefinition, ChallengeName, ChallengesService, CurrencyReward,
     },
@@ -46,8 +46,8 @@ use crate::{
         },
     },
     http::models::mission::{
-        CompleteMissionData, MissionActivity, MissionDetails, MissionModifier, MissionPlayerData,
-        MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult, RewardSource,
+        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
+        PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdate, ChallengeUpdateCounter},
@@ -435,7 +435,7 @@ async fn process_player_data(
 /// Processes the `activities` from the game adding any rewards
 /// and badges from completed badge levels
 fn process_badges(
-    activities: &[MissionActivity],
+    activities: &[ActivityEvent],
     match_data: &MatchDataService,
     data_builder: &mut PlayerDataBuilder,
 ) {
@@ -492,7 +492,7 @@ pub struct ChallengeProgressChange {
 /// Processes challenge updates that may have occurred from the
 /// collection of `activities`
 fn process_challenges(
-    activities: &[MissionActivity],
+    activities: &[ActivityEvent],
     challenge_service: &'static ChallengesService,
     data_builder: &mut PlayerDataBuilder,
 ) {
