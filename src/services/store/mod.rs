@@ -158,3 +158,15 @@ pub struct StorePrice {
     /// The final cost price of the item (The actual price)
     pub final_price: u32,
 }
+
+#[cfg(test)]
+mod test {
+    use super::{StoreCatalog, STORE_CATALOG_DEFINITION};
+
+    /// Tests ensuring the catalog definitions can be parsed
+    /// correctly from the resource file
+    #[test]
+    fn ensure_parsing_succeed() {
+        let _: StoreCatalog = serde_json::from_str(STORE_CATALOG_DEFINITION).unwrap();
+    }
+}
