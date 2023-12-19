@@ -419,7 +419,7 @@ impl ActivityEvent {
     pub fn attribute_parsed<V>(&self, key: &str) -> Result<V, AttributeError>
     where
         V: FromStr,
-        <V as FromStr>::Err: std::error::Error + 'static,
+        <V as FromStr>::Err: std::error::Error + Send + 'static,
     {
         let attribute = self
             .attributes
