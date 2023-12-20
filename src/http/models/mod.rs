@@ -93,7 +93,12 @@ impl IntoResponse for DynHttpError {
 
 /// Trait implemented by errors that can be converted into [HttpError]s
 /// and used as error responses
-pub trait HttpError: Error + 'static {
+pub trait HttpError: Error + Send + 'static {
+    /// Logs the error
+    fn log(&self) {
+        error!("{self}: {self:?}");
+    }
+
     /// Used to create the status code for an error created
     fn status(&self) -> StatusCode {
         StatusCode::INTERNAL_SERVER_ERROR
@@ -114,6 +119,49 @@ impl HttpError for DbErr {
     fn reason(&self) -> String {
         // Database errors shouldn't be visible to users
         "Server error".to_string()
+    }
+}
+
+/// Wrapper around [anyhow::Error] allowing it to be used as a [HttpError]
+/// without exposing the details.
+///
+/// Treats the error as a generic error meaning its still logged but not
+/// used as the HTTP response
+pub struct AnyhowHttpError(anyhow::Error);
+
+impl Debug for AnyhowHttpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Anyhow").field(&self.0).finish()
+    }
+}
+
+impl Display for AnyhowHttpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.0, f)
+    }
+}
+
+impl std::error::Error for AnyhowHttpError {}
+
+impl HttpError for AnyhowHttpError {
+    fn log(&self) {
+        error!("{self}");
+    }
+
+    fn reason(&self) -> String {
+        "Server error".to_string()
+    }
+
+    fn status(&self) -> StatusCode {
+        StatusCode::INTERNAL_SERVER_ERROR
+    }
+}
+
+impl From<anyhow::Error> for DynHttpError {
+    fn from(value: anyhow::Error) -> Self {
+        DynHttpError {
+            inner: Box::new(AnyhowHttpError(value)),
+        }
     }
 }
 

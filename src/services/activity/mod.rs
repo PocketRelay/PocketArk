@@ -37,52 +37,6 @@ use uuid::Uuid;
 
 pub struct ActivityService;
 
-/// Dynamic error type for handling many error types
-pub struct ActivityError {
-    /// The dynamic error cause
-    inner: Box<dyn ActivityProcessError>,
-}
-
-impl Debug for ActivityError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("ActivityError").field(&self.inner).finish()
-    }
-}
-
-impl Display for ActivityError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(&self.inner, f)
-    }
-}
-
-impl std::error::Error for ActivityError {}
-
-/// Trait implemented by errors that can occur while processing
-trait ActivityProcessError: std::error::Error + Send + 'static {}
-
-impl ActivityProcessError for DbErr {}
-impl ActivityProcessError for AttributeError {}
-impl ActivityProcessError for ArticlePurchaseError {}
-impl ActivityProcessError for ItemConsumeError {}
-
-// Activity errors are represented as generic HTTP errors
-impl HttpError for ActivityError {
-    fn reason(&self) -> String {
-        "Server error".to_string()
-    }
-}
-
-impl<E> From<E> for ActivityError
-where
-    E: ActivityProcessError,
-{
-    fn from(value: E) -> Self {
-        Self {
-            inner: Box::new(value),
-        }
-    }
-}
-
 /// Errors that can occur while processing an
 /// article purchase
 #[derive(Debug, Error)]
@@ -112,7 +66,7 @@ impl ActivityService {
         db: &'db C,
         user: &User,
         event: ActivityEvent,
-    ) -> Result<ActivityResult, ActivityError>
+    ) -> anyhow::Result<ActivityResult>
     where
         C: ConnectionTrait + Send,
     {
@@ -130,7 +84,7 @@ impl ActivityService {
         db: &'db C,
         user: &User,
         events: Vec<ActivityEvent>,
-    ) -> Result<ActivityResult, ActivityError>
+    ) -> anyhow::Result<ActivityResult>
     where
         C: ConnectionTrait + Send,
     {
@@ -155,7 +109,7 @@ impl ActivityService {
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> Result<(), ActivityError>
+    ) -> anyhow::Result<()>
     where
         C: ConnectionTrait + Send,
     {
@@ -190,7 +144,7 @@ impl ActivityService {
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> Result<(), ActivityError>
+    ) -> anyhow::Result<()>
     where
         C: ConnectionTrait + Send,
     {
@@ -249,7 +203,7 @@ impl ActivityService {
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> Result<(), ActivityError>
+    ) -> anyhow::Result<()>
     where
         C: ConnectionTrait + Send,
     {
@@ -512,7 +466,7 @@ pub enum AttributeErrorCause {
     /// Attribute was an unexpected type
     IncorrectType,
     /// Failed to parse the value
-    ParseFailed(Box<dyn std::error::Error + Send + 'static>),
+    ParseFailed(Box<dyn std::error::Error + Send + Sync + 'static>),
 }
 
 impl std::error::Error for AttributeError {}
@@ -574,7 +528,7 @@ impl ActivityEvent {
     pub fn attribute_parsed<V>(&self, key: &str) -> Result<V, AttributeError>
     where
         V: FromStr,
-        <V as FromStr>::Err: std::error::Error + Send + 'static,
+        <V as FromStr>::Err: std::error::Error + Send + Sync + 'static,
     {
         let attribute = self
             .attributes

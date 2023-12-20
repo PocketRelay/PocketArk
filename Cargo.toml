@@ -26,7 +26,10 @@ tokio-util = { version = "0.7", features = ["full"] }
 futures = "^0.3"
 uuid = { version = "^1", features = ["v4", "serde", "fast-rng"] }
 chrono = { version = "^0.4", features = ["serde", "alloc"] }
+
 thiserror = "1"
+anyhow = "1.0"
+
 dotenvy = "^0.15"
 ring = "^0.16"
 

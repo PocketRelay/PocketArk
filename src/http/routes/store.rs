@@ -7,11 +7,11 @@ use crate::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, UpdateSeenArticles, UserCurrenciesResponse,
             },
-            HttpError, HttpResult,
+            DynHttpError, HttpError, HttpResult,
         },
     },
     services::{
-        activity::{ActivityError, ActivityEvent, ActivityName, ActivityResult, ActivityService},
+        activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
         items::{BaseCategory, Category},
         store::StoreService,
     },
@@ -57,15 +57,10 @@ pub enum StoreError {
     /// Article cannot be purchased with the requested currency
     #[error("Invalid currency")]
     InvalidCurrency,
-    /// Database error occurred
-    #[error("Server error")]
-    Database(#[from] DbErr),
+
     /// User doesn't have enough currency to purchase the item
     #[error("Currency balance cannot be less than 0.")]
     InsufficientCurrency,
-    /// Error processing the activity
-    #[error(transparent)]
-    Activity(#[from] ActivityError),
 }
 
 /// Attempts to spend the provided `amount` of the specified `currency`
@@ -75,7 +70,7 @@ async fn spend_currency<C>(
     user: &User,
     currency: CurrencyType,
     amount: u32,
-) -> Result<(), StoreError>
+) -> Result<(), DynHttpError>
 where
     C: ConnectionTrait + Send,
 {
@@ -87,7 +82,7 @@ where
 
     // Ensure they can afford the price
     if currency.balance < amount {
-        return Err(StoreError::InsufficientCurrency);
+        return Err(StoreError::InsufficientCurrency.into());
     }
 
     let new_balance = currency.balance - amount;
@@ -135,7 +130,7 @@ pub async fn obtain_article(
                 // Process the event
                 ActivityService::process_event(db, &user, event)
                     .await
-                    .map_err(StoreError::Activity)
+                    .map_err(Into::<DynHttpError>::into)
             })
         })
         .await?;
@@ -175,7 +170,6 @@ impl HttpError for StoreError {
         match self {
             StoreError::UnknownArticle => StatusCode::NOT_FOUND,
             StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
-            StoreError::Database(_) | StoreError::Activity(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }

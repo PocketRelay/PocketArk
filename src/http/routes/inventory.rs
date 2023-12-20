@@ -11,7 +11,7 @@ use crate::{
         },
     },
     services::{
-        activity::{ActivityError, ActivityEvent, ActivityName, ActivityResult, ActivityService},
+        activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
         items::{
             pack::{ItemReward, RewardCollection},
             BaseCategory, Category, ItemChanged, ItemDefinition, ItemName, ItemNamespace,
@@ -20,6 +20,7 @@ use crate::{
     },
     state::App,
 };
+use anyhow::Context;
 use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;
 use log::{debug, error, warn};
@@ -117,10 +118,6 @@ pub enum InventoryError {
     /// Database error occurred
     #[error("Server error")]
     Database(#[from] DbErr),
-
-    /// Error processing the activity
-    #[error("Server error")]
-    Activity(#[from] ActivityError),
 }
 
 /// Attempts to consume the provided `count` of `item` from the inventory of `user`.
@@ -191,7 +188,9 @@ pub async fn consume_inventory(
 
                     // Attempt to consume the item
                     let item_definition =
-                        consume_item(db, &user, item_id, CONSUME_COUNT, items_service).await?;
+                        consume_item(db, &user, item_id, CONSUME_COUNT, items_service)
+                            .await
+                            .context("Failed to consume item")?;
 
                     // Create the activity event
                     let event = ActivityEvent::new(ActivityName::ItemConsumed)
@@ -205,7 +204,8 @@ pub async fn consume_inventory(
                 // Process the event
                 ActivityService::process_events(db, &user, events)
                     .await
-                    .map_err(InventoryError::Activity)
+                    .context("Failed to process activity events")
+                    .map_err(Into::<DynHttpError>::into)
             })
         })
         .await?;
@@ -219,9 +219,9 @@ impl HttpError for InventoryError {
             InventoryError::NotOwned => StatusCode::NOT_FOUND,
             InventoryError::NotConsumable => StatusCode::BAD_REQUEST,
             InventoryError::NotEnough => StatusCode::CONFLICT,
-            InventoryError::Database(_)
-            | InventoryError::Activity(_)
-            | InventoryError::MissingDefinition => StatusCode::INTERNAL_SERVER_ERROR,
+            InventoryError::Database(_) | InventoryError::MissingDefinition => {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
         }
     }
 }
