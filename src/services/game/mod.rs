@@ -265,7 +265,8 @@ async fn process_player_data(
     // Character leveling
     let level_table = services
         .character
-        .level_table(&class.level_name)
+        .level_tables
+        .get(&class.level_name)
         .expect("Missing class level table");
 
     let previous_xp = character.xp;
@@ -283,7 +284,8 @@ async fn process_player_data(
     {
         let level_table = services
             .character
-            .level_table(&class.prestige_level_name)
+            .level_tables
+            .get(&class.prestige_level_name)
             .expect("Missing prestige level table");
 
         let prestige_value = shared_data

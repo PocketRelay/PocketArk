@@ -277,7 +277,7 @@ pub async fn get_classes(
 pub async fn get_level_tables() -> Json<CharacterLevelTables> {
     let services = Services::get();
     Json(CharacterLevelTables {
-        list: &services.character.level_tables,
+        list: &services.character.level_tables.values,
     })
 }
 

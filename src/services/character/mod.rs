@@ -9,18 +9,19 @@ use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use std::{collections::HashMap, str::FromStr};
 use uuid::Uuid;
 
+use self::levels::LevelTables;
+
 /// Class definitions (36)
 const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
 /// Skill definitions (64)
 const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
-/// Level table definitions (7)
-const LEVEL_TABLE_DEFINITIONS: &str =
-    include_str!("../../resources/data/characterLevelTables.json");
+
+pub mod levels;
 
 pub struct CharacterService {
     pub skills: Vec<SkillDefinition>,
     pub classes: ClassLookup,
-    pub level_tables: Vec<LevelTable>,
+    pub level_tables: LevelTables,
 }
 
 impl CharacterService {
@@ -34,43 +35,13 @@ impl CharacterService {
 
         debug!("Loaded {} skill definition(s)", skills.len());
 
-        let level_tables: Vec<LevelTable> = serde_json::from_str(LEVEL_TABLE_DEFINITIONS)
-            .context("Failed to parse level table definitions")?;
-
-        debug!("Loaded {} level table definition(s)", level_tables.len());
+        let level_tables: LevelTables = LevelTables::new()?;
 
         Ok(Self {
             classes,
             skills,
             level_tables,
         })
-    }
-
-    /// Obtains the xp structure which contains the current, next, and last
-    /// xp requirements for the provided level using the level tables
-    pub fn xp_from_level(&self, level_name: Uuid, level: u32) -> Xp {
-        let (current, last, next) = match self.level_table(&level_name) {
-            Some(table) => {
-                let current = table.get_entry_xp(level).unwrap_or(0);
-                let last = table.get_entry_xp(level - 1).unwrap_or(0);
-                let next = table.get_entry_xp(level + 1).unwrap_or(0);
-                (current, last, next)
-            }
-            // Empty values when level table is unknwon
-            None => (0, 0, 0),
-        };
-
-        Xp {
-            current,
-            next,
-            last,
-        }
-    }
-
-    pub fn level_table(&self, name: &Uuid) -> Option<&LevelTable> {
-        self.level_tables
-            .iter()
-            .find(|level_table| level_table.name.eq(name))
     }
 }
 
@@ -240,65 +211,6 @@ pub struct SkillItemLevel {
     pub unlock_conditions: Vec<Value>,
     pub cost: Map<String, Value>,
     pub bonus: Map<String, Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LevelTable {
-    pub name: Uuid,
-    pub table: Vec<LevelTableEntry>,
-    pub custom_attributes: HashMap<String, Value>,
-
-    #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
-}
-
-impl LevelTable {
-    pub fn get_entry_xp(&self, level: u32) -> Option<u32> {
-        self.table
-            .iter()
-            .find(|value| value.level == level)
-            .map(|value| value.xp)
-    }
-
-    /// Computes the new xp and level values from the provided
-    /// initial xp, level and the earned xp amount. Uses the
-    /// current level table
-    ///
-    /// # Arguments
-    /// * xp - The starting xp value  
-    /// * level - The starting level value
-    /// * xp_earned - The total xp earned
-    pub fn compute_leveling(&self, mut xp: Xp, mut level: u32, xp_earned: u32) -> (Xp, u32) {
-        xp.current = xp.current.saturating_add(xp_earned);
-
-        while xp.current >= xp.next {
-            let next_xp = match self.get_entry_xp(level + 1) {
-                Some(value) => value,
-                None => break,
-            };
-
-            level += 1;
-
-            // Subtract the old next amount from earnings
-            xp.current -= xp.next;
-
-            // Assign new next and last values
-            xp.last = xp.next;
-            xp.next = next_xp;
-        }
-
-        (xp, level)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LevelTableEntry {
-    pub level: u32,
-    pub xp: u32,
-    pub rewards: HashMap<String, f64>,
-    pub custom_attributes: HashMap<String, Value>,
 }
 
 #[serde_as]

@@ -148,7 +148,19 @@ impl Model {
         let mut point_map = HashMap::new();
         point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
 
-        let xp = characters.xp_from_level(class_def.level_name, DEFAULT_LEVEL);
+        let xp = {
+            let (previous, current, next) = characters
+                .level_tables
+                .get(&class_def.level_name)
+                .and_then(|table| table.get_xp_values(DEFAULT_LEVEL))
+                .unwrap_or_default();
+
+            Xp {
+                current,
+                last: previous,
+                next,
+            }
+        };
 
         // Insert character
         let model = ActiveModel {

@@ -163,12 +163,13 @@ impl Model {
             .expect("Failed to choose strike team name")
             .to_string();
         let level_table = character_service
-            .level_table(&Self::LEVEL_TABLE)
+            .level_tables
+            .get(&Self::LEVEL_TABLE)
             .expect("Missing strike team level table");
 
         let level = 1;
         let next_xp = level_table
-            .get_entry_xp(level)
+            .get_xp_requirement(level)
             .expect("Missing xp requirement for next strike team level");
 
         let xp = Xp {
