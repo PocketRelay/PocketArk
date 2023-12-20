@@ -4,7 +4,7 @@ use crate::{
         middleware::user::Auth,
         models::{
             challenge::{ChallengeCategories, ChallengeItem, ChallengesResponse},
-            HttpError,
+            RawHttpError,
         },
     },
     state::App,
@@ -26,7 +26,7 @@ pub async fn get_challenge_categories() -> Json<ChallengeCategories> {
 pub async fn get_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
-) -> Result<Json<ChallengesResponse>, HttpError> {
+) -> Result<Json<ChallengesResponse>, RawHttpError> {
     let services = App::services();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;
@@ -62,7 +62,7 @@ pub async fn get_challenges(
 pub async fn get_user_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
-) -> Result<Json<ChallengesResponse>, HttpError> {
+) -> Result<Json<ChallengesResponse>, RawHttpError> {
     let services = App::services();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;

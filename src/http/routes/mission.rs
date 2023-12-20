@@ -7,7 +7,7 @@ use crate::{
             mission::{
                 CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse,
             },
-            HttpError, RawJson,
+            RawHttpError, RawJson,
         },
     },
     services::game::manager::GameManager,
@@ -38,20 +38,23 @@ pub async fn get_mission(
     Path(mission_id): Path<u32>,
     Extension(db): Extension<DatabaseConnection>,
     Extension(game_manager): Extension<Arc<GameManager>>,
-) -> Result<Json<MissionDetails>, HttpError> {
+) -> Result<Json<MissionDetails>, RawHttpError> {
     debug!("Requested mission details: {}", mission_id);
 
     let game = game_manager
         .get_game(mission_id)
         .await
-        .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
 
     let game = &mut *game.write().await;
 
-    let mission_data = game.get_mission_details(&db).await.ok_or(HttpError::new(
-        "Missing mission data",
-        StatusCode::INTERNAL_SERVER_ERROR,
-    ))?;
+    let mission_data = game
+        .get_mission_details(&db)
+        .await
+        .ok_or(RawHttpError::new(
+            "Missing mission data",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        ))?;
 
     Ok(Json(mission_data))
 }
@@ -63,13 +66,13 @@ pub async fn start_mission(
     Path(mission_id): Path<u32>,
     Extension(game_manager): Extension<Arc<GameManager>>,
     JsonDump(req): JsonDump<StartMissionRequest>,
-) -> Result<Json<StartMissionResponse>, HttpError> {
+) -> Result<Json<StartMissionResponse>, RawHttpError> {
     debug!("Mission started: {} {:?}", mission_id, req);
 
     let game = game_manager
         .get_game(mission_id)
         .await
-        .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
 
     {
         let game = &mut *game.write().await;
@@ -92,7 +95,7 @@ pub async fn finish_mission(
     Path(mission_id): Path<u32>,
     Extension(game_manager): Extension<Arc<GameManager>>,
     JsonDump(req): JsonDump<CompleteMissionData>,
-) -> Result<StatusCode, HttpError> {
+) -> Result<StatusCode, RawHttpError> {
     // TODO: Handling, JSON structure here is possibly incorrect? Got 400 error
 
     debug!("Mission finished: {} {:#?}", mission_id, req);
@@ -100,7 +103,7 @@ pub async fn finish_mission(
     let game = game_manager
         .get_game(mission_id)
         .await
-        .ok_or(HttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new("Unknown game", StatusCode::NOT_FOUND))?;
 
     {
         let game = &mut *game.write().await;

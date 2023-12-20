@@ -5,12 +5,13 @@
 //! be accurate to the actual game loot tables.
 
 use crate::{
-    database::entity::InventoryItem,
+    database::entity::{InventoryItem, User},
     services::items::{
         BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemLink, ItemName, ItemRarity,
     },
 };
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
+use sea_orm::{ConnectionTrait, DbErr};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::skip_serializing_none;
@@ -85,13 +86,21 @@ impl Pack {
 
     /// Generates a [RewardCollection] from this [Pack] using the provided
     /// random number generator `rng`
-    pub fn generate_rewards<'def>(
+    ///
+    /// Requires database access for checking item ownership requirement
+    /// in order to match
+    ///
+    pub async fn generate_rewards<'def, C>(
         &self,
+        db: &C,
+        user: &User,
         rng: &mut StdRng,
         defs: &'def ItemDefinitions,
-        owned_items: &[(InventoryItem, &'def ItemDefinition)],
         rewards: &mut RewardCollection<'def>,
-    ) -> Result<(), GenerateError> {
+    ) -> Result<(), GenerateError>
+    where
+        C: ConnectionTrait + Send,
+    {
         // Creates a list of items that are applicable for dropping (If they match filters)
         // this step is done so unlock definitions and droppability don't have to be
         // done for every single collection filter
@@ -101,35 +110,50 @@ impl Pack {
             .iter()
             // Only include droppable items
             .filter(|item| item.is_droppable())
-            // Check if we meet the item locked requirement
-            .filter(|item| {
-                let unlock_def_name: &ItemName = match item.unlock_definition.as_ref() {
-                    Some(value) => value,
-                    // No unlock requirement
-                    None => return true,
-                };
-
-                let unlock_def: &ItemDefinition = match defs.by_name(unlock_def_name) {
-                    Some(value) => value,
-                    // Unlock definition doesn't exist
-                    None => return false,
-                };
-
-                let owned_item: &InventoryItem = match owned_items
-                    .iter()
-                    .find(|(_, definition)| definition.name.eq(unlock_def_name))
-                {
-                    Some((item, _)) => item,
-                    // Player missing required unlock item
-                    None => return false,
-                };
-
-                // If there is a max capacity for the item ensure its been reacheds
-                unlock_def
-                    .capacity
-                    .is_some_and(|capacity| owned_item.stack_size == capacity)
-            })
             .collect();
+
+        /// Collection of requirements for items (For requirement filtering)
+        let required_items: Vec<ItemName> = items
+            .iter()
+            .filter_map(|item| item.unlock_definition.as_ref())
+            .copied()
+            .collect();
+
+        // Collect the owned items
+        let owned_items: Vec<InventoryItem> =
+            InventoryItem::all_by_names(db, user, required_items).await?;
+
+        // Remove items that don't meet the owned requirement
+        items.retain(|definition| {
+            let unlock_def_name: &ItemName = match definition.unlock_definition.as_ref() {
+                Some(value) => value,
+                // No unlocking requirement
+                None => return true,
+            };
+
+            // Find the item definition for the lock requirment
+            let unlock_def: &ItemDefinition = match defs.by_name(unlock_def_name) {
+                Some(value) => value,
+                // Unlock definition doesn't exist (Filter out, item must be invalid)
+                None => return false,
+            };
+
+            // Ensure the user owns atleast one of the item
+            let owned_item = match owned_items
+                .iter()
+                .find(|item| item.definition_name == definition.name)
+            {
+                Some(value) => value,
+
+                // Requirement of owning the item not met
+                None => return false,
+            };
+
+            // If there is a max capacity for the item ensure its been reached
+            unlock_def
+                .capacity
+                .is_some_and(|capacity| owned_item.stack_size == capacity)
+        });
 
         // Generate rewards from each collection
         for collection in self.collections.iter() {
@@ -237,8 +261,12 @@ impl PackCollection {
 /// Error generating pack rewards
 #[derive(Debug, Error)]
 pub enum GenerateError {
+    /// Failed to do weighted randomness
     #[error(transparent)]
     Weight(#[from] WeightedError),
+    /// Failed to query the database for item ownership
+    #[error("Server error")]
+    Database(#[from] DbErr),
 }
 
 /// Wrapper around a collection of rewards to make adding

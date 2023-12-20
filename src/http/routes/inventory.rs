@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{Character, Currency, InventoryItem},
+    database::entity::{inventory_items::ItemId, Character, Currency, InventoryItem, User},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -7,14 +7,15 @@ use crate::{
                 ConsumeRequest, InventoryRequestQuery, InventoryResponse, InventorySeenRequest,
                 ItemDefinitionsResponse,
             },
-            HttpError, HttpResult,
+            HttpResult, RawHttpError,
         },
     },
     services::{
-        activity::ActivityResult,
+        activity::{ActivityError, ActivityEvent, ActivityName, ActivityResult, ActivityService},
         items::{
             pack::{ItemReward, RewardCollection},
-            BaseCategory, Category, ItemChanged, ItemDefinition, ItemNamespace,
+            BaseCategory, Category, ItemChanged, ItemDefinition, ItemName, ItemNamespace,
+            ItemsService,
         },
     },
     state::App,
@@ -23,7 +24,8 @@ use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;
 use log::{debug, error, warn};
 use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::{DatabaseConnection, DatabaseTransaction};
+use sea_orm::{ConnectionTrait, DatabaseConnection, DatabaseTransaction, DbErr, TransactionTrait};
+use thiserror::Error;
 
 /// GET /inventory
 ///
@@ -84,7 +86,7 @@ pub async fn update_inventory_seen(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<InventorySeenRequest>,
-) -> Result<StatusCode, HttpError> {
+) -> Result<StatusCode, RawHttpError> {
     debug!("Inventory seen change requested: {:?}", req);
 
     // Updates all the matching items seen state
@@ -92,6 +94,73 @@ pub async fn update_inventory_seen(
 
     // TODO: Actual database call to update the seen status
     Ok(StatusCode::NO_CONTENT)
+}
+
+#[derive(Debug, Error)]
+pub enum InventoryError {
+    /// User doesn't own the item they tried to consume
+    #[error("The user does not own the item.")]
+    NotOwned,
+
+    /// User doesn't own enough of the item
+    #[error("Not enough of owned item")]
+    NotEnough,
+
+    /// Tried to consume a non-consumable item
+    #[error("Item not consumable")]
+    NotConsumable,
+
+    /// Internal server error because item definition was missing
+    #[error("Item missing definition")]
+    MissingDefinition,
+
+    /// Database error occurred
+    #[error("Server error")]
+    Database(#[from] DbErr),
+
+    /// Error processing the activity
+    #[error(transparent)]
+    Activity(#[from] ActivityError),
+}
+
+/// Attempts to consume the provided `count` of `item` from the inventory of `user`.
+/// If the user has the item then the item definition will be returned
+async fn consume_item<'def, C>(
+    db: &C,
+    user: &User,
+    item: ItemId,
+    count: u32,
+    items_service: &'def ItemsService,
+) -> Result<&'def ItemDefinition, InventoryError>
+where
+    C: ConnectionTrait + Send,
+{
+    let mut item = InventoryItem::get(db, user, item)
+        .await?
+        // User doesn't own the item
+        .ok_or(InventoryError::NotOwned)?;
+
+    let definition: &'def ItemDefinition = items_service
+        .items
+        .by_name(&item.definition_name)
+        .ok_or(InventoryError::MissingDefinition)?;
+
+    // Ensure the item can be consumed
+    if !definition.is_consumable() {
+        return Err(InventoryError::NotConsumable);
+    }
+
+    // Sanity check incase the item exists in the DB even after becoming empty
+    if item.stack_size < count {
+        return Err(InventoryError::NotEnough);
+    }
+
+    let new_stack_size = item.stack_size - count;
+
+    // Decrease the stack size
+    item.set_stack_size(db, new_stack_size).await;
+
+    Ok(definition)
 }
 
 /// POST /inventory/consume
@@ -103,165 +172,59 @@ pub async fn consume_inventory(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ConsumeRequest>,
-) -> Result<Json<ActivityResult>, HttpError> {
-    // TODO: Database transaction to rollback changes on consume failure
+) -> Result<Json<ActivityResult>, RawHttpError> {
+    const CONSUME_COUNT: u32 = 1;
 
     debug!("Consume inventory items: {:?}", req);
 
     let services = App::services();
     let items_service = &services.items;
 
-    // Obtain the items and definitions that the user owns
-    let owned_items: Vec<(InventoryItem, &'static ItemDefinition)> =
-        InventoryItem::get_all_items(&db, &user)
-            .await?
-            .into_iter()
-            .filter_map(|value| {
-                let definition = items_service.items.by_name(&value.definition_name)?;
-                Some((value, definition))
+    let result: ActivityResult = db
+        .transaction(|db| {
+            Box::pin(async move {
+                let mut events: Vec<ActivityEvent> = Vec::with_capacity(req.items.len());
+
+                // Create the consumption event for each item
+                for target in req.items {
+                    let item_id = target.item_id;
+
+                    // Attempt to consume the item
+                    let item_definition =
+                        consume_item(db, &user, item_id, CONSUME_COUNT, items_service).await?;
+
+                    // Create the activity event
+                    let event = ActivityEvent::new(ActivityName::ItemConsumed)
+                        .with_attribute("category", item_definition.category.to_string())
+                        .with_attribute("definitionName", item_definition.name)
+                        .with_attribute("count", CONSUME_COUNT);
+
+                    events.push(event);
+                }
+
+                // Process the event
+                ActivityService::process_events(db, &user, events)
+                    .await
+                    .map_err(InventoryError::Activity)
             })
-            .collect();
+        })
+        .await?;
 
-    // List of changed item stack sizes
-    let mut items_changed: Vec<ItemChanged> = Vec::new();
-    // Collection of rewards
-    let mut rewards: RewardCollection = RewardCollection::default();
+    Ok(Json(result))
+}
 
-    for target in req.items {
-        // Find the owned item to consume
-        let (item, definition) = owned_items
-            .iter()
-            .find(|(item, _)| item.id.eq(&target.item_id))
-            .ok_or(HttpError::new(
-                "The user does not own the item.",
-                StatusCode::NOT_FOUND,
-            ))?;
-
-        // Ignore items that arent consumable
-        if !definition.is_consumable() {
-            return Err(HttpError::new(
-                "Item not consumable",
-                StatusCode::BAD_REQUEST,
-            ));
-        }
-
-        // Obtain the base category of the item
-        let base_category = match &definition.category {
-            Category::Base(base) => *base,
-            Category::Sub(sub) => sub.0,
+impl From<InventoryError> for RawHttpError {
+    fn from(value: InventoryError) -> Self {
+        let reason = value.to_string();
+        let status = match value {
+            InventoryError::NotOwned => StatusCode::NOT_FOUND,
+            InventoryError::NotConsumable => StatusCode::BAD_REQUEST,
+            InventoryError::NotEnough => StatusCode::CONFLICT,
+            InventoryError::Database(_)
+            | InventoryError::Activity(_)
+            | InventoryError::MissingDefinition => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        match base_category {
-            BaseCategory::ItemPack => {
-                let pack = items_service
-                    .packs
-                    .by_name(&definition.name)
-                    .ok_or_else(|| {
-                        warn!(
-                            "Don't know how to handle item pack: {} ({:?})",
-                            &definition.name,
-                            &definition.locale.name()
-                        );
-                        HttpError::new("Pack item not implemented", StatusCode::NOT_IMPLEMENTED)
-                    })?;
-
-                let mut rng = StdRng::from_entropy();
-
-                pack.generate_rewards(&mut rng, &items_service.items, &owned_items, &mut rewards)
-                    .map_err(|err| {
-                        error!("Failed to grant pack items: {} {}", &pack.name, err);
-                        HttpError::new(
-                            "Failed to grant pack items",
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                        )
-                    })?;
-
-                // TODO: Pack consumed activity
-            }
-
-            BaseCategory::ApexPoints => {
-                // TODO: Apex point awards
-            }
-            BaseCategory::StrikeTeamReward => {
-                // TODO: Strike team rewards
-            }
-            BaseCategory::Consumable => {}
-            BaseCategory::Boosters => {}
-            BaseCategory::CapacityUpgrade => {}
-
-            _ => {}
-        }
-
-        // Take 1 from the item we just consumed
-        items_changed.push(ItemChanged {
-            item_id: item.id,
-            prev_stack_size: item.stack_size,
-            stack_size: item.stack_size.saturating_sub(1),
-        });
+        RawHttpError::new_owned(reason, status)
     }
-
-    // Process item changes
-    for (item, definition) in owned_items {
-        let change = items_changed
-            .iter()
-            .find(|value| value.item_id.eq(&item.id));
-        if let Some(change) = change {
-            debug!(
-                "Consumed item stack size {} ({}) new stack size: x{}",
-                item.id,
-                definition.locale.name(),
-                change.stack_size,
-            );
-            item.set_stack_size(&db, change.stack_size).await?;
-        }
-    }
-
-    let rewards = rewards.rewards;
-    let mut earned: Vec<InventoryItem> = Vec::with_capacity(rewards.len());
-    let mut definitions: Vec<&'static ItemDefinition> = Vec::with_capacity(rewards.len());
-
-    for ItemReward {
-        definition,
-        stack_size,
-    } in rewards
-    {
-        debug!(
-            "Item reward {} x{} ({:?} to {}",
-            definition.name,
-            stack_size,
-            definition.locale.name(),
-            user.username
-        );
-
-        let mut item =
-            InventoryItem::add_item(&db, &user, definition.name, stack_size, definition.capacity)
-                .await?;
-
-        // Update the returning item stack size to the correct size
-        // (Response should be the amount earned *not* total amount)
-        item.stack_size = stack_size;
-
-        // Handle character creation if the item is a character item
-        if definition
-            .category
-            .is_within(&Category::Base(BaseCategory::Characters))
-        {
-            let services = App::services();
-            Character::create_from_item(&db, &services.character, &user, &definition.name).await?;
-        }
-
-        earned.push(item);
-        definitions.push(definition);
-    }
-
-    let currencies = Currency::all(&db, &user).await?;
-
-    let activity = ActivityResult {
-        currencies,
-        items_earned: earned,
-        item_definitions: definitions,
-        ..Default::default()
-    };
-
-    Ok(Json(activity))
 }

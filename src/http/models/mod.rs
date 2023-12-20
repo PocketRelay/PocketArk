@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{error::Error, fmt::Debug};
 
 use axum::{
     response::{IntoResponse, Response},
@@ -22,7 +22,7 @@ pub mod strike_teams;
 pub mod telemetry;
 pub mod user_match;
 
-pub type HttpResult<T> = Result<Json<T>, HttpError>;
+pub type HttpResult<T> = Result<Json<T>, RawHttpError>;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -46,9 +46,47 @@ where
     }
 }
 
+/// Dynamic error type for handling many error types
+pub struct DynHttpError {
+    /// The dynamic error cause
+    error: Box<dyn HttpError>,
+}
+
+/// Trait implemented by errors that can be converted into [HttpError]s
+/// and used as error responses
+trait HttpError: Error + 'static {
+    /// Used to create the status code for an error created
+    fn status(&self) -> StatusCode {
+        StatusCode::INTERNAL_SERVER_ERROR
+    }
+
+    /// Used to create the reason string
+    fn reason(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl HttpError for DbErr {
+    fn reason(&self) -> String {
+        // Database errors shouldn't be visible to users
+        "Server error".to_string()
+    }
+}
+
+impl<E> From<E> for DynHttpError
+where
+    E: HttpError,
+{
+    fn from(value: E) -> Self {
+        DynHttpError {
+            error: Box::new(value),
+        }
+    }
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpError {
+pub struct RawHttpError {
     #[serde(skip)]
     pub status: StatusCode,
     pub reason: String,
@@ -57,7 +95,7 @@ pub struct HttpError {
     pub trace_id: Option<String>,
 }
 
-impl HttpError {
+impl RawHttpError {
     pub fn new(reason: &str, status: StatusCode) -> Self {
         Self {
             status,
@@ -78,16 +116,16 @@ impl HttpError {
     }
 }
 
-impl From<DbErr> for HttpError {
+impl From<DbErr> for RawHttpError {
     fn from(err: DbErr) -> Self {
         error!("Database error: {}", err);
         Self::new("Server error", StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
-impl<E> From<TransactionError<E>> for HttpError
+impl<E> From<TransactionError<E>> for RawHttpError
 where
-    E: std::error::Error + Into<HttpError>,
+    E: Error + Into<RawHttpError>,
 {
     fn from(value: TransactionError<E>) -> Self {
         match value {
@@ -97,7 +135,7 @@ where
     }
 }
 
-impl IntoResponse for HttpError {
+impl IntoResponse for RawHttpError {
     fn into_response(self) -> axum::response::Response {
         (self.status, Json(self)).into_response()
     }

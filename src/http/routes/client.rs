@@ -10,7 +10,7 @@ use crate::{
         middleware::upgrade::BlazeUpgrade,
         models::{
             client::{AuthRequest, AuthResponse},
-            HttpError, HttpResult,
+            HttpResult, RawHttpError,
         },
     },
     services::sessions::{Sessions, VerifyError},
@@ -51,10 +51,13 @@ pub async fn login(
 ) -> HttpResult<AuthResponse> {
     let user = User::get_by_username(&db, &req.username)
         .await?
-        .ok_or(HttpError::new("Username not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Username not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     if !verify_password(&req.password, &user.password) {
-        return Err(HttpError::new(
+        return Err(RawHttpError::new(
             "Incorrect password",
             StatusCode::BAD_REQUEST,
         ));
@@ -72,14 +75,14 @@ pub async fn create(
     Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     if User::get_by_username(&db, &req.username).await?.is_some() {
-        return Err(HttpError::new(
+        return Err(RawHttpError::new(
             "Username already taken",
             StatusCode::CONFLICT,
         ));
     }
 
     let password = hash_password(&req.password).map_err(|_| {
-        HttpError::new("Failed to hash password", StatusCode::INTERNAL_SERVER_ERROR)
+        RawHttpError::new("Failed to hash password", StatusCode::INTERNAL_SERVER_ERROR)
     })?;
 
     let user = User::create_user(&db, req.username, password).await?;
@@ -104,15 +107,15 @@ pub async fn upgrade(
     Extension(sessions): Extension<Arc<Sessions>>,
 
     upgrade: BlazeUpgrade,
-) -> Result<Response, HttpError> {
+) -> Result<Response, RawHttpError> {
     let user_id: u32 = sessions
         .verify_token(&upgrade.token)
-        .map_err(|err| HttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
+        .map_err(|err| RawHttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
 
     let user = User::get_user(&db, user_id)
         .await?
         .ok_or(VerifyError::Invalid)
-        .map_err(|err| HttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
+        .map_err(|err| RawHttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
 
     tokio::spawn(async move {
         let socket = match upgrade.upgrade().await {

@@ -5,7 +5,10 @@
 //! and rewards accordingly
 
 use super::{
-    items::{BaseCategory, Category, ItemDefinition},
+    items::{
+        pack::{GenerateError, ItemReward, RewardCollection},
+        BaseCategory, Category, ItemDefinition, ItemName,
+    },
     store::StoreArticleName,
     Services,
 };
@@ -17,7 +20,8 @@ use crate::{
     },
     state::App,
 };
-use log::debug;
+use log::{debug, warn};
+use rand::{rngs::StdRng, SeedableRng};
 use sea_orm::{ConnectionTrait, DbErr};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::{Number, Value};
@@ -66,6 +70,23 @@ impl From<ArticlePurchaseError> for ActivityError {
     }
 }
 
+/// Errors that can occur while processing a item
+/// consumption
+#[derive(Debug, Error)]
+pub enum ItemConsumeError {
+    #[error("Pack '{0}' not implemented")]
+    PackNotImplemented(ItemName),
+
+    #[error(transparent)]
+    GenerateError(#[from] GenerateError),
+}
+
+impl From<ItemConsumeError> for ActivityError {
+    fn from(value: ItemConsumeError) -> Self {
+        Self::Processing(Box::new(value))
+    }
+}
+
 impl ActivityService {
     pub async fn process_event<'db, C>(
         db: &'db C,
@@ -75,15 +96,58 @@ impl ActivityService {
     where
         C: ConnectionTrait + Send,
     {
-        debug!("Processing Activity: {:?}", event);
-
         let mut result = ActivityResult::default();
 
+        Self::process_event_inner(db, user, event, &mut result).await?;
+
+        // Update the current user currencies
+        result.currencies = Currency::all(db, user).await?;
+
+        Ok(result)
+    }
+
+    pub async fn process_events<'db, C>(
+        db: &'db C,
+        user: &User,
+        events: Vec<ActivityEvent>,
+    ) -> Result<ActivityResult, ActivityError>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let mut result = ActivityResult::default();
+
+        for event in events {
+            Self::process_event_inner(db, user, event, &mut result).await?;
+        }
+
+        // Update the current user currencies
+        result.currencies = Currency::all(db, user).await?;
+
+        Ok(result)
+    }
+
+    /// Processes the inner portion of an event adding its results
+    /// onto an existing result set.
+    ///
+    /// Doesn't update [ActivityResult::currencies]
+    pub async fn process_event_inner<'db, C>(
+        db: &'db C,
+        user: &User,
+        event: ActivityEvent,
+        result: &mut ActivityResult,
+    ) -> Result<(), ActivityError>
+    where
+        C: ConnectionTrait + Send,
+    {
+        debug!("Processing Activity: {:?}", event);
+
         match event.name {
-            ActivityName::ItemConsumed => {}
+            ActivityName::ItemConsumed => {
+                Self::process_item_consumed(db, user, event, result).await?;
+            }
             ActivityName::BadgeEarned => {}
             ActivityName::ArticlePurchased => {
-                Self::process_article_purchased(db, user, event, &mut result).await?;
+                Self::process_article_purchased(db, user, event, result).await?;
             }
             ActivityName::MissionFinished => {}
             ActivityName::StrikeTeamMissionFinished => {}
@@ -97,12 +161,8 @@ impl ActivityService {
             ActivityName::Named(_) => {}
         }
 
-        // Update the current user currencies
-        result.currencies = Currency::all(db, user).await?;
-
         // TODO: Update challenges
-        // TODO: Process event
-        Ok(result)
+        Ok(())
     }
 
     pub async fn process_article_purchased<'db, C>(
@@ -156,6 +216,81 @@ impl ActivityService {
             if item_definition.category.base_eq(&BaseCategory::Characters) {
                 Character::create_from_item(db, characters_service, user, &item_definition.name)
                     .await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Handles granting rewards and other changes from consuming
+    /// an inventory item
+    pub async fn process_item_consumed<'db, C>(
+        db: &'db C,
+        user: &User,
+        event: ActivityEvent,
+        result: &mut ActivityResult,
+    ) -> Result<(), ActivityError>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let Services {
+            store: store_service,
+            items: items_service,
+            character: characters_service,
+            ..
+        } = App::services();
+
+        let category: Category = event.attribute_parsed("category")?;
+        let definition_name: ItemName = event.attribute_uuid("definitionName")?;
+        let count: u32 = event.attribute_u32("count")?;
+
+        let mut rewards: RewardCollection = RewardCollection::default();
+
+        match category.base() {
+            BaseCategory::ItemPack => {
+                // Find the item pack
+                let pack = items_service
+                    .packs
+                    .by_name(&definition_name)
+                    .ok_or(ItemConsumeError::PackNotImplemented(definition_name))?;
+
+                // Create a random generator
+                let mut rng = StdRng::from_entropy();
+
+                // Generate colleciton of rewards
+                pack.generate_rewards(db, user, &mut rng, &items_service.items, &mut rewards)
+                    .await
+                    .map_err(ItemConsumeError::GenerateError)?;
+            }
+
+            BaseCategory::ApexPoints => {
+                // TODO: Apex point awards
+            }
+            BaseCategory::StrikeTeamReward => {
+                // TODO: Strike team rewards
+            }
+            BaseCategory::Consumable => {}
+            BaseCategory::Boosters => {}
+            BaseCategory::CapacityUpgrade => {}
+
+            _ => {}
+        }
+
+        for reward in rewards.rewards {
+            let ItemReward {
+                definition,
+                stack_size,
+            } = reward;
+
+            let mut item =
+                InventoryItem::add_item(db, user, definition.name, stack_size, definition.capacity)
+                    .await?;
+
+            result.add_item(item, stack_size, definition);
+
+            // Handle character creation for character items
+            if definition.category.base_eq(&BaseCategory::Characters) {
+                Character::create_from_item(db, characters_service, user, &definition.name).await?;
             }
         }
 

@@ -141,21 +141,24 @@ impl Model {
         item.ok_or(DbErr::RecordNotInserted)
     }
 
-    /// Creates a new item if there are no matching item definitions in
-    /// the inventory otherwise appends the stack size to the existing item
-    pub async fn set_stack_size<C>(self, db: &C, stack_size: u32) -> DbResult<Option<Self>>
+    ///Sets the stack size of the item to `stack_size` if `stack_size` is zero
+    /// then the item will be deleted
+    pub async fn set_stack_size<C>(self, db: &C, stack_size: u32) -> DbResult<()>
     where
         C: ConnectionTrait,
     {
+        // Remove empty stacks
         if stack_size == 0 {
             self.delete(db).await?;
-            Ok(None)
-        } else {
-            let mut model = self.into_active_model();
-            model.stack_size = Set(stack_size);
-            let model = model.update(db).await?;
-            Ok(Some(model))
+            return Ok(());
         }
+
+        // Update the model
+        let mut model = self.into_active_model();
+        model.stack_size = Set(stack_size);
+        _ = model.update(db).await?;
+
+        Ok(())
     }
 
     pub async fn create_default<C>(
@@ -244,6 +247,47 @@ impl Model {
     {
         user.find_related(Entity)
             .filter(Column::Id.is_in(ids))
+            .all(db)
+    }
+
+    /// Finds an item from the users collection of items with a matching `id`
+    pub fn get<'db, C>(
+        db: &'db C,
+        user: &User,
+        id: ItemId,
+    ) -> impl Future<Output = DbResult<Option<InventoryItem>>> + Send + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity).filter(Column::Id.eq(id)).one(db)
+    }
+
+    /// Finds a item with a matching definition `name` within the users
+    /// collection of items
+    pub fn get_by_name<'db, C>(
+        db: &'db C,
+        user: &User,
+        name: ItemName,
+    ) -> impl Future<Output = DbResult<Option<InventoryItem>>> + Send + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity)
+            .filter(Column::DefinitionName.eq(name))
+            .one(db)
+    }
+    /// Finds all items with a defintiion name in the collection of `names` that
+    /// are within the user collection of items
+    pub fn all_by_names<'db, C>(
+        db: &'db C,
+        user: &User,
+        names: Vec<ItemName>,
+    ) -> impl Future<Output = DbResult<Vec<InventoryItem>>> + Send + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity)
+            .filter(Column::DefinitionName.is_in(names))
             .all(db)
     }
 }

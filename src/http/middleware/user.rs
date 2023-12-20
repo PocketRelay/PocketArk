@@ -1,6 +1,6 @@
 use crate::{
     database::entity::User,
-    http::models::HttpError,
+    http::models::RawHttpError,
     services::sessions::{Sessions, VerifyError},
 };
 use axum::extract::FromRequestParts;
@@ -15,7 +15,7 @@ pub struct Auth(pub User);
 const TOKEN_HEADER: &str = "X-Token";
 
 impl<S> FromRequestParts<S> for Auth {
-    type Rejection = HttpError;
+    type Rejection = RawHttpError;
 
     fn from_request_parts<'a, 'b, 'c>(
         parts: &'a mut axum::http::request::Parts,
@@ -44,16 +44,19 @@ impl<S> FromRequestParts<S> for Auth {
                 .headers
                 .get(TOKEN_HEADER)
                 .and_then(|value| value.to_str().ok())
-                .ok_or(HttpError::new("Missing session", StatusCode::BAD_REQUEST))?;
+                .ok_or(RawHttpError::new(
+                    "Missing session",
+                    StatusCode::BAD_REQUEST,
+                ))?;
 
             let user_id: u32 = sessions
                 .verify_token(token)
-                .map_err(|_| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
+                .map_err(|_| RawHttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
 
             let user = User::get_user(&db, user_id)
                 .await?
                 .ok_or(VerifyError::Invalid)
-                .map_err(|_| HttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
+                .map_err(|_| RawHttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
 
             Ok(Self(user))
         })

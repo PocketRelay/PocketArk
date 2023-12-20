@@ -11,7 +11,7 @@ use crate::{
                 CharactersResponse, ClassWithState, UnlockedCharacters, UpdateCustomizationRequest,
                 UpdateSkillTreesRequest,
             },
-            HttpError,
+            RawHttpError,
         },
     },
     services::character::SkillDefinition,
@@ -29,7 +29,7 @@ use sea_orm::{
 pub async fn get_characters(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<CharactersResponse>, HttpError> {
+) -> Result<Json<CharactersResponse>, RawHttpError> {
     let list = user.find_related(characters::Entity).all(&db).await?;
     let shared_data = SharedData::get(&db, &user).await?;
 
@@ -43,13 +43,16 @@ pub async fn get_character(
     Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<CharacterResponse>, HttpError> {
+) -> Result<Json<CharacterResponse>, RawHttpError> {
     let character = user
         .find_related(characters::Entity)
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
-        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Character not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     let shared_data = SharedData::get(&db, &user).await?;
 
@@ -66,7 +69,7 @@ pub async fn set_active(
     Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<StatusCode, HttpError> {
+) -> Result<StatusCode, RawHttpError> {
     debug!("Requested set active character: {}", character_id);
 
     // TODO: validate the character is actually owned
@@ -83,7 +86,7 @@ pub async fn get_character_equip(
     Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<CharacterEquipmentList>, HttpError> {
+) -> Result<Json<CharacterEquipmentList>, RawHttpError> {
     debug!("Requested character equip: {}", character_id);
 
     let character = user
@@ -91,7 +94,10 @@ pub async fn get_character_equip(
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
-        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Character not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     Ok(Json(CharacterEquipmentList {
         list: character.equipments.0,
@@ -107,7 +113,7 @@ pub async fn update_character_equip(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<CharacterEquipmentList>,
-) -> Result<StatusCode, HttpError> {
+) -> Result<StatusCode, RawHttpError> {
     debug!("Update character equipment: {} - {:?}", character_id, req);
 
     let character = user
@@ -115,7 +121,10 @@ pub async fn update_character_equip(
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
-        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Character not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     let mut character = character.into_active_model();
     character.equipments = ActiveValue::Set(EquipmentList(req.list));
@@ -131,7 +140,7 @@ pub async fn update_shared_equip(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<CharacterEquipmentList>,
-) -> Result<StatusCode, HttpError> {
+) -> Result<StatusCode, RawHttpError> {
     debug!("Update shared equipment: {:?}", req);
     let shared_data = SharedData::get(&db, &user).await?;
     shared_data.set_shared_equipment(&db, req.list).await?;
@@ -146,7 +155,7 @@ pub async fn update_character_customization(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<UpdateCustomizationRequest>,
-) -> Result<StatusCode, HttpError> {
+) -> Result<StatusCode, RawHttpError> {
     debug!(
         "Update character customization: {} - {:?}",
         character_id, req
@@ -157,7 +166,10 @@ pub async fn update_character_customization(
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
-        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Character not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     let map = req
         .customization
@@ -180,7 +192,7 @@ pub async fn get_character_equip_history(
     Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<CharacterEquipmentList>, HttpError> {
+) -> Result<Json<CharacterEquipmentList>, RawHttpError> {
     // TODO: Currently just gives current equip maybe save previous list
 
     debug!("Requested character equip history: {}", character_id);
@@ -190,7 +202,10 @@ pub async fn get_character_equip_history(
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
-        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Character not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     Ok(Json(CharacterEquipmentList {
         list: character.equipments.0,
@@ -203,7 +218,7 @@ pub async fn update_skill_tree(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<UpdateSkillTreesRequest>,
-) -> Result<Json<Character>, HttpError> {
+) -> Result<Json<Character>, RawHttpError> {
     debug!("Req update skill tree: {} {:?}", character_id, req);
 
     let mut character = user
@@ -211,7 +226,10 @@ pub async fn update_skill_tree(
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
-        .ok_or(HttpError::new("Character not found", StatusCode::NOT_FOUND))?;
+        .ok_or(RawHttpError::new(
+            "Character not found",
+            StatusCode::NOT_FOUND,
+        ))?;
 
     // TODO: Clean this up and properly diff the trees
     req.skill_trees.into_iter().for_each(|tree| {
@@ -246,7 +264,7 @@ pub async fn update_skill_tree(
 pub async fn get_classes(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<CharacterClasses>, HttpError> {
+) -> Result<Json<CharacterClasses>, RawHttpError> {
     let services = App::services();
 
     let class_data = ClassData::all(&db, &user).await?;
@@ -292,7 +310,7 @@ pub async fn get_level_tables() -> Json<CharacterLevelTables> {
 pub async fn character_unlocked(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<UnlockedCharacters>, HttpError> {
+) -> Result<Json<UnlockedCharacters>, RawHttpError> {
     debug!("Unlocked request");
     let shared_data = SharedData::get(&db, &user).await?;
 

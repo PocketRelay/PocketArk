@@ -15,7 +15,7 @@ use crate::{
         middleware::user::Auth,
         models::{
             strike_teams::{PurchaseQuery, PurchaseResponse, StrikeTeamsList, StrikeTeamsResponse},
-            HttpError, HttpResult, ListWithCount, RawJson,
+            HttpResult, ListWithCount, RawHttpError, RawJson,
         },
     },
     services::strike_teams::{
@@ -96,14 +96,14 @@ pub async fn purchase_equipment(
 ) -> HttpResult<PurchaseResponse> {
     let currency = Currency::get(&db, &user, query.currency)
         .await?
-        .ok_or(HttpError::new(
+        .ok_or(RawHttpError::new(
             "Currency balance cannot be less than 0.",
             StatusCode::CONFLICT,
         ))?;
 
     let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
-        .ok_or(HttpError::new(
+        .ok_or(RawHttpError::new(
             "Strike team doesn't exist",
             StatusCode::NOT_FOUND,
         ))?;
@@ -116,7 +116,7 @@ pub async fn purchase_equipment(
         .equipment
         .iter()
         .find(|equip| equip.name.eq(&name))
-        .ok_or(HttpError::new(
+        .ok_or(RawHttpError::new(
             "Unknown equipment item",
             StatusCode::NOT_FOUND,
         ))?;
@@ -125,11 +125,11 @@ pub async fn purchase_equipment(
         .cost_by_currency
         .get(&currency.ty)
         .copied()
-        .ok_or(HttpError::new("Invalid currency", StatusCode::CONFLICT))?;
+        .ok_or(RawHttpError::new("Invalid currency", StatusCode::CONFLICT))?;
 
     // Cannot afford
     if currency.balance < equipment_cost {
-        return Err(HttpError::new(
+        return Err(RawHttpError::new(
             "Currency balance cannot be less than 0.",
             StatusCode::CONFLICT,
         ));
@@ -180,11 +180,11 @@ pub async fn retire(
     Auth(user): Auth,
     Path(id): Path<Uuid>,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<(), HttpError> {
+) -> Result<(), RawHttpError> {
     debug!("Strike team retire: {}", id);
     let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
-        .ok_or(HttpError::new(
+        .ok_or(RawHttpError::new(
             "Strike team doesn't exist",
             StatusCode::NOT_FOUND,
         ))?;
@@ -205,21 +205,21 @@ pub async fn purchase(
     let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
         .get(strike_teams)
         .copied()
-        .ok_or(HttpError::new(
+        .ok_or(RawHttpError::new(
             "Maximum number of strike teams reached",
             StatusCode::CONFLICT,
         ))?;
 
     let currency = Currency::get(&db, &user, CurrencyType::Mission)
         .await?
-        .ok_or(HttpError::new(
+        .ok_or(RawHttpError::new(
             "Currency balance cannot be less than 0.",
             StatusCode::CONFLICT,
         ))?;
 
     // Cannot afford
     if currency.balance < strike_team_cost {
-        return Err(HttpError::new(
+        return Err(RawHttpError::new(
             "Currency balance cannot be less than 0.",
             StatusCode::CONFLICT,
         ));
