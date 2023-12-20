@@ -53,18 +53,20 @@ pub type HttpResult<T> = Result<Json<T>, DynHttpError>;
 /// Dynamic error type for handling many error types
 pub struct DynHttpError {
     /// The dynamic error cause
-    pub error: Box<dyn HttpError>,
+    inner: Box<dyn HttpError>,
 }
 
 impl Debug for DynHttpError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(&self.error, f)
+        f.debug_tuple(self.inner.type_name())
+            .field(&self.inner)
+            .finish()
     }
 }
 
 impl Display for DynHttpError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(&self.error, f)
+        Display::fmt(&self.inner, f)
     }
 }
 
@@ -73,17 +75,17 @@ impl std::error::Error for DynHttpError {}
 /// Handles converting the error into a response (Also logs the error before conversion)
 impl IntoResponse for DynHttpError {
     fn into_response(self) -> Response {
-        /// Handler for handling error responses and logging of [DynHttpError]s
-        error!("{:?}: {}", &self, &self);
+        // Log the underlying error before its type is lost
+        error!("{self:?}: {self}");
 
         // Create the response body
         let body = Json(RawHttpError {
-            reason: self.error.reason(),
+            reason: self.inner.reason(),
             cause: None,
             stack_trace: None,
             trace_id: None,
         });
-        let status = self.error.status();
+        let status = self.inner.status();
 
         (status, body).into_response()
     }
@@ -101,6 +103,11 @@ pub trait HttpError: Error + 'static {
     fn reason(&self) -> String {
         self.to_string()
     }
+
+    /// Used to get the type name of the error
+    fn type_name(&self) -> &str {
+        std::any::type_name::<Self>()
+    }
 }
 
 impl HttpError for DbErr {
@@ -117,27 +124,19 @@ where
 {
     fn from(value: E) -> Self {
         DynHttpError {
-            error: Box::new(value),
+            inner: Box::new(value),
         }
     }
 }
 
-// Handle acceptable transaction errors
-impl<E> HttpError for TransactionError<E>
+impl<E> From<TransactionError<E>> for DynHttpError
 where
-    E: HttpError,
+    E: Into<DynHttpError> + std::error::Error,
 {
-    fn reason(&self) -> String {
-        match self {
-            TransactionError::Connection(err) => err.reason(),
-            TransactionError::Transaction(err) => err.reason(),
-        }
-    }
-
-    fn status(&self) -> StatusCode {
-        match self {
-            TransactionError::Connection(err) => err.status(),
-            TransactionError::Transaction(err) => err.status(),
+    fn from(value: TransactionError<E>) -> Self {
+        match value {
+            TransactionError::Connection(err) => err.into(),
+            TransactionError::Transaction(err) => err.into(),
         }
     }
 }

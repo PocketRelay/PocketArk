@@ -119,7 +119,7 @@ pub enum InventoryError {
     Database(#[from] DbErr),
 
     /// Error processing the activity
-    #[error(transparent)]
+    #[error("Server error")]
     Activity(#[from] ActivityError),
 }
 

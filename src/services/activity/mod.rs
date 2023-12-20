@@ -18,6 +18,7 @@ use crate::{
         currency::CurrencyType,
         Character, Currency, InventoryItem, User,
     },
+    http::models::HttpError,
     state::App,
 };
 use log::{debug, warn};
@@ -28,7 +29,7 @@ use serde_json::{Number, Value};
 use serde_with::skip_serializing_none;
 use std::{
     collections::{BTreeMap, HashMap},
-    fmt::Display,
+    fmt::{Debug, Display},
     str::FromStr,
 };
 use thiserror::Error;
@@ -36,19 +37,50 @@ use uuid::Uuid;
 
 pub struct ActivityService;
 
-#[derive(Debug, Error)]
-pub enum ActivityError {
-    /// Database error occurred
-    #[error("Server error")]
-    Database(#[from] DbErr),
+/// Dynamic error type for handling many error types
+pub struct ActivityError {
+    /// The dynamic error cause
+    inner: Box<dyn ActivityProcessError>,
+}
 
-    /// Error with an event attribute
-    #[error(transparent)]
-    Attribute(#[from] AttributeError),
+impl Debug for ActivityError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("ActivityError").field(&self.inner).finish()
+    }
+}
 
-    /// Error occurred while processing
-    #[error(transparent)]
-    Processing(Box<dyn std::error::Error + Send + 'static>),
+impl Display for ActivityError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.inner, f)
+    }
+}
+
+impl std::error::Error for ActivityError {}
+
+/// Trait implemented by errors that can occur while processing
+trait ActivityProcessError: std::error::Error + Send + 'static {}
+
+impl ActivityProcessError for DbErr {}
+impl ActivityProcessError for AttributeError {}
+impl ActivityProcessError for ArticlePurchaseError {}
+impl ActivityProcessError for ItemConsumeError {}
+
+// Activity errors are represented as generic HTTP errors
+impl HttpError for ActivityError {
+    fn reason(&self) -> String {
+        "Server error".to_string()
+    }
+}
+
+impl<E> From<E> for ActivityError
+where
+    E: ActivityProcessError,
+{
+    fn from(value: E) -> Self {
+        Self {
+            inner: Box::new(value),
+        }
+    }
 }
 
 /// Errors that can occur while processing an
@@ -64,12 +96,6 @@ pub enum ArticlePurchaseError {
     UnknownArticleItem,
 }
 
-impl From<ArticlePurchaseError> for ActivityError {
-    fn from(value: ArticlePurchaseError) -> Self {
-        Self::Processing(Box::new(value))
-    }
-}
-
 /// Errors that can occur while processing a item
 /// consumption
 #[derive(Debug, Error)]
@@ -79,12 +105,6 @@ pub enum ItemConsumeError {
 
     #[error(transparent)]
     GenerateError(#[from] GenerateError),
-}
-
-impl From<ItemConsumeError> for ActivityError {
-    fn from(value: ItemConsumeError) -> Self {
-        Self::Processing(Box::new(value))
-    }
 }
 
 impl ActivityService {
