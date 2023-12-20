@@ -1,5 +1,4 @@
-use std::str::FromStr;
-
+use crate::state::App;
 use sea_orm::prelude::DateTimeUtc;
 use serde::{
     de::{MapAccess, Visitor},
@@ -7,8 +6,6 @@ use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
 };
 use serde_with::skip_serializing_none;
-
-use crate::state::App;
 
 /// Localized naming variables
 #[skip_serializing_none]

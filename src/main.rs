@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use crate::state::App;
 use crate::utils::constants::SERVER_PORT;
 use crate::utils::signing::SigningKey;

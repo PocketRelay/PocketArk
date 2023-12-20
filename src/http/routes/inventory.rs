@@ -184,9 +184,7 @@ pub async fn consume_inventory(
 
                     // Attempt to consume the item
                     let item_definition =
-                        consume_item(db, &user, item_id, CONSUME_COUNT, items_service)
-                            .await
-                            .context("Failed to consume item")?;
+                        consume_item(db, &user, item_id, CONSUME_COUNT, items_service).await?;
 
                     // Create the activity event
                     let event = ActivityEvent::new(ActivityName::ItemConsumed)
@@ -200,7 +198,6 @@ pub async fn consume_inventory(
                 // Process the event
                 ActivityService::process_events(db, &user, events)
                     .await
-                    .context("Failed to process activity events")
                     .map_err(Into::<DynHttpError>::into)
             })
         })
