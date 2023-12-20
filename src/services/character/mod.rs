@@ -9,8 +9,11 @@ use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use std::{collections::HashMap, str::FromStr};
 use uuid::Uuid;
 
+/// Class definitions (36)
 const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
+/// Skill definitions (64)
 const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
+/// Level table definitions (7)
 const LEVEL_TABLE_DEFINITIONS: &str =
     include_str!("../../resources/data/characterLevelTables.json");
 

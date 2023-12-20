@@ -5,6 +5,7 @@ use crate::utils::hashing::IntHashMap;
 use csv::ReaderBuilder;
 use log::debug;
 
+/// Translations (103400)
 const I18N_TRANSLATIONS: &[u8] = include_bytes!("../../resources/data/i18n.csv");
 
 /// Translation service

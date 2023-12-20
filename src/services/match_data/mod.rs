@@ -8,7 +8,9 @@ use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 use uuid::Uuid;
 
+/// Badge definitions (20)
 pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
+/// Modifier definitions (6)
 pub const MATCH_MODIFIER_DEFINITIONS: &str =
     include_str!("../../resources/data/matchModifiers.json");
 

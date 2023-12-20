@@ -1,6 +1,7 @@
 use crate::database::entity::inventory_items::ItemId;
 use crate::utils::models::LocaleNameWithDesc;
 use anyhow::Context;
+use log::debug;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
 use pack::Packs;
 use serde::{Deserialize, Serialize};
@@ -17,6 +18,7 @@ use uuid::Uuid;
 
 pub mod pack;
 
+/// Item definitions (628)
 pub const INVENTORY_DEFINITIONS: &str =
     include_str!("../../resources/data/inventoryDefinitions.json");
 
@@ -54,6 +56,8 @@ impl ItemDefinitions {
     /// array string `value`
     pub fn from_str(value: &str) -> serde_json::Result<Self> {
         let values: Vec<ItemDefinition> = serde_json::from_str(value)?;
+
+        debug!("Loaded {} item definition(s)", values.len());
 
         // Create the by name lookup table
         let lookup_by_name: HashMap<ItemName, usize> = values

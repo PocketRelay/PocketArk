@@ -11,6 +11,7 @@ use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
+/// Challenge definitions (192)
 pub const CHALLENGE_DEFINITIONS: &str =
     include_str!("../../resources/data/challengeDefinitions.json");
 
