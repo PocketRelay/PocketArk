@@ -1,32 +1,25 @@
 use crate::{
-    database::entity::{inventory_items::ItemId, Character, Currency, InventoryItem, User},
+    database::entity::{inventory_items::ItemId, InventoryItem, User},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
             inventory::{
-                ConsumeRequest, InventoryRequestQuery, InventoryResponse, InventorySeenRequest,
-                ItemDefinitionsResponse,
+                ConsumeRequest, InventoryError, InventoryRequestQuery, InventoryResponse,
+                InventorySeenRequest, ItemDefinitionsResponse,
             },
-            DynHttpError, HttpError, HttpResult, RawHttpError,
+            DynHttpError, HttpResult,
         },
     },
     services::{
         activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        items::{
-            pack::{ItemReward, RewardCollection},
-            BaseCategory, Category, ItemChanged, ItemDefinition, ItemName, ItemNamespace,
-            ItemsService,
-        },
+        items::{ItemDefinition, ItemNamespace, ItemsService},
     },
     state::App,
 };
-use anyhow::Context;
 use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;
-use log::{debug, error, warn};
-use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::{ConnectionTrait, DatabaseConnection, DatabaseTransaction, DbErr, TransactionTrait};
-use thiserror::Error;
+use log::debug;
+use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
 
 /// GET /inventory
 ///
@@ -97,25 +90,6 @@ pub async fn update_inventory_seen(
     Ok(StatusCode::NO_CONTENT)
 }
 
-#[derive(Debug, Error)]
-pub enum InventoryError {
-    /// User doesn't own the item they tried to consume
-    #[error("The user does not own the item.")]
-    NotOwned,
-
-    /// User doesn't own enough of the item
-    #[error("Not enough of owned item")]
-    NotEnough,
-
-    /// Tried to consume a non-consumable item
-    #[error("Item not consumable")]
-    NotConsumable,
-
-    /// Internal server error because item definition was missing
-    #[error("Item missing definition")]
-    MissingDefinition,
-}
-
 /// Attempts to consume the provided `count` of `item` from the inventory of `user`.
 /// If the user has the item then the item definition will be returned
 async fn consume_item<'def, C>(
@@ -128,7 +102,7 @@ async fn consume_item<'def, C>(
 where
     C: ConnectionTrait + Send,
 {
-    let mut item = InventoryItem::get(db, user, item)
+    let item = InventoryItem::get(db, user, item)
         .await?
         // User doesn't own the item
         .ok_or(InventoryError::NotOwned)?;
@@ -151,7 +125,7 @@ where
     let new_stack_size = item.stack_size - count;
 
     // Decrease the stack size
-    item.set_stack_size(db, new_stack_size).await;
+    item.set_stack_size(db, new_stack_size).await?;
 
     Ok(definition)
 }
@@ -204,15 +178,4 @@ pub async fn consume_inventory(
         .await?;
 
     Ok(Json(result))
-}
-
-impl HttpError for InventoryError {
-    fn status(&self) -> StatusCode {
-        match self {
-            InventoryError::NotOwned => StatusCode::NOT_FOUND,
-            InventoryError::NotConsumable => StatusCode::BAD_REQUEST,
-            InventoryError::NotEnough => StatusCode::CONFLICT,
-            InventoryError::MissingDefinition => StatusCode::INTERNAL_SERVER_ERROR,
-        }
-    }
 }

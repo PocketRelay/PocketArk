@@ -1,27 +1,22 @@
 use crate::{
-    database::entity::{currency::CurrencyType, Character, Currency, InventoryItem, User},
+    database::entity::{currency::CurrencyType, Currency, User},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
             store::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
-                StoreCatalogResponse, UpdateSeenArticles, UserCurrenciesResponse,
+                StoreCatalogResponse, StoreError, UpdateSeenArticles, UserCurrenciesResponse,
             },
-            DynHttpError, HttpError, HttpResult,
+            DynHttpError, HttpResult,
         },
     },
-    services::{
-        activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        items::{BaseCategory, Category},
-        store::StoreService,
-    },
+    services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
     state::App,
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{ConnectionTrait, DatabaseConnection, DbErr, TransactionError, TransactionTrait};
-use thiserror::Error;
+use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
 
 /// GET /store/catalogs
 ///
@@ -47,20 +42,6 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
     // this might change at some point.
 
     StatusCode::NO_CONTENT
-}
-
-#[derive(Debug, Error)]
-pub enum StoreError {
-    /// Couldn't find the article requested
-    #[error("Unknown article")]
-    UnknownArticle,
-    /// Article cannot be purchased with the requested currency
-    #[error("Invalid currency")]
-    InvalidCurrency,
-
-    /// User doesn't have enough currency to purchase the item
-    #[error("Currency balance cannot be less than 0.")]
-    InsufficientCurrency,
 }
 
 /// Attempts to spend the provided `amount` of the specified `currency`
@@ -163,13 +144,4 @@ pub async fn get_currencies(
     let currencies = Currency::all(&db, &user).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
-}
-
-impl HttpError for StoreError {
-    fn status(&self) -> StatusCode {
-        match self {
-            StoreError::UnknownArticle => StatusCode::NOT_FOUND,
-            StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
-        }
-    }
 }

@@ -4,11 +4,11 @@ use super::{
     activity::{ActivityDescriptor, ActivityEvent},
     items::ItemName,
 };
-use log::{debug, error};
+use anyhow::Context;
+use log::debug;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use std::{collections::HashSet, process::exit};
 use uuid::Uuid;
 
 pub const CHALLENGE_DEFINITIONS: &str =
@@ -19,18 +19,12 @@ pub struct ChallengesService {
 }
 
 impl ChallengesService {
-    pub fn new() -> Self {
+    pub fn new() -> anyhow::Result<Self> {
         debug!("Loading challenges");
-        let defs: Vec<ChallengeDefinition> = match serde_json::from_str(CHALLENGE_DEFINITIONS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load challenge definitions: {}", err);
-                exit(1);
-            }
-        };
-
+        let defs: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
+            .context("Failed to load challenge definitions")?;
         debug!("Loaded {} challenge definition(s)", defs.len());
-        Self { defs }
+        Ok(Self { defs })
     }
 
     pub fn get_by_activity(

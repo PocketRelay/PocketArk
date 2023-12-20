@@ -1,5 +1,5 @@
 use sea_orm::FromJsonQueryResult;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Map;
 
 pub mod challenge_progress;

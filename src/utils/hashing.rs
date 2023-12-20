@@ -1,7 +1,7 @@
 //! Hashing utility for hashing and verifying passwords
 
 use hashbrown::HashMap;
-use std::hash::{BuildHasher, BuildHasherDefault, Hasher};
+use std::hash::{BuildHasher, Hasher};
 
 use argon2::{
     password_hash::{self, rand_core::OsRng, PasswordVerifier, SaltString},
@@ -52,6 +52,7 @@ impl BuildHasher for BuildIntHasher {
 /// Const safe init shorthand function for [`IntHashMap`] that
 /// doesn't allocate anything until used
 #[inline(always)]
+#[allow(unused)]
 pub const fn int_hash_map<K, V>() -> IntHashMap<K, V> {
     IntHashMap::with_hasher(BuildIntHasher)
 }

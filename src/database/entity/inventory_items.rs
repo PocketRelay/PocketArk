@@ -8,6 +8,7 @@
 //! ```
 //! (Don't include hyphens in the definition name)
 
+use super::users::UserId;
 use crate::{
     database::{
         entity::{Character, InventoryItem, User, ValueMap},
@@ -15,25 +16,20 @@ use crate::{
     },
     services::{
         character::CharacterService,
-        items::{pack::ItemReward, BaseCategory, Category, ItemDefinition, ItemName, ItemsService},
+        items::{BaseCategory, Category, ItemName, ItemsService},
     },
-    state::App,
 };
 use chrono::Utc;
 use futures::Future;
-use log::debug;
 use sea_orm::{
     entity::prelude::*,
-    sea_query::{Expr, OnConflict, Query, SimpleExpr},
+    sea_query::{Expr, OnConflict},
     ActiveValue::{NotSet, Set},
     IntoActiveModel, UpdateResult,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::str::FromStr;
 use uuid::uuid;
-
-use super::users::UserId;
 
 /// Item ID keying has been replaced with integer keys rather than the UUIDs
 /// used by the official game, this is because its *very* annoying to work with

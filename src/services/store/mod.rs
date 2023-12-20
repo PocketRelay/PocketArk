@@ -1,19 +1,12 @@
-use std::process::exit;
-
-use chrono::{DateTime, Utc};
-use log::error;
-use sea_orm::prelude::DateTimeUtc;
-use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
-use serde_with::skip_serializing_none;
-use uuid::Uuid;
-
+use super::items::ItemName;
 use crate::{
     database::entity::currency::CurrencyType,
     utils::models::{DateDuration, LocaleNameWithDesc},
 };
-
-use super::items::ItemName;
+use anyhow::Context;
+use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
+use uuid::Uuid;
 
 /// Definition file for the contents of the in-game store
 const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
@@ -23,16 +16,11 @@ pub struct StoreService {
 }
 
 impl StoreService {
-    pub fn new() -> Self {
-        let catalog: StoreCatalog = match serde_json::from_str(STORE_CATALOG_DEFINITION) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load store definitions: {}", err);
-                exit(1);
-            }
-        };
+    pub fn new() -> anyhow::Result<Self> {
+        let catalog: StoreCatalog = serde_json::from_str(STORE_CATALOG_DEFINITION)
+            .context("Failed to load store catalog definitions")?;
 
-        Self { catalog }
+        Ok(Self { catalog })
     }
 }
 

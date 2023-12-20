@@ -1,19 +1,14 @@
-use super::{users::UserId, ChallengeProgress, User};
+use super::{users::UserId, User};
 use crate::{
     database::DbResult,
     services::{
-        activity::{ChallengeStatusChange, ChallengeUpdateCounter},
         challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
         game::ChallengeProgressChange,
     },
 };
-use chrono::{DateTime, Utc};
-use sea_orm::{
-    entity::prelude::*,
-    ActiveValue::{NotSet, Set},
-    FromJsonQueryResult, IntoActiveModel,
-};
-use serde::{de, Deserialize, Serialize};
+use chrono::Utc;
+use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
+use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::future::Future;
 use uuid::Uuid;
@@ -211,10 +206,10 @@ impl Model {
         // Take all the counters from the original list
         let mut counters = challenge.counters.0.split_off(0);
 
-        let mut update_type: CounterUpdateType;
+        let update_type: CounterUpdateType;
 
         // Find the counter if it already exists
-        let mut counter = if let Some(existing) = counters
+        let counter = if let Some(existing) = counters
             .iter_mut()
             .find(|counter| counter.name == change.counter.name)
         {

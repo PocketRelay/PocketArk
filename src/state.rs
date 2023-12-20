@@ -17,7 +17,7 @@ static mut GLOBAL_STATE: Option<App> = None;
 impl App {
     pub fn init() {
         // Initialize session router
-        let services = Services::init();
+        let services = Services::init().unwrap();
 
         unsafe {
             GLOBAL_STATE = Some(App { services });

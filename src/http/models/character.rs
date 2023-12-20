@@ -1,13 +1,29 @@
+use super::HttpError;
 use crate::{
     database::entity::{characters::CharacterId, Character, SharedData},
     services::character::{
         CharacterEquipment, Class, CustomizationEntry, LevelTable, SkillDefinition, SkillTreeEntry,
     },
 };
+use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashMap;
-use uuid::Uuid;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum CharactersError {
+    #[error("Character not found")]
+    NotFound,
+}
+
+impl HttpError for CharactersError {
+    fn status(&self) -> StatusCode {
+        match self {
+            CharactersError::NotFound => StatusCode::NOT_FOUND,
+        }
+    }
+}
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

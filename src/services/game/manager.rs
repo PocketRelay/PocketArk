@@ -1,3 +1,8 @@
+use super::{AttrMap, Game, GameID, GameRef, Player};
+use crate::{
+    blaze::{models::game_manager::GameSetupContext, session::SessionLink},
+    utils::hashing::IntHashMap,
+};
 use log::{debug, warn};
 use std::{
     sync::{
@@ -7,13 +12,6 @@ use std::{
     time::Duration,
 };
 use tokio::sync::RwLock;
-
-use crate::{
-    blaze::{models::game_manager::GameSetupContext, session::SessionLink},
-    utils::hashing::IntHashMap,
-};
-
-use super::{AttrMap, Game, GameID, GameRef, Player};
 
 /// Manager which controls all the active games on the server
 /// commanding them to do different actions and removing them

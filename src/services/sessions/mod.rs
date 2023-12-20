@@ -115,6 +115,9 @@ impl Sessions {
         sessions.insert(user_id, link);
     }
 
+    /// Currently unused but here for future implementation of invite system for looking
+    /// up users to connect players
+    #[allow(unused)]
     pub fn lookup_session(&self, user_id: UserId) -> Option<SessionLink> {
         let sessions = &mut *self.sessions.lock();
         let session = sessions.get(&user_id)?;

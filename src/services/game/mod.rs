@@ -1,24 +1,7 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::{Arc, Weak},
-};
-
-use chrono::Utc;
-use log::{debug, error};
-use sea_orm::{DatabaseConnection, DbErr};
-use serde::de;
-use tdf::{ObjectId, TdfMap};
-use thiserror::Error;
-use tokio::sync::RwLock;
-use uuid::Uuid;
-
 use self::manager::GameManager;
-
 use super::{
     activity::{ActivityEvent, PrestigeData, PrestigeProgression},
-    challenges::{
-        ChallengeCounter, ChallengeDefinition, ChallengeName, ChallengesService, CurrencyReward,
-    },
+    challenges::{ChallengeCounter, ChallengeDefinition, ChallengesService, CurrencyReward},
     match_data::MatchDataService,
 };
 use crate::{
@@ -35,27 +18,29 @@ use crate::{
         packet::Packet,
         session::{NetData, SessionNotifyHandle, WeakSessionLink},
     },
-    database::{
-        self,
-        entity::{
-            challenge_progress::{ChallengeCounterName, CounterUpdateType},
-            currency::CurrencyType,
-            shared_data::SharedProgression,
-            users::UserId,
-            ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
-        },
+    database::entity::{
+        challenge_progress::CounterUpdateType, currency::CurrencyType, users::UserId,
+        ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
     },
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::{
-        activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
-        character::LevelTable,
-    },
+    services::activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
     state::App,
     utils::models::Sku,
 };
+use chrono::Utc;
+use log::{debug, error};
+use sea_orm::{DatabaseConnection, DbErr};
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::{Arc, Weak},
+};
+use tdf::{ObjectId, TdfMap};
+use thiserror::Error;
+use tokio::sync::RwLock;
+use uuid::Uuid;
 
 pub mod manager;
 
@@ -291,9 +276,6 @@ async fn process_player_data(
 
     // Insert the before change
     data_builder.append_prestige_before(&shared_data);
-
-    fn update_prestige_level(level_table: &LevelTable, shared_progression: &mut SharedProgression) {
-    }
 
     // Character prestige leveling
     {

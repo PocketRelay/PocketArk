@@ -1,9 +1,8 @@
 use self::{
-    activity::ActivityService, challenges::ChallengesService, character::CharacterService,
-    game::manager::GameManager, i18n::I18nService, items::ItemsService,
-    match_data::MatchDataService, store::StoreService, strike_teams::StrikeTeamService,
+    challenges::ChallengesService, character::CharacterService, i18n::I18nService,
+    items::ItemsService, match_data::MatchDataService, store::StoreService,
+    strike_teams::StrikeTeamService,
 };
-use std::sync::Arc;
 
 pub mod activity;
 pub mod challenges;
@@ -27,16 +26,16 @@ pub struct Services {
 }
 
 impl Services {
-    pub fn init() -> Self {
-        let match_data = MatchDataService::new();
-        let challenges = ChallengesService::new();
-        let items = ItemsService::new();
-        let store = StoreService::new();
-        let character = CharacterService::new();
+    pub fn init() -> anyhow::Result<Self> {
+        let match_data = MatchDataService::new()?;
+        let challenges = ChallengesService::new()?;
+        let items = ItemsService::new()?;
+        let store = StoreService::new()?;
+        let character = CharacterService::new()?;
         let i18n = I18nService::new();
-        let strike_teams = StrikeTeamService::new();
+        let strike_teams = StrikeTeamService::new()?;
 
-        Self {
+        Ok(Self {
             match_data,
             challenges,
             items,
@@ -44,6 +43,6 @@ impl Services {
             character,
             i18n,
             strike_teams,
-        }
+        })
     }
 }

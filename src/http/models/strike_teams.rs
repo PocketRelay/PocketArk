@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use super::HttpError;
 use crate::{
     database::entity::{currency::CurrencyType, Currency, StrikeTeam},
     services::{
@@ -7,8 +6,42 @@ use crate::{
         strike_teams::{StrikeTeamWithMission, TeamTrait},
     },
 };
+use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::collections::HashMap;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum StrikeTeamError {
+    /// Article cannot be purchased with the requested currency
+    #[error("Invalid currency")]
+    InvalidCurrency,
+    /// User doesn't have enough currency to purchase the item
+    #[error("Currency balance cannot be less than 0.")]
+    InsufficientCurrency,
+    #[error("Strike team doesn't exist")]
+    UnknownTeam,
+    #[error("Unknown equipment item")]
+    UnknownEquipmentItem,
+    /// Cannot recruit any more teams
+    #[error("Maximum number of strike teams reached")]
+    MaxTeams,
+}
+
+impl HttpError for StrikeTeamError {
+    fn status(&self) -> StatusCode {
+        match self {
+            StrikeTeamError::InvalidCurrency => StatusCode::BAD_REQUEST,
+            StrikeTeamError::InsufficientCurrency | StrikeTeamError::MaxTeams => {
+                StatusCode::CONFLICT
+            }
+            StrikeTeamError::UnknownTeam | StrikeTeamError::UnknownEquipmentItem => {
+                StatusCode::NOT_FOUND
+            }
+        }
+    }
+}
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

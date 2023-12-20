@@ -3,17 +3,10 @@ use crate::{
     database::DbResult,
     services::character::{CharacterEquipment, Xp},
 };
-use sea_orm::{
-    entity::prelude::*,
-    ActiveValue::{NotSet, Set},
-    FromJsonQueryResult, IntoActiveModel,
-};
+use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
-use serde_json::Number;
-use serde_with::serde_as;
 use std::collections::HashMap;
 use std::future::Future;
-use uuid::uuid;
 
 /// Shared data database structure
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]

@@ -1,22 +1,13 @@
-use std::collections::HashMap;
-
-use axum::{
-    extract::{Path, Query},
-    Extension, Json,
-};
-use hyper::StatusCode;
-use log::debug;
-use sea_orm::DatabaseConnection;
-use thiserror::Error;
-use uuid::Uuid;
-
 use crate::{
     database::entity::{currency::CurrencyType, Currency, StrikeTeam},
     http::{
         middleware::user::Auth,
         models::{
-            strike_teams::{PurchaseQuery, PurchaseResponse, StrikeTeamsList, StrikeTeamsResponse},
-            DynHttpError, HttpError, HttpResult, ListWithCount, RawHttpError, RawJson,
+            strike_teams::{
+                PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamsList,
+                StrikeTeamsResponse,
+            },
+            DynHttpError, HttpResult, ListWithCount, RawJson,
         },
     },
     services::strike_teams::{
@@ -24,37 +15,14 @@ use crate::{
     },
     state::App,
 };
-
-#[derive(Debug, Error)]
-pub enum StrikeTeamError {
-    /// Article cannot be purchased with the requested currency
-    #[error("Invalid currency")]
-    InvalidCurrency,
-    /// User doesn't have enough currency to purchase the item
-    #[error("Currency balance cannot be less than 0.")]
-    InsufficientCurrency,
-    #[error("Strike team doesn't exist")]
-    UnknownTeam,
-    #[error("Unknown equipment item")]
-    UnknownEquipmentItem,
-    /// Cannot recruit any more teams
-    #[error("Maximum number of strike teams reached")]
-    MaxTeams,
-}
-
-impl HttpError for StrikeTeamError {
-    fn status(&self) -> StatusCode {
-        match self {
-            StrikeTeamError::InvalidCurrency => StatusCode::BAD_REQUEST,
-            StrikeTeamError::InsufficientCurrency | StrikeTeamError::MaxTeams => {
-                StatusCode::CONFLICT
-            }
-            StrikeTeamError::UnknownTeam | StrikeTeamError::UnknownEquipmentItem => {
-                StatusCode::NOT_FOUND
-            }
-        }
-    }
-}
+use axum::{
+    extract::{Path, Query},
+    Extension, Json,
+};
+use log::debug;
+use sea_orm::DatabaseConnection;
+use std::collections::HashMap;
+use uuid::Uuid;
 
 /// GET /striketeams
 pub async fn get(

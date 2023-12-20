@@ -7,14 +7,12 @@
 use crate::{
     database::entity::{InventoryItem, User},
     services::items::{
-        BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemLink, ItemName, ItemRarity,
+        BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName, ItemRarity,
     },
 };
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use sea_orm::{ConnectionTrait, DbErr};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 use thiserror::Error;
 use uuid::uuid;
@@ -23,6 +21,12 @@ use uuid::uuid;
 pub struct Packs {
     /// Lookup for packs by [ItemName]
     packs: HashMap<ItemName, Pack>,
+}
+
+impl Default for Packs {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Packs {
@@ -61,7 +65,7 @@ impl PackBuilder {
     }
 
     /// Builds the finished [Pack]
-    fn build(mut self) -> Pack {
+    fn build(self) -> Pack {
         Pack {
             name: self.name,
             collections: self.collections.into_boxed_slice(),
@@ -112,7 +116,7 @@ impl Pack {
             .filter(|item| item.is_droppable())
             .collect();
 
-        /// Collection of requirements for items (For requirement filtering)
+        // Collection of requirements for items (For requirement filtering)
         let required_items: Vec<ItemName> = items
             .iter()
             .filter_map(|item| item.unlock_definition.as_ref())
@@ -335,6 +339,7 @@ enum Filter {
     Weighted(Box<Filter>, Weight),
 }
 
+#[allow(unused)]
 impl Filter {
     /// Creates a new filter matching all of the provided filters
     fn all<I>(filters: I) -> Self
@@ -868,7 +873,7 @@ fn generate_packs() -> HashMap<ItemName, Pack> {
         Pack::builder(name).add(PackCollection::named(item)).build()
     };
 
-    /// Marker for a pack that is not yet implemented
+    // Marker for a pack that is not yet implemented
     let todo = |name: ItemName| Pack::builder(name).build();
 
     // List of all the packs

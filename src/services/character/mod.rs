@@ -1,11 +1,12 @@
 use crate::utils::models::{LocaleName, LocaleNameWithDesc};
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::{debug, error};
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
-use std::{collections::HashMap, process::exit, str::FromStr};
+use std::{collections::HashMap, str::FromStr};
 use uuid::Uuid;
 
 const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
@@ -19,49 +20,27 @@ pub struct CharacterService {
     pub level_tables: Vec<LevelTable>,
 }
 
-impl Default for CharacterService {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl CharacterService {
-    pub fn new() -> Self {
-        let classes = match ClassLookup::new() {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to parse class definitions: {}", err);
-                exit(1);
-            }
-        };
+    pub fn new() -> anyhow::Result<Self> {
+        let classes = ClassLookup::new()?;
 
         debug!("Loaded {} class definition(s)", classes.classes.len());
 
-        let skills: Vec<SkillDefinition> = match serde_json::from_str(SKILL_DEFINITIONS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to parse skill definitions: {}", err);
-                exit(1);
-            }
-        };
+        let skills: Vec<SkillDefinition> =
+            serde_json::from_str(SKILL_DEFINITIONS).context("Failed to parse skill definitions")?;
 
         debug!("Loaded {} skill definition(s)", skills.len());
 
-        let level_tables: Vec<LevelTable> = match serde_json::from_str(LEVEL_TABLE_DEFINITIONS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to parse level table definitions: {}", err);
-                exit(1);
-            }
-        };
+        let level_tables: Vec<LevelTable> = serde_json::from_str(LEVEL_TABLE_DEFINITIONS)
+            .context("Failed to parse level table definitions")?;
 
         debug!("Loaded {} level table definition(s)", level_tables.len());
 
-        Self {
+        Ok(Self {
             classes,
             skills,
             level_tables,
-        }
+        })
     }
 
     /// Obtains the xp structure which contains the current, next, and last
@@ -101,8 +80,9 @@ pub struct ClassLookup {
 }
 
 impl ClassLookup {
-    fn new() -> serde_json::Result<Self> {
-        let classes: Vec<Class> = serde_json::from_str(CLASS_DEFINITIONS)?;
+    fn new() -> anyhow::Result<Self> {
+        let classes: Vec<Class> =
+            serde_json::from_str(CLASS_DEFINITIONS).context("Failed to load class definitions")?;
         let mut class_by_name = HashMap::with_capacity(classes.len());
         let mut class_by_item = HashMap::with_capacity(classes.len());
 

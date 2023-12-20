@@ -1,9 +1,8 @@
-use axum::Json;
-
 use crate::{
     http::models::user_match::{MatchBadgesResponse, MatchModifiersResponse},
     state::App,
 };
+use axum::Json;
 
 /// GET /user/match/badges
 ///

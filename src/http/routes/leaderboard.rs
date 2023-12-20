@@ -1,7 +1,3 @@
-use axum::{extract::Path, Json};
-use serde_json::Map;
-use uuid::{uuid, Uuid};
-
 use crate::{
     http::models::leaderboard::{
         LeaderboardCategory, LeaderboardIdent, LeaderboardResponse, LeaderboardRow,
@@ -9,6 +5,9 @@ use crate::{
     },
     utils::models::LocaleNameWithDesc,
 };
+use axum::{extract::Path, Json};
+use serde_json::Map;
+use uuid::{uuid, Uuid};
 
 /// GET /leaderboards
 ///

@@ -1,8 +1,7 @@
+use crate::utils::models::LocaleNameWithDesc;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
-
-use crate::utils::models::LocaleNameWithDesc;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

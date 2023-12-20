@@ -1,13 +1,10 @@
-use std::sync::Arc;
-
 use crate::{
     http::{
         middleware::JsonDump,
         models::{
-            mission::{
-                CompleteMissionData, MissionDetails, StartMissionRequest, StartMissionResponse,
-            },
-            DynHttpError, HttpError, HttpResult, RawHttpError, RawJson,
+            errors::{DynHttpError, HttpResult},
+            mission::*,
+            RawJson,
         },
     },
     services::game::manager::GameManager,
@@ -17,28 +14,10 @@ use hyper::StatusCode;
 use log::debug;
 use sea_orm::DatabaseConnection;
 use serde_json::Value;
-use thiserror::Error;
+use std::sync::Arc;
 
 static CURRENT_MISSIONS_DEFINITION: &str =
     include_str!("../../resources/data/currentMissions.json");
-
-#[derive(Debug, Error)]
-pub enum MissionError {
-    #[error("Unknown game")]
-    UnknownGame,
-
-    #[error("Missing mission data")]
-    MissingMissionData,
-}
-
-impl HttpError for MissionError {
-    fn status(&self) -> StatusCode {
-        match self {
-            MissionError::UnknownGame => StatusCode::BAD_REQUEST,
-            MissionError::MissingMissionData => StatusCode::INTERNAL_SERVER_ERROR,
-        }
-    }
-}
 
 /// GET /mission/current
 ///

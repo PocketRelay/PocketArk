@@ -1,23 +1,39 @@
-use std::collections::{BTreeMap, HashMap};
-
-use chrono::{DateTime, Utc};
-use log::warn;
-use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
-use serde_with::serde_as;
-use uuid::Uuid;
-
 use crate::{
     database::entity::{characters::CharacterId, currency::CurrencyType, InventoryItem},
     services::{
-        activity::{
-            self, ActivityAttribute, ActivityEvent, ActivityName, AttributeName, ChallengeUpdated,
-            PrestigeProgression,
-        },
+        activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
         challenges::CurrencyReward,
     },
     utils::models::Sku,
 };
+use chrono::{DateTime, Utc};
+use hyper::StatusCode;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use serde_with::serde_as;
+use std::collections::{BTreeMap, HashMap};
+use thiserror::Error;
+use uuid::Uuid;
+
+use super::HttpError;
+
+#[derive(Debug, Error)]
+pub enum MissionError {
+    #[error("Unknown game")]
+    UnknownGame,
+
+    #[error("Missing mission data")]
+    MissingMissionData,
+}
+
+impl HttpError for MissionError {
+    fn status(&self) -> StatusCode {
+        match self {
+            MissionError::UnknownGame => StatusCode::BAD_REQUEST,
+            MissionError::MissingMissionData => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

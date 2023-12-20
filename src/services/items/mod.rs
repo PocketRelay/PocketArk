@@ -1,5 +1,6 @@
 use crate::database::entity::inventory_items::ItemId;
 use crate::utils::models::LocaleNameWithDesc;
+use anyhow::Context;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
 use pack::Packs;
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,6 @@ use serde_json::Value;
 use serde_with::{serde_as, skip_serializing_none, DeserializeAs, DisplayFromStr};
 use std::collections::HashMap;
 use std::{
-    borrow::Cow,
     fmt::{Display, Write},
     num::ParseIntError,
     str::FromStr,
@@ -26,10 +26,11 @@ pub struct ItemsService {
 }
 
 impl ItemsService {
-    pub fn new() -> Self {
-        let items = ItemDefinitions::from_str(INVENTORY_DEFINITIONS).unwrap();
+    pub fn new() -> anyhow::Result<Self> {
+        let items = ItemDefinitions::from_str(INVENTORY_DEFINITIONS)
+            .context("Failed to load inventory definitions")?;
         let packs = Packs::new();
-        Self { items, packs }
+        Ok(Self { items, packs })
     }
 }
 

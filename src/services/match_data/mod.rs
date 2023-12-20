@@ -1,14 +1,12 @@
+use super::activity::{ActivityDescriptor, ActivityEvent};
 use crate::database::entity::currency::CurrencyType;
-use log::{debug, error, warn};
+use anyhow::Context;
+use log::debug;
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Number, Value};
+use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use std::{collections::HashMap, process::exit};
+use std::collections::HashMap;
 use uuid::Uuid;
-
-use super::activity::{
-    ActivityAttribute, ActivityDescriptor, ActivityEvent, ActivityName, AttributeName,
-};
 
 pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
 pub const MATCH_MODIFIER_DEFINITIONS: &str =
@@ -20,29 +18,20 @@ pub struct MatchDataService {
 }
 
 impl MatchDataService {
-    pub fn new() -> Self {
+    pub fn new() -> anyhow::Result<Self> {
         debug!("Loading match badges");
-        let badges: Vec<Badge> = match serde_json::from_str(MATCH_BADGE_DEFINITIONS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load match badge definitions: {}", err);
-                exit(1);
-            }
-        };
-        let modifiers: Vec<MatchModifier> = match serde_json::from_str(MATCH_MODIFIER_DEFINITIONS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load match badge definitions: {}", err);
-                exit(1);
-            }
-        };
+        let badges: Vec<Badge> = serde_json::from_str(MATCH_BADGE_DEFINITIONS)
+            .context("Failed to load match badge definitions")?;
+        let modifiers: Vec<MatchModifier> = serde_json::from_str(MATCH_MODIFIER_DEFINITIONS)
+            .context("Failed to load match badge definitions")?;
 
         debug!(
             "Loaded {} badges, {} modifier definition(s)",
             badges.len(),
             modifiers.len()
         );
-        Self { badges, modifiers }
+
+        Ok(Self { badges, modifiers })
     }
 
     pub fn get_by_activity(

@@ -1,12 +1,9 @@
 use super::{users::UserId, Currency, User};
 use crate::database::DbResult;
 use sea_orm::{
-    entity::prelude::*,
-    sea_query::OnConflict,
-    ActiveValue::{NotSet, Set},
-    InsertResult, IntoActiveModel,
+    entity::prelude::*, sea_query::OnConflict, ActiveValue::Set, InsertResult, IntoActiveModel,
 };
-use serde::{de::DeserializeOwned, ser::SerializeStruct, Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_with::{DeserializeAs, DisplayFromStr};
 use std::{fmt::Display, future::Future, str::FromStr};
 

@@ -2,10 +2,7 @@ use crate::{
     database::entity::ChallengeProgress,
     http::{
         middleware::user::Auth,
-        models::{
-            challenge::{ChallengeCategories, ChallengeItem, ChallengesResponse},
-            HttpResult, RawHttpError,
-        },
+        models::{challenge::*, HttpResult},
     },
     state::App,
 };

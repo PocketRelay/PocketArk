@@ -101,14 +101,12 @@ impl MigrationTrait for Migration {
     }
 }
 
-/// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
 enum Characters {
     Table,
     Id,
     UserId,
     ClassName,
-    Name,
     Level,
     Xp,
     Promotion,
@@ -121,7 +119,6 @@ enum Characters {
     Equipments,
     Customization,
     PlayStats,
-    InventoryNamespace,
     LastUsed,
     Promotable,
 }

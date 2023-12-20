@@ -1,9 +1,8 @@
 use crate::{
     database::entity::User,
-    http::models::{DynHttpError, HttpError, RawHttpError},
+    http::models::{DynHttpError, HttpError},
     services::sessions::{Sessions, VerifyError},
 };
-use anyhow::Context;
 use axum::extract::FromRequestParts;
 use futures::future::BoxFuture;
 use hyper::StatusCode;

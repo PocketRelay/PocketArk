@@ -1,16 +1,14 @@
 //! This module contains HTTP routes and logic used between the server
 //! and the PocketArk client
 
-use std::sync::Arc;
-
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
     database::entity::{Currency, InventoryItem, SharedData, StrikeTeam, User},
     http::{
         middleware::upgrade::BlazeUpgrade,
         models::{
-            client::{AuthRequest, AuthResponse},
-            DynHttpError, HttpError, HttpResult, RawHttpError,
+            client::{AuthRequest, AuthResponse, ClientError},
+            DynHttpError, HttpResult,
         },
     },
     services::sessions::{Sessions, VerifyError},
@@ -26,38 +24,7 @@ use hyper::{header, http::HeaderValue, StatusCode};
 use log::error;
 use sea_orm::DatabaseConnection;
 use serde::Serialize;
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum ClientError {
-    #[error("Username not found")]
-    InvalidUsername,
-
-    #[error("Incorrect password")]
-    IncorrectPassword,
-
-    /// Username is already taken
-    #[error("Username already in use")]
-    UsernameAlreadyTaken,
-
-    /// Failed to hash a password when creating an account
-    #[error("Server error")]
-    FailedHashPassword,
-
-    #[error("Auth failed")]
-    AuthFailed,
-}
-
-impl HttpError for ClientError {
-    fn status(&self) -> StatusCode {
-        match self {
-            ClientError::InvalidUsername => StatusCode::NOT_FOUND,
-            ClientError::IncorrectPassword | ClientError::AuthFailed => StatusCode::BAD_REQUEST,
-            ClientError::UsernameAlreadyTaken => StatusCode::CONFLICT,
-            ClientError::FailedHashPassword => StatusCode::INTERNAL_SERVER_ERROR,
-        }
-    }
-}
+use std::sync::Arc;
 
 #[derive(Serialize)]
 pub struct ServerDetails {
@@ -131,12 +98,12 @@ pub async fn upgrade(
 ) -> Result<Response, DynHttpError> {
     let user_id: u32 = sessions
         .verify_token(&upgrade.token)
-        .map_err(|err| ClientError::AuthFailed)?;
+        .map_err(|_| ClientError::AuthFailed)?;
 
     let user = User::get_user(&db, user_id)
         .await?
         .ok_or(VerifyError::Invalid)
-        .map_err(|err| ClientError::AuthFailed)?;
+        .map_err(|_| ClientError::AuthFailed)?;
 
     tokio::spawn(async move {
         let socket = match upgrade.upgrade().await {

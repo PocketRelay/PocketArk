@@ -5,7 +5,7 @@ use super::User;
 use crate::database::DbResult;
 use sea_orm::entity::prelude::*;
 use sea_orm::sea_query::OnConflict;
-use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::ActiveValue::Set;
 use sea_orm::InsertResult;
 use std::future::Future;
 

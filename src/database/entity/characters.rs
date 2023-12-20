@@ -210,7 +210,7 @@ impl Serialize for Model {
     {
         let mut state: <S as Serializer>::SerializeStruct =
             Serializer::serialize_struct(serializer, "Character", 19)?;
-        state.serialize_field("characterId", &self.id.to_string());
+        state.serialize_field("characterId", &self.id.to_string())?;
         state.serialize_field("sku", &Sku)?;
         state.serialize_field("characterClassName", &self.class_name)?;
         state.serialize_field("name", &self.class_name)?;

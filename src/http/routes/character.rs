@@ -6,12 +6,8 @@ use crate::{
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
-            character::{
-                CharacterClasses, CharacterEquipmentList, CharacterLevelTables, CharacterResponse,
-                CharactersResponse, ClassWithState, UnlockedCharacters, UpdateCustomizationRequest,
-                UpdateSkillTreesRequest,
-            },
-            DynHttpError, HttpError, HttpResult, RawHttpError,
+            character::*,
+            errors::{DynHttpError, HttpResult},
         },
     },
     services::character::SkillDefinition,
@@ -24,21 +20,6 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, IntoActiveModel, ModelTrait,
     QueryFilter,
 };
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum CharactersError {
-    #[error("Character not found")]
-    NotFound,
-}
-
-impl HttpError for CharactersError {
-    fn status(&self) -> StatusCode {
-        match self {
-            CharactersError::NotFound => StatusCode::NOT_FOUND,
-        }
-    }
-}
 
 /// GET /characters
 pub async fn get_characters(

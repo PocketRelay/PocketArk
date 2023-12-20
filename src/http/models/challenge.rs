@@ -1,8 +1,7 @@
+use crate::{database::entity::ChallengeProgress, services::challenges::ChallengeDefinition};
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;
-
-use crate::{database::entity::ChallengeProgress, services::challenges::ChallengeDefinition};
 
 #[derive(Debug, Serialize)]
 pub struct ChallengeCategories {

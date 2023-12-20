@@ -1,13 +1,14 @@
+#![allow(unused)]
+
+use anyhow::Context;
 use chrono::{DateTime, Utc};
-use log::error;
-use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{rngs::StdRng, seq::SliceRandom};
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use std::{
     collections::HashMap,
-    process::exit,
     time::{SystemTime, UNIX_EPOCH},
 };
 use uuid::{uuid, Uuid};
@@ -28,8 +29,8 @@ const MISSION_TRAITS: &str = include_str!("../../resources/data/strikeTeams/miss
 
 #[derive(Debug, Deserialize)]
 pub struct MissionTraits {
-    enemy: Vec<MissionTag>,
-    game: Vec<MissionTag>,
+    pub enemy: Vec<MissionTag>,
+    pub game: Vec<MissionTag>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,45 +57,23 @@ impl StrikeTeamService {
     pub const STRIKE_TEAM_COSTS: &'static [u32] = &[0, 40, 80, 120, 160, 200];
     pub const MAX_STRIKE_TEAMS: usize = Self::STRIKE_TEAM_COSTS.len();
 
-    pub fn new() -> Self {
-        let equipment: Vec<StrikeTeamEquipment> = match serde_json::from_str(EQUIPMENT_DEFINITIONS)
-        {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load equipment definitions: {}", err);
-                exit(1);
-            }
-        };
+    pub fn new() -> anyhow::Result<Self> {
+        let equipment: Vec<StrikeTeamEquipment> = serde_json::from_str(EQUIPMENT_DEFINITIONS)
+            .context("Failed to load equipment definitions")?;
         let specializations: Vec<StrikeTeamSpecialization> =
-            match serde_json::from_str(SPECIALIZATION_DEFINITIONS) {
-                Ok(value) => value,
-                Err(err) => {
-                    error!("Failed to load specialization definitions: {}", err);
-                    exit(1);
-                }
-            };
-        let mission_descriptors: Vec<MissionDescriptor> =
-            match serde_json::from_str(MISSION_DESCRIPTORS) {
-                Ok(value) => value,
-                Err(err) => {
-                    error!("Failed to load mission descriptors: {}", err);
-                    exit(1);
-                }
-            };
-        let mission_traits: MissionTraits = match serde_json::from_str(MISSION_TRAITS) {
-            Ok(value) => value,
-            Err(err) => {
-                error!("Failed to load mission traits: {}", err);
-                exit(1);
-            }
-        };
+            serde_json::from_str(SPECIALIZATION_DEFINITIONS)
+                .context("Failed to load specialization definitions")?;
+        let mission_descriptors: Vec<MissionDescriptor> = serde_json::from_str(MISSION_DESCRIPTORS)
+            .context("Failed to load mission descriptors")?;
+        let mission_traits: MissionTraits =
+            serde_json::from_str(MISSION_TRAITS).context("Failed to load mission traits")?;
 
-        Self {
+        Ok(Self {
             equipment,
             specializations,
             mission_descriptors,
             mission_traits,
-        }
+        })
     }
 }
 

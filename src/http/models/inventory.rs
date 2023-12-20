@@ -1,11 +1,42 @@
+use super::HttpError;
 use crate::{
     database::entity::{inventory_items::ItemId, InventoryItem},
     services::items::{ItemDefinition, ItemNamespace},
 };
+use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
-
 use serde_with::{serde_as, skip_serializing_none};
-use uuid::Uuid;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum InventoryError {
+    /// User doesn't own the item they tried to consume
+    #[error("The user does not own the item.")]
+    NotOwned,
+
+    /// User doesn't own enough of the item
+    #[error("Not enough of owned item")]
+    NotEnough,
+
+    /// Tried to consume a non-consumable item
+    #[error("Item not consumable")]
+    NotConsumable,
+
+    /// Internal server error because item definition was missing
+    #[error("Item missing definition")]
+    MissingDefinition,
+}
+
+impl HttpError for InventoryError {
+    fn status(&self) -> StatusCode {
+        match self {
+            InventoryError::NotOwned => StatusCode::NOT_FOUND,
+            InventoryError::NotConsumable => StatusCode::BAD_REQUEST,
+            InventoryError::NotEnough => StatusCode::CONFLICT,
+            InventoryError::MissingDefinition => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
 
 /// Paramas for requesting inventory
 #[derive(Debug, Default, Deserialize)]

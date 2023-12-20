@@ -15,20 +15,17 @@ use super::{
 use crate::{
     database::entity::{
         challenge_progress::{ChallengeCounterName, ChallengeId},
-        currency::CurrencyType,
         Character, Currency, InventoryItem, User,
     },
-    http::models::HttpError,
     state::App,
 };
-use log::{debug, warn};
+use log::debug;
 use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::{ConnectionTrait, DbErr};
+use sea_orm::ConnectionTrait;
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
-use serde_json::{Number, Value};
-use serde_with::skip_serializing_none;
+use serde_json::Value;
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::HashMap,
     fmt::{Debug, Display},
     str::FromStr,
 };
@@ -175,7 +172,7 @@ impl ActivityService {
         {
             // TODO: Check that the user hasn't already reached the item capacity
 
-            let mut item = InventoryItem::add_item(
+            let item = InventoryItem::add_item(
                 db,
                 user,
                 item_definition.name,
@@ -208,7 +205,6 @@ impl ActivityService {
         C: ConnectionTrait + Send,
     {
         let Services {
-            store: store_service,
             items: items_service,
             character: characters_service,
             ..
@@ -216,7 +212,7 @@ impl ActivityService {
 
         let category: Category = event.attribute_parsed("category")?;
         let definition_name: ItemName = event.attribute_uuid("definitionName")?;
-        let count: u32 = event.attribute_u32("count")?;
+        let _count: u32 = event.attribute_u32("count")?;
 
         let mut rewards: RewardCollection = RewardCollection::default();
 
@@ -256,7 +252,7 @@ impl ActivityService {
                 stack_size,
             } = reward;
 
-            let mut item =
+            let item =
                 InventoryItem::add_item(db, user, definition.name, stack_size, definition.capacity)
                     .await?;
 
@@ -722,7 +718,7 @@ impl Serialize for ActivityResult {
         value.serialize_field("challengesCompletedCount", &self.challeges_completed)?;
         value.serialize_field("challengesUpdated", &self.challenges_updated)?;
 
-        /// Collect the updated challenge IDs for serialization
+        // Collect the updated challenge IDs for serialization
         let challenge_ids: Vec<ChallengeId> = self
             .challenges_updated
             .iter()

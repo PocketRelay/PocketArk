@@ -72,7 +72,6 @@ impl MigrationTrait for Migration {
 #[derive(Iden)]
 pub enum ClassData {
     Table,
-    Id,
     UserId,
     ClassName,
     Unlocked,
