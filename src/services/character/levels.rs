@@ -55,31 +55,27 @@ impl LevelTable {
     /// Computes the new xp and level values from the provided
     /// initial xp, level and the earned xp amount. Uses the
     /// current level table
-    ///
-    /// TODO: Rewrite this
-    ///
-    /// # Arguments
-    /// * xp - The starting xp value  
-    /// * level - The starting level value
-    /// * xp_earned - The total xp earned
     pub fn compute_leveling(&self, mut xp: Xp, mut level: u32, xp_earned: u32) -> (Xp, u32) {
         xp.current = xp.current.saturating_add(xp_earned);
 
-        while xp.current >= xp.next {
-            let next_xp = match self.get_xp_requirement(level + 1) {
-                Some(value) => value,
-                None => break,
-            };
+        // Only continue progression while theres a next level available
+        while let Some(next_xp) = self.get_xp_requirement(level + 1) {
+            // Don't have enough xp to level up again
+            if xp.current < next_xp {
+                break;
+            }
 
+            // Incrase level
+            xp.current -= next_xp;
             level += 1;
 
-            // Subtract the old next amount from earnings
-            xp.current -= xp.next;
-
-            // Assign new next and last values
+            // Update the last and next states
             xp.last = xp.next;
             xp.next = next_xp;
         }
+
+        // Remove any overflow
+        xp.current = xp.current.min(xp.next);
 
         (xp, level)
     }
