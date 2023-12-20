@@ -26,8 +26,10 @@ use crate::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
-    state::App,
+    services::{
+        activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
+        Services,
+    },
     utils::models::Sku,
 };
 use chrono::Utc;
@@ -203,7 +205,7 @@ async fn process_player_data(
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
     debug!("Processing player data");
 
-    let services = App::services();
+    let services = Services::get();
     let character_service = &services.character;
 
     let user = User::get_user(&db, data.nucleus_id)

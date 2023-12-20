@@ -10,8 +10,7 @@ use crate::{
             errors::{DynHttpError, HttpResult},
         },
     },
-    services::character::SkillDefinition,
-    state::App,
+    services::{character::SkillDefinition, Services},
 };
 use axum::{extract::Path, Extension, Json};
 use hyper::StatusCode;
@@ -243,7 +242,7 @@ pub async fn get_classes(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<CharacterClasses> {
-    let services = App::services();
+    let services = Services::get();
 
     let class_data = ClassData::all(&db, &user).await?;
 
@@ -276,7 +275,7 @@ pub async fn get_classes(
 /// Contains definitions for rewards at each level of character
 /// progression
 pub async fn get_level_tables() -> Json<CharacterLevelTables> {
-    let services = App::services();
+    let services = Services::get();
     Json(CharacterLevelTables {
         list: &services.character.level_tables,
     })

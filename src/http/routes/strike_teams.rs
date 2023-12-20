@@ -10,10 +10,12 @@ use crate::{
             DynHttpError, HttpResult, ListWithCount, RawJson,
         },
     },
-    services::strike_teams::{
-        StrikeTeamEquipment, StrikeTeamService, StrikeTeamSpecialization, StrikeTeamWithMission,
+    services::{
+        strike_teams::{
+            StrikeTeamEquipment, StrikeTeamService, StrikeTeamSpecialization, StrikeTeamWithMission,
+        },
+        Services,
     },
-    state::App,
 };
 use axum::{
     extract::{Path, Query},
@@ -77,13 +79,13 @@ pub async fn get_mission_config() -> RawJson {
 
 /// GET /striketeams/specializations
 pub async fn get_specializations() -> Json<ListWithCount<StrikeTeamSpecialization>> {
-    let services = App::services();
+    let services = Services::get();
     Json(ListWithCount::new(&services.strike_teams.specializations))
 }
 
 /// GET /striketeams/equipment
 pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
-    let services = App::services();
+    let services = Services::get();
     Json(ListWithCount::new(&services.strike_teams.equipment))
 }
 
@@ -94,6 +96,8 @@ pub async fn purchase_equipment(
     Path((id, name)): Path<(Uuid, String)>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
+    let services = Services::get();
+
     let currency = Currency::get(&db, &user, query.currency)
         .await?
         .ok_or(StrikeTeamError::InsufficientCurrency)?;
@@ -104,7 +108,6 @@ pub async fn purchase_equipment(
 
     // TODO: If on mission respond with 409 Conflict Team on mission
 
-    let services = App::services();
     let equipment = services
         .strike_teams
         .equipment

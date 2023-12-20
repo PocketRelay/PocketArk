@@ -4,7 +4,7 @@ use crate::{
         middleware::user::Auth,
         models::{challenge::*, HttpResult},
     },
-    state::App,
+    services::Services,
 };
 use axum::{Extension, Json};
 use sea_orm::DatabaseConnection;
@@ -24,7 +24,7 @@ pub async fn get_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
 ) -> HttpResult<ChallengesResponse> {
-    let services = App::services();
+    let services = Services::get();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 
@@ -60,7 +60,7 @@ pub async fn get_user_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
 ) -> HttpResult<ChallengesResponse> {
-    let services = App::services();
+    let services = Services::get();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 

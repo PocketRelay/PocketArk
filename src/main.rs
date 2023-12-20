@@ -1,4 +1,3 @@
-use crate::state::App;
 use crate::utils::constants::SERVER_PORT;
 use crate::utils::signing::SigningKey;
 use axum::Extension;
@@ -6,6 +5,7 @@ use log::error;
 use log::LevelFilter;
 use services::game::manager::GameManager;
 use services::sessions::Sessions;
+use services::Services;
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::sync::Arc;
 use tokio::join;
@@ -19,7 +19,8 @@ mod http;
 mod services;
 mod utils;
 
-mod state;
+/// The server version extracted from the Cargo.toml
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[tokio::main]
 async fn main() {
@@ -27,7 +28,7 @@ async fn main() {
 
     utils::logging::setup(LevelFilter::Debug);
 
-    App::init();
+    Services::init_global();
 
     let (database, signing_key) = join!(crate::database::init(), SigningKey::global());
 

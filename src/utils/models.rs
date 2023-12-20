@@ -1,4 +1,4 @@
-use crate::state::App;
+use crate::services::Services;
 use sea_orm::prelude::DateTimeUtc;
 use serde::{
     de::{MapAccess, Visitor},
@@ -62,7 +62,7 @@ impl LocaleName {
     }
 
     pub fn resolve(i18n: u32) -> Self {
-        let services = App::services();
+        let services = Services::get();
         let loc_name = services.i18n.get(i18n).map(|value| value.to_string());
         Self {
             i18n_name: i18n.to_string(),

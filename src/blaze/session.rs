@@ -18,7 +18,6 @@ use crate::{
         game::{GameID, Player, WeakGameRef},
         sessions::Sessions,
     },
-    state::App,
     utils::lock::{QueueLock, QueueLockGuard, TicketAquireFuture},
 };
 use bytes::Bytes;

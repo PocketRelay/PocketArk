@@ -1,3 +1,11 @@
+use super::User;
+use crate::database::DbResult;
+use crate::services::strike_teams::StrikeTeamEquipment;
+use crate::services::Services;
+use crate::services::{
+    character::{CharacterService, Xp},
+    strike_teams::TeamTrait,
+};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -6,15 +14,6 @@ use sea_orm::{prelude::*, FromJsonQueryResult, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use uuid::{uuid, Uuid};
-
-use super::User;
-use crate::database::DbResult;
-use crate::services::strike_teams::StrikeTeamEquipment;
-use crate::services::{
-    character::{CharacterService, Xp},
-    strike_teams::TeamTrait,
-};
-use crate::state::App;
 
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
@@ -106,7 +105,7 @@ impl Model {
     where
         C: ConnectionTrait + Send,
     {
-        let services = App::services();
+        let services = Services::get();
         let mut rng = StdRng::from_entropy();
         let mut strike_team = Self::random(&mut rng, &services.character);
         strike_team.user_id = Set(user.id);

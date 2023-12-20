@@ -13,8 +13,8 @@ use crate::{
     services::{
         activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
         items::{ItemDefinition, ItemNamespace, ItemsService},
+        Services,
     },
-    state::App,
 };
 use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;
@@ -30,7 +30,7 @@ pub async fn get_inventory(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<InventoryResponse> {
-    let services = App::services();
+    let services = Services::get();
     let mut items = InventoryItem::get_all_items(&db, &user).await?;
 
     // TODO: Possibly store namespace with item itself then only query that namespace directly
@@ -65,7 +65,7 @@ pub async fn get_inventory(
 /// Obtains the definitions for all the inventory items this includes things
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
-    let services = App::services();
+    let services = Services::get();
     let list: &'static [ItemDefinition] = services.items.items.all();
     Json(ItemDefinitionsResponse {
         total_count: list.len(),
@@ -144,7 +144,7 @@ pub async fn consume_inventory(
 
     debug!("Consume inventory items: {:?}", req);
 
-    let services = App::services();
+    let services = Services::get();
     let items_service = &services.items;
 
     let result: ActivityResult = db

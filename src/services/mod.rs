@@ -15,6 +15,9 @@ pub mod sessions;
 pub mod store;
 pub mod strike_teams;
 
+/// Static storage for the services structure when initalized
+static mut SERVICES: Option<Services> = None;
+
 pub struct Services {
     pub match_data: MatchDataService,
     pub challenges: ChallengesService,
@@ -26,6 +29,19 @@ pub struct Services {
 }
 
 impl Services {
+    pub fn init_global() {
+        let value = Self::init().unwrap();
+
+        unsafe { SERVICES = Some(value) };
+    }
+
+    pub fn get() -> &'static Services {
+        match unsafe { &SERVICES } {
+            Some(value) => value,
+            None => panic!("Global services not initialized"),
+        }
+    }
+
     pub fn init() -> anyhow::Result<Self> {
         let match_data = MatchDataService::new()?;
         let challenges = ChallengesService::new()?;

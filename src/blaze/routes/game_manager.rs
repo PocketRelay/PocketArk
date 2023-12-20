@@ -13,7 +13,6 @@ use crate::{
         session::{self, SessionLink},
     },
     services::game::{self, manager::GameManager, Player, DEFAULT_FIT},
-    state::App,
 };
 use std::sync::Arc;
 

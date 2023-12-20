@@ -12,12 +12,9 @@ use super::{
     store::StoreArticleName,
     Services,
 };
-use crate::{
-    database::entity::{
-        challenge_progress::{ChallengeCounterName, ChallengeId},
-        Character, Currency, InventoryItem, User,
-    },
-    state::App,
+use crate::database::entity::{
+    challenge_progress::{ChallengeCounterName, ChallengeId},
+    Character, Currency, InventoryItem, User,
 };
 use log::debug;
 use rand::{rngs::StdRng, SeedableRng};
@@ -150,7 +147,7 @@ impl ActivityService {
             items: items_service,
             character: characters_service,
             ..
-        } = App::services();
+        } = Services::get();
 
         let article_name: StoreArticleName = event.attribute_uuid("articleName")?;
         let stack_size: u32 = event.attribute_u32("count")?;
@@ -208,7 +205,7 @@ impl ActivityService {
             items: items_service,
             character: characters_service,
             ..
-        } = App::services();
+        } = Services::get();
 
         let category: Category = event.attribute_parsed("category")?;
         let definition_name: ItemName = event.attribute_uuid("definitionName")?;

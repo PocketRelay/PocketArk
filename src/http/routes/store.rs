@@ -10,8 +10,10 @@ use crate::{
             DynHttpError, HttpResult,
         },
     },
-    services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-    state::App,
+    services::{
+        activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
+        Services,
+    },
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;
@@ -24,7 +26,7 @@ use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
 /// the store catalog definitions along with all the articles within
 /// each catalog
 pub async fn get_catalogs() -> Json<StoreCatalogResponse> {
-    let services = App::services();
+    let services = Services::get();
     let catalog = &services.store.catalog;
 
     Json(StoreCatalogResponse {
@@ -82,7 +84,7 @@ pub async fn obtain_article(
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ObtainStoreItemRequest>,
 ) -> HttpResult<ObtainStoreItemResponse> {
-    let services = App::services();
+    let services = Services::get();
     let store_service = &services.store;
 
     // Find the article we are looking for

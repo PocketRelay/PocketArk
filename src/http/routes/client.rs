@@ -11,9 +11,12 @@ use crate::{
             DynHttpError, HttpResult,
         },
     },
-    services::sessions::{Sessions, VerifyError},
-    state::{App, VERSION},
+    services::{
+        sessions::{Sessions, VerifyError},
+        Services,
+    },
     utils::hashing::{hash_password, verify_password},
+    VERSION,
 };
 use axum::{
     body::Empty,
@@ -67,6 +70,8 @@ pub async fn create(
     Extension(sessions): Extension<Arc<Sessions>>,
     Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
+    let services = Services::get();
+
     if User::get_by_username(&db, &req.username).await?.is_some() {
         return Err(ClientError::UsernameAlreadyTaken.into());
     }
@@ -74,8 +79,6 @@ pub async fn create(
     let password = hash_password(&req.password).map_err(|_| ClientError::FailedHashPassword)?;
 
     let user = User::create_user(&db, req.username, password).await?;
-
-    let services = App::services();
 
     // Initialize the users data
     InventoryItem::create_default(&db, &user, &services.items, &services.character).await?;
