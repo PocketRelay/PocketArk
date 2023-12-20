@@ -114,10 +114,6 @@ pub enum InventoryError {
     /// Internal server error because item definition was missing
     #[error("Item missing definition")]
     MissingDefinition,
-
-    /// Database error occurred
-    #[error("Server error")]
-    Database(#[from] DbErr),
 }
 
 /// Attempts to consume the provided `count` of `item` from the inventory of `user`.
@@ -128,7 +124,7 @@ async fn consume_item<'def, C>(
     item: ItemId,
     count: u32,
     items_service: &'def ItemsService,
-) -> Result<&'def ItemDefinition, InventoryError>
+) -> Result<&'def ItemDefinition, DynHttpError>
 where
     C: ConnectionTrait + Send,
 {
@@ -144,12 +140,12 @@ where
 
     // Ensure the item can be consumed
     if !definition.is_consumable() {
-        return Err(InventoryError::NotConsumable);
+        return Err(InventoryError::NotConsumable.into());
     }
 
     // Sanity check incase the item exists in the DB even after becoming empty
     if item.stack_size < count {
-        return Err(InventoryError::NotEnough);
+        return Err(InventoryError::NotEnough.into());
     }
 
     let new_stack_size = item.stack_size - count;
@@ -219,9 +215,7 @@ impl HttpError for InventoryError {
             InventoryError::NotOwned => StatusCode::NOT_FOUND,
             InventoryError::NotConsumable => StatusCode::BAD_REQUEST,
             InventoryError::NotEnough => StatusCode::CONFLICT,
-            InventoryError::Database(_) | InventoryError::MissingDefinition => {
-                StatusCode::INTERNAL_SERVER_ERROR
-            }
+            InventoryError::MissingDefinition => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }

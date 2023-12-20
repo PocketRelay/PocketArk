@@ -93,7 +93,7 @@ impl IntoResponse for DynHttpError {
 
 /// Trait implemented by errors that can be converted into [HttpError]s
 /// and used as error responses
-pub trait HttpError: Error + Send + 'static {
+pub trait HttpError: Error + Send + Sync + 'static {
     /// Logs the error
     fn log(&self) {
         error!("{self}: {self:?}");
