@@ -10,7 +10,7 @@ use crate::{
         middleware::upgrade::BlazeUpgrade,
         models::{
             client::{AuthRequest, AuthResponse},
-            HttpResult, RawHttpError,
+            DynHttpError, HttpError, HttpResult, RawHttpError,
         },
     },
     services::sessions::{Sessions, VerifyError},
@@ -26,6 +26,38 @@ use hyper::{header, http::HeaderValue, StatusCode};
 use log::error;
 use sea_orm::DatabaseConnection;
 use serde::Serialize;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum ClientError {
+    #[error("Username not found")]
+    InvalidUsername,
+
+    #[error("Incorrect password")]
+    IncorrectPassword,
+
+    /// Username is already taken
+    #[error("Username already in use")]
+    UsernameAlreadyTaken,
+
+    /// Failed to hash a password when creating an account
+    #[error("Server error")]
+    FailedHashPassword,
+
+    #[error("Auth failed")]
+    AuthFailed,
+}
+
+impl HttpError for ClientError {
+    fn status(&self) -> StatusCode {
+        match self {
+            ClientError::InvalidUsername => StatusCode::NOT_FOUND,
+            ClientError::IncorrectPassword | ClientError::AuthFailed => StatusCode::BAD_REQUEST,
+            ClientError::UsernameAlreadyTaken => StatusCode::CONFLICT,
+            ClientError::FailedHashPassword => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
 
 #[derive(Serialize)]
 pub struct ServerDetails {
@@ -51,16 +83,10 @@ pub async fn login(
 ) -> HttpResult<AuthResponse> {
     let user = User::get_by_username(&db, &req.username)
         .await?
-        .ok_or(RawHttpError::new(
-            "Username not found",
-            StatusCode::NOT_FOUND,
-        ))?;
+        .ok_or(ClientError::InvalidUsername)?;
 
     if !verify_password(&req.password, &user.password) {
-        return Err(RawHttpError::new(
-            "Incorrect password",
-            StatusCode::BAD_REQUEST,
-        ));
+        return Err(ClientError::IncorrectPassword.into());
     }
 
     let token = sessions.create_token(user.id);
@@ -75,15 +101,10 @@ pub async fn create(
     Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
     if User::get_by_username(&db, &req.username).await?.is_some() {
-        return Err(RawHttpError::new(
-            "Username already taken",
-            StatusCode::CONFLICT,
-        ));
+        return Err(ClientError::UsernameAlreadyTaken.into());
     }
 
-    let password = hash_password(&req.password).map_err(|_| {
-        RawHttpError::new("Failed to hash password", StatusCode::INTERNAL_SERVER_ERROR)
-    })?;
+    let password = hash_password(&req.password).map_err(|_| ClientError::FailedHashPassword)?;
 
     let user = User::create_user(&db, req.username, password).await?;
 
@@ -107,15 +128,15 @@ pub async fn upgrade(
     Extension(sessions): Extension<Arc<Sessions>>,
 
     upgrade: BlazeUpgrade,
-) -> Result<Response, RawHttpError> {
+) -> Result<Response, DynHttpError> {
     let user_id: u32 = sessions
         .verify_token(&upgrade.token)
-        .map_err(|err| RawHttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
+        .map_err(|err| ClientError::AuthFailed)?;
 
     let user = User::get_user(&db, user_id)
         .await?
         .ok_or(VerifyError::Invalid)
-        .map_err(|err| RawHttpError::new("Auth failed", StatusCode::BAD_REQUEST))?;
+        .map_err(|err| ClientError::AuthFailed)?;
 
     tokio::spawn(async move {
         let socket = match upgrade.upgrade().await {

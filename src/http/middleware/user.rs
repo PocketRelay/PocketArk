@@ -1,6 +1,6 @@
 use crate::{
     database::entity::User,
-    http::models::RawHttpError,
+    http::models::{DynHttpError, HttpError, RawHttpError},
     services::sessions::{Sessions, VerifyError},
 };
 use axum::extract::FromRequestParts;
@@ -8,14 +8,31 @@ use futures::future::BoxFuture;
 use hyper::StatusCode;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
+use thiserror::Error;
 
 pub struct Auth(pub User);
 
 /// The HTTP header that contains the authentication token
 const TOKEN_HEADER: &str = "X-Token";
 
+#[derive(Debug, Error)]
+pub enum AuthError {
+    /// The token was missing from the request
+    #[error("Missing authentication token")]
+    MissingToken,
+    /// Invalid token provided (Or the associated user doesn't exist anymore)
+    #[error("Authorization token invalid")]
+    InvalidToken,
+}
+
+impl HttpError for AuthError {
+    fn status(&self) -> StatusCode {
+        StatusCode::BAD_REQUEST
+    }
+}
+
 impl<S> FromRequestParts<S> for Auth {
-    type Rejection = RawHttpError;
+    type Rejection = DynHttpError;
 
     fn from_request_parts<'a, 'b, 'c>(
         parts: &'a mut axum::http::request::Parts,
@@ -44,19 +61,16 @@ impl<S> FromRequestParts<S> for Auth {
                 .headers
                 .get(TOKEN_HEADER)
                 .and_then(|value| value.to_str().ok())
-                .ok_or(RawHttpError::new(
-                    "Missing session",
-                    StatusCode::BAD_REQUEST,
-                ))?;
+                .ok_or(AuthError::MissingToken)?;
 
             let user_id: u32 = sessions
                 .verify_token(token)
-                .map_err(|_| RawHttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
+                .map_err(|_| AuthError::InvalidToken)?;
 
             let user = User::get_user(&db, user_id)
                 .await?
                 .ok_or(VerifyError::Invalid)
-                .map_err(|_| RawHttpError::new("Auth failed", StatusCode::INTERNAL_SERVER_ERROR))?;
+                .map_err(|_| AuthError::InvalidToken)?;
 
             Ok(Self(user))
         })

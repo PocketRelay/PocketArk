@@ -7,7 +7,7 @@ use crate::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, UpdateSeenArticles, UserCurrenciesResponse,
             },
-            RawHttpError,
+            HttpError, HttpResult,
         },
     },
     services::{
@@ -105,7 +105,7 @@ pub async fn obtain_article(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ObtainStoreItemRequest>,
-) -> Result<Json<ObtainStoreItemResponse>, RawHttpError> {
+) -> HttpResult<ObtainStoreItemResponse> {
     let services = App::services();
     let store_service = &services.store;
 
@@ -164,21 +164,18 @@ pub async fn claim_unclaimed() -> Json<ClaimUncalimedResponse> {
 pub async fn get_currencies(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
-) -> Result<Json<UserCurrenciesResponse>, RawHttpError> {
+) -> HttpResult<UserCurrenciesResponse> {
     let currencies = Currency::all(&db, &user).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
 }
 
-impl From<StoreError> for RawHttpError {
-    fn from(value: StoreError) -> Self {
-        let reason = value.to_string();
-        let status = match value {
+impl HttpError for StoreError {
+    fn status(&self) -> StatusCode {
+        match self {
             StoreError::UnknownArticle => StatusCode::NOT_FOUND,
             StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
             StoreError::Database(_) | StoreError::Activity(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        };
-
-        RawHttpError::new_owned(reason, status)
+        }
     }
 }

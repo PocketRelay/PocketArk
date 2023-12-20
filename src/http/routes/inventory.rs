@@ -7,7 +7,7 @@ use crate::{
                 ConsumeRequest, InventoryRequestQuery, InventoryResponse, InventorySeenRequest,
                 ItemDefinitionsResponse,
             },
-            HttpResult, RawHttpError,
+            DynHttpError, HttpError, HttpResult, RawHttpError,
         },
     },
     services::{
@@ -86,7 +86,7 @@ pub async fn update_inventory_seen(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<InventorySeenRequest>,
-) -> Result<StatusCode, RawHttpError> {
+) -> Result<StatusCode, DynHttpError> {
     debug!("Inventory seen change requested: {:?}", req);
 
     // Updates all the matching items seen state
@@ -172,7 +172,7 @@ pub async fn consume_inventory(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ConsumeRequest>,
-) -> Result<Json<ActivityResult>, RawHttpError> {
+) -> HttpResult<ActivityResult> {
     const CONSUME_COUNT: u32 = 1;
 
     debug!("Consume inventory items: {:?}", req);
@@ -213,18 +213,15 @@ pub async fn consume_inventory(
     Ok(Json(result))
 }
 
-impl From<InventoryError> for RawHttpError {
-    fn from(value: InventoryError) -> Self {
-        let reason = value.to_string();
-        let status = match value {
+impl HttpError for InventoryError {
+    fn status(&self) -> StatusCode {
+        match self {
             InventoryError::NotOwned => StatusCode::NOT_FOUND,
             InventoryError::NotConsumable => StatusCode::BAD_REQUEST,
             InventoryError::NotEnough => StatusCode::CONFLICT,
             InventoryError::Database(_)
             | InventoryError::Activity(_)
             | InventoryError::MissingDefinition => StatusCode::INTERNAL_SERVER_ERROR,
-        };
-
-        RawHttpError::new_owned(reason, status)
+        }
     }
 }
