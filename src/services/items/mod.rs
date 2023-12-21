@@ -152,7 +152,7 @@ pub struct ItemDefinition {
     pub restrictions: Option<String>,
 
     /// The default namespace this item belongs to
-    pub default_namespace: ItemNamespace,
+    pub default_namespace: InventoryNamespace,
 
     /// Not sure the use of this field, seems to always be `null`
     #[serialize_always]
@@ -205,7 +205,7 @@ pub struct ItemChanged {
 /// Known namespaces for the game
 #[derive(Debug, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ItemNamespace {
+pub enum InventoryNamespace {
     /// Default namespace
     Default,
     /// Striketeam related namespace

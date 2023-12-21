@@ -12,7 +12,7 @@ use crate::{
     },
     services::{
         activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        items::{ItemDefinition, ItemNamespace, ItemsService},
+        items::{InventoryNamespace, ItemDefinition, ItemsService},
         Services,
     },
 };
@@ -35,7 +35,10 @@ pub async fn get_inventory(
 
     // TODO: Possibly store namespace with item itself then only query that namespace directly
     if let Some(namespace) = query.namespace {
-        if !matches!(namespace, ItemNamespace::None | ItemNamespace::Default) {
+        if !matches!(
+            namespace,
+            InventoryNamespace::None | InventoryNamespace::Default
+        ) {
             // Remove items that aren't in the same namespace
             items.retain(|item| {
                 services

@@ -2,8 +2,8 @@ use super::HttpError;
 use crate::{
     database::entity::{characters::CharacterId, Character, SharedData},
     services::character::{
-        levels::LevelTable, skill::SkillDefinition, CharacterEquipment, Class, CustomizationEntry,
-        SkillTreeEntry,
+        class::CharacterEquipment, class::Class, class::CustomizationEntry, levels::LevelTable,
+        skill::SkillDefinition, skill::SkillTree,
     },
 };
 use hyper::StatusCode;
@@ -46,7 +46,7 @@ pub struct UpdateCustomizationRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateSkillTreesRequest {
-    pub skill_trees: Vec<SkillTreeEntry>,
+    pub skill_trees: Vec<SkillTree>,
 }
 
 #[derive(Debug, Serialize)]

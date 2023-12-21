@@ -159,7 +159,7 @@ pub struct SkillLevelCost {
 
 /// Represents a skill tree definition
 #[serde_as]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SkillTree {
     /// Name of the skill definition this tree is for
@@ -174,7 +174,7 @@ pub struct SkillTree {
 
 /// Represents a tier of a skill tree definition
 #[serde_as]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SkillTreeTier {
     /// The skill tier index
@@ -182,6 +182,17 @@ pub struct SkillTreeTier {
     /// Collection of skills and whether they are unlocked or not
     #[serde_as(as = "serde_with::Map<_, serde_with::BoolFromInt>")]
     pub skills: Vec<(SkillName, bool)>,
+}
+
+impl SkillTreeTier {
+    /// Sets a skill tree tier value
+    pub fn set_skill(&mut self, name: SkillName, value: bool) {
+        if let Some((_, v)) = self.skills.iter_mut().find(|(k, _)| name.eq(k)) {
+            *v = value;
+        } else {
+            self.skills.push((name, value))
+        }
+    }
 }
 
 #[cfg(test)]

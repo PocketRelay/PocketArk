@@ -1,6 +1,8 @@
+use std::mem::swap;
+
 use crate::{
     database::entity::{
-        characters::{self, CharacterId, CustomizationMap, EquipmentList},
+        characters::{self, CharacterId, EquipmentList},
         Character, ClassData, SharedData,
     },
     http::{
@@ -10,7 +12,10 @@ use crate::{
             errors::{DynHttpError, HttpResult},
         },
     },
-    services::{character::skill::SkillDefinition, Services},
+    services::{
+        character::{class::CustomizationMap, skill::SkillDefinition},
+        Services,
+    },
 };
 use axum::{extract::Path, Extension, Json};
 use hyper::StatusCode;
@@ -147,22 +152,24 @@ pub async fn update_character_customization(
         character_id, req
     );
 
-    let character = user
+    let mut character = user
         .find_related(characters::Entity)
         .filter(characters::Column::Id.eq(character_id))
         .one(&db)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
-    let map = req
-        .customization
-        .into_iter()
-        .map(|(key, value)| (key, value.into()))
-        .collect();
+    // Swap the customization map for an empty one so we can edit it
+    let mut customization = CustomizationMap::default();
+    swap(&mut customization, &mut character.customization);
 
-    let mut character = character.into_active_model();
-    character.customization = ActiveValue::Set(CustomizationMap(map));
-    let _ = character.update(&db).await;
+    // Update the customization with the request values
+    req.customization
+        .into_iter()
+        .for_each(|(key, value)| customization.set(key, value.into()));
+
+    // Update the stored customization
+    _ = character.update_customization(&db, customization).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -208,6 +215,9 @@ pub async fn update_skill_tree(
         .await?
         .ok_or(CharactersError::NotFound)?;
 
+    // TODO: Calculate skill requirement and ensure user can afford it, update
+    // associated points fields
+
     // TODO: Clean this up and properly diff the trees
     req.skill_trees.into_iter().for_each(|tree| {
         let par = character
@@ -220,7 +230,7 @@ pub async fn update_skill_tree(
                 let par = par.tree.iter_mut().find(|value| value.tier == entry.tier);
                 if let Some(par) = par {
                     for (key, value) in entry.skills {
-                        par.skills.insert(key, value);
+                        par.set_skill(key, value);
                     }
                 }
             }
@@ -250,7 +260,7 @@ pub async fn get_classes(
     let list: Vec<ClassWithState> = services
         .character
         .classes
-        .list()
+        .all()
         .iter()
         .map(|class| {
             let unlocked = class_data

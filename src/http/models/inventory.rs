@@ -1,7 +1,7 @@
 use super::HttpError;
 use crate::{
     database::entity::{inventory_items::ItemId, InventoryItem},
-    services::items::{ItemDefinition, ItemNamespace},
+    services::items::{InventoryNamespace, ItemDefinition},
 };
 use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -45,7 +45,7 @@ pub struct InventoryRequestQuery {
     /// Whether to include definitions in the response
     pub include_definitions: bool,
     /// Optional namespace to filter by
-    pub namespace: Option<ItemNamespace>,
+    pub namespace: Option<InventoryNamespace>,
 }
 
 /// Response containing all the inventory items and their definitions

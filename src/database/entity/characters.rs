@@ -2,7 +2,12 @@ use super::{User, ValueMap};
 use crate::{
     database::{entity::ClassData, DbResult},
     services::{
-        character::{CharacterEquipment, CharacterService, CustomizationEntry, SkillTreeEntry, Xp},
+        character::{
+            class::{CharacterEquipment, CustomizationMap},
+            levels::ProgressionXp,
+            skill::SkillTree,
+            CharacterService,
+        },
         items::ItemName,
     },
     utils::models::Sku,
@@ -36,7 +41,7 @@ pub struct Model {
     /// The current level of the characters
     pub level: u32,
     /// XP progression data associated with this character
-    pub xp: Xp,
+    pub xp: ProgressionXp,
     /// Number of promotions this character has been given
     pub promotion: u32,
     /// Mapping for available point allocations
@@ -46,7 +51,7 @@ pub struct Model {
     /// Mapping for total points given
     pub points_granted: PointMap,
     /// Skill tree progression data
-    pub skill_trees: SkillTree,
+    pub skill_trees: SkillTrees,
     /// Character attributes
     pub attributes: ValueMap,
     /// Character bonus data
@@ -80,15 +85,11 @@ pub struct PointMap(pub HashMap<String, u32>);
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
-pub struct CustomizationMap(pub HashMap<String, CustomizationEntry>);
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
 pub struct EquipmentList(pub Vec<CharacterEquipment>);
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
-pub struct SkillTree(pub Vec<SkillTreeEntry>);
+pub struct SkillTrees(pub Vec<SkillTree>);
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
@@ -111,7 +112,7 @@ impl Model {
     pub fn update_xp<C>(
         self,
         db: &C,
-        xp: Xp,
+        xp: ProgressionXp,
         level: u32,
     ) -> impl Future<Output = DbResult<Self>> + '_
     where
@@ -120,6 +121,19 @@ impl Model {
         let mut model = self.into_active_model();
         model.xp = Set(xp);
         model.level = Set(level);
+        model.update(db)
+    }
+
+    pub fn update_customization<C>(
+        self,
+        db: &C,
+        customization: CustomizationMap,
+    ) -> impl Future<Output = DbResult<Self>> + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        let mut model = self.into_active_model();
+        model.customization = Set(customization);
         model.update(db)
     }
 
@@ -155,7 +169,7 @@ impl Model {
                 .and_then(|table| table.get_xp_values(DEFAULT_LEVEL))
                 .unwrap_or_default();
 
-            Xp {
+            ProgressionXp {
                 current,
                 last: previous,
                 next,
@@ -173,11 +187,11 @@ impl Model {
             points: Set(PointMap(point_map)),
             points_spent: Set(PointMap::default()),
             points_granted: Set(PointMap::default()),
-            skill_trees: Set(SkillTree(class_def.skill_trees.clone())),
+            skill_trees: Set(SkillTrees(class_def.skill_trees.clone())),
             attributes: Set(ValueMap(class_def.attributes.clone())),
             bonus: Set(ValueMap(class_def.bonus.clone())),
             equipments: Set(EquipmentList(class_def.default_equipments.clone())),
-            customization: Set(CustomizationMap(class_def.default_customization.clone())),
+            customization: Set(class_def.default_customization.clone()),
             play_stats: Set(PlayStats::default()),
             last_used: Set(None),
             promotable: Set(false),

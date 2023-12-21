@@ -1,8 +1,6 @@
 use super::{characters::CharacterId, User};
-use crate::{
-    database::DbResult,
-    services::character::{CharacterEquipment, Xp},
-};
+use crate::services::character::class::CharacterEquipment;
+use crate::{database::DbResult, services::character::levels::ProgressionXp};
 use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use std::collections::HashMap;
@@ -51,7 +49,7 @@ pub struct SharedProgression {
     pub i18n_name: String,
     pub i18n_description: String,
     pub level: u32,
-    pub xp: Xp,
+    pub xp: ProgressionXp,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -1,11 +1,9 @@
 use super::User;
 use crate::database::DbResult;
+use crate::services::character::levels::ProgressionXp;
 use crate::services::strike_teams::StrikeTeamEquipment;
 use crate::services::Services;
-use crate::services::{
-    character::{CharacterService, Xp},
-    strike_teams::TeamTrait,
-};
+use crate::services::{character::CharacterService, strike_teams::TeamTrait};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -30,7 +28,7 @@ pub struct Model {
     pub name: String,
     pub icon: StrikeTeamIcon,
     pub level: u32,
-    pub xp: Xp,
+    pub xp: ProgressionXp,
     pub equipment: Option<StrikeTeamEquipment>,
     pub positive_traits: TraitList,
     pub negative_traits: TraitList,
@@ -172,7 +170,7 @@ impl Model {
             .get_xp_requirement(level)
             .expect("Missing xp requirement for next strike team level");
 
-        let xp = Xp {
+        let xp = ProgressionXp {
             current: 0,
             last: 0,
             next: next_xp,

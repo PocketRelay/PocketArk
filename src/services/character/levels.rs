@@ -1,12 +1,11 @@
 //! Leveling table structures and logic
 
-use anyhow::{Context, Ok};
+use anyhow::Context;
 use log::debug;
+use sea_orm::FromJsonQueryResult;
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
-
-use super::Xp;
 
 /// Level table definitions (7)
 const LEVEL_TABLE_DEFINITIONS: &str =
@@ -57,7 +56,12 @@ impl LevelTable {
     /// Computes the new xp and level values from the provided
     /// initial xp, level and the earned xp amount. Uses the
     /// current level table
-    pub fn compute_leveling(&self, mut xp: Xp, mut level: u32, xp_earned: u32) -> (Xp, u32) {
+    pub fn compute_leveling(
+        &self,
+        mut xp: ProgressionXp,
+        mut level: u32,
+        xp_earned: u32,
+    ) -> (ProgressionXp, u32) {
         xp.current = xp.current.saturating_add(xp_earned);
 
         // Only continue progression while theres a next level available
@@ -136,6 +140,17 @@ impl Serialize for LevelTable {
 
         value.end()
     }
+}
+
+/// Structure for tracking XP progression of a character or strike team
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+pub struct ProgressionXp {
+    /// The previous XP that was reached (last level)
+    pub last: u32,
+    /// The current XP
+    pub current: u32,
+    /// The amount of XP for the next level
+    pub next: u32,
 }
 
 #[cfg(test)]
