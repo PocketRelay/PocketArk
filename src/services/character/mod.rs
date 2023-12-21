@@ -16,6 +16,7 @@ const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClas
 /// Skill definitions (64)
 const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
 
+pub mod class;
 pub mod levels;
 
 pub struct CharacterService {
@@ -116,8 +117,11 @@ impl ClassLookup {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Class {
-    pub level_name: Uuid,
-    pub prestige_level_name: Uuid,
+    pub name: Uuid,                //
+    pub level_name: Uuid,          //
+    pub prestige_level_name: Uuid, //
+    pub item_link: String,         //0:{ITEM_ID}
+
     pub points: Map<String, Value>,
     // Default skill trees to clone from
     pub skill_trees: Vec<SkillTreeEntry>,
@@ -126,15 +130,13 @@ pub struct Class {
     pub custom_attributes: Map<String, Value>,
     pub default_equipments: Vec<CharacterEquipment>,
     pub default_customization: HashMap<String, CustomizationEntry>,
-    pub name: Uuid,
     pub inventory_namespace: String,
     pub autogenerate_inventory_namespace: bool,
     pub initial_active_candidate: bool,
-    pub item_link: String, //0:{ITEM_ID}
     pub default_namespace: String,
 
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub locale: LocaleNameWithDesc, //
 }
 
 impl Class {

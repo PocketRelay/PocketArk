@@ -1,3 +1,5 @@
+//! Leveling table structures and logic
+
 use anyhow::{Context, Ok};
 use log::debug;
 use serde::{ser::SerializeStruct, Deserialize, Serialize};

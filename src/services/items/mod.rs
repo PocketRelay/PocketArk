@@ -40,7 +40,8 @@ impl ItemsService {
 pub type ItemName = Uuid;
 
 /// Link to an item, contains the item category and [ItemName]
-pub struct ItemLink(BaseCategory, ItemName);
+#[derive(Debug)]
+pub struct ItemLink(pub BaseCategory, pub ItemName);
 
 /// Collection of [ItemDefinition]s with a lookup index based
 /// on the [ItemName]s
@@ -78,8 +79,14 @@ impl ItemDefinitions {
     }
 
     /// Attempts to lookup an [ItemDefinition] by `names`
-    pub fn by_name(&self, name: &Uuid) -> Option<&ItemDefinition> {
+    pub fn by_name(&self, name: &ItemName) -> Option<&ItemDefinition> {
         let index = *self.lookup_by_name.get(name)?;
+        self.values.get(index)
+    }
+
+    /// Attempts to lookup an [ItemDefinition] by the name from a [ItemLink]
+    pub fn by_link(&self, link: &ItemLink) -> Option<&ItemDefinition> {
+        let index = *self.lookup_by_name.get(&link.1)?;
         self.values.get(index)
     }
 }
@@ -365,6 +372,14 @@ impl SubCategory {
     }
 }
 
+impl Display for ItemLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.0, f)?;
+        f.write_char(':')?;
+        Display::fmt(&self.1, f)
+    }
+}
+
 impl Display for ItemRarity {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Enum is formatted as underlying value
@@ -429,6 +444,24 @@ impl FromStr for ItemLink {
         let name: ItemName = name.parse()?;
 
         Ok(Self(base, name))
+    }
+}
+
+impl<'de> Deserialize<'de> for ItemLink {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        DisplayFromStr::deserialize_as(deserializer)
+    }
+}
+
+impl Serialize for ItemLink {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }
 
