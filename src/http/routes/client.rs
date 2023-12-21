@@ -3,7 +3,7 @@
 
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
-    database::entity::{Currency, InventoryItem, SharedData, StrikeTeam, User},
+    database::entity::{Currency, SharedData, StrikeTeam, User},
     http::{
         middleware::upgrade::BlazeUpgrade,
         models::{
@@ -12,6 +12,7 @@ use crate::{
         },
     },
     services::{
+        items::create_default_items,
         sessions::{Sessions, VerifyError},
         Services,
     },
@@ -81,7 +82,15 @@ pub async fn create(
     let user = User::create_user(&db, req.username, password).await?;
 
     // Initialize the users data
-    InventoryItem::create_default(&db, &user, &services.items, &services.character).await?;
+    create_default_items(
+        &db,
+        &user,
+        &services.items.items,
+        &services.classes,
+        &services.level_tables,
+    )
+    .await?;
+
     Currency::set_default(&db, &user).await?;
     SharedData::create_default(&db, &user).await?;
     StrikeTeam::create_default(&db, &user).await?;

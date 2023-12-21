@@ -23,8 +23,6 @@ pub enum Relation {
     Characters,
     #[sea_orm(has_many = "super::inventory_items::Entity")]
     InventoryItems,
-    #[sea_orm(has_many = "super::class_data::Entity")]
-    ClassData,
     #[sea_orm(has_many = "super::seen_articles::Entity")]
     SeenArticles,
     #[sea_orm(has_many = "super::challenge_progress::Entity")]
@@ -79,12 +77,6 @@ impl Related<super::characters::Entity> for Entity {
 impl Related<super::inventory_items::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::InventoryItems.def()
-    }
-}
-
-impl Related<super::class_data::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ClassData.def()
     }
 }
 

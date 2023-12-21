@@ -1,9 +1,9 @@
 use super::User;
 use crate::database::DbResult;
-use crate::services::character::levels::ProgressionXp;
+use crate::services::character::levels::{LevelTables, ProgressionXp};
 use crate::services::strike_teams::StrikeTeamEquipment;
+use crate::services::strike_teams::TeamTrait;
 use crate::services::Services;
-use crate::services::{character::CharacterService, strike_teams::TeamTrait};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -105,7 +105,7 @@ impl Model {
     {
         let services = Services::get();
         let mut rng = StdRng::from_entropy();
-        let mut strike_team = Self::random(&mut rng, &services.character);
+        let mut strike_team = Self::random(&mut rng, &services.level_tables);
         strike_team.user_id = Set(user.id);
         strike_team.insert(db).await
     }
@@ -155,13 +155,12 @@ impl Model {
         user.find_related(Entity).count(db).await
     }
 
-    pub fn random(rng: &mut StdRng, character_service: &CharacterService) -> ActiveModel {
+    pub fn random(rng: &mut StdRng, level_tables: &LevelTables) -> ActiveModel {
         let name = STRIKE_TEAM_NAMES
             .choose(rng)
             .expect("Failed to choose strike team name")
             .to_string();
-        let level_table = character_service
-            .level_tables
+        let level_table = level_tables
             .get(&Self::LEVEL_TABLE)
             .expect("Missing strike team level table");
 

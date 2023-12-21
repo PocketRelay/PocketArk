@@ -153,6 +153,16 @@ pub struct ProgressionXp {
     pub next: u32,
 }
 
+impl From<(u32, u32, u32)> for ProgressionXp {
+    fn from(value: (u32, u32, u32)) -> Self {
+        Self {
+            last: value.0,
+            current: value.1,
+            next: value.2,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{LevelTable, LEVEL_TABLE_DEFINITIONS};

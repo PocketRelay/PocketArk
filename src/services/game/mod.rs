@@ -206,7 +206,8 @@ async fn process_player_data(
     debug!("Processing player data");
 
     let services = Services::get();
-    let character_service = &services.character;
+    let classes = &services.classes;
+    let level_tables = &services.level_tables;
 
     let user = User::get_user(&db, data.nucleus_id)
         .await?
@@ -226,8 +227,7 @@ async fn process_player_data(
         .await?
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
-    let class = character_service
-        .classes
+    let class = classes
         .by_name(&character.class_name)
         .ok_or(PlayerDataProcessError::MissingClass)?;
 
@@ -263,9 +263,7 @@ async fn process_player_data(
     debug!("Compute leveling");
 
     // Character leveling
-    let level_table = services
-        .character
-        .level_tables
+    let level_table = level_tables
         .get(&class.level_name)
         .expect("Missing class level table");
 
@@ -282,9 +280,7 @@ async fn process_player_data(
 
     // Character prestige leveling
     {
-        let level_table = services
-            .character
-            .level_tables
+        let level_table = level_tables
             .get(&class.prestige_level_name)
             .expect("Missing prestige level table");
 
@@ -349,6 +345,8 @@ async fn process_player_data(
     }
 
     debug!("Saving character level and xp");
+
+    // TOD: Character leveling up needs to add 3 skill points per level
 
     // Update character level and xp
     if new_xp != previous_xp || level > previous_level {

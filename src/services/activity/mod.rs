@@ -5,6 +5,7 @@
 //! and rewards accordingly
 
 use super::{
+    character::acquire_item_character,
     items::{
         pack::{GenerateError, ItemReward, RewardCollection},
         BaseCategory, Category, ItemDefinition, ItemName,
@@ -14,7 +15,7 @@ use super::{
 };
 use crate::database::entity::{
     challenge_progress::{ChallengeCounterName, ChallengeId},
-    Character, Currency, InventoryItem, User,
+    Currency, InventoryItem, User,
 };
 use log::debug;
 use rand::{rngs::StdRng, SeedableRng};
@@ -142,12 +143,11 @@ impl ActivityService {
     where
         C: ConnectionTrait + Send,
     {
-        let Services {
-            store: store_service,
-            items: items_service,
-            character: characters_service,
-            ..
-        } = Services::get();
+        let services = Services::get();
+        let store_service = &services.store;
+        let items_service = &services.items;
+        let classes = &services.classes;
+        let level_tables = &services.level_tables;
 
         let article_name: StoreArticleName = event.attribute_uuid("articleName")?;
         let stack_size: u32 = event.attribute_u32("count")?;
@@ -182,7 +182,7 @@ impl ActivityService {
 
             // Handle character creation for character items
             if item_definition.category.base_eq(&BaseCategory::Characters) {
-                Character::create_from_item(db, characters_service, user, &item_definition.name)
+                acquire_item_character(db, user, &item_definition.name, classes, level_tables)
                     .await?;
             }
         }
@@ -201,11 +201,10 @@ impl ActivityService {
     where
         C: ConnectionTrait + Send,
     {
-        let Services {
-            items: items_service,
-            character: characters_service,
-            ..
-        } = Services::get();
+        let services = Services::get();
+        let items_service = &services.items;
+        let classes = &services.classes;
+        let level_tables = &services.level_tables;
 
         let category: Category = event.attribute_parsed("category")?;
         let definition_name: ItemName = event.attribute_uuid("definitionName")?;
@@ -257,7 +256,7 @@ impl ActivityService {
 
             // Handle character creation for character items
             if definition.category.base_eq(&BaseCategory::Characters) {
-                Character::create_from_item(db, characters_service, user, &definition.name).await?;
+                acquire_item_character(db, user, &definition.name, classes, level_tables).await?;
             }
         }
 

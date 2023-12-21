@@ -103,9 +103,9 @@ pub struct Class {
     pub points: Vec<(String, u32)>,
 
     /// Default attributes for the character
-    pub attributes: serde_json::Map<String, serde_json::Value>,
+    pub attributes: CharacterAttributes,
     /// Default bonus for the character
-    pub bonus: serde_json::Map<String, serde_json::Value>,
+    pub bonus: CharacterBonus,
     /// Custom attributes for the class, contains customization options for
     /// the class health, shields, icons, etc
     pub custom_attributes: serde_json::Map<String, serde_json::Value>,
@@ -135,6 +135,29 @@ pub struct Class {
     #[serde(flatten)]
     pub locale: LocaleNameWithDesc,
 }
+
+pub type CharacterBonus = serde_json::Map<String, serde_json::Value>;
+
+/// Game mapping for different kinds of character points,
+/// simplified for this implementation to the only kind of
+/// point made use of (Skill points)
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+pub struct PointMap {
+    /// Skill points in the point map
+    #[serde(rename = "MEA_skill_points")]
+    pub skill_points: u32,
+}
+
+/// Map of character attributes
+///
+/// Stored on the server as a [Vec] of tuples because the server never
+/// needs to actually read the contents of the map
+#[serde_as]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[serde(transparent)]
+pub struct CharacterAttributes(
+    #[serde_as(as = "serde_with::Map<_, _>")] Vec<(String, serde_json::Value)>,
+);
 
 /// Map of character customization data
 ///

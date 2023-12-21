@@ -1,21 +1,20 @@
 use super::{User, ValueMap};
 use crate::{
-    database::{entity::ClassData, DbResult},
-    services::{
-        character::{
-            class::{CharacterEquipment, CustomizationMap},
-            levels::ProgressionXp,
-            skill::SkillTree,
-            CharacterService,
+    database::DbResult,
+    services::character::{
+        class::{
+            CharacterAttributes, CharacterBonus, CharacterEquipment, ClassName, CustomizationMap,
+            PointMap,
         },
-        items::ItemName,
+        levels::ProgressionXp,
+        skill::SkillTree,
     },
     utils::models::Sku,
 };
 use sea_orm::{
     entity::prelude::*,
     ActiveValue::{NotSet, Set},
-    FromJsonQueryResult, IntoActiveModel,
+    FromJsonQueryResult, IntoActiveModel, QuerySelect,
 };
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use serde_with::skip_serializing_none;
@@ -37,7 +36,7 @@ pub struct Model {
     /// ID of the user that owns this character
     pub user_id: u32,
     /// Name of the class definition this character belongs to
-    pub class_name: Uuid,
+    pub class_name: ClassName,
     /// The current level of the characters
     pub level: u32,
     /// XP progression data associated with this character
@@ -53,7 +52,7 @@ pub struct Model {
     /// Skill tree progression data
     pub skill_trees: SkillTrees,
     /// Character attributes
-    pub attributes: ValueMap,
+    pub attributes: CharacterAttributes,
     /// Character bonus data
     pub bonus: ValueMap,
     /// Character equipment list
@@ -78,10 +77,6 @@ pub struct PlayStats {
     #[serde(flatten)]
     pub other: HashMap<String, serde_json::Value>,
 }
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct PointMap(pub HashMap<String, u32>);
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
@@ -137,70 +132,44 @@ impl Model {
         model.update(db)
     }
 
-    pub async fn create_from_item<C>(
-        db: &C,
-        characters: &CharacterService,
+    /// Creates a new character from the provided base details
+    pub fn create<'db, C>(
+        db: &'db C,
         user: &User,
-        item_name: &ItemName,
-    ) -> DbResult<()>
+        class_name: ClassName,
+        level: u32,
+        xp: ProgressionXp,
+        points: PointMap,
+        skill_trees: Vec<SkillTree>,
+        attributes: CharacterAttributes,
+        bonus: CharacterBonus,
+        equipment: Vec<CharacterEquipment>,
+        customization: CustomizationMap,
+    ) -> impl Future<Output = DbResult<Self>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        // const DEFAULT_LEVEL: u32 = 1;
-        // const DEFAULT_SKILL_POINTS: u32 = 2;
-
-        // Testing values
-        const DEFAULT_LEVEL: u32 = 20;
-        const DEFAULT_SKILL_POINTS: u32 = 255;
-
-        let class_def = match characters.classes.by_item(item_name) {
-            Some(value) => value,
-            // Class definition for the item is missing (Item wasn't a character?)
-            None => return Ok(()),
-        };
-
-        let mut point_map = HashMap::new();
-        point_map.insert("MEA_skill_points".to_string(), DEFAULT_SKILL_POINTS);
-
-        let xp = {
-            let (previous, current, next) = characters
-                .level_tables
-                .get(&class_def.level_name)
-                .and_then(|table| table.get_xp_values(DEFAULT_LEVEL))
-                .unwrap_or_default();
-
-            ProgressionXp {
-                current,
-                last: previous,
-                next,
-            }
-        };
-
-        // Insert character
-        let model = ActiveModel {
+        ActiveModel {
             id: NotSet,
             user_id: Set(user.id),
-            class_name: Set(class_def.name),
-            level: Set(DEFAULT_LEVEL),
+            class_name: Set(class_name),
+            level: Set(level),
             xp: Set(xp),
             promotion: Set(0),
-            points: Set(PointMap(point_map)),
-            points_spent: Set(PointMap::default()),
+            points: Set(points),
+            // 3 of the 5 points are spent by default
+            points_spent: Set(PointMap { skill_points: 3 }),
             points_granted: Set(PointMap::default()),
-            skill_trees: Set(SkillTrees(class_def.skill_trees.clone())),
-            attributes: Set(ValueMap(class_def.attributes.clone())),
-            bonus: Set(ValueMap(class_def.bonus.clone())),
-            equipments: Set(EquipmentList(class_def.default_equipments.clone())),
-            customization: Set(class_def.default_customization.clone()),
+            skill_trees: Set(SkillTrees(skill_trees)),
+            attributes: Set(attributes),
+            bonus: Set(ValueMap(bonus)),
+            equipments: Set(EquipmentList(equipment)),
+            customization: Set(customization),
             play_stats: Set(PlayStats::default()),
             last_used: Set(None),
             promotable: Set(false),
-        };
-        let _ = model.insert(db).await?;
-
-        ClassData::set(db, user, class_def.name, true).await?;
-
-        Ok(())
+        }
+        .insert(db)
     }
 
     pub fn find_by_id_user<'db, C>(
@@ -225,6 +194,24 @@ impl Model {
         user.find_related(Entity)
             .filter(Column::ClassName.eq(class_name))
             .one(db)
+    }
+
+    /// Collects all the [ClassName]s of the classes that the provided user
+    /// has unlocked
+    pub fn get_user_classes<'db, C>(
+        db: &'db C,
+        user: &User,
+    ) -> impl Future<Output = DbResult<Vec<ClassName>>> + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find()
+            .select_only()
+            .column(Column::UserId)
+            .column(Column::ClassName)
+            .filter(Column::UserId.eq(user.id))
+            .into_tuple()
+            .all(db)
     }
 }
 

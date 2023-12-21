@@ -1,12 +1,15 @@
 use super::{
     connect_database,
-    entity::{currency::CurrencyType, Character, InventoryItem, User},
+    entity::{currency::CurrencyType, InventoryItem, User},
 };
 use crate::{
-    database::entity::{Currency, SharedData},
+    database::entity::{Character, Currency, SharedData},
     services::{
-        character::CharacterService,
-        items::{BaseCategory, Category, ItemsService},
+        character::{
+            class::{ClassDefinitions, PointMap},
+            levels::{LevelTables, ProgressionXp},
+        },
+        items::ItemsService,
     },
     utils::{hashing::hash_password, logging::setup_test_logging},
 };
@@ -23,7 +26,8 @@ pub async fn seed() {
         .unwrap();
 
     let items = ItemsService::new().unwrap();
-    let characters = CharacterService::new().unwrap();
+    let classes = ClassDefinitions::new().unwrap();
+    let level_tables = LevelTables::new().unwrap();
 
     // Initialize the users data
     // InventoryItem::create_default(&db, &user, &items, &characters)
@@ -43,6 +47,7 @@ pub async fn seed() {
     SharedData::create_default(&db, &user).await.unwrap();
     // StrikeTeam::create_default(&db, &user).await.unwrap();
 
+    // All all the items
     for definition in items.items.all() {
         let _item = InventoryItem::add_item(
             &db,
@@ -53,15 +58,40 @@ pub async fn seed() {
         )
         .await
         .unwrap();
+    }
 
-        // Handle character creation if the item is a character item
-        if definition
-            .category
-            .is_within(&Category::Base(BaseCategory::Characters))
-        {
-            Character::create_from_item(&db, &characters, &user, &definition.name)
-                .await
-                .unwrap();
-        }
+    // Add all the characters
+    for class in classes.all() {
+        let level = 20;
+        // Get the current xp progression values
+        let xp: ProgressionXp = level_tables
+            .get(&class.level_name)
+            .unwrap()
+            .get_xp_values(level)
+            .unwrap()
+            .into();
+
+        let points: PointMap = PointMap { skill_points: 255 };
+        let skill_trees = class.skill_trees.clone();
+        let attributes = class.attributes.clone();
+        let bonus = class.bonus.clone();
+        let equipment = class.default_equipments.clone();
+        let customization = class.default_customization.clone();
+
+        Character::create(
+            &db,
+            &user,
+            class.name,
+            level,
+            xp,
+            points,
+            skill_trees,
+            attributes,
+            bonus,
+            equipment,
+            customization,
+        )
+        .await
+        .unwrap();
     }
 }

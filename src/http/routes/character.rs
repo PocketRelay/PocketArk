@@ -3,7 +3,7 @@ use std::mem::swap;
 use crate::{
     database::entity::{
         characters::{self, CharacterId, EquipmentList},
-        Character, ClassData, SharedData,
+        Character, SharedData,
     },
     http::{
         middleware::{user::Auth, JsonDump},
@@ -254,25 +254,22 @@ pub async fn get_classes(
 ) -> HttpResult<CharacterClasses> {
     let services = Services::get();
 
-    let class_data = ClassData::all(&db, &user).await?;
+    // Get the unlocked classes
+    let unlocked_classes = Character::get_user_classes(&db, &user).await?;
 
     // Combine classes with unlocked class data states
     let list: Vec<ClassWithState> = services
-        .character
         .classes
         .all()
         .iter()
         .map(|class| {
-            let unlocked = class_data
-                .iter()
-                .find(|class_data| class_data.class_name == class.name)
-                .is_some_and(|class_data| class_data.unlocked);
+            let unlocked = unlocked_classes.contains(&class.name);
 
             ClassWithState { class, unlocked }
         })
         .collect();
 
-    let skill_definitions: &'static [SkillDefinition] = &services.character.skills.values;
+    let skill_definitions: &'static [SkillDefinition] = &services.skills.values;
 
     Ok(Json(CharacterClasses {
         list,
@@ -287,7 +284,7 @@ pub async fn get_classes(
 pub async fn get_level_tables() -> Json<CharacterLevelTables> {
     let services = Services::get();
     Json(CharacterLevelTables {
-        list: &services.character.level_tables.values,
+        list: &services.level_tables.values,
     })
 }
 
