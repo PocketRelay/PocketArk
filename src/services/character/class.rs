@@ -9,12 +9,13 @@
 //! the item associated with the character, etc
 //!
 
+use super::levels::LevelTableName;
+use crate::{services::items::ItemLink, utils::models::LocaleNameWithDesc};
 use serde::{ser::SerializeMap, Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{services::items::ItemLink, utils::models::LocaleNameWithDesc};
-
-use super::levels::LevelTableName;
+/// Class definitions (36)
+const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
 
 /// Type alias for a [Uuid] that represents a [Class] name
 pub type ClassName = Uuid;
@@ -50,9 +51,4 @@ impl Serialize for Class {
         // value.serialize_entry("n", value)
         value.end()
     }
-}
-
-/// Defines the
-pub struct CharacterSkillTreeEntry {
-    pub name: 
 }

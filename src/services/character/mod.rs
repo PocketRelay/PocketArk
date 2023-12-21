@@ -18,6 +18,7 @@ const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefiniti
 
 pub mod class;
 pub mod levels;
+pub mod skill;
 
 pub struct CharacterService {
     pub skills: Vec<SkillDefinition>,
@@ -174,14 +175,13 @@ impl Class {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SkillDefinition {
-    pub name: Uuid,
-
-    pub tiers: Vec<SkillDefinitionTier>,
-    pub custom_attributes: Map<String, Value>,
-    pub timestamp: DateTime<Utc>,
+    pub name: Uuid,                            //
+    pub tiers: Vec<SkillDefinitionTier>,       //
+    pub custom_attributes: Map<String, Value>, //
+    pub timestamp: DateTime<Utc>,              //
 
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub locale: LocaleNameWithDesc, //
 }
 
 #[derive(Debug, Serialize, Deserialize)]
