@@ -220,9 +220,20 @@ pub struct CharacterEquipment {
     /// The slot the equipment is in
     pub slot: EquipmentSlot,
     /// The name of the item in the equipment slot
-    pub name: ItemName,
+    pub name: NameOrEmpty,
     /// Items attached to the equipment
     pub attachments: Vec<ItemName>,
+}
+
+/// Can be either an item name or empty string,
+///
+/// [CharacterEquipment::name] may be an empty string if the slot is cleared
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum NameOrEmpty {
+    #[serde(rename = "")]
+    Empty,
+    #[serde(untagged)]
+    Name(ItemName),
 }
 
 #[cfg(test)]
