@@ -10,7 +10,7 @@ use crate::{
             errors::{DynHttpError, HttpResult},
         },
     },
-    services::{character::SkillDefinition, Services},
+    services::{character::skill::SkillDefinition, Services},
 };
 use axum::{extract::Path, Extension, Json};
 use hyper::StatusCode;
@@ -262,7 +262,7 @@ pub async fn get_classes(
         })
         .collect();
 
-    let skill_definitions: &'static [SkillDefinition] = &services.character.skills;
+    let skill_definitions: &'static [SkillDefinition] = &services.character.skills.values;
 
     Ok(Json(CharacterClasses {
         list,

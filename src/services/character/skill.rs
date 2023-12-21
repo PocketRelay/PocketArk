@@ -1,5 +1,8 @@
 //! Skill structures and logic
+//!
+//! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
+use crate::utils::models::LocaleNameWithDesc;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::debug;
@@ -7,8 +10,6 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::str::FromStr;
 use uuid::Uuid;
-
-use crate::utils::models::{LocaleName, LocaleNameWithDesc};
 
 /// Skill definitions (64)
 const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
@@ -154,6 +155,33 @@ pub struct SkillLevelCost {
     /// The skill points cost
     #[serde(rename = "character:points:MEA_skill_points")]
     pub skill_points: u32,
+}
+
+/// Represents a skill tree definition
+#[serde_as]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SkillTree {
+    /// Name of the skill definition this tree is for
+    pub name: SkillDefinitionName,
+    /// The tree of tiers
+    pub tree: Vec<SkillTreeTier>,
+    /// Optional timestamp for when the tree was created
+    pub timestamp: Option<DateTime<Utc>>,
+    /// UNknown usage
+    pub obsolete: bool,
+}
+
+/// Represents a tier of a skill tree definition
+#[serde_as]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SkillTreeTier {
+    /// The skill tier index
+    pub tier: u8,
+    /// Collection of skills and whether they are unlocked or not
+    #[serde_as(as = "serde_with::Map<_, serde_with::BoolFromInt>")]
+    pub skills: Vec<(SkillName, bool)>,
 }
 
 #[cfg(test)]

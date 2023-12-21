@@ -1,4 +1,4 @@
-use crate::utils::models::{LocaleName, LocaleNameWithDesc};
+use crate::utils::models::LocaleNameWithDesc;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::{debug, error};
@@ -9,19 +9,17 @@ use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use std::{collections::HashMap, str::FromStr};
 use uuid::Uuid;
 
-use self::levels::LevelTables;
+use self::{levels::LevelTables, skill::SkillDefinitions};
 
 /// Class definitions (36)
 const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
-/// Skill definitions (64)
-const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
 
 pub mod class;
 pub mod levels;
 pub mod skill;
 
 pub struct CharacterService {
-    pub skills: Vec<SkillDefinition>,
+    pub skills: SkillDefinitions,
     pub classes: ClassLookup,
     pub level_tables: LevelTables,
 }
@@ -32,11 +30,7 @@ impl CharacterService {
 
         debug!("Loaded {} class definition(s)", classes.classes.len());
 
-        let skills: Vec<SkillDefinition> =
-            serde_json::from_str(SKILL_DEFINITIONS).context("Failed to parse skill definitions")?;
-
-        debug!("Loaded {} skill definition(s)", skills.len());
-
+        let skills: SkillDefinitions = SkillDefinitions::new()?;
         let level_tables: LevelTables = LevelTables::new()?;
 
         Ok(Self {
@@ -170,49 +164,6 @@ impl Class {
         //     }
         // };
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SkillDefinition {
-    pub name: Uuid,                            //
-    pub tiers: Vec<SkillDefinitionTier>,       //
-    pub custom_attributes: Map<String, Value>, //
-    pub timestamp: DateTime<Utc>,              //
-
-    #[serde(flatten)]
-    pub locale: LocaleNameWithDesc, //
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SkillDefinitionTier {
-    pub tier: u8,
-    pub custom_attributes: Map<String, Value>,
-    pub unlock_conditions: Vec<Value>,
-    pub skills: Vec<SkillItem>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SkillItem {
-    pub name: String,
-    pub custom_attributes: Map<String, Value>,
-    pub unlock_conditions: Vec<Value>,
-    pub levels: Vec<SkillItemLevel>,
-
-    #[serde(flatten)]
-    pub locale: LocaleName,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SkillItemLevel {
-    pub level: u8,
-    pub custom_attributes: Map<String, Value>,
-    pub unlock_conditions: Vec<Value>,
-    pub cost: Map<String, Value>,
-    pub bonus: Map<String, Value>,
 }
 
 #[serde_as]

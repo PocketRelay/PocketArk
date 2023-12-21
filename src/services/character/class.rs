@@ -9,7 +9,7 @@
 //! the item associated with the character, etc
 //!
 
-use super::levels::LevelTableName;
+use super::{levels::LevelTableName, skill::SkillDefinitionName};
 use crate::{services::items::ItemLink, utils::models::LocaleNameWithDesc};
 use serde::{ser::SerializeMap, Deserialize, Serialize};
 use uuid::Uuid;
