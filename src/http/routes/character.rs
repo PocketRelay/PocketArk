@@ -13,7 +13,10 @@ use crate::{
         },
     },
     services::{
-        character::{class::CustomizationMap, skill::SkillDefinition},
+        character::{
+            class::{ClassName, CustomizationMap},
+            skill::SkillDefinition,
+        },
         Services,
     },
 };
@@ -255,7 +258,7 @@ pub async fn get_classes(
     let services = Services::get();
 
     // Get the unlocked classes
-    let unlocked_classes = Character::get_user_classes(&db, &user).await?;
+    let unlocked_classes: Vec<ClassName> = Character::get_user_classes(&db, &user).await?;
 
     // Combine classes with unlocked class data states
     let list: Vec<ClassWithState> = services

@@ -145,7 +145,7 @@ pub type CharacterBonus = serde_json::Map<String, serde_json::Value>;
 pub struct PointMap {
     /// Skill points in the point map
     #[serde(rename = "MEA_skill_points")]
-    pub skill_points: u32,
+    pub skill_points: Option<u32>,
 }
 
 /// Map of character attributes

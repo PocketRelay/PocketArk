@@ -45,7 +45,9 @@ where
         .context("Invalid character level provided")?
         .into();
 
-    let points: PointMap = PointMap { skill_points: 5 };
+    let points: PointMap = PointMap {
+        skill_points: Some(5),
+    };
     let skill_trees = class.skill_trees.clone();
     let attributes = class.attributes.clone();
     let bonus = class.bonus.clone();

@@ -1,4 +1,4 @@
-use super::{User, ValueMap};
+use super::{users::UserId, User, ValueMap};
 use crate::{
     database::DbResult,
     services::character::{
@@ -133,6 +133,7 @@ impl Model {
     }
 
     /// Creates a new character from the provided base details
+    #[allow(clippy::too_many_arguments)]
     pub fn create<'db, C>(
         db: &'db C,
         user: &User,
@@ -158,7 +159,9 @@ impl Model {
             promotion: Set(0),
             points: Set(points),
             // 3 of the 5 points are spent by default
-            points_spent: Set(PointMap { skill_points: 3 }),
+            points_spent: Set(PointMap {
+                skill_points: Some(3),
+            }),
             points_granted: Set(PointMap::default()),
             skill_trees: Set(SkillTrees(skill_trees)),
             attributes: Set(attributes),
@@ -198,20 +201,23 @@ impl Model {
 
     /// Collects all the [ClassName]s of the classes that the provided user
     /// has unlocked
-    pub fn get_user_classes<'db, C>(
-        db: &'db C,
-        user: &User,
-    ) -> impl Future<Output = DbResult<Vec<ClassName>>> + 'db
+    pub async fn get_user_classes<'db, C>(db: &'db C, user: &User) -> DbResult<Vec<ClassName>>
     where
         C: ConnectionTrait + Send,
     {
-        Entity::find()
+        let values: Vec<(UserId, ClassName)> = Entity::find()
             .select_only()
             .column(Column::UserId)
             .column(Column::ClassName)
             .filter(Column::UserId.eq(user.id))
             .into_tuple()
             .all(db)
+            .await?;
+
+        Ok(values
+            .into_iter()
+            .map(|(_, class_name)| class_name)
+            .collect())
     }
 }
 
