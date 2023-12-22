@@ -1,10 +1,14 @@
 pub mod activity;
+pub mod catalogs;
 pub mod challenges;
-pub mod character;
+pub mod characters;
+pub mod classes;
 pub mod game;
 pub mod i18n;
 pub mod items;
+pub mod level_tables;
 pub mod match_data;
+pub mod packs;
 pub mod sessions;
-pub mod store;
-pub mod strike_teams;
+pub mod skills;
+pub mod striketeams;

@@ -4,7 +4,6 @@ use crate::utils::models::LocaleNameWithDesc;
 use anyhow::{anyhow, Context};
 use log::debug;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
-use pack::Packs;
 use sea_orm::ConnectionTrait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -19,14 +18,12 @@ use std::{
 use thiserror::Error;
 use uuid::{uuid, Uuid};
 
-use super::character::acquire_item_character;
-use super::character::class::ClassDefinitions;
-use super::character::levels::LevelTables;
-
-pub mod pack;
+use super::characters::acquire_item_character;
+use super::classes::ClassDefinitions;
+use super::level_tables::LevelTables;
 
 /// Item definitions (628)
-const INVENTORY_DEFINITIONS: &str = include_str!("../../resources/data/inventoryDefinitions.json");
+const INVENTORY_DEFINITIONS: &str = include_str!("../resources/data/inventoryDefinitions.json");
 
 /// Adds the collection of default items and characters to the
 /// provided user

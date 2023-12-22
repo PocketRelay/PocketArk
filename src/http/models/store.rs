@@ -3,8 +3,8 @@ use crate::{
     database::entity::{currency::CurrencyType, Currency, InventoryItem},
     services::{
         activity::ActivityResult,
+        catalogs::{StoreArticleName, StoreCatalog},
         items::ItemDefinition,
-        store::{StoreArticleName, StoreCatalog},
     },
 };
 use hyper::StatusCode;

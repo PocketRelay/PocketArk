@@ -8,8 +8,7 @@ use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
 /// Level table definitions (7)
-const LEVEL_TABLE_DEFINITIONS: &str =
-    include_str!("../../resources/data/characterLevelTables.json");
+const LEVEL_TABLE_DEFINITIONS: &str = include_str!("../resources/data/characterLevelTables.json");
 
 /// Collection of level tables
 pub struct LevelTables {

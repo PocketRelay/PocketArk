@@ -10,7 +10,7 @@ use crate::{
             DynHttpError, HttpResult, ListWithCount, RawJson,
         },
     },
-    services::strike_teams::{
+    services::striketeams::{
         StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeamWithMission,
     },
 };

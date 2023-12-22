@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
 /// Challenge definitions (192)
-const CHALLENGE_DEFINITIONS: &str = include_str!("../../resources/data/challengeDefinitions.json");
+const CHALLENGE_DEFINITIONS: &str = include_str!("../resources/data/challengeDefinitions.json");
 
 pub struct ChallengeDefinitions {
     pub values: Vec<ChallengeDefinition>,

@@ -5,11 +5,9 @@ use super::{
 use crate::{
     database::entity::{Character, Currency, SharedData},
     services::{
-        character::{
-            class::{ClassDefinitions, PointMap},
-            levels::{LevelTables, ProgressionXp},
-        },
+        classes::{ClassDefinitions, PointMap},
         items::ItemDefinitions,
+        level_tables::{LevelTables, ProgressionXp},
     },
     utils::{hashing::hash_password, logging::setup_test_logging},
 };

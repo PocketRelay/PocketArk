@@ -20,12 +20,12 @@ use crate::{
     utils::models::{LocaleName, LocaleNameWithDesc},
 };
 
-const EQUIPMENT_DEFINITIONS: &str = include_str!("../../resources/data/strikeTeams/equipment.json");
+const EQUIPMENT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeams/equipment.json");
 const SPECIALIZATION_DEFINITIONS: &str =
-    include_str!("../../resources/data/strikeTeams/specializations.json");
+    include_str!("../resources/data/strikeTeams/specializations.json");
 const MISSION_DESCRIPTORS: &str =
-    include_str!("../../resources/data/strikeTeams/missionDescriptors.json");
-const MISSION_TRAITS: &str = include_str!("../../resources/data/strikeTeams/missionTraits.json");
+    include_str!("../resources/data/strikeTeams/missionDescriptors.json");
+const MISSION_TRAITS: &str = include_str!("../resources/data/strikeTeams/missionTraits.json");
 
 #[derive(Debug, Deserialize)]
 pub struct MissionTraits {

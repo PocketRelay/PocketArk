@@ -9,10 +9,9 @@ use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
 /// Badge definitions (20)
-pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/matchBadges.json");
+pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../resources/data/matchBadges.json");
 /// Modifier definitions (6)
-pub const MATCH_MODIFIER_DEFINITIONS: &str =
-    include_str!("../../resources/data/matchModifiers.json");
+pub const MATCH_MODIFIER_DEFINITIONS: &str = include_str!("../resources/data/matchModifiers.json");
 
 pub struct MatchDataDefinitions {
     pub badges: Vec<Badge>,

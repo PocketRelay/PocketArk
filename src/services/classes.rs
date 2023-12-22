@@ -12,9 +12,12 @@
 
 use std::sync::OnceLock;
 
-use super::{levels::LevelTableName, skill::SkillTree};
 use crate::{
-    services::items::{InventoryNamespace, ItemLink, ItemName},
+    services::{
+        items::{InventoryNamespace, ItemLink, ItemName},
+        level_tables::LevelTableName,
+        skills::SkillTree,
+    },
     utils::models::LocaleNameWithDesc,
 };
 use anyhow::Context;
@@ -26,7 +29,7 @@ use serde_with::serde_as;
 use uuid::Uuid;
 
 /// Class definitions (36)
-const CLASS_DEFINITIONS: &str = include_str!("../../resources/data/characterClasses.json");
+const CLASS_DEFINITIONS: &str = include_str!("../resources/data/characterClasses.json");
 
 /// Collection of class definitions and lookup tables for finding
 /// classes based on certain fields

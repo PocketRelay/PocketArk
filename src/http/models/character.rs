@@ -1,9 +1,10 @@
 use super::HttpError;
 use crate::{
     database::entity::{characters::CharacterId, Character, SharedData},
-    services::character::{
-        class::CharacterEquipment, class::Class, class::CustomizationEntry, levels::LevelTable,
-        skill::SkillDefinition, skill::SkillTree,
+    services::{
+        classes::{CharacterEquipment, Class, CustomizationEntry},
+        level_tables::LevelTable,
+        skills::{SkillDefinition, SkillTree},
     },
 };
 use hyper::StatusCode;

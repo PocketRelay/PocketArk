@@ -1,5 +1,3 @@
-use std::sync::OnceLock;
-
 use super::items::ItemName;
 use crate::{
     database::entity::currency::CurrencyType,
@@ -8,10 +6,11 @@ use crate::{
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use std::sync::OnceLock;
 use uuid::Uuid;
 
 /// Definition file for the contents of the in-game store
-const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
+const STORE_CATALOG_DEFINITION: &str = include_str!("../resources/data/storeCatalog.json");
 
 pub struct StoreCatalogs {
     pub catalog: StoreCatalog,

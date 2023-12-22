@@ -12,7 +12,7 @@ use std::{str::FromStr, sync::OnceLock};
 use uuid::Uuid;
 
 /// Skill definitions (64)
-const SKILL_DEFINITIONS: &str = include_str!("../../resources/data/skillDefinitions.json");
+const SKILL_DEFINITIONS: &str = include_str!("../resources/data/skillDefinitions.json");
 
 /// Type alias for a [Uuid] that represents a [SkillDefinition] name
 pub type SkillDefinitionName = Uuid;

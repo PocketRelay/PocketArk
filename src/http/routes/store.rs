@@ -12,7 +12,7 @@ use crate::{
     },
     services::{
         activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        store::StoreCatalogs,
+        catalogs::StoreCatalogs,
     },
 };
 use axum::{Extension, Json};

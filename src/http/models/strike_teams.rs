@@ -3,7 +3,7 @@ use crate::{
     database::entity::{currency::CurrencyType, Currency, StrikeTeam},
     services::{
         activity::ActivityResult,
-        strike_teams::{StrikeTeamWithMission, TeamTrait},
+        striketeams::{StrikeTeamWithMission, TeamTrait},
     },
 };
 use hyper::StatusCode;

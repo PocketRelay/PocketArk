@@ -1,15 +1,11 @@
-use self::{
-    class::{ClassDefinitions, PointMap},
-    levels::{LevelTables, ProgressionXp},
-};
 use super::items::ItemName;
+use super::{
+    classes::{ClassDefinitions, PointMap},
+    level_tables::{LevelTables, ProgressionXp},
+};
 use crate::database::entity::{Character, User};
 use anyhow::{anyhow, Context};
 use sea_orm::ConnectionTrait;
-
-pub mod class;
-pub mod levels;
-pub mod skill;
 
 /// Handles the initialization of a character after an item for
 /// that character has been acquired

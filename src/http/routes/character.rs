@@ -12,10 +12,10 @@ use crate::{
             errors::{DynHttpError, HttpResult},
         },
     },
-    services::character::{
-        class::{ClassDefinitions, ClassName, CustomizationMap},
-        levels::LevelTables,
-        skill::{SkillDefinition, SkillDefinitions},
+    services::{
+        classes::{ClassDefinitions, ClassName, CustomizationMap},
+        level_tables::LevelTables,
+        skills::{SkillDefinition, SkillDefinitions},
     },
 };
 use axum::{extract::Path, Extension, Json};

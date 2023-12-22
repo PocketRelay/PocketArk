@@ -5,12 +5,12 @@
 //! and rewards accordingly
 
 use super::{
-    character::{acquire_item_character, class::ClassDefinitions, levels::LevelTables},
-    items::{
-        pack::{GenerateError, ItemReward, Packs, RewardCollection},
-        BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName,
-    },
-    store::{StoreArticleName, StoreCatalogs},
+    catalogs::{StoreArticleName, StoreCatalogs},
+    characters::acquire_item_character,
+    classes::ClassDefinitions,
+    items::{BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName},
+    level_tables::LevelTables,
+    packs::{GenerateError, ItemReward, Packs, RewardCollection},
 };
 use crate::database::entity::{
     challenge_progress::{ChallengeCounterName, ChallengeId},

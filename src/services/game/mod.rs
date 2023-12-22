@@ -28,7 +28,8 @@ use crate::{
     },
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
-        character::{class::ClassDefinitions, levels::LevelTables},
+        classes::ClassDefinitions,
+        level_tables::LevelTables,
     },
     utils::models::Sku,
 };

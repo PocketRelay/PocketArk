@@ -1,13 +1,13 @@
 use super::{users::UserId, User, ValueMap};
 use crate::{
     database::DbResult,
-    services::character::{
-        class::{
+    services::{
+        classes::{
             CharacterAttributes, CharacterBonus, CharacterEquipment, ClassName, CustomizationMap,
             PointMap,
         },
-        levels::ProgressionXp,
-        skill::SkillTree,
+        level_tables::ProgressionXp,
+        skills::SkillTree,
     },
     utils::models::Sku,
 };

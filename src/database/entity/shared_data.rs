@@ -1,6 +1,8 @@
 use super::{characters::CharacterId, User};
-use crate::services::character::class::CharacterEquipment;
-use crate::{database::DbResult, services::character::levels::ProgressionXp};
+use crate::{
+    database::DbResult,
+    services::{classes::CharacterEquipment, level_tables::ProgressionXp},
+};
 use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use std::collections::HashMap;
