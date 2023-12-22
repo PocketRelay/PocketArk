@@ -131,12 +131,6 @@ impl ItemDefinitions {
         let index = *self.lookup_by_name.get(name)?;
         self.values.get(index)
     }
-
-    /// Attempts to lookup an [ItemDefinition] by the name from a [ItemLink]
-    pub fn by_link(&self, link: &ItemLink) -> Option<&ItemDefinition> {
-        let index = *self.lookup_by_name.get(&link.1)?;
-        self.values.get(index)
-    }
 }
 
 #[serde_as]

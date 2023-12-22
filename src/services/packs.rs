@@ -36,7 +36,7 @@ impl Default for Packs {
 impl Packs {
     /// Gets a static reference to the global [ChallengeDefinitions] collection
     pub fn get() -> &'static Packs {
-        STORE.get_or_init(|| Self::new())
+        STORE.get_or_init(Self::new)
     }
 
     fn new() -> Self {
