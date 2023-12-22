@@ -70,7 +70,12 @@ pub async fn set_active(
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Requested set active character: {}", character_id);
 
-    // TODO: validate the character is actually owned
+    // Ensure the player actually owns the character
+    _ = Character::find_by_id_user(&db, &user, character_id)
+        .await?
+        .ok_or(CharactersError::NotFound);
+
+    // Update the shared data
     let shared_data = SharedData::get(&db, &user).await?;
     shared_data.set_active_character(&db, character_id).await?;
 

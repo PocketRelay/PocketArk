@@ -87,7 +87,6 @@ pub async fn update_inventory_seen(
     // Updates all the matching items seen state
     InventoryItem::update_seen(&db, &user, req.list).await?;
 
-    // TODO: Actual database call to update the seen status
     Ok(StatusCode::NO_CONTENT)
 }
 

@@ -118,7 +118,6 @@ impl Model {
         Entity::insert_many(values.into_iter().map(|(ty, value)| ActiveModel {
             user_id: Set(user.id),
             ty: Set(ty),
-            // TODO: Set this as the database default
             balance: Set(value),
         }))
         .on_conflict(Self::set_balance_conflict())

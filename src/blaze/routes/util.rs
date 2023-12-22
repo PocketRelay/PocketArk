@@ -15,7 +15,7 @@ pub async fn post_auth(
 ) -> Blaze<PostAuthResponse> {
     session.add_subscriber(user.id, session.notify_handle());
 
-    Blaze(PostAuthResponse)
+    Blaze(PostAuthResponse { user_id: user.id })
 }
 
 pub async fn fetch_client_config(

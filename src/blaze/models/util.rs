@@ -1,4 +1,4 @@
-use crate::utils::constants::LOCAL_HTTP_PORT;
+use crate::{database::entity::users::UserId, utils::constants::LOCAL_HTTP_PORT};
 use tdf::prelude::*;
 
 /// Alias used for ping sites
@@ -95,7 +95,9 @@ pub struct PingResponse {
     pub time: u64,
 }
 
-pub struct PostAuthResponse;
+pub struct PostAuthResponse {
+    pub user_id: UserId,
+}
 
 impl TdfSerialize for PostAuthResponse {
     fn serialize<S: TdfSerializer>(&self, w: &mut S) {
@@ -118,6 +120,7 @@ impl TdfSerialize for PostAuthResponse {
             w.tag_str(b"SVNM", "telemetry-3-common");
         });
         w.group(b"TICK", |w| {
+            // TODO: Replace tick server
             w.tag_str(b"ADRS", "10.23.15.2");
             w.tag_u16(b"PORT", 8999);
             w.tag_str(
@@ -127,8 +130,7 @@ impl TdfSerialize for PostAuthResponse {
         });
         w.group(b"UROP", |w| {
             w.tag_u8(b"TMOP", 1);
-            // TODO: Update with user id
-            w.tag_u32(b"UID", 978651371)
+            w.tag_u32(b"UID", self.user_id)
         });
     }
 }
