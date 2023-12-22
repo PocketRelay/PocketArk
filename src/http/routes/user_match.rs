@@ -1,6 +1,6 @@
 use crate::{
     http::models::user_match::{MatchBadgesResponse, MatchModifiersResponse},
-    services::match_data::MatchDataDefinitions,
+    services::{badges::Badges, match_modifiers::MatchModifiers},
 };
 use axum::Json;
 
@@ -9,8 +9,8 @@ use axum::Json;
 /// Obtains a list of badge definitions for badges that can
 /// be awarded during a multiplayer match
 pub async fn get_badges() -> Json<MatchBadgesResponse> {
-    let match_data = MatchDataDefinitions::get();
-    let list = &match_data.badges;
+    let badges = Badges::get();
+    let list = &badges.values;
     Json(MatchBadgesResponse {
         list,
         total_count: list.len(),
@@ -22,8 +22,8 @@ pub async fn get_badges() -> Json<MatchBadgesResponse> {
 /// Obtains a list of modifier definitions that can be applied
 /// to a match
 pub async fn get_modifiers() -> Json<MatchModifiersResponse> {
-    let match_data = MatchDataDefinitions::get();
-    let list = &match_data.modifiers;
+    let modifiers = MatchModifiers::get();
+    let list = &modifiers.values;
     Json(MatchModifiersResponse {
         list,
         total_count: list.len(),

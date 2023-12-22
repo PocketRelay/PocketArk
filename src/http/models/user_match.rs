@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::services::match_data::{Badge, MatchModifier};
+use crate::services::{badges::Badge, match_modifiers::MatchModifier};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

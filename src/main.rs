@@ -1,10 +1,12 @@
 use axum::Extension;
 use log::error;
 use log::LevelFilter;
+use services::badges::Badges;
+use services::match_modifiers::MatchModifiers;
 use services::{
     challenges::ChallengeDefinitions, classes::ClassDefinitions, game_manager::GameManager,
-    i18n::I18n, items::ItemDefinitions, level_tables::LevelTables,
-    match_data::MatchDataDefinitions, sessions::Sessions, striketeams::StrikeTeamDefinitions,
+    i18n::I18n, items::ItemDefinitions, level_tables::LevelTables, sessions::Sessions,
+    striketeams::StrikeTeamDefinitions,
 };
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::sync::Arc;
@@ -35,7 +37,8 @@ async fn main() {
     _ = LevelTables::get();
     _ = ChallengeDefinitions::get();
     _ = I18n::get();
-    _ = MatchDataDefinitions::get();
+    _ = Badges::get();
+    _ = MatchModifiers::get();
     _ = StrikeTeamDefinitions::get();
 
     let (database, signing_key) = join!(crate::database::init(), SigningKey::global());

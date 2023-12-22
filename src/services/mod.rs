@@ -1,4 +1,5 @@
 pub mod activity;
+pub mod badges;
 pub mod catalogs;
 pub mod challenges;
 pub mod characters;
@@ -8,7 +9,7 @@ pub mod game_manager;
 pub mod i18n;
 pub mod items;
 pub mod level_tables;
-pub mod match_data;
+pub mod match_modifiers;
 pub mod packs;
 pub mod sessions;
 pub mod skills;

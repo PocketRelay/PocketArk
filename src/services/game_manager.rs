@@ -1,4 +1,4 @@
-use super::{AttrMap, Game, GameID, GameRef, Player};
+use super::game::{AttrMap, Game, GameID, GameRef, Player};
 use crate::{
     blaze::{models::game_manager::GameSetupContext, session::SessionLink},
     utils::hashing::IntHashMap,

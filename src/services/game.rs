@@ -1,8 +1,9 @@
 use super::{
     activity::{ActivityEvent, PrestigeData, PrestigeProgression},
+    badges::Badges,
     challenges::{ChallengeCounter, ChallengeDefinition, ChallengeDefinitions, CurrencyReward},
     game_manager::GameManager,
-    match_data::MatchDataDefinitions,
+    match_modifiers::MatchModifiers,
 };
 use crate::{
     blaze::{
@@ -397,14 +398,14 @@ async fn process_player_data(
 /// Processes the `activities` from the game adding any rewards
 /// and badges from completed badge levels
 fn process_badges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBuilder) {
-    let match_data = MatchDataDefinitions::get();
+    let badges = Badges::get();
 
     activities
         .iter()
         // Find matching badges for the activity
         .filter_map(|activity| {
             // Find a badge matching the activity
-            let (badge, progress, levels) = match_data.get_by_activity(activity)?;
+            let (badge, progress, levels) = badges.by_activity(activity)?;
             // Only continue if they have a level achieved
             let highest_level = *levels.last()?;
 
@@ -478,11 +479,11 @@ fn process_challenges(activities: &[ActivityEvent], data_builder: &mut PlayerDat
 /// Computes the xp and currency rewards from the provided match modifiers
 /// appending them to the provided data builder
 fn compute_modifiers(modifiers: &[MissionModifier], data_builder: &mut PlayerDataBuilder) {
-    let match_data = MatchDataDefinitions::get();
+    let match_modifiers = MatchModifiers::get();
 
     modifiers
         .iter()
-        .filter_map(|modifier| match_data.get_modifier_entry(&modifier.name, &modifier.value))
+        .filter_map(|modifier| match_modifiers.by_name(&modifier.name, &modifier.value))
         .for_each(|(modifier, modifier_entry)| {
             if let Some(xp_data) = &modifier_entry.xp_data {
                 let amount = xp_data.get_amount(data_builder.xp_earned);
@@ -666,7 +667,7 @@ impl Game {
 
     /// Called by the game manager service once this game has been stopped and
     /// removed from the game list
-    fn stopped(self) {
+    pub(crate) fn stopped(self) {
         debug!("Game is stopped (GID: {})", self.id);
     }
 
