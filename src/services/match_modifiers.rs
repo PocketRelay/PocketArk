@@ -2,8 +2,8 @@ use crate::database::entity::currency::CurrencyType;
 use anyhow::Context;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-use std::{collections::HashMap, sync::OnceLock};
+use serde_with::{serde_as, skip_serializing_none};
+use std::sync::OnceLock;
 
 /// Modifier definitions (6)
 pub const MATCH_MODIFIER_DEFINITIONS: &str = include_str!("../resources/data/matchModifiers.json");
@@ -31,21 +31,12 @@ impl MatchModifiers {
         Ok(Self { values })
     }
 
-    pub fn by_name(
-        &self,
-        name: &str,
-        value: &str,
-    ) -> Option<(&MatchModifier, &MatchModifierEntry)> {
-        let modifier = self
-            .values
+    /// Finds a match modifier by `name`
+    pub fn by_name(&self, name: &str) -> Option<&MatchModifier> {
+        self.values
             .iter()
             // Find the specific modifier by name
-            .find(|modifier| modifier.name.eq(name))?;
-
-        // Find the modifier value by the desired value
-        let value = modifier.values.iter().find(|entry| entry.name.eq(value))?;
-
-        Some((modifier, value))
+            .find(|modifier| modifier.name.eq(name))
     }
 }
 
@@ -54,30 +45,53 @@ impl MatchModifiers {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MatchModifier {
+    /// The name of the mission modifier this applies to
     pub name: String,
-    pub values: Vec<MatchModifierEntry>,
+    /// The different modifiers for each value
+    pub values: Vec<MatchModifierValue>,
 }
 
-/// Represents a level of a match modifier
+impl MatchModifier {
+    /// Finds an entry in the collection of modifiers wheres the
+    /// modifier targets the provided `value`
+    pub fn by_value(&self, value: &str) -> Option<&MatchModifierValue> {
+        self.values.iter().find(|modifier| modifier.name.eq(value))
+    }
+}
+
+/// Match modifier that should be applied when a specific value
+/// is used `name` for the match modifier
+#[serde_as]
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MatchModifierEntry {
+pub struct MatchModifierValue {
+    /// Name/value that this modifier should only apply to
+    /// (The value of the mission modifier)
     pub name: String,
-    pub xp_data: Option<ModifierData>,
-    pub currency_data: HashMap<CurrencyType, ModifierData>,
+    /// XP rewards
+    pub xp_data: Option<ModifierAmount>,
+    /// Currrency rewards
+    ///
+    /// Stored as a [Vec] of tuples rather than a [serde_json::Map] because its
+    /// only ever iterated and not used as a lookup map
+    #[serde_with(as = "serde_with::Map<_, _>")]
+    pub currency_data: Vec<(CurrencyType, ModifierAmount)>,
+    /// Additional attributes applied to the value
     pub custom_attributes: serde_json::Map<String, serde_json::Value>,
 }
 
-/// Configuration for how the modifier should be applied
+/// Configures how much of something the modifier should give
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ModifierData {
+pub struct ModifierAmount {
+    /// Fixed amount of the value
     pub flat_amount: u32,
+    /// Add a % multiplier of the original value
     pub additive_multiplier: f32,
 }
 
-impl ModifierData {
+impl ModifierAmount {
     /// Returns the amount that should be added based on
     /// the old value with the modifier
     pub fn get_amount(&self, old_value: u32) -> u32 {

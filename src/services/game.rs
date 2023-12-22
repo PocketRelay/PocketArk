@@ -476,15 +476,23 @@ fn process_challenges(activities: &[ActivityEvent], data_builder: &mut PlayerDat
         });
 }
 
-/// Computes the xp and currency rewards from the provided match modifiers
+/// Computes the xp and currency rewards from the provided mission modifiers
 /// appending them to the provided data builder
-fn compute_modifiers(modifiers: &[MissionModifier], data_builder: &mut PlayerDataBuilder) {
+fn compute_modifiers(mission_modifiers: &[MissionModifier], data_builder: &mut PlayerDataBuilder) {
     let match_modifiers = MatchModifiers::get();
 
-    modifiers
+    mission_modifiers
         .iter()
-        .filter_map(|modifier| match_modifiers.by_name(&modifier.name, &modifier.value))
+        .filter_map(|mission_modifier| {
+            // Find a matching modifier
+            let match_modifier = match_modifiers.by_name(&mission_modifier.name)?;
+            // Find a matching modifier value
+            let modifier_value = match_modifier.by_value(&mission_modifier.value)?;
+
+            Some((match_modifier, modifier_value))
+        })
         .for_each(|(modifier, modifier_entry)| {
+            // Apply xp rewards if the modifier has any
             if let Some(xp_data) = &modifier_entry.xp_data {
                 let amount = xp_data.get_amount(data_builder.xp_earned);
                 data_builder.add_reward_xp(&modifier.name, amount);
@@ -494,14 +502,16 @@ fn compute_modifiers(modifiers: &[MissionModifier], data_builder: &mut PlayerDat
                 .currency_data
                 .iter()
                 .for_each(|(key, modifier_data)| {
-                    let amount = modifier_data.get_amount(
-                        data_builder
-                            .total_currency
-                            .get(key)
-                            .copied()
-                            .unwrap_or_default(),
-                    );
-                    data_builder.add_reward_currency(&modifier.name, *key, amount);
+                    // Get current currency amount for additive multiplier
+                    let current_amount = data_builder
+                        .total_currency
+                        .get(key)
+                        .copied()
+                        .unwrap_or_default();
+
+                    // Get the earned amount
+                    let earned_amount = modifier_data.get_amount(current_amount);
+                    data_builder.add_reward_currency(&modifier.name, *key, earned_amount);
                 });
         });
 }
