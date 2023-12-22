@@ -12,7 +12,10 @@ use crate::{
         router::{Blaze, Extension, SessionAuth},
         session::{self, SessionLink},
     },
-    services::game::{self, manager::GameManager, Player, DEFAULT_FIT},
+    services::{
+        game::{self, Player, DEFAULT_FIT},
+        game_manager::GameManager,
+    },
 };
 use std::sync::Arc;
 

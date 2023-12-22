@@ -1,7 +1,7 @@
-use self::manager::GameManager;
 use super::{
     activity::{ActivityEvent, PrestigeData, PrestigeProgression},
     challenges::{ChallengeCounter, ChallengeDefinition, ChallengeDefinitions, CurrencyReward},
+    game_manager::GameManager,
     match_data::MatchDataDefinitions,
 };
 use crate::{
@@ -44,8 +44,6 @@ use tdf::{ObjectId, TdfMap};
 use thiserror::Error;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-
-pub mod manager;
 
 pub type GameID = u32;
 pub type GameRef = Arc<RwLock<Game>>;

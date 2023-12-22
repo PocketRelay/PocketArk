@@ -7,7 +7,7 @@ use crate::{
             RawJson,
         },
     },
-    services::game::manager::GameManager,
+    services::game_manager::GameManager,
 };
 use axum::{extract::Path, Extension, Json};
 use hyper::StatusCode;

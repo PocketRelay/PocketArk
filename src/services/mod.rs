@@ -4,6 +4,7 @@ pub mod challenges;
 pub mod characters;
 pub mod classes;
 pub mod game;
+pub mod game_manager;
 pub mod i18n;
 pub mod items;
 pub mod level_tables;

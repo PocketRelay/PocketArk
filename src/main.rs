@@ -1,21 +1,16 @@
-use crate::utils::constants::SERVER_PORT;
-use crate::utils::signing::SigningKey;
 use axum::Extension;
 use log::error;
 use log::LevelFilter;
-use services::challenges::ChallengeDefinitions;
-use services::classes::ClassDefinitions;
-use services::game::manager::GameManager;
-use services::i18n::I18n;
-use services::items::ItemDefinitions;
-use services::level_tables::LevelTables;
-use services::match_data::MatchDataDefinitions;
-use services::sessions::Sessions;
-use services::striketeams::StrikeTeamDefinitions;
+use services::{
+    challenges::ChallengeDefinitions, classes::ClassDefinitions, game_manager::GameManager,
+    i18n::I18n, items::ItemDefinitions, level_tables::LevelTables,
+    match_data::MatchDataDefinitions, sessions::Sessions, striketeams::StrikeTeamDefinitions,
+};
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::sync::Arc;
 use tokio::join;
 use tokio::signal;
+use utils::{constants::SERVER_PORT, signing::SigningKey};
 
 #[allow(unused)]
 mod blaze;
