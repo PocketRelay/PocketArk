@@ -14,7 +14,6 @@ use crate::{
     services::{
         items::create_default_items,
         sessions::{Sessions, VerifyError},
-        Services,
     },
     utils::hashing::{hash_password, verify_password},
     VERSION,
@@ -71,8 +70,6 @@ pub async fn create(
     Extension(sessions): Extension<Arc<Sessions>>,
     Json(req): Json<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
-    let services = Services::get();
-
     if User::get_by_username(&db, &req.username).await?.is_some() {
         return Err(ClientError::UsernameAlreadyTaken.into());
     }
@@ -82,14 +79,7 @@ pub async fn create(
     let user = User::create_user(&db, req.username, password).await?;
 
     // Initialize the users data
-    create_default_items(
-        &db,
-        &user,
-        &services.items.items,
-        &services.classes,
-        &services.level_tables,
-    )
-    .await?;
+    create_default_items(&db, &user).await?;
 
     Currency::set_default(&db, &user).await?;
     SharedData::create_default(&db, &user).await?;

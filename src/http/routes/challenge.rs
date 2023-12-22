@@ -4,7 +4,7 @@ use crate::{
         middleware::user::Auth,
         models::{challenge::*, HttpResult},
     },
-    services::Services,
+    services::challenges::ChallengeDefinitions,
 };
 use axum::{Extension, Json};
 use sea_orm::DatabaseConnection;
@@ -24,13 +24,11 @@ pub async fn get_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
 ) -> HttpResult<ChallengesResponse> {
-    let services = Services::get();
-
+    let challenge_definitions = ChallengeDefinitions::get();
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 
-    let challenges: Vec<ChallengeItem> = services
-        .challenges
-        .defs
+    let challenges: Vec<ChallengeItem> = challenge_definitions
+        .values
         .iter()
         .map(|definition| {
             let progress = user_progress
@@ -60,13 +58,12 @@ pub async fn get_user_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
 ) -> HttpResult<ChallengesResponse> {
-    let services = Services::get();
+    let challenge_definitions = ChallengeDefinitions::get();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 
-    let challenges: Vec<ChallengeItem> = services
-        .challenges
-        .defs
+    let challenges: Vec<ChallengeItem> = challenge_definitions
+        .values
         .iter()
         .filter_map(|definition| {
             let progress = user_progress

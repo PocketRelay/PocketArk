@@ -12,8 +12,7 @@ use crate::{
     },
     services::{
         activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        items::{InventoryNamespace, ItemDefinition, ItemsService},
-        Services,
+        items::{InventoryNamespace, ItemDefinition, ItemDefinitions},
     },
 };
 use axum::{extract::Query, Extension, Json};
@@ -30,8 +29,9 @@ pub async fn get_inventory(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<InventoryResponse> {
-    let services = Services::get();
     let mut items = InventoryItem::get_all_items(&db, &user).await?;
+
+    let item_definitions = ItemDefinitions::get();
 
     // TODO: Possibly store namespace with item itself then only query that namespace directly
     if let Some(namespace) = query.namespace {
@@ -41,9 +41,7 @@ pub async fn get_inventory(
         ) {
             // Remove items that aren't in the same namespace
             items.retain(|item| {
-                services
-                    .items
-                    .items
+                item_definitions
                     .by_name(&item.definition_name)
                     .is_some_and(|def| def.default_namespace.eq(&namespace))
             });
@@ -53,7 +51,7 @@ pub async fn get_inventory(
     let definitions = if query.include_definitions {
         let defs = items
             .iter()
-            .filter_map(|item| services.items.items.by_name(&item.definition_name))
+            .filter_map(|item| item_definitions.by_name(&item.definition_name))
             .collect();
         Some(defs)
     } else {
@@ -68,8 +66,8 @@ pub async fn get_inventory(
 /// Obtains the definitions for all the inventory items this includes things
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
-    let services = Services::get();
-    let list: &'static [ItemDefinition] = services.items.items.all();
+    let item_definitions = ItemDefinitions::get();
+    let list: &'static [ItemDefinition] = item_definitions.all();
     Json(ItemDefinitionsResponse {
         total_count: list.len(),
         list,
@@ -95,13 +93,13 @@ pub async fn update_inventory_seen(
 
 /// Attempts to consume the provided `count` of `item` from the inventory of `user`.
 /// If the user has the item then the item definition will be returned
-async fn consume_item<'def, C>(
+async fn consume_item<C>(
     db: &C,
     user: &User,
     item: ItemId,
     count: u32,
-    items_service: &'def ItemsService,
-) -> Result<&'def ItemDefinition, DynHttpError>
+    item_definitions: &'static ItemDefinitions,
+) -> Result<&'static ItemDefinition, DynHttpError>
 where
     C: ConnectionTrait + Send,
 {
@@ -110,8 +108,7 @@ where
         // User doesn't own the item
         .ok_or(InventoryError::NotOwned)?;
 
-    let definition: &'def ItemDefinition = items_service
-        .items
+    let definition: &'static ItemDefinition = item_definitions
         .by_name(&item.definition_name)
         .ok_or(InventoryError::MissingDefinition)?;
 
@@ -147,13 +144,11 @@ pub async fn consume_inventory(
 
     debug!("Consume inventory items: {:?}", req);
 
-    let services = Services::get();
-    let items_service = &services.items;
-
     let result: ActivityResult = db
         .transaction(|db| {
             Box::pin(async move {
                 let mut events: Vec<ActivityEvent> = Vec::with_capacity(req.items.len());
+                let item_definitions = ItemDefinitions::get();
 
                 // Create the consumption event for each item
                 for target in req.items {
@@ -161,7 +156,7 @@ pub async fn consume_inventory(
 
                     // Attempt to consume the item
                     let item_definition =
-                        consume_item(db, &user, item_id, CONSUME_COUNT, items_service).await?;
+                        consume_item(db, &user, item_id, CONSUME_COUNT, item_definitions).await?;
 
                     // Create the activity event
                     let event = ActivityEvent::new(ActivityName::ItemConsumed)

@@ -4,7 +4,7 @@ use anyhow::Context;
 use log::debug;
 use sea_orm::FromJsonQueryResult;
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
 /// Level table definitions (7)
@@ -17,9 +17,18 @@ pub struct LevelTables {
     pub values: Vec<LevelTable>,
 }
 
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<LevelTables> = OnceLock::new();
+
 impl LevelTables {
+    /// Gets a static reference to the global [LevelTables] collection
+    pub fn get() -> &'static LevelTables {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
     /// Creates and loads the level tables from [LEVEL_TABLE_DEFINITIONS]
-    pub fn new() -> anyhow::Result<Self> {
+    fn new() -> anyhow::Result<Self> {
         let values: Vec<LevelTable> = serde_json::from_str(LEVEL_TABLE_DEFINITIONS)
             .context("Failed to parse level table definitions")?;
 
@@ -29,7 +38,7 @@ impl LevelTables {
     }
 
     /// Find a [LevelTable] by its `name`
-    pub fn get(&self, name: &LevelTableName) -> Option<&LevelTable> {
+    pub fn by_name(&self, name: &LevelTableName) -> Option<&LevelTable> {
         self.values
             .iter()
             .find(|level_table| level_table.name.eq(name))

@@ -1,3 +1,5 @@
+use std::sync::OnceLock;
+
 use crate::{database::entity::currency::CurrencyType, utils::models::DateDuration};
 
 use super::{
@@ -12,27 +14,35 @@ use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
 /// Challenge definitions (192)
-pub const CHALLENGE_DEFINITIONS: &str =
-    include_str!("../../resources/data/challengeDefinitions.json");
+const CHALLENGE_DEFINITIONS: &str = include_str!("../../resources/data/challengeDefinitions.json");
 
-pub struct ChallengesService {
-    pub defs: Vec<ChallengeDefinition>,
+pub struct ChallengeDefinitions {
+    pub values: Vec<ChallengeDefinition>,
 }
 
-impl ChallengesService {
-    pub fn new() -> anyhow::Result<Self> {
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<ChallengeDefinitions> = OnceLock::new();
+
+impl ChallengeDefinitions {
+    /// Gets a static reference to the global [ChallengeDefinitions] collection
+    pub fn get() -> &'static ChallengeDefinitions {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
+    fn new() -> anyhow::Result<Self> {
         debug!("Loading challenges");
-        let defs: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
+        let values: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
             .context("Failed to load challenge definitions")?;
-        debug!("Loaded {} challenge definition(s)", defs.len());
-        Ok(Self { defs })
+        debug!("Loaded {} challenge definition(s)", values.len());
+        Ok(Self { values })
     }
 
     pub fn get_by_activity(
         &self,
         activity: &ActivityEvent,
     ) -> Option<(&ChallengeDefinition, &ChallengeCounter, &ActivityDescriptor)> {
-        self.defs
+        self.values
             .iter()
             .find_map(|value| value.get_by_activity(activity))
     }

@@ -9,7 +9,7 @@ use crate::{
             class::{ClassDefinitions, PointMap},
             levels::{LevelTables, ProgressionXp},
         },
-        items::ItemsService,
+        items::ItemDefinitions,
     },
     utils::{hashing::hash_password, logging::setup_test_logging},
 };
@@ -25,9 +25,9 @@ pub async fn seed() {
         .await
         .unwrap();
 
-    let items = ItemsService::new().unwrap();
-    let classes = ClassDefinitions::new().unwrap();
-    let level_tables = LevelTables::new().unwrap();
+    let item_definitions = ItemDefinitions::get();
+    let classes = ClassDefinitions::get();
+    let level_tables = LevelTables::get();
 
     // Initialize the users data
     // InventoryItem::create_default(&db, &user, &items, &characters)
@@ -48,7 +48,7 @@ pub async fn seed() {
     // StrikeTeam::create_default(&db, &user).await.unwrap();
 
     // All all the items
-    for definition in items.items.all() {
+    for definition in item_definitions.all() {
         let _item = InventoryItem::add_item(
             &db,
             &user,
@@ -65,7 +65,7 @@ pub async fn seed() {
         let level = 20;
         // Get the current xp progression values
         let xp: ProgressionXp = level_tables
-            .get(&class.level_name)
+            .by_name(&class.level_name)
             .unwrap()
             .get_xp_values(level)
             .unwrap()

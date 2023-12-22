@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{serde_as, skip_serializing_none, DeserializeAs, DisplayFromStr};
 use std::collections::HashMap;
+use std::sync::OnceLock;
 use std::{
     fmt::{Display, Write},
     num::ParseIntError,
@@ -25,35 +26,18 @@ use super::character::levels::LevelTables;
 pub mod pack;
 
 /// Item definitions (628)
-pub const INVENTORY_DEFINITIONS: &str =
-    include_str!("../../resources/data/inventoryDefinitions.json");
-
-pub struct ItemsService {
-    pub items: ItemDefinitions,
-    pub packs: Packs,
-}
-
-impl ItemsService {
-    pub fn new() -> anyhow::Result<Self> {
-        let items = ItemDefinitions::from_str(INVENTORY_DEFINITIONS)
-            .context("Failed to load inventory definitions")?;
-        let packs = Packs::new();
-        Ok(Self { items, packs })
-    }
-}
+const INVENTORY_DEFINITIONS: &str = include_str!("../../resources/data/inventoryDefinitions.json");
 
 /// Adds the collection of default items and characters to the
 /// provided user
-pub async fn create_default_items<C>(
-    db: &C,
-    user: &User,
-    items: &ItemDefinitions,
-    classes: &ClassDefinitions,
-    level_tables: &LevelTables,
-) -> anyhow::Result<()>
+pub async fn create_default_items<C>(db: &C, user: &User) -> anyhow::Result<()>
 where
     C: ConnectionTrait + Send,
 {
+    let item_definitions = ItemDefinitions::get();
+    let classes = ClassDefinitions::get();
+    let level_tables = LevelTables::get();
+
     // Create models from initial item defs
     let ids = [
         uuid!("af3a2cf0-dff7-4ca8-9199-73ce546c3e7b"), // HUMAN MALE SOLDIER
@@ -75,7 +59,7 @@ where
     ];
 
     for item in ids {
-        let definition = items
+        let definition = item_definitions
             .by_name(&item)
             .ok_or(anyhow!("Missing default item '{item}'"))?;
 
@@ -111,11 +95,19 @@ pub struct ItemDefinitions {
     lookup_by_name: HashMap<ItemName, usize>,
 }
 
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<ItemDefinitions> = OnceLock::new();
+
 impl ItemDefinitions {
-    /// Creates a new collection of [ItemDefinition]s from the provided JSON
-    /// array string `value`
-    pub fn from_str(value: &str) -> serde_json::Result<Self> {
-        let values: Vec<ItemDefinition> = serde_json::from_str(value)?;
+    /// Gets a static reference to the global [ItemDefinitions] collection
+    pub fn get() -> &'static ItemDefinitions {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
+    fn new() -> anyhow::Result<Self> {
+        let values: Vec<ItemDefinition> = serde_json::from_str(INVENTORY_DEFINITIONS)
+            .context("Failed to load inventory definitions")?;
 
         debug!("Loaded {} item definition(s)", values.len());
 

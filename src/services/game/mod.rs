@@ -1,8 +1,8 @@
 use self::manager::GameManager;
 use super::{
     activity::{ActivityEvent, PrestigeData, PrestigeProgression},
-    challenges::{ChallengeCounter, ChallengeDefinition, ChallengesService, CurrencyReward},
-    match_data::MatchDataService,
+    challenges::{ChallengeCounter, ChallengeDefinition, ChallengeDefinitions, CurrencyReward},
+    match_data::MatchDataDefinitions,
 };
 use crate::{
     blaze::{
@@ -28,7 +28,7 @@ use crate::{
     },
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
-        Services,
+        character::{class::ClassDefinitions, levels::LevelTables},
     },
     utils::models::Sku,
 };
@@ -205,9 +205,8 @@ async fn process_player_data(
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
     debug!("Processing player data");
 
-    let services = Services::get();
-    let classes = &services.classes;
-    let level_tables = &services.level_tables;
+    let classes = ClassDefinitions::get();
+    let level_tables = LevelTables::get();
 
     let user = User::get_user(&db, data.nucleus_id)
         .await?
@@ -240,11 +239,7 @@ async fn process_player_data(
 
     debug!("Processing badges");
 
-    process_badges(
-        &data.activity_report.activities,
-        &services.match_data,
-        &mut data_builder,
-    );
+    process_badges(&data.activity_report.activities, &mut data_builder);
 
     debug!("Base score reward");
     // Base reward xp is the score earned
@@ -254,17 +249,13 @@ async fn process_player_data(
 
     debug!("Compute modifiers");
     // Compute modifier amounts
-    compute_modifiers(
-        &services.match_data,
-        &mission_data.modifiers,
-        &mut data_builder,
-    );
+    compute_modifiers(&mission_data.modifiers, &mut data_builder);
 
     debug!("Compute leveling");
 
     // Character leveling
     let level_table = level_tables
-        .get(&class.level_name)
+        .by_name(&class.level_name)
         .expect("Missing class level table");
 
     let previous_xp = character.xp;
@@ -281,7 +272,7 @@ async fn process_player_data(
     // Character prestige leveling
     {
         let level_table = level_tables
-            .get(&class.prestige_level_name)
+            .by_name(&class.prestige_level_name)
             .expect("Missing prestige level table");
 
         let prestige_value = shared_data
@@ -313,11 +304,7 @@ async fn process_player_data(
 
     debug!("Process challenges");
 
-    process_challenges(
-        &data.activity_report.activities,
-        &services.challenges,
-        &mut data_builder,
-    );
+    process_challenges(&data.activity_report.activities, &mut data_builder);
 
     let mut challenges_updated: BTreeMap<String, ChallengeUpdated> = BTreeMap::new();
 
@@ -410,11 +397,9 @@ async fn process_player_data(
 
 /// Processes the `activities` from the game adding any rewards
 /// and badges from completed badge levels
-fn process_badges(
-    activities: &[ActivityEvent],
-    match_data: &MatchDataService,
-    data_builder: &mut PlayerDataBuilder,
-) {
+fn process_badges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBuilder) {
+    let match_data = MatchDataDefinitions::get();
+
     activities
         .iter()
         // Find matching badges for the activity
@@ -467,16 +452,15 @@ pub struct ChallengeProgressChange {
 
 /// Processes challenge updates that may have occurred from the
 /// collection of `activities`
-fn process_challenges(
-    activities: &[ActivityEvent],
-    challenge_service: &'static ChallengesService,
-    data_builder: &mut PlayerDataBuilder,
-) {
+fn process_challenges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBuilder) {
+    let challenge_definitions = ChallengeDefinitions::get();
+
     activities
         .iter()
         // Find activities with associated challenges
         .filter_map(|activity| {
-            let (definition, counter, descriptor) = challenge_service.get_by_activity(activity)?;
+            let (definition, counter, descriptor) =
+                challenge_definitions.get_by_activity(activity)?;
             // Only include activities with current progress
             let progress = activity.attribute_u32(&descriptor.progress_key).ok()?;
 
@@ -494,11 +478,9 @@ fn process_challenges(
 
 /// Computes the xp and currency rewards from the provided match modifiers
 /// appending them to the provided data builder
-fn compute_modifiers(
-    match_data: &MatchDataService,
-    modifiers: &[MissionModifier],
-    data_builder: &mut PlayerDataBuilder,
-) {
+fn compute_modifiers(modifiers: &[MissionModifier], data_builder: &mut PlayerDataBuilder) {
+    let match_data = MatchDataDefinitions::get();
+
     modifiers
         .iter()
         .filter_map(|modifier| match_data.get_modifier_entry(&modifier.name, &modifier.value))

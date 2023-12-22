@@ -5,7 +5,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
 /// Badge definitions (20)
@@ -14,13 +14,22 @@ pub const MATCH_BADGE_DEFINITIONS: &str = include_str!("../../resources/data/mat
 pub const MATCH_MODIFIER_DEFINITIONS: &str =
     include_str!("../../resources/data/matchModifiers.json");
 
-pub struct MatchDataService {
+pub struct MatchDataDefinitions {
     pub badges: Vec<Badge>,
     pub modifiers: Vec<MatchModifier>,
 }
 
-impl MatchDataService {
-    pub fn new() -> anyhow::Result<Self> {
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<MatchDataDefinitions> = OnceLock::new();
+
+impl MatchDataDefinitions {
+    /// Gets a static reference to the global [MatchDataService] collection
+    pub fn get() -> &'static MatchDataDefinitions {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
+    fn new() -> anyhow::Result<Self> {
         debug!("Loading match badges");
         let badges: Vec<Badge> = serde_json::from_str(MATCH_BADGE_DEFINITIONS)
             .context("Failed to load match badge definitions")?;

@@ -39,7 +39,7 @@ where
 
     // Get the current xp progression values
     let xp: ProgressionXp = level_tables
-        .get(&class.level_name)
+        .by_name(&class.level_name)
         .context("Missing character level table")?
         .get_xp_values(level)
         .context("Invalid character level provided")?

@@ -12,7 +12,7 @@ use crate::{
     },
     services::{
         activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        Services,
+        store::StoreCatalogs,
     },
 };
 use axum::{Extension, Json};
@@ -26,11 +26,10 @@ use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
 /// the store catalog definitions along with all the articles within
 /// each catalog
 pub async fn get_catalogs() -> Json<StoreCatalogResponse> {
-    let services = Services::get();
-    let catalog = &services.store.catalog;
+    let catalogs = StoreCatalogs::get();
 
     Json(StoreCatalogResponse {
-        list: vec![catalog],
+        list: vec![&catalogs.catalog],
     })
 }
 
@@ -84,11 +83,10 @@ pub async fn obtain_article(
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<ObtainStoreItemRequest>,
 ) -> HttpResult<ObtainStoreItemResponse> {
-    let services = Services::get();
-    let store_service = &services.store;
+    let catalogs = StoreCatalogs::get();
 
     // Find the article we are looking for
-    let article = store_service
+    let article = catalogs
         .catalog
         .get_article(&req.article_name)
         .ok_or(StoreError::UnknownArticle)?;

@@ -10,11 +10,8 @@ use crate::{
             DynHttpError, HttpResult, ListWithCount, RawJson,
         },
     },
-    services::{
-        strike_teams::{
-            StrikeTeamEquipment, StrikeTeamService, StrikeTeamSpecialization, StrikeTeamWithMission,
-        },
-        Services,
+    services::strike_teams::{
+        StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeamWithMission,
     },
 };
 use axum::{
@@ -45,7 +42,7 @@ pub async fn get(
     let mut next_purchase_costs: HashMap<String, u32> = HashMap::new();
 
     // Get new cost
-    let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
+    let strike_team_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
         .get(teams.len())
         .copied();
     if let Some(strike_team_cost) = strike_team_cost {
@@ -55,7 +52,7 @@ pub async fn get(
     Ok(Json(StrikeTeamsResponse {
         teams: StrikeTeamsList {
             total_count: teams.len(),
-            cap: StrikeTeamService::MAX_STRIKE_TEAMS,
+            cap: StrikeTeamDefinitions::MAX_STRIKE_TEAMS,
             list: teams,
         },
         min_specialization_level: 16,
@@ -79,14 +76,15 @@ pub async fn get_mission_config() -> RawJson {
 
 /// GET /striketeams/specializations
 pub async fn get_specializations() -> Json<ListWithCount<StrikeTeamSpecialization>> {
-    let services = Services::get();
-    Json(ListWithCount::new(&services.strike_teams.specializations))
+    let strike_teams = StrikeTeamDefinitions::get();
+
+    Json(ListWithCount::new(&strike_teams.specializations))
 }
 
 /// GET /striketeams/equipment
 pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
-    let services = Services::get();
-    Json(ListWithCount::new(&services.strike_teams.equipment))
+    let strike_teams = StrikeTeamDefinitions::get();
+    Json(ListWithCount::new(&strike_teams.equipment))
 }
 
 /// POST /striketeams/:id/equipment/:name?currency=MissionCurrency
@@ -96,7 +94,7 @@ pub async fn purchase_equipment(
     Path((id, name)): Path<(Uuid, String)>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
-    let services = Services::get();
+    let strike_teams = StrikeTeamDefinitions::get();
 
     let currency = Currency::get(&db, &user, query.currency)
         .await?
@@ -108,8 +106,7 @@ pub async fn purchase_equipment(
 
     // TODO: If on mission respond with 409 Conflict Team on mission
 
-    let equipment = services
-        .strike_teams
+    let equipment = strike_teams
         .equipment
         .iter()
         .find(|equip| equip.name.eq(&name))
@@ -190,7 +187,7 @@ pub async fn purchase(
     let strike_teams = StrikeTeam::get_user_count(&db, &user).await? as usize;
 
     // Get new cost
-    let strike_team_cost = StrikeTeamService::STRIKE_TEAM_COSTS
+    let strike_team_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
         .get(strike_teams)
         .copied()
         .ok_or(StrikeTeamError::MaxTeams)?;
@@ -213,7 +210,7 @@ pub async fn purchase(
     let team = StrikeTeam::create_default(&db, &user).await?;
 
     // Get new cost
-    let next_purchase_cost = StrikeTeamService::STRIKE_TEAM_COSTS
+    let next_purchase_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
         .get(strike_teams + 2)
         .copied();
 

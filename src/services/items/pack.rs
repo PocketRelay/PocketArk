@@ -13,7 +13,7 @@ use crate::{
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use sea_orm::{ConnectionTrait, DbErr};
 use serde_json::Value;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::OnceLock};
 use thiserror::Error;
 use uuid::uuid;
 
@@ -23,6 +23,10 @@ pub struct Packs {
     packs: HashMap<ItemName, Pack>,
 }
 
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<Packs> = OnceLock::new();
+
 impl Default for Packs {
     fn default() -> Self {
         Self::new()
@@ -30,7 +34,12 @@ impl Default for Packs {
 }
 
 impl Packs {
-    pub fn new() -> Self {
+    /// Gets a static reference to the global [ChallengeDefinitions] collection
+    pub fn get() -> &'static Packs {
+        STORE.get_or_init(|| Self::new())
+    }
+
+    fn new() -> Self {
         Self {
             packs: generate_packs(),
         }

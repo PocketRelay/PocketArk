@@ -5,13 +5,12 @@
 //! and rewards accordingly
 
 use super::{
-    character::acquire_item_character,
+    character::{acquire_item_character, class::ClassDefinitions, levels::LevelTables},
     items::{
-        pack::{GenerateError, ItemReward, RewardCollection},
-        BaseCategory, Category, ItemDefinition, ItemName,
+        pack::{GenerateError, ItemReward, Packs, RewardCollection},
+        BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName,
     },
-    store::StoreArticleName,
-    Services,
+    store::{StoreArticleName, StoreCatalogs},
 };
 use crate::database::entity::{
     challenge_progress::{ChallengeCounterName, ChallengeId},
@@ -143,25 +142,23 @@ impl ActivityService {
     where
         C: ConnectionTrait + Send,
     {
-        let services = Services::get();
-        let store_service = &services.store;
-        let items_service = &services.items;
-        let classes = &services.classes;
-        let level_tables = &services.level_tables;
+        let catalogs = StoreCatalogs::get();
+        let item_definitions = ItemDefinitions::get();
+        let classes = ClassDefinitions::get();
+        let level_tables = LevelTables::get();
 
         let article_name: StoreArticleName = event.attribute_uuid("articleName")?;
         let stack_size: u32 = event.attribute_u32("count")?;
 
         // Find the article we are looking for
-        let article = store_service
+        let article = catalogs
             .catalog
             .get_article(&article_name)
             // Article doesn't exist anymore
             .ok_or(ArticlePurchaseError::UnknownArticle)?;
 
         // Find the item given by the article
-        let item_definition = items_service
-            .items
+        let item_definition = item_definitions
             .by_name(&article.item_name)
             .ok_or(ArticlePurchaseError::UnknownArticleItem)?;
 
@@ -201,10 +198,10 @@ impl ActivityService {
     where
         C: ConnectionTrait + Send,
     {
-        let services = Services::get();
-        let items_service = &services.items;
-        let classes = &services.classes;
-        let level_tables = &services.level_tables;
+        let item_definitions = ItemDefinitions::get();
+        let classes = ClassDefinitions::get();
+        let level_tables = LevelTables::get();
+        let packs = Packs::get();
 
         let category: Category = event.attribute_parsed("category")?;
         let definition_name: ItemName = event.attribute_uuid("definitionName")?;
@@ -215,8 +212,7 @@ impl ActivityService {
         match category.base() {
             BaseCategory::ItemPack => {
                 // Find the item pack
-                let pack = items_service
-                    .packs
+                let pack = packs
                     .by_name(&definition_name)
                     .ok_or(ItemConsumeError::PackNotImplemented(definition_name))?;
 
@@ -224,7 +220,7 @@ impl ActivityService {
                 let mut rng = StdRng::from_entropy();
 
                 // Generate colleciton of rewards
-                pack.generate_rewards(db, user, &mut rng, &items_service.items, &mut rewards)
+                pack.generate_rewards(db, user, &mut rng, item_definitions, &mut rewards)
                     .await
                     .map_err(ItemConsumeError::GenerateError)?;
             }

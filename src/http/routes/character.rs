@@ -12,12 +12,10 @@ use crate::{
             errors::{DynHttpError, HttpResult},
         },
     },
-    services::{
-        character::{
-            class::{ClassName, CustomizationMap},
-            skill::SkillDefinition,
-        },
-        Services,
+    services::character::{
+        class::{ClassDefinitions, ClassName, CustomizationMap},
+        levels::LevelTables,
+        skill::{SkillDefinition, SkillDefinitions},
     },
 };
 use axum::{extract::Path, Extension, Json};
@@ -255,14 +253,13 @@ pub async fn get_classes(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<CharacterClasses> {
-    let services = Services::get();
-
     // Get the unlocked classes
     let unlocked_classes: Vec<ClassName> = Character::get_user_classes(&db, &user).await?;
 
+    let class_definitions = ClassDefinitions::get();
+
     // Combine classes with unlocked class data states
-    let list: Vec<ClassWithState> = services
-        .classes
+    let list: Vec<ClassWithState> = class_definitions
         .all()
         .iter()
         .map(|class| {
@@ -272,7 +269,8 @@ pub async fn get_classes(
         })
         .collect();
 
-    let skill_definitions: &'static [SkillDefinition] = &services.skills.values;
+    let skill_definitios = SkillDefinitions::get();
+    let skill_definitions: &'static [SkillDefinition] = &skill_definitios.values;
 
     Ok(Json(CharacterClasses {
         list,
@@ -285,9 +283,10 @@ pub async fn get_classes(
 /// Contains definitions for rewards at each level of character
 /// progression
 pub async fn get_level_tables() -> Json<CharacterLevelTables> {
-    let services = Services::get();
+    let level_tables = LevelTables::get();
+
     Json(CharacterLevelTables {
-        list: &services.level_tables.values,
+        list: &level_tables.values,
     })
 }
 

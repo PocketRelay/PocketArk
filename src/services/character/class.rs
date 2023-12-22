@@ -10,6 +10,8 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_kit
 
+use std::sync::OnceLock;
+
 use super::{levels::LevelTableName, skill::SkillTree};
 use crate::{
     services::items::{InventoryNamespace, ItemLink, ItemName},
@@ -37,8 +39,17 @@ pub struct ClassDefinitions {
     lookup_by_item: HashMap<ItemName, usize>,
 }
 
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<ClassDefinitions> = OnceLock::new();
+
 impl ClassDefinitions {
-    pub fn new() -> anyhow::Result<Self> {
+    /// Gets a static reference to the global [ClassDefinitions] collection
+    pub fn get() -> &'static ClassDefinitions {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
+    fn new() -> anyhow::Result<Self> {
         let values: Vec<Class> =
             serde_json::from_str(CLASS_DEFINITIONS).context("Failed to load class definitions")?;
 

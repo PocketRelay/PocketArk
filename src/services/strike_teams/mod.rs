@@ -8,6 +8,7 @@ use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
 use std::{
     collections::HashMap,
+    sync::OnceLock,
     time::{SystemTime, UNIX_EPOCH},
 };
 use uuid::{uuid, Uuid};
@@ -45,18 +46,27 @@ pub struct MissionTag {
     pub negative: Option<TeamTrait>,
 }
 
-pub struct StrikeTeamService {
+pub struct StrikeTeamDefinitions {
     pub equipment: Vec<StrikeTeamEquipment>,
     pub specializations: Vec<StrikeTeamSpecialization>,
     pub mission_descriptors: Vec<MissionDescriptor>,
     pub mission_traits: MissionTraits,
 }
 
-impl StrikeTeamService {
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<StrikeTeamDefinitions> = OnceLock::new();
+
+impl StrikeTeamDefinitions {
     pub const STRIKE_TEAM_COSTS: &'static [u32] = &[0, 40, 80, 120, 160, 200];
     pub const MAX_STRIKE_TEAMS: usize = Self::STRIKE_TEAM_COSTS.len();
 
-    pub fn new() -> anyhow::Result<Self> {
+    /// Gets a static reference to the global [StrikeTeamDefinitions] collection
+    pub fn get() -> &'static StrikeTeamDefinitions {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
+    fn new() -> anyhow::Result<Self> {
         let equipment: Vec<StrikeTeamEquipment> = serde_json::from_str(EQUIPMENT_DEFINITIONS)
             .context("Failed to load equipment definitions")?;
         let specializations: Vec<StrikeTeamSpecialization> =
@@ -164,7 +174,7 @@ pub struct Mission {
 // New missions are posted every four hours, starting at midnight, Eastern Standard Time (-5:00 UTC).
 
 impl Mission {
-    pub fn random(rng: &mut StdRng, service: &'static StrikeTeamService) -> Self {
+    pub fn random(rng: &mut StdRng, service: &'static StrikeTeamDefinitions) -> Self {
         let name = Uuid::new_v4();
         // TODO: Filter descriptors based on what they apply to
         let descriptor = service
@@ -284,7 +294,7 @@ pub struct MissionRewards {
 impl MissionRewards {
     pub fn random(
         rng: &mut StdRng,
-        service: &StrikeTeamService,
+        service: &StrikeTeamDefinitions,
         access: &MissionAccessibility,
         difficulty: &str,
     ) -> Self {

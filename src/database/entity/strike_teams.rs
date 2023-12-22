@@ -3,7 +3,6 @@ use crate::database::DbResult;
 use crate::services::character::levels::{LevelTables, ProgressionXp};
 use crate::services::strike_teams::StrikeTeamEquipment;
 use crate::services::strike_teams::TeamTrait;
-use crate::services::Services;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -103,9 +102,10 @@ impl Model {
     where
         C: ConnectionTrait + Send,
     {
-        let services = Services::get();
+        let level_tables = LevelTables::get();
+
         let mut rng = StdRng::from_entropy();
-        let mut strike_team = Self::random(&mut rng, &services.level_tables);
+        let mut strike_team = Self::random(&mut rng, level_tables);
         strike_team.user_id = Set(user.id);
         strike_team.insert(db).await
     }
@@ -161,7 +161,7 @@ impl Model {
             .expect("Failed to choose strike team name")
             .to_string();
         let level_table = level_tables
-            .get(&Self::LEVEL_TABLE)
+            .by_name(&Self::LEVEL_TABLE)
             .expect("Missing strike team level table");
 
         let level = 1;

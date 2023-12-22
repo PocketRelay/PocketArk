@@ -8,7 +8,7 @@ use chrono::{DateTime, Utc};
 use log::debug;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::str::FromStr;
+use std::{str::FromStr, sync::OnceLock};
 use uuid::Uuid;
 
 /// Skill definitions (64)
@@ -26,9 +26,18 @@ pub struct SkillDefinitions {
     pub values: Vec<SkillDefinition>,
 }
 
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<SkillDefinitions> = OnceLock::new();
+
 impl SkillDefinitions {
+    /// Gets a static reference to the global [ChallengeDefinitions] collection
+    pub fn get() -> &'static SkillDefinitions {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
     /// Creates and loads the skill definitions from [LEVEL_TABLE_DEFINITIONS]
-    pub fn new() -> anyhow::Result<Self> {
+    fn new() -> anyhow::Result<Self> {
         let values: Vec<SkillDefinition> =
             serde_json::from_str(SKILL_DEFINITIONS).context("Failed to parse skill definitions")?;
 
@@ -38,7 +47,7 @@ impl SkillDefinitions {
     }
 
     /// Find a [SkillDefinition] by its `name`
-    pub fn get(&self, name: &SkillDefinitionName) -> Option<&SkillDefinition> {
+    pub fn by_name(&self, name: &SkillDefinitionName) -> Option<&SkillDefinition> {
         self.values
             .iter()
             .find(|definition| definition.name.eq(name))

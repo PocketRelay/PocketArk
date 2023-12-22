@@ -3,9 +3,15 @@ use crate::utils::signing::SigningKey;
 use axum::Extension;
 use log::error;
 use log::LevelFilter;
+use services::challenges::ChallengeDefinitions;
+use services::character::class::ClassDefinitions;
+use services::character::levels::LevelTables;
 use services::game::manager::GameManager;
+use services::i18n::I18n;
+use services::items::ItemDefinitions;
+use services::match_data::MatchDataDefinitions;
 use services::sessions::Sessions;
-use services::Services;
+use services::strike_teams::StrikeTeamDefinitions;
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::sync::Arc;
 use tokio::join;
@@ -28,7 +34,14 @@ async fn main() {
 
     utils::logging::setup(LevelFilter::Debug);
 
-    Services::init_global();
+    // Pre-initialize all shared definitions
+    _ = ItemDefinitions::get();
+    _ = ClassDefinitions::get();
+    _ = LevelTables::get();
+    _ = ChallengeDefinitions::get();
+    _ = I18n::get();
+    _ = MatchDataDefinitions::get();
+    _ = StrikeTeamDefinitions::get();
 
     let (database, signing_key) = join!(crate::database::init(), SigningKey::global());
 

@@ -1,3 +1,5 @@
+use std::sync::OnceLock;
+
 use super::items::ItemName;
 use crate::{
     database::entity::currency::CurrencyType,
@@ -11,12 +13,21 @@ use uuid::Uuid;
 /// Definition file for the contents of the in-game store
 const STORE_CATALOG_DEFINITION: &str = include_str!("../../resources/data/storeCatalog.json");
 
-pub struct StoreService {
+pub struct StoreCatalogs {
     pub catalog: StoreCatalog,
 }
 
-impl StoreService {
-    pub fn new() -> anyhow::Result<Self> {
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<StoreCatalogs> = OnceLock::new();
+
+impl StoreCatalogs {
+    /// Gets a static reference to the global [StoreCatalogs] collection
+    pub fn get() -> &'static StoreCatalogs {
+        STORE.get_or_init(|| Self::new().unwrap())
+    }
+
+    fn new() -> anyhow::Result<Self> {
         let catalog: StoreCatalog = serde_json::from_str(STORE_CATALOG_DEFINITION)
             .context("Failed to load store catalog definitions")?;
 
