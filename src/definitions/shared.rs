@@ -12,4 +12,13 @@ pub struct CustomAttributes(
     #[serde_as(as = "serde_with::Map<_, _>")] Vec<(String, serde_json::Value)>,
 );
 
-impl CustomAttributes {}
+impl CustomAttributes {
+    pub fn get(&self, key: &str) -> Option<&serde_json::Value> {
+        self.0
+            .iter()
+            // Find matching key
+            .find(|(k, v)| k.eq(key))
+            // Only return value
+            .map(|(_, v)| v)
+    }
+}
