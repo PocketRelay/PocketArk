@@ -1,0 +1,353 @@
+{
+    "positive": [
+        {
+            "tag": "remnant",
+            "name": "Remnant Specialist",
+            "i18nName": "211951",
+            "locName": "Remnant Specialist",
+            "i18nDescription": "216428",
+            "locDescription": "+10 to Effectiveness against Remnant",
+            "effectiveness": 10
+        },
+        {
+            "tag": "outlaw",
+            "name": "Outlaw Specialist",
+            "i18nName": "211953",
+            "locName": "Outlaw Specialist",
+            "i18nDescription": "216464",
+            "locDescription": "+10 to Effectiveness against outlaws",
+            "effectiveness": 10
+        },
+        {
+            "tag": "kett",
+            "name": "Kett Specialist",
+            "i18nName": "211950",
+            "locName": "Kett Specialist",
+            "i18nDescription": "216434",
+            "locDescription": "+10 to Effectiveness against kett",
+            "effectiveness": 10
+        },
+        {
+            "name": "Nighttime Operator",
+            "i18nName": "153285",
+            "locName": "Nighttime Operator",
+            "i18nDescription": "216457",
+            "locDescription": "+10 to Effectiveness during Nighttime Missions",
+            "tag": "dark",
+            "effectiveness": 10
+        },
+        {
+            "name": "Rugged",
+            "i18nName": "153281",
+            "locName": "Rugged",
+            "i18nDescription": "217985",
+            "locDescription": "+10 to Effectiveness during Poor Weather Conditions",
+            "tag": "weather",
+            "effectiveness": 10
+        },
+        {
+            "name": "Daring",
+            "i18nName": "153293",
+            "locName": "Daring",
+            "i18nDescription": "216440",
+            "locDescription": "+10 to Effectiveness with High-Risk, High-Reward",
+            "tag": "risky",
+            "effectiveness": 10
+        },
+        {
+            "name": "Heroic",
+            "i18nName": "153282",
+            "locName": "Heroic",
+            "i18nDescription": "216460",
+            "locDescription": "+10 to Effectiveness with We Need a Hero",
+            "tag": "herocomplex",
+            "effectiveness": 10
+        },
+        {
+            "name": "Hostage Rescue Specialist",
+            "i18nName": "153290",
+            "locName": "Hostage Rescue Specialist",
+            "i18nDescription": "216436",
+            "locDescription": "+10 to Effectiveness during A Hostage Situation",
+            "tag": "hrt",
+            "effectiveness": 10
+        },
+        {
+            "name": "Virtuous",
+            "i18nName": "153275",
+            "locName": "Virtuous",
+            "i18nDescription": "216449",
+            "locDescription": "+10 to Effectiveness with Bribe Attempt",
+            "tag": "bribe",
+            "effectiveness": 10
+        },
+        {
+            "name": "Bloodthirsty",
+            "i18nName": "153302",
+            "locName": "Bloodthirsty",
+            "i18nDescription": "216438",
+            "locDescription": "+10 to Effectiveness with Enemies Everywhere",
+            "tag": "bloodthirsty",
+            "effectiveness": 10
+        },
+        {
+            "name": "Precise",
+            "i18nName": "153287",
+            "locName": "Precise",
+            "i18nDescription": "216432",
+            "locDescription": "+10 to Effectiveness with No Room for Error",
+            "tag": "precise",
+            "effectiveness": 10
+        },
+        {
+            "name": "Fearless",
+            "i18nName": "153297",
+            "locName": "Fearless",
+            "i18nDescription": "216455",
+            "locDescription": "+10 to Effectiveness with Scary",
+            "tag": "scary",
+            "effectiveness": 10
+        },
+        {
+            "name": "Stealthy",
+            "i18nName": "153283",
+            "locName": "Stealthy",
+            "i18nDescription": "216442",
+            "locDescription": "+10 to Effectiveness when Silent and Deadly",
+            "tag": "stealthy",
+            "effectiveness": 10
+        },
+        {
+            "name": "Elite",
+            "i18nName": "153279",
+            "locName": "Elite",
+            "i18nDescription": "216446",
+            "locDescription": "+5 to Effectiveness",
+            "effectiveness": 5
+        },
+        {
+            "name": "Grizzled Veteran",
+            "i18nName": "153280",
+            "locName": "Grizzled Veteran",
+            "i18nDescription": "216446",
+            "locDescription": "+5 to Effectiveness",
+            "effectiveness": 5
+        },
+        {
+            "name": "Lucky",
+            "i18nName": "153296",
+            "locName": "Lucky",
+            "i18nDescription": "216446",
+            "locDescription": "+5 to Effectiveness",
+            "effectiveness": 5
+        },
+        {
+            "name": "Skirmisher",
+            "i18nName": "153273",
+            "locName": "Skirmisher",
+            "i18nDescription": "216446",
+            "locDescription": "+5 to Effectiveness",
+            "effectiveness": 5
+        },
+        {
+            "name": "Tactician",
+            "i18nName": "153294",
+            "locName": "Tactician",
+            "i18nDescription": "216446",
+            "locDescription": "+5 to Effectiveness",
+            "effectiveness": 5
+        },
+        {
+            "name": "Tough",
+            "i18nName": "153278",
+            "locName": "Tough",
+            "i18nDescription": "216446",
+            "locDescription": "+5 to Effectiveness",
+            "effectiveness": 5
+        }
+    ],
+    "negative": [
+        {
+            "tag": "remnant",
+            "name": "Remnant Hysteria",
+            "i18nName": "211948",
+            "locName": "Remnant Hysteria",
+            "i18nDescription": "216430",
+            "locDescription": "-10 to Effectiveness against Remnant",
+            "effectiveness": -10
+        },
+        {
+            "tag": "outlaw",
+            "name": "Outlaw Hysteria",
+            "i18nName": "211949",
+            "locName": "Outlaw Hysteria",
+            "i18nDescription": "216435",
+            "locDescription": "-10 to Effectiveness against outlaws",
+            "effectiveness": -10
+        },
+        {
+            "tag": "kett",
+            "name": "Kett Hysteria",
+            "i18nName": "211952",
+            "locName": "Kett Hysteria",
+            "i18nDescription": "216447",
+            "locDescription": "-10 to Effectiveness against kett",
+            "effectiveness": -10
+        },
+        {
+            "name": "Night Blindness",
+            "i18nName": "153291",
+            "locName": "Night Blindness",
+            "i18nDescription": "216445",
+            "locDescription": "-10 to Effectiveness during Nighttime Missions",
+            "tag": "dark",
+            "effectiveness": -10
+        },
+        {
+            "name": "Ill-Prepared",
+            "i18nName": "153272",
+            "locName": "Ill-Prepared",
+            "i18nDescription": "216443",
+            "locDescription": "-10 to Effectiveness during Poor Weather Conditions",
+            "tag": "weather",
+            "effectiveness": -10
+        },
+        {
+            "name": "Timid",
+            "i18nName": "153292",
+            "locName": "Timid",
+            "i18nDescription": "216441",
+            "locDescription": "-10 to Effectiveness with High-Risk, High-Reward",
+            "tag": "risky",
+            "effectiveness": -10
+        },
+        {
+            "name": "Hero Complex",
+            "i18nName": "153289",
+            "locName": "Hero Complex",
+            "i18nDescription": "216429",
+            "locDescription": "-10 to Effectiveness with We Need a Hero",
+            "tag": "herocomplex",
+            "effectiveness": -10
+        },
+        {
+            "name": "Xenophobe",
+            "i18nName": "153301",
+            "locName": "Xenophobe",
+            "i18nDescription": "216448",
+            "locDescription": "-10 to Effectiveness with Alien Presence",
+            "tag": "xenophobe",
+            "effectiveness": -10
+        },
+        {
+            "name": "Corruptible",
+            "i18nName": "153295",
+            "locName": "Corruptible",
+            "i18nDescription": "216462",
+            "locDescription": "-10 to Effectiveness with Bribe Attempt",
+            "tag": "bribe",
+            "effectiveness": -10
+        },
+        {
+            "name": "Berserker",
+            "i18nName": "153270",
+            "locName": "Berserker",
+            "i18nDescription": "216458",
+            "locDescription": "-10 to Effectiveness with Enemies Everywhere",
+            "tag": "bloodthirsty",
+            "effectiveness": -10
+        },
+        {
+            "name": "Poor Intelligence",
+            "i18nName": "153271",
+            "locName": "Poor Intelligence",
+            "i18nDescription": "216451",
+            "locDescription": "-10 to Effectiveness with Key Intelligence Component",
+            "tag": "poorintelligence",
+            "effectiveness": -10
+        },
+        {
+            "name": "Careless",
+            "i18nName": "153269",
+            "locName": "Careless",
+            "i18nDescription": "216450",
+            "locDescription": "-10 to Effectiveness with No Room for Error",
+            "tag": "precise",
+            "effectiveness": -10
+        },
+        {
+            "name": "Cowardly",
+            "i18nName": "153274",
+            "locName": "Cowardly",
+            "i18nDescription": "216431",
+            "locDescription": "-10 to Effectiveness with Scary",
+            "tag": "scary",
+            "effectiveness": -10
+        },
+        {
+            "name": "Raucous",
+            "i18nName": "153299",
+            "locName": "Raucous",
+            "i18nDescription": "216427",
+            "locDescription": "-10 to Effectiveness when Silent and Deadly",
+            "tag": "stealthy",
+            "effectiveness": -10
+        },
+        {
+            "name": "Reluctant Soldier",
+            "i18nName": "153286",
+            "locName": "Reluctant Soldier",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        },
+        {
+            "name": "Shell-Shocked",
+            "i18nName": "153277",
+            "locName": "Shell-Shocked",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        },
+        {
+            "name": "Unlucky",
+            "i18nName": "153284",
+            "locName": "Unlucky",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        },
+        {
+            "name": "Slow Reflexes",
+            "i18nName": "153300",
+            "locName": "Slow Reflexes",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        },
+        {
+            "name": "Low on Supplies",
+            "i18nName": "153298",
+            "locName": "Low on Supplies",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        },
+        {
+            "name": "Fragile",
+            "i18nName": "153288",
+            "locName": "Fragile",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        },
+        {
+            "name": "Injured Teammate",
+            "i18nName": "153276",
+            "locName": "Injured Teammate",
+            "i18nDescription": "216453",
+            "locDescription": "-5 to Effectiveness",
+            "effectiveness": -5
+        }
+    ]
+}

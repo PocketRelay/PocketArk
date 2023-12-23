@@ -64,6 +64,8 @@ pub async fn get(
 
 /// GET /striketeams/successRate
 pub async fn get_success_rate() -> RawJson {
+    // TODO: Calculate the success rate for each strike team against each mission
+
     static DEFS: &str = include_str!("../../resources/data/strikeTeams/successRate.json");
     RawJson(DEFS)
 }
