@@ -1,55 +1,5 @@
 [
     {
-        "name": "9a754c9a-7c9e-6022-9c9c-0ad908130b08",
-        "description": "",
-        "customAttributes": {},
-        "enabled": true,
-        "currency": "GrindCurrency",
-        "activities": [],
-        "levels": [
-            {
-                "name": "",
-                "imgURLFull": "",
-                "targetCount": 0,
-                "xpReward": 0,
-                "currencyReward": 0,
-                "rewards": [
-                    {
-                        "name": "333e2214-d748-43fb-b6f0-48582c3f6330",
-                        "attributes": {}
-                    }
-                ],
-                "customAttributes": {}
-            }
-        ]
-    },
-    {
-        "name": "27e49b98-df0c-aa73-f4dd-dae31afb7c50",
-        "description": "",
-        "customAttributes": {},
-        "enabled": true,
-        "currency": "GrindCurrency",
-        "activities": [],
-        "levels": [
-            {
-                "name": "",
-                "imgURLFull": "",
-                "targetCount": 0,
-                "xpReward": 0,
-                "currencyReward": 0,
-                "rewards": [
-                    {
-                        "name": "333e2214-d748-43fb-b6f0-48582c3f6330",
-                        "attributes": {
-                            "asdf": "1"
-                        }
-                    }
-                ],
-                "customAttributes": {}
-            }
-        ]
-    },
-    {
         "name": "d8cb1b31-e4d8-4df1-8a41-7d9dc22d02ec",
         "description": "",
         "customAttributes": {},

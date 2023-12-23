@@ -1,4 +1,7 @@
-use super::activity::{ActivityDescriptor, ActivityEvent};
+use super::{
+    activity::{ActivityDescriptor, ActivityEvent},
+    i18n::{I18nDescription, I18nTitle, Localized},
+};
 use crate::database::entity::currency::CurrencyType;
 use anyhow::Context;
 use log::debug;
@@ -82,11 +85,12 @@ pub struct Badge {
     /// The different tiers / levels of this badge
     pub levels: Vec<BadgeLevel>,
 
-    // Localization text
-    pub i18n_title: Option<String>,
-    pub i18n_description: Option<String>,
-    pub loc_title: Option<String>,
-    pub loc_description: Option<String>,
+    /// Badge title
+    #[serde(flatten)]
+    pub i18n_title: I18nTitle,
+    /// Badge description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
 }
 
 impl Badge {
@@ -96,6 +100,13 @@ impl Badge {
         self.activities
             .iter()
             .find(|descriptor| descriptor.matches(activity))
+    }
+}
+
+impl Localized for Badge {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_title.localize(i18n);
+        self.i18n_description.localize(i18n);
     }
 }
 

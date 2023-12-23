@@ -7,10 +7,15 @@
 
 use std::sync::OnceLock;
 
-use crate::utils::hashing::{int_hash_map, IntHashMap};
+use crate::utils::{
+    hashing::{int_hash_map, IntHashMap},
+    ImStr,
+};
 use anyhow::Context;
 use csv::ReaderBuilder;
 use log::debug;
+use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, skip_serializing_none};
 
 /// Translations (103400)
 const I18N_TRANSLATIONS: &[u8] = include_bytes!("../resources/data/i18n.csv");
@@ -18,7 +23,7 @@ const I18N_TRANSLATIONS: &[u8] = include_bytes!("../resources/data/i18n.csv");
 /// Translation service
 pub struct I18n {
     /// Mapping between translation keys and the actual translation value
-    map: IntHashMap<u32, Box<str>>,
+    map: IntHashMap<u32, ImStr>,
 }
 
 /// Static storage for the definitions once its loaded
@@ -59,6 +64,89 @@ impl I18n {
     /// Attempts to find a specific translation from its translation key
     pub fn lookup(&self, key: u32) -> Option<&str> {
         self.map.get(&key).map(|value| value.as_ref())
+    }
+}
+
+/// Trait implemented by structures that can
+/// be localized
+pub trait Localized: Sized {
+    /// Localizes the structure using the provided `i18n`
+    /// definitions
+    fn localize(&mut self, i18n: &I18n);
+}
+
+/// Serializable structure for including the i18n name and localized
+/// name in JSON
+#[serde_as]
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct I18nName {
+    /// I18n lookup key
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub i18n_name: u32,
+    /// Localized translated name
+    pub loc_name: Option<ImStr>,
+}
+
+impl Localized for I18nName {
+    fn localize(&mut self, i18n: &I18n) {
+        // Already localized
+        if self.loc_name.is_some() {
+            return;
+        }
+
+        self.loc_name = i18n.lookup(self.i18n_name).map(Box::from);
+    }
+}
+
+/// Serializable structure for including the i18n title and localized
+/// title in JSON
+#[serde_as]
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct I18nTitle {
+    /// I18n lookup key
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub i18n_title: u32,
+    /// Localized translated title
+    pub loc_title: Option<ImStr>,
+}
+
+impl Localized for I18nTitle {
+    fn localize(&mut self, i18n: &I18n) {
+        // Already localized
+        if self.loc_title.is_some() {
+            return;
+        }
+
+        self.loc_title = i18n.lookup(self.i18n_title).map(Box::from);
+    }
+}
+
+/// Serializable structure for including the i18n description
+/// and localized description in JSON
+#[serde_as]
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct I18nDescription {
+    /// I18n lookup key
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub i18n_description: u32,
+    /// Localized translated description
+    pub loc_description: Option<ImStr>,
+}
+
+impl Localized for I18nDescription {
+    fn localize(&mut self, i18n: &I18n) {
+        // Already localized
+        if self.loc_description.is_some() {
+            return;
+        }
+
+        self.loc_description = i18n.lookup(self.i18n_description).map(Box::from);
     }
 }
 
