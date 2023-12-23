@@ -4,6 +4,7 @@ use crate::{database::entity::currency::CurrencyType, utils::models::DateDuratio
 
 use super::{
     activity::{ActivityDescriptor, ActivityEvent},
+    i18n::{I18nDescription, I18nTitle},
     items::ItemName,
 };
 use anyhow::Context;
@@ -69,16 +70,16 @@ pub struct ChallengeDefinition {
     /// Whether the challenge is limited time
     pub limited_availability: bool,
 
-    pub i18n_title: String,
+    #[serde(flatten)]
+    pub i18n_title: I18nTitle,
+    #[serde(flatten)]
+    pub i18n_description: Option<I18nDescription>,
+
     pub i18n_incomplete: String,
     pub i18n_complete: String,
     pub i18n_notification: String,
     pub i18n_multi_player_notification: String,
     pub i18n_reward_description: String,
-    pub i18n_description: Option<String>,
-
-    pub loc_title: String,
-    pub loc_description: Option<String>,
 
     /// Number of challenge points to award
     /// TODO: This needs to be handled

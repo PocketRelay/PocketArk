@@ -19,7 +19,7 @@ use crate::{
     services::{challenges::CurrencyReward, items::ItemDefinition},
 };
 
-use super::i18n::{I18nDescription, I18nName};
+use super::i18n::{I18nDesc, I18nDescription, I18nName};
 
 const EQUIPMENT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeams/equipment.json");
 const SPECIALIZATION_DEFINITIONS: &str =
@@ -38,9 +38,12 @@ pub struct MissionTraits {
 #[serde(rename_all = "camelCase")]
 pub struct MissionTag {
     pub name: String,
-    pub i18n_name: String,
-    pub loc_name: String,
-    pub i18n_desc: String,
+
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+    #[serde(flatten)]
+    pub i18n_desc: I18nDesc,
+
     #[serde(skip_serializing)]
     pub positive: Option<TeamTrait>,
     #[serde(skip_serializing)]
@@ -402,10 +405,12 @@ impl MissionType {
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
     pub name: Uuid,
-    pub i18n_name: String,
-    pub loc_name: String,
-    pub i18n_desc: Option<String>,
-    pub loc_desc: Option<String>,
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+
+    #[serde(flatten)]
+    pub i18n_desc: Option<I18nDesc>,
+
     pub custom_attributes: Map<String, Value>,
 }
 
@@ -413,24 +418,25 @@ impl MissionTypeDescriptor {
     pub fn normal() -> Self {
         Self {
             name: uuid!("39b9880a-ce11-4be3-a3e7-728763b48614"),
-            i18n_name: "12028".to_string(),
-            loc_name: "Normal".to_string(),
+            i18n_name: I18nName::new(12028), /* "Normal" */
             i18n_desc: None,
-            loc_desc: None,
             custom_attributes: Map::new(),
         }
     }
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MissionDescriptor {
     pub name: Uuid,
-    pub i18n_name: String,
-    pub i18n_desc: Option<String>,
-    pub loc_name: Option<String>,
-    pub loc_desc: Option<String>,
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+
+    #[serde(flatten)]
+    pub i18n_desc: Option<I18nDesc>,
+
+    #[serde(default)]
     pub custom_attributes: MissionDescriptorAttr,
 }
 

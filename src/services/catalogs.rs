@@ -54,9 +54,11 @@ pub struct StoreCatalog {
     pub articles: Vec<StoreArticle>,
 
     /// Localized catalog name
-    pub i18n_name: String,
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
     /// Localized catalog description
-    pub i18n_description: String,
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
 }
 
 impl StoreCatalog {

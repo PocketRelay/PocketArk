@@ -1,7 +1,11 @@
 use super::{characters::CharacterId, User};
 use crate::{
     database::DbResult,
-    services::{classes::CharacterEquipment, level_tables::ProgressionXp},
+    services::{
+        classes::CharacterEquipment,
+        i18n::{I18nDescription, I18nName},
+        level_tables::ProgressionXp,
+    },
 };
 use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
@@ -48,8 +52,10 @@ pub struct CharacterSharedEquipment {
 #[serde(rename_all = "camelCase")]
 pub struct SharedProgression {
     pub name: Uuid,
-    pub i18n_name: String,
-    pub i18n_description: String,
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
     pub level: u32,
     pub xp: ProgressionXp,
 }

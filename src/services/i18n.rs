@@ -5,7 +5,7 @@
 //!
 //! Translation mappings are stored in the csv file at `src/resources/data/i18n.csv`
 
-use std::sync::OnceLock;
+use std::{fmt::Debug, sync::OnceLock};
 
 use crate::utils::{
     hashing::{int_hash_map, IntHashMap},
@@ -62,8 +62,8 @@ impl I18n {
     }
 
     /// Attempts to find a specific translation from its translation key
-    pub fn lookup(&self, key: u32) -> Option<&str> {
-        self.map.get(&key).map(|value| value.as_ref())
+    pub fn lookup(&self, key: &u32) -> Option<&str> {
+        self.map.get(key).map(|value| value.as_ref())
     }
 }
 
@@ -97,7 +97,7 @@ where
 /// name in JSON
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct I18nName {
     /// I18n lookup key
@@ -129,6 +129,29 @@ impl I18nName {
     }
 }
 
+impl Debug for I18nName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let loc_name: Option<&str> = self
+            .loc_name
+            .as_ref()
+            .map(|value| value.as_ref())
+            // Attempt to load the translation for debug logging
+            .or_else(|| {
+                if let I18nKey::Lookup(key) = &self.i18n_name {
+                    let i18n = I18n::get();
+                    i18n.lookup(key)
+                } else {
+                    None
+                }
+            });
+
+        f.debug_struct("I18nName")
+            .field("i18n_name", &self.i18n_name)
+            .field("loc_name", &loc_name)
+            .finish()
+    }
+}
+
 impl Localized for I18nName {
     fn localize(&mut self, i18n: &I18n) {
         // Already localized
@@ -136,7 +159,7 @@ impl Localized for I18nName {
             return;
         }
 
-        let i18n_name = match self.i18n_name {
+        let i18n_name = match &self.i18n_name {
             I18nKey::Lookup(value) => value,
             _ => return,
         };
@@ -149,7 +172,7 @@ impl Localized for I18nName {
 /// title in JSON
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct I18nTitle {
     /// I18n lookup key
@@ -167,6 +190,29 @@ impl I18nTitle {
     }
 }
 
+impl Debug for I18nTitle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let loc_title: Option<&str> = self
+            .loc_title
+            .as_ref()
+            .map(|value| value.as_ref())
+            // Attempt to load the translation for debug logging
+            .or_else(|| {
+                if let I18nKey::Lookup(key) = &self.i18n_title {
+                    let i18n = I18n::get();
+                    i18n.lookup(key)
+                } else {
+                    None
+                }
+            });
+
+        f.debug_struct("I18nTitle")
+            .field("i18n_title", &self.i18n_title)
+            .field("loc_title", &loc_title)
+            .finish()
+    }
+}
+
 impl Localized for I18nTitle {
     fn localize(&mut self, i18n: &I18n) {
         // Already localized
@@ -174,7 +220,7 @@ impl Localized for I18nTitle {
             return;
         }
 
-        let i18n_title = match self.i18n_title {
+        let i18n_title = match &self.i18n_title {
             I18nKey::Lookup(value) => value,
             _ => return,
         };
@@ -187,7 +233,7 @@ impl Localized for I18nTitle {
 /// and localized description in JSON
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct I18nDescription {
     /// I18n lookup key
@@ -205,6 +251,29 @@ impl I18nDescription {
     }
 }
 
+impl Debug for I18nDescription {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let loc_description: Option<&str> = self
+            .loc_description
+            .as_ref()
+            .map(|value| value.as_ref())
+            // Attempt to load the translation for debug logging
+            .or_else(|| {
+                if let I18nKey::Lookup(key) = &self.i18n_description {
+                    let i18n = I18n::get();
+                    i18n.lookup(key)
+                } else {
+                    None
+                }
+            });
+
+        f.debug_struct("I18nDescription")
+            .field("i18n_description", &self.i18n_description)
+            .field("loc_description", &loc_description)
+            .finish()
+    }
+}
+
 impl Localized for I18nDescription {
     fn localize(&mut self, i18n: &I18n) {
         // Already localized
@@ -212,12 +281,75 @@ impl Localized for I18nDescription {
             return;
         }
 
-        let i18n_description = match self.i18n_description {
+        let i18n_description = match &self.i18n_description {
             I18nKey::Lookup(value) => value,
             _ => return,
         };
 
         self.loc_description = i18n.lookup(i18n_description).map(Box::from);
+    }
+}
+
+/// Serializable structure for including the i18n description
+/// and localized description in JSON (Shorthand because thanks EA)
+///
+/// TODO: Maybe use serde_as to alias this from [I18nDescription]
+#[serde_as]
+#[skip_serializing_none]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct I18nDesc {
+    /// I18n lookup key
+    pub i18n_desc: I18nKey,
+    /// Localized translated description
+    pub loc_desc: Option<ImStr>,
+}
+
+impl I18nDesc {
+    pub const fn new(i18n_desc: u32) -> Self {
+        Self {
+            i18n_desc: I18nKey::Lookup(i18n_desc),
+            loc_desc: None,
+        }
+    }
+}
+
+impl Debug for I18nDesc {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let loc_desc: Option<&str> = self
+            .loc_desc
+            .as_ref()
+            .map(|value| value.as_ref())
+            // Attempt to load the translation for debug logging
+            .or_else(|| {
+                if let I18nKey::Lookup(key) = &self.i18n_desc {
+                    let i18n = I18n::get();
+                    i18n.lookup(key)
+                } else {
+                    None
+                }
+            });
+
+        f.debug_struct("I18nDesc")
+            .field("i18n_desc", &self.i18n_desc)
+            .field("loc_desc", &loc_desc)
+            .finish()
+    }
+}
+
+impl Localized for I18nDesc {
+    fn localize(&mut self, i18n: &I18n) {
+        // Already localized
+        if self.loc_desc.is_some() {
+            return;
+        }
+
+        let i18n_desc = match &self.i18n_desc {
+            I18nKey::Lookup(value) => value,
+            _ => return,
+        };
+
+        self.loc_desc = i18n.lookup(i18n_desc).map(Box::from);
     }
 }
 
