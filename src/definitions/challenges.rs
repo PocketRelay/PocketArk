@@ -7,7 +7,7 @@ use crate::{
 };
 
 use super::{
-    i18n::{I18nDescription, I18nTitle},
+    i18n::{I18nDescription, I18nKey, I18nTitle},
     items::ItemName,
 };
 use anyhow::Context;
@@ -78,11 +78,11 @@ pub struct ChallengeDefinition {
     #[serde(flatten)]
     pub i18n_description: Option<I18nDescription>,
 
-    pub i18n_incomplete: String,
-    pub i18n_complete: String,
-    pub i18n_notification: String,
-    pub i18n_multi_player_notification: String,
-    pub i18n_reward_description: String,
+    pub i18n_incomplete: I18nKey,
+    pub i18n_complete: I18nKey,
+    pub i18n_notification: I18nKey,
+    pub i18n_multi_player_notification: I18nKey,
+    pub i18n_reward_description: I18nKey,
 
     /// Number of challenge points to award
     /// TODO: This needs to be handled

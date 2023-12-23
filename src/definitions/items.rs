@@ -24,6 +24,8 @@ use std::{
 use thiserror::Error;
 use uuid::{uuid, Uuid};
 
+use super::i18n::Localized;
+
 /// Item definitions (628)
 const INVENTORY_DEFINITIONS: &str = include_str!("../resources/data/inventoryDefinitions.json");
 
@@ -204,6 +206,15 @@ pub struct ItemDefinition {
     /// Localized item description
     #[serde(flatten)]
     pub i18n_description: Option<I18nDescription>,
+}
+
+impl Localized for ItemDefinition {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_name.localize(i18n);
+        if let Some(i18n_descripttion) = &mut self.i18n_description {
+            i18n_descripttion.localize(i18n);
+        }
+    }
 }
 
 impl ItemDefinition {
