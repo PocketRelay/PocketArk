@@ -67,7 +67,6 @@ impl MigrationTrait for Migration {
         manager
             .create_index(
                 Index::create()
-                    .unique()
                     .name("idx-strike-team-uid")
                     .table(StrikeTeams::Table)
                     .col(StrikeTeams::UserId)
