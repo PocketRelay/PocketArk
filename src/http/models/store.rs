@@ -2,8 +2,8 @@ use super::HttpError;
 use crate::{
     database::entity::{currency::CurrencyType, Currency, InventoryItem},
     definitions::{
-        catalogs::{StoreArticleName, StoreCatalog},
         items::ItemDefinition,
+        store_catalogs::{StoreArticleName, StoreCatalog},
     },
     services::activity::ActivityResult,
 };

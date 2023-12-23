@@ -10,12 +10,12 @@ use crate::{
         Currency, InventoryItem, User,
     },
     definitions::{
-        catalogs::{StoreArticleName, StoreCatalogs},
         characters::acquire_item_character,
         classes::ClassDefinitions,
         items::{BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName},
         level_tables::LevelTables,
         packs::{GenerateError, ItemReward, Packs, RewardCollection},
+        store_catalogs::{StoreArticleName, StoreCatalogs},
     },
 };
 use log::debug;

@@ -1,6 +1,6 @@
 use crate::{
     database::entity::{currency::CurrencyType, Currency, User},
-    definitions::catalogs::StoreCatalogs,
+    definitions::store_catalogs::StoreCatalogs,
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
