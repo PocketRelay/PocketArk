@@ -4,6 +4,7 @@
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
     database::entity::{Currency, SharedData, StrikeTeam, User},
+    definitions::items::create_default_items,
     http::{
         middleware::upgrade::BlazeUpgrade,
         models::{
@@ -11,10 +12,7 @@ use crate::{
             DynHttpError, HttpResult,
         },
     },
-    services::{
-        items::create_default_items,
-        sessions::{Sessions, VerifyError},
-    },
+    services::sessions::{Sessions, VerifyError},
     utils::hashing::{hash_password, verify_password},
     VERSION,
 };

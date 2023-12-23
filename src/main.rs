@@ -1,13 +1,14 @@
 use axum::Extension;
-use log::error;
-use log::LevelFilter;
-use services::badges::Badges;
-use services::match_modifiers::MatchModifiers;
-use services::{
-    challenges::ChallengeDefinitions, classes::ClassDefinitions, game_manager::GameManager,
-    i18n::I18n, items::ItemDefinitions, level_tables::LevelTables, sessions::Sessions,
+use definitions::i18n::I18n;
+use definitions::{
+    badges::Badges, challenges::ChallengeDefinitions, classes::ClassDefinitions,
+    items::ItemDefinitions, level_tables::LevelTables, match_modifiers::MatchModifiers,
     striketeams::StrikeTeamDefinitions,
 };
+use log::error;
+use log::LevelFilter;
+use services::{game_manager::GameManager, sessions::Sessions};
+
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::sync::Arc;
 use tokio::join;
@@ -18,6 +19,7 @@ use utils::{constants::SERVER_PORT, signing::SigningKey};
 mod blaze;
 
 mod database;
+mod definitions;
 mod http;
 mod services;
 mod utils;

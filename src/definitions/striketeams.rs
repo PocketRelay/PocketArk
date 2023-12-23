@@ -15,8 +15,8 @@ use uuid::{uuid, Uuid};
 
 use crate::{
     database::entity::{currency::CurrencyType, StrikeTeam},
+    definitions::{challenges::CurrencyReward, items::ItemDefinition},
     http::models::mission::MissionModifier,
-    services::{challenges::CurrencyReward, items::ItemDefinition},
 };
 
 use super::i18n::{I18nDesc, I18nDescription, I18nName};

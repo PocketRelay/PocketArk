@@ -5,8 +5,6 @@
 //!
 //! Translation mappings are stored in the csv file at `src/resources/data/i18n.csv`
 
-use std::{fmt::Debug, sync::OnceLock};
-
 use crate::utils::{
     hashing::{int_hash_map, IntHashMap},
     ImStr,
@@ -16,14 +14,18 @@ use csv::ReaderBuilder;
 use log::debug;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
+use std::{fmt::Debug, sync::OnceLock};
 
 /// Translations (103400)
 const I18N_TRANSLATIONS: &[u8] = include_bytes!("../resources/data/i18n.csv");
 
-/// Translation service
+/// Type alias for a lookup key in the i18n map
+pub type LookupKey = u32;
+
+/// Translation definitions
 pub struct I18n {
     /// Mapping between translation keys and the actual translation value
-    map: IntHashMap<u32, ImStr>,
+    map: IntHashMap<LookupKey, ImStr>,
 }
 
 /// Static storage for the definitions once its loaded
@@ -31,7 +33,7 @@ pub struct I18n {
 static STORE: OnceLock<I18n> = OnceLock::new();
 
 impl I18n {
-    /// Gets a static reference to the global [I18nService] collection
+    /// Gets a static reference to the global [I18n] collection
     pub fn get() -> &'static I18n {
         STORE.get_or_init(|| Self::load().unwrap())
     }
@@ -62,8 +64,11 @@ impl I18n {
     }
 
     /// Attempts to find a specific translation from its translation key
-    pub fn lookup(&self, key: &u32) -> Option<&str> {
-        self.map.get(key).map(|value| value.as_ref())
+    pub fn by_key(&self, key: &I18nKey) -> Option<&ImStr> {
+        match key {
+            I18nKey::Lookup(value) => self.map.get(value),
+            I18nKey::Raw(_) => None,
+        }
     }
 }
 
@@ -93,6 +98,21 @@ where
     }
 }
 
+/// Translation key, requires handling for raw string types
+///
+/// Thanks to EA and some of their translations not actually
+/// containing the lookup key instead containg something
+/// like: "FREE_1100_APEX_POINTS_ON_ADD"
+#[serde_as]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum I18nKey {
+    /// Valid i18n lookup key
+    Lookup(#[serde_as(as = "serde_with::DisplayFromStr")] LookupKey),
+    /// Some raw string value that can't be used to lookup with
+    Raw(ImStr),
+}
+
 /// Serializable structure for including the i18n name and localized
 /// name in JSON
 #[serde_as]
@@ -106,20 +126,6 @@ pub struct I18nName {
     pub loc_name: Option<ImStr>,
 }
 
-#[serde_as]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum I18nKey {
-    /// Valid i18n lookup key
-    Lookup(#[serde_as(as = "serde_with::DisplayFromStr")] u32),
-    /// Some raw string value that can't be used to lookup with
-    ///
-    /// Thanks to EA and some of their translations not actually
-    /// containing the lookup key instead containg something
-    /// like: "FREE_1100_APEX_POINTS_ON_ADD"
-    Raw(ImStr),
-}
-
 impl I18nName {
     pub const fn new(i18n_name: u32) -> Self {
         Self {
@@ -131,18 +137,13 @@ impl I18nName {
 
 impl Debug for I18nName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let loc_name: Option<&str> = self
+        let loc_name: Option<&ImStr> = self
             .loc_name
             .as_ref()
-            .map(|value| value.as_ref())
             // Attempt to load the translation for debug logging
             .or_else(|| {
-                if let I18nKey::Lookup(key) = &self.i18n_name {
-                    let i18n = I18n::get();
-                    i18n.lookup(key)
-                } else {
-                    None
-                }
+                let i18n = I18n::get();
+                i18n.by_key(&self.i18n_name)
             });
 
         f.debug_struct("I18nName")
@@ -159,12 +160,7 @@ impl Localized for I18nName {
             return;
         }
 
-        let i18n_name = match &self.i18n_name {
-            I18nKey::Lookup(value) => value,
-            _ => return,
-        };
-
-        self.loc_name = i18n.lookup(i18n_name).map(Box::from);
+        self.loc_name = i18n.by_key(&self.i18n_name).cloned();
     }
 }
 
@@ -192,18 +188,13 @@ impl I18nTitle {
 
 impl Debug for I18nTitle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let loc_title: Option<&str> = self
+        let loc_title: Option<&ImStr> = self
             .loc_title
             .as_ref()
-            .map(|value| value.as_ref())
             // Attempt to load the translation for debug logging
             .or_else(|| {
-                if let I18nKey::Lookup(key) = &self.i18n_title {
-                    let i18n = I18n::get();
-                    i18n.lookup(key)
-                } else {
-                    None
-                }
+                let i18n = I18n::get();
+                i18n.by_key(&self.i18n_title)
             });
 
         f.debug_struct("I18nTitle")
@@ -220,12 +211,7 @@ impl Localized for I18nTitle {
             return;
         }
 
-        let i18n_title = match &self.i18n_title {
-            I18nKey::Lookup(value) => value,
-            _ => return,
-        };
-
-        self.loc_title = i18n.lookup(i18n_title).map(Box::from);
+        self.loc_title = i18n.by_key(&self.i18n_title).cloned();
     }
 }
 
@@ -253,18 +239,13 @@ impl I18nDescription {
 
 impl Debug for I18nDescription {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let loc_description: Option<&str> = self
+        let loc_description: Option<&ImStr> = self
             .loc_description
             .as_ref()
-            .map(|value| value.as_ref())
             // Attempt to load the translation for debug logging
             .or_else(|| {
-                if let I18nKey::Lookup(key) = &self.i18n_description {
-                    let i18n = I18n::get();
-                    i18n.lookup(key)
-                } else {
-                    None
-                }
+                let i18n = I18n::get();
+                i18n.by_key(&self.i18n_description)
             });
 
         f.debug_struct("I18nDescription")
@@ -281,12 +262,7 @@ impl Localized for I18nDescription {
             return;
         }
 
-        let i18n_description = match &self.i18n_description {
-            I18nKey::Lookup(value) => value,
-            _ => return,
-        };
-
-        self.loc_description = i18n.lookup(i18n_description).map(Box::from);
+        self.loc_description = i18n.by_key(&self.i18n_description).cloned();
     }
 }
 
@@ -316,18 +292,13 @@ impl I18nDesc {
 
 impl Debug for I18nDesc {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let loc_desc: Option<&str> = self
+        let loc_desc: Option<&ImStr> = self
             .loc_desc
             .as_ref()
-            .map(|value| value.as_ref())
             // Attempt to load the translation for debug logging
             .or_else(|| {
-                if let I18nKey::Lookup(key) = &self.i18n_desc {
-                    let i18n = I18n::get();
-                    i18n.lookup(key)
-                } else {
-                    None
-                }
+                let i18n = I18n::get();
+                i18n.by_key(&self.i18n_desc)
             });
 
         f.debug_struct("I18nDesc")
@@ -344,12 +315,7 @@ impl Localized for I18nDesc {
             return;
         }
 
-        let i18n_desc = match &self.i18n_desc {
-            I18nKey::Lookup(value) => value,
-            _ => return,
-        };
-
-        self.loc_desc = i18n.lookup(i18n_desc).map(Box::from);
+        self.loc_desc = i18n.by_key(&self.i18n_desc).cloned();
     }
 }
 

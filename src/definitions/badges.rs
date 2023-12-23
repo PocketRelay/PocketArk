@@ -1,8 +1,6 @@
-use super::{
-    activity::{ActivityDescriptor, ActivityEvent},
-    i18n::{I18n, I18nDescription, I18nTitle, Localized},
-};
+use super::i18n::{I18n, I18nDescription, I18nTitle, Localized};
 use crate::database::entity::currency::CurrencyType;
+use crate::services::activity::{ActivityDescriptor, ActivityEvent};
 use anyhow::Context;
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -18,8 +16,9 @@ pub type BadgeName = Uuid;
 /// Alias for a string representing the name of a [BadgeLevel]
 pub type BadgeLevelName = String;
 
+/// Collection of badges that can be earned while playing matches
 pub struct Badges {
-    pub values: Vec<Badge>,
+    values: Vec<Badge>,
 }
 
 /// Static storage for the definitions once its loaded
@@ -39,6 +38,10 @@ impl Badges {
         debug!("Loaded {} badge definition(s)", values.len(),);
 
         Ok(Self { values })
+    }
+
+    pub fn all(&self) -> &[Badge] {
+        &self.values
     }
 
     pub fn by_activity(&self, activity: &ActivityEvent) -> Option<(&Badge, u32, Vec<&BadgeLevel>)> {

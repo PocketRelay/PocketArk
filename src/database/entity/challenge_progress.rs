@@ -1,10 +1,8 @@
 use super::{users::UserId, User};
 use crate::{
     database::DbResult,
-    services::{
-        challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
-        game::ChallengeProgressChange,
-    },
+    definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
+    services::game::ChallengeProgressChange,
 };
 use chrono::Utc;
 use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};

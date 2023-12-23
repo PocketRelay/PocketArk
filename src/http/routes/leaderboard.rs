@@ -1,9 +1,9 @@
 use crate::{
+    definitions::i18n::{I18n, I18nName, Localized},
     http::models::leaderboard::{
         LeaderboardCategory, LeaderboardIdent, LeaderboardResponse, LeaderboardRow,
         LeaderboardsResponse,
     },
-    services::i18n::{I18n, I18nName, Localized},
 };
 use axum::{extract::Path, Json};
 use serde_json::Map;

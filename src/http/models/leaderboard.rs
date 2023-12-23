@@ -1,4 +1,4 @@
-use crate::services::i18n::{I18nDescription, I18nName, Localized};
+use crate::definitions::i18n::{I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
@@ -32,7 +32,7 @@ pub struct LeaderboardCategory {
 }
 
 impl Localized for LeaderboardCategory {
-    fn localize(&mut self, i18n: &crate::services::i18n::I18n) {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
         self.i18n_name.localize(i18n);
 
         if let Some(i18n_description) = &mut self.i18n_description {

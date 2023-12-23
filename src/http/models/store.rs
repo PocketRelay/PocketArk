@@ -1,11 +1,11 @@
 use super::HttpError;
 use crate::{
     database::entity::{currency::CurrencyType, Currency, InventoryItem},
-    services::{
-        activity::ActivityResult,
+    definitions::{
         catalogs::{StoreArticleName, StoreCatalog},
         items::ItemDefinition,
     },
+    services::activity::ActivityResult,
 };
 use hyper::StatusCode;
 use serde::{Deserialize, Serialize};

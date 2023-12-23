@@ -14,7 +14,7 @@ use crate::{
         entity::{InventoryItem, User, ValueMap},
         DbResult,
     },
-    services::items::ItemName,
+    definitions::items::ItemName,
 };
 use chrono::Utc;
 use futures::Future;

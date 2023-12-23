@@ -1,8 +1,9 @@
 use super::User;
 use crate::database::DbResult;
-use crate::services::level_tables::{LevelTables, ProgressionXp};
-use crate::services::striketeams::StrikeTeamEquipment;
-use crate::services::striketeams::TeamTrait;
+use crate::definitions::{
+    level_tables::{LevelTables, ProgressionXp},
+    striketeams::{StrikeTeamEquipment, TeamTrait},
+};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;

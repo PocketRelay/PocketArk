@@ -1,7 +1,7 @@
 use super::{characters::CharacterId, User};
 use crate::{
     database::DbResult,
-    services::{
+    definitions::{
         classes::CharacterEquipment,
         i18n::{I18nDescription, I18nName},
         level_tables::ProgressionXp,

@@ -1,7 +1,7 @@
 use super::HttpError;
 use crate::{
     database::entity::{inventory_items::ItemId, InventoryItem},
-    services::items::{InventoryNamespace, ItemDefinition},
+    definitions::items::{InventoryNamespace, ItemDefinition},
 };
 use hyper::StatusCode;
 use serde::{Deserialize, Serialize};

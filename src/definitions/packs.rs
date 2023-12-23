@@ -6,7 +6,7 @@
 
 use crate::{
     database::entity::{InventoryItem, User},
-    services::items::{
+    definitions::items::{
         BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName, ItemRarity,
     },
 };

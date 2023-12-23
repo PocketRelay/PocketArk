@@ -1,7 +1,7 @@
 use super::HttpError;
 use crate::{
     database::entity::{characters::CharacterId, Character, SharedData},
-    services::{
+    definitions::{
         classes::{CharacterEquipment, Class, CustomizationEntry},
         level_tables::LevelTable,
         skills::{SkillDefinition, SkillTree},

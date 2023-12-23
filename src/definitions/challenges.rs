@@ -1,9 +1,12 @@
 use std::sync::OnceLock;
 
-use crate::{database::entity::currency::CurrencyType, utils::models::DateDuration};
+use crate::{
+    database::entity::currency::CurrencyType,
+    services::activity::{ActivityDescriptor, ActivityEvent},
+    utils::models::DateDuration,
+};
 
 use super::{
-    activity::{ActivityDescriptor, ActivityEvent},
     i18n::{I18nDescription, I18nTitle},
     items::ItemName,
 };

@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     database::entity::{Character, Currency, SharedData},
-    services::{
+    definitions::{
         classes::{ClassDefinitions, PointMap},
         items::ItemDefinitions,
         level_tables::{LevelTables, ProgressionXp},

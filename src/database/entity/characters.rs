@@ -1,7 +1,7 @@
 use super::{users::UserId, User, ValueMap};
 use crate::{
     database::DbResult,
-    services::{
+    definitions::{
         classes::{
             CharacterAttributes, CharacterBonus, CharacterEquipment, ClassName, CustomizationMap,
             PointMap,

@@ -1,9 +1,7 @@
 use crate::{
     database::entity::{characters::CharacterId, currency::CurrencyType, InventoryItem},
-    services::{
-        activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
-        challenges::CurrencyReward,
-    },
+    definitions::challenges::CurrencyReward,
+    services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
 };
 use chrono::{DateTime, Utc};

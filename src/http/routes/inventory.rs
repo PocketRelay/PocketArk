@@ -1,5 +1,6 @@
 use crate::{
     database::entity::{inventory_items::ItemId, InventoryItem, User},
+    definitions::items::{InventoryNamespace, ItemDefinition, ItemDefinitions},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -10,10 +11,7 @@ use crate::{
             DynHttpError, HttpResult,
         },
     },
-    services::{
-        activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        items::{InventoryNamespace, ItemDefinition, ItemDefinitions},
-    },
+    services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
 };
 use axum::{extract::Query, Extension, Json};
 use hyper::StatusCode;

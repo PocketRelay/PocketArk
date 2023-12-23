@@ -1,10 +1,8 @@
 use super::HttpError;
 use crate::{
     database::entity::{currency::CurrencyType, Currency, StrikeTeam},
-    services::{
-        activity::ActivityResult,
-        striketeams::{StrikeTeamWithMission, TeamTrait},
-    },
+    definitions::striketeams::{StrikeTeamWithMission, TeamTrait},
+    services::activity::ActivityResult,
 };
 use hyper::StatusCode;
 use serde::{Deserialize, Serialize};

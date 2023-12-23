@@ -5,17 +5,17 @@ use crate::{
         characters::{self, CharacterId, EquipmentList},
         Character, SharedData,
     },
+    definitions::{
+        classes::{ClassDefinitions, ClassName, CustomizationMap},
+        level_tables::LevelTables,
+        skills::{SkillDefinition, SkillDefinitions},
+    },
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
             character::*,
             errors::{DynHttpError, HttpResult},
         },
-    },
-    services::{
-        classes::{ClassDefinitions, ClassName, CustomizationMap},
-        level_tables::LevelTables,
-        skills::{SkillDefinition, SkillDefinitions},
     },
 };
 use axum::{extract::Path, Extension, Json};

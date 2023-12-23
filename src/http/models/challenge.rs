@@ -1,4 +1,4 @@
-use crate::{database::entity::ChallengeProgress, services::challenges::ChallengeDefinition};
+use crate::{database::entity::ChallengeProgress, definitions::challenges::ChallengeDefinition};
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;

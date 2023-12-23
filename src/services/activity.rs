@@ -4,17 +4,19 @@
 //! The [ActivityService] should process these activities and update stored information
 //! and rewards accordingly
 
-use super::{
-    catalogs::{StoreArticleName, StoreCatalogs},
-    characters::acquire_item_character,
-    classes::ClassDefinitions,
-    items::{BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName},
-    level_tables::LevelTables,
-    packs::{GenerateError, ItemReward, Packs, RewardCollection},
-};
-use crate::database::entity::{
-    challenge_progress::{ChallengeCounterName, ChallengeId},
-    Currency, InventoryItem, User,
+use crate::{
+    database::entity::{
+        challenge_progress::{ChallengeCounterName, ChallengeId},
+        Currency, InventoryItem, User,
+    },
+    definitions::{
+        catalogs::{StoreArticleName, StoreCatalogs},
+        characters::acquire_item_character,
+        classes::ClassDefinitions,
+        items::{BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName},
+        level_tables::LevelTables,
+        packs::{GenerateError, ItemReward, Packs, RewardCollection},
+    },
 };
 use log::debug;
 use rand::{rngs::StdRng, SeedableRng};

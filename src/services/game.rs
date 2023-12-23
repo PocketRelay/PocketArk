@@ -1,9 +1,6 @@
 use super::{
     activity::{ActivityEvent, PrestigeData, PrestigeProgression},
-    badges::Badges,
-    challenges::{ChallengeCounter, ChallengeDefinition, ChallengeDefinitions, CurrencyReward},
     game_manager::GameManager,
-    match_modifiers::MatchModifiers,
 };
 use crate::{
     blaze::{
@@ -23,15 +20,18 @@ use crate::{
         challenge_progress::CounterUpdateType, currency::CurrencyType, users::UserId,
         ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
     },
+    definitions::{
+        badges::Badges,
+        challenges::{ChallengeCounter, ChallengeDefinition, ChallengeDefinitions, CurrencyReward},
+        classes::ClassDefinitions,
+        level_tables::LevelTables,
+        match_modifiers::MatchModifiers,
+    },
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::{
-        activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
-        classes::ClassDefinitions,
-        level_tables::LevelTables,
-    },
+    services::activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
     utils::models::Sku,
 };
 use chrono::Utc;

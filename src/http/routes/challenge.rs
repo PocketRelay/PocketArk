@@ -1,10 +1,10 @@
 use crate::{
     database::entity::ChallengeProgress,
+    definitions::challenges::ChallengeDefinitions,
     http::{
         middleware::user::Auth,
         models::{challenge::*, HttpResult},
     },
-    services::challenges::ChallengeDefinitions,
 };
 use axum::{Extension, Json};
 use sea_orm::DatabaseConnection;

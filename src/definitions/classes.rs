@@ -11,7 +11,7 @@
 //! https://masseffectandromeda.fandom.com/wiki/Character_kit
 
 use super::i18n::{I18nDescription, I18nName};
-use crate::services::{
+use crate::definitions::{
     items::{InventoryNamespace, ItemLink, ItemName},
     level_tables::LevelTableName,
     skills::SkillTree,

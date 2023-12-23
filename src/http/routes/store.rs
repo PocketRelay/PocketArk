@@ -1,5 +1,6 @@
 use crate::{
     database::entity::{currency::CurrencyType, Currency, User},
+    definitions::catalogs::StoreCatalogs,
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -10,10 +11,7 @@ use crate::{
             DynHttpError, HttpResult,
         },
     },
-    services::{
-        activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
-        catalogs::StoreCatalogs,
-    },
+    services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;
