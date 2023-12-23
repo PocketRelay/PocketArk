@@ -14,4 +14,5 @@ pub mod packs;
 pub mod shared;
 pub mod skills;
 pub mod store_catalogs;
+pub mod strike_teams;
 pub mod striketeams;

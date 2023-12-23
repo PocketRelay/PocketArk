@@ -1,37 +1,52 @@
+use super::users::UserId;
 use super::User;
 use crate::database::DbResult;
 use crate::definitions::{
     level_tables::{LevelTables, ProgressionXp},
     striketeams::{StrikeTeamEquipment, TeamTrait},
 };
+use crate::utils::ImStr;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::ActiveValue::Set;
 use sea_orm::{prelude::*, FromJsonQueryResult, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use uuid::{uuid, Uuid};
+
+/// Strike Team ID keying has been replaced with integer keys rather than the UUIDs
+/// used by the official game, this is because its *very* annoying to work with
+/// UUIDs as primary keys in the SQLite database (Basically defeats the purpose of SeaORM)
+pub type StrikeTeamId = u32;
 
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "strike_teams")]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
+    /// Unique ID of the strike team
     #[sea_orm(primary_key)]
     #[serde(skip)]
-    pub id: u32,
-    #[serde(rename = "id")]
-    pub team_id: Uuid,
+    pub id: StrikeTeamId,
+    /// ID of the user that owns this strike team
     #[serde(skip)]
-    pub user_id: u32,
+    pub user_id: UserId,
+    /// Name of the strike team (Shown in game)
     pub name: String,
+    /// Icon to use with the strike team
     pub icon: StrikeTeamIcon,
+    /// Current level of the strike team
     pub level: u32,
+    /// XP progression for the strike team
     pub xp: ProgressionXp,
+    /// Equipment if the strike team has one active
     pub equipment: Option<StrikeTeamEquipment>,
+    /// Positive traits this strike team has
     pub positive_traits: TraitList,
+    /// Negative traits this strike team has
     pub negative_traits: TraitList,
+    /// Unknown usage
     pub out_of_date: bool,
 }
 
@@ -45,32 +60,28 @@ pub enum Relation {
     User,
 }
 
-impl Related<super::users::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::User.def()
-    }
-}
-
-impl ActiveModelBehavior for ActiveModel {}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
 pub struct TraitList(pub Vec<TeamTrait>);
 
-// Sourced from "NATO phonetic alphabet"
+// Sourced from "NATO phonetic alphabet", these are the default strike team names used by the game
 static STRIKE_TEAM_NAMES: &[&str] = &[
     "Yankee", "Delta", "India", "Echo", "Zulu", "Charlie", "Whiskey", "Lima", "Bravo", "Sierra",
     "November", "X-Ray", "Golf", "Alpha", "Romeo", "Kilo", "Tango", "Quebec", "Foxtrot", "Papa",
     "Mike", "Oscar", "Juliet", "Uniform", "Victor", "Hotel",
 ];
 
+/// Icon that the strike team should use
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamIcon {
-    pub name: String,
-    pub image: String,
+    /// Name of the icon
+    pub name: ImStr,
+    /// Icon image path
+    pub image: ImStr,
 }
 
+/// Set of default known icons from the game
 static ICON_SETS: &[(&str, &str)] = &[
     ("icon1", "Team01"),
     ("icon2", "Team02"),
@@ -89,8 +100,8 @@ impl StrikeTeamIcon {
         let (name, image) = ICON_SETS.choose(rng).expect("Missing strike team icon set");
 
         StrikeTeamIcon {
-            name: name.to_string(),
-            image: image.to_string(),
+            name: Box::from(*name),
+            image: Box::from(*image),
         }
     }
 }
@@ -132,12 +143,12 @@ impl Model {
         Ok(())
     }
 
-    pub async fn get_by_id<C>(db: &C, user: &User, id: Uuid) -> DbResult<Option<Self>>
+    pub async fn get_by_id<C>(db: &C, user: &User, id: StrikeTeamId) -> DbResult<Option<Self>>
     where
         C: ConnectionTrait + Send,
     {
         user.find_related(Entity)
-            .filter(Column::TeamId.eq(id))
+            .filter(Column::Id.eq(id))
             .one(db)
             .await
     }
@@ -182,17 +193,21 @@ impl Model {
         let negative_traits = Vec::new();
 
         ActiveModel {
-            user_id: NotSet,
-            id: NotSet,
-            team_id: Set(Uuid::new_v4()),
             name: Set(name),
             icon: Set(icon),
             level: Set(level),
             xp: Set(xp),
-            equipment: Set(None),
             positive_traits: Set(TraitList(positive_traits)),
             negative_traits: Set(TraitList(negative_traits)),
-            out_of_date: Set(false),
+            ..Default::default()
         }
     }
 }
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
+
+impl ActiveModelBehavior for ActiveModel {}

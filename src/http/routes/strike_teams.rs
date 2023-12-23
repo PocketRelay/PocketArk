@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{currency::CurrencyType, Currency, StrikeTeam},
+    database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, Currency, StrikeTeam},
     definitions::striketeams::{
         StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeamWithMission,
     },
@@ -91,7 +91,7 @@ pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
 pub async fn purchase_equipment(
     Auth(user): Auth,
     Query(query): Query<PurchaseQuery>,
-    Path((id, name)): Path<(Uuid, String)>,
+    Path((id, name)): Path<(StrikeTeamId, String)>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
     let strike_teams = StrikeTeamDefinitions::get();
@@ -166,7 +166,7 @@ pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson 
 /// strike teams
 pub async fn retire(
     Auth(user): Auth,
-    Path(id): Path<Uuid>,
+    Path(id): Path<StrikeTeamId>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<(), DynHttpError> {
     debug!("Strike team retire: {}", id);
