@@ -1,4 +1,13 @@
 #![allow(unused)]
+use crate::{
+    database::entity::{currency::CurrencyType, StrikeTeam},
+    definitions::{
+        challenges::CurrencyReward,
+        i18n::{I18nDesc, I18nDescription, I18nName},
+        items::ItemDefinition,
+    },
+    http::models::mission::MissionModifier,
+};
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use rand::{rngs::StdRng, seq::SliceRandom};
@@ -13,13 +22,7 @@ use std::{
 };
 use uuid::{uuid, Uuid};
 
-use crate::{
-    database::entity::{currency::CurrencyType, StrikeTeam},
-    definitions::{challenges::CurrencyReward, items::ItemDefinition},
-    http::models::mission::MissionModifier,
-};
-
-use super::i18n::{I18nDesc, I18nDescription, I18nName};
+use super::shared::CustomAttributes;
 
 const EQUIPMENT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeams/equipment.json");
 const SPECIALIZATION_DEFINITIONS: &str =
@@ -125,7 +128,7 @@ pub struct StrikeTeamEquipment {
     pub effectiveness: u32,
     pub tags: Option<Vec<String>>,
     pub cost_by_currency: HashMap<CurrencyType, u32>,
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -140,7 +143,7 @@ pub struct StrikeTeamSpecialization {
     pub i18n_description: I18nDescription,
     pub tag: String,
     pub effectiveness: u32,
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 #[derive(Debug, Serialize)]
@@ -176,7 +179,7 @@ pub struct Mission {
     pub static_modifiers: Vec<MissionModifier>,
     pub dynamic_modifiers: Vec<MissionModifier>,
     pub rewards: MissionRewards,
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
     // Time to start displaying the mission
     pub start_seconds: u64,
     // Time to stop displaying the mission
@@ -261,7 +264,7 @@ impl Mission {
         });
 
         let rewards = MissionRewards::random(rng, service, &accessibility, difficulty);
-        let custom_attributes = Map::new();
+        let custom_attributes = CustomAttributes::default();
         // TODO: Custom attrs
 
         let now = SystemTime::now()
@@ -340,7 +343,7 @@ impl MissionRewards {
 pub struct Wave {
     pub name: Uuid,
     pub wave_type: WaveType,
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 #[derive(Debug, Serialize)]
@@ -411,7 +414,7 @@ pub struct MissionTypeDescriptor {
     #[serde(flatten)]
     pub i18n_desc: Option<I18nDesc>,
 
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 impl MissionTypeDescriptor {
@@ -420,7 +423,7 @@ impl MissionTypeDescriptor {
             name: uuid!("39b9880a-ce11-4be3-a3e7-728763b48614"),
             i18n_name: I18nName::new(12028), /* "Normal" */
             i18n_desc: None,
-            custom_attributes: Map::new(),
+            custom_attributes: Default::default(),
         }
     }
 }

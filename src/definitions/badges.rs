@@ -1,6 +1,12 @@
-use super::i18n::{I18n, I18nDescription, I18nTitle, Localized};
-use crate::database::entity::currency::CurrencyType;
-use crate::services::activity::{ActivityDescriptor, ActivityEvent};
+use crate::{
+    database::entity::currency::CurrencyType,
+    definitions::{
+        i18n::{I18n, I18nDescription, I18nTitle, Localized},
+        shared::CustomAttributes,
+    },
+    services::activity::{ActivityDescriptor, ActivityEvent},
+    utils::ImStr,
+};
 use anyhow::Context;
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -14,7 +20,7 @@ const BADGE_DEFINITIONS: &str = include_str!("../resources/data/matchBadges.json
 /// Type alias for a [Uuid] that represents the name of a [Badge]
 pub type BadgeName = Uuid;
 /// Alias for a string representing the name of a [BadgeLevel]
-pub type BadgeLevelName = String;
+pub type BadgeLevelName = ImStr;
 
 /// Collection of badges that can be earned while playing matches
 pub struct Badges {
@@ -74,9 +80,9 @@ pub struct Badge {
     /// Unique badge name
     pub name: BadgeName,
     /// Description of the badge
-    pub description: String,
+    pub description: ImStr,
     /// Additional custom attributes
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
     /// Whether the badge can be awarded (Appears unused)
     pub enabled: bool,
 
@@ -121,10 +127,10 @@ pub struct BadgeLevel {
     /// Name of the badge level ("", "Bronze", "Silver", "Gold", "Platinum", ..etc)
     pub name: BadgeLevelName,
     /// Internal game path for the image used when displaying the badge
-    pub img_path: Option<String>,
+    pub img_path: Option<ImStr>,
     /// Appears to be unused
     #[serde(rename = "imgURLFull")]
-    pub img_url_full: Option<String>,
+    pub img_url_full: Option<ImStr>,
     /// The required progress count for the level to be reached
     pub target_count: u32,
     /// The total XP to give for completing this level
@@ -135,7 +141,7 @@ pub struct BadgeLevel {
     /// Possibly item rewards? Haven't found this used yet
     pub rewards: Vec<serde_json::Value>,
     /// Additional attributes on the badge (Appears to be unused)
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 #[cfg(test)]

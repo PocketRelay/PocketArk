@@ -10,10 +10,11 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_kit
 
-use super::i18n::{I18nDescription, I18nName};
 use crate::definitions::{
+    i18n::{I18nDescription, I18nName},
     items::{InventoryNamespace, ItemLink, ItemName},
     level_tables::LevelTableName,
+    shared::CustomAttributes,
     skills::SkillTree,
 };
 use anyhow::Context;
@@ -119,7 +120,7 @@ pub struct Class {
     pub bonus: CharacterBonus,
     /// Custom attributes for the class, contains customization options for
     /// the class health, shields, icons, etc
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
 
     /// Default skill tree configuration, this is cloned and stored in the
     /// character data when created

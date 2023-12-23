@@ -3,7 +3,7 @@ use crate::{
     definitions::{
         characters::acquire_item_character,
         classes::Classes,
-        i18n::{I18nDescription, I18nName},
+        i18n::{I18nDescription, I18nName, Localized},
         level_tables::LevelTables,
     },
 };
@@ -24,7 +24,7 @@ use std::{
 use thiserror::Error;
 use uuid::{uuid, Uuid};
 
-use super::i18n::Localized;
+use super::shared::CustomAttributes;
 
 /// Item definitions (628)
 const INVENTORY_DEFINITIONS: &str = include_str!("../resources/data/inventoryDefinitions.json");
@@ -146,7 +146,7 @@ pub struct ItemDefinition {
     pub name: ItemName,
 
     /// Custom attributes associated with the item
-    pub custom_attributes: HashMap<String, Value>,
+    pub custom_attributes: CustomAttributes,
 
     /// Category the item falls under
     #[serde_as(as = "serde_with::DisplayFromStr")]

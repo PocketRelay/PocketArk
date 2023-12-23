@@ -1,20 +1,18 @@
-use std::sync::OnceLock;
-
 use crate::{
     database::entity::currency::CurrencyType,
+    definitions::{
+        i18n::{I18nDescription, I18nKey, I18nTitle},
+        items::ItemName,
+        shared::CustomAttributes,
+    },
     services::activity::{ActivityDescriptor, ActivityEvent},
-    utils::models::DateDuration,
-};
-
-use super::{
-    i18n::{I18nDescription, I18nKey, I18nTitle},
-    items::ItemName,
+    utils::{models::DateDuration, ImStr},
 };
 use anyhow::Context;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
 use serde_with::skip_serializing_none;
+use std::sync::OnceLock;
 use uuid::Uuid;
 
 /// Challenge definitions (192)
@@ -63,11 +61,11 @@ pub struct ChallengeDefinition {
     /// Unique name for the challenge (UUID)
     pub name: ChallengeName,
     /// Unused by the game and always left empty
-    pub description: String,
+    pub description: ImStr,
     /// Likely added to disable a challenge so that it can't be gained
     pub enabled: bool,
     /// List of categories for grouping the challenge ("0", "1", "2", "4")
-    pub categories: Vec<String>,
+    pub categories: Vec<ImStr>,
     /// Whether the challenge can be repeated
     pub can_repeat: bool,
     /// Whether the challenge is limited time
@@ -93,7 +91,7 @@ pub struct ChallengeDefinition {
     pub counters: Vec<ChallengeCounter>,
 
     /// Extra custom attributes. Mostly related to textures, conditional hiding, and display order
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
 
     /// Duration for which the challenge will be available
     pub available_duration: DateDuration,
@@ -134,10 +132,10 @@ impl ChallengeDefinition {
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeCounter {
     /// Name of the counter
-    pub name: String,
+    pub name: ImStr,
     /// Possibly used for combining counters...? No usage has been
     /// seen in the actual game defined ones are all blank
-    pub chain_to: String,
+    pub chain_to: ImStr,
     /// The value that when reached by [ChallengeCounter::activities] will
     /// count as one completion for the challenge
     pub target_count: u32,
@@ -173,11 +171,11 @@ pub struct ChallengeReward {
     /// Currency rewards
     pub currencies: Vec<CurrencyReward>,
     /// XP rewards
-    pub xp: Vec<Value>,
+    pub xp: Vec<serde_json::Value>,
     /// Item rewards
     pub items: Vec<ItemReward>,
     /// Entitlement rewards
-    pub entitlements: Vec<Value>,
+    pub entitlements: Vec<serde_json::Value>,
 }
 
 /// Representing a type of currency to be given as a reward
@@ -199,7 +197,7 @@ pub struct ItemReward {
     /// How much of the item to give
     pub count: u32,
     /// The namespace to store the item under
-    pub namespace: String,
+    pub namespace: ImStr,
 }
 
 #[cfg(test)]

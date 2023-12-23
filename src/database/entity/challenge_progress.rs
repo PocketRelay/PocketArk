@@ -3,6 +3,7 @@ use crate::{
     database::DbResult,
     definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
     services::game::ChallengeProgressChange,
+    utils::ImStr,
 };
 use chrono::Utc;
 use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
@@ -40,8 +41,8 @@ pub struct Model {
 #[serde(transparent)]
 pub struct ChallengeCounters(Vec<ChallengeProgressCounter>);
 
-/// Type alias for a [String] representing the name of a [ChallengeProgressCounter]
-pub type ChallengeCounterName = String;
+/// Type alias for a [ImStr] representing the name of a [ChallengeProgressCounter]
+pub type ChallengeCounterName = ImStr;
 
 /// Action for showing what the progress update was
 #[derive(Debug, PartialEq, Eq)]

@@ -1,6 +1,6 @@
 use crate::{
     database::entity::{characters::CharacterId, currency::CurrencyType, InventoryItem},
-    definitions::challenges::CurrencyReward,
+    definitions::{badges::BadgeLevelName, challenges::CurrencyReward},
     services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
 };
@@ -139,8 +139,8 @@ pub struct MissionPlayerInfo {
 #[serde(rename_all = "camelCase")]
 pub struct PlayerInfoBadge {
     pub count: u32,
-    pub level_name: String,
-    pub rewarded_levels: Vec<String>,
+    pub level_name: BadgeLevelName,
+    pub rewarded_levels: Vec<BadgeLevelName>,
     pub name: Uuid,
 }
 

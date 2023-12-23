@@ -1,11 +1,15 @@
-use super::{
-    i18n::{I18nDescription, I18nName},
-    items::ItemName,
+use crate::{
+    database::entity::currency::CurrencyType,
+    definitions::{
+        i18n::{I18nDescription, I18nName},
+        items::ItemName,
+        shared::CustomAttributes,
+    },
+    utils::{models::DateDuration, ImStr},
 };
-use crate::{database::entity::currency::CurrencyType, utils::models::DateDuration};
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_with::serde_as;
 use std::sync::OnceLock;
 use uuid::Uuid;
 
@@ -35,7 +39,7 @@ impl StoreCatalogs {
 }
 
 /// Type alias for a string representing a store catalog name
-pub type StoreCatalogName = String;
+pub type StoreCatalogName = ImStr;
 
 /// Catalog aka collection of [StoreArticle]s, in this case the game only
 /// has a "Standard" catalog
@@ -45,11 +49,11 @@ pub struct StoreCatalog {
     /// The ID of the catalog (Same as `name`)
     pub catalog_id: StoreCatalogName,
     /// The name of the catalog
-    pub name: String,
+    pub name: ImStr,
     /// Custom attributes associated with the catalog (Haven't seen this with any values)
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
     /// Categories this catalog falls under (Unknown value meanings, needs further attention)
-    pub categories: Vec<String>,
+    pub categories: Vec<ImStr>,
     /// Articles present in the catalog
     pub articles: Vec<StoreArticle>,
 
@@ -74,6 +78,7 @@ pub type StoreArticleName = Uuid;
 
 /// Represents an item within a [StoreCatalog] that can be
 /// purchased
+#[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StoreArticle {
@@ -83,13 +88,14 @@ pub struct StoreArticle {
     pub catalog_name: StoreCatalogName,
 
     /// Categories this article falls under (Unknown value meanings, needs further attention)
-    pub categories: Vec<String>,
+    pub categories: Vec<ImStr>,
     /// Attributes associated with the article, used for things such as the
     /// image shown for the article
-    pub custom_attributes: Map<String, Value>,
+    pub custom_attributes: CustomAttributes,
     /// Filtering based on user entitlements. Haven't seen any usage of
     /// this so structure is unknown, likely similar to attribute filters
-    pub nucleus_entitlement_filter: Map<String, Value>,
+    #[serde_as(as = "serde_with::Map<_, _>")]
+    pub nucleus_entitlement_filter: Vec<(ImStr, serde_json::Value)>,
     /// Lists the price of the article across the different currencies
     /// that can be used  
     pub prices: Vec<StorePrice>,
@@ -143,7 +149,7 @@ impl StoreArticle {
 #[serde(rename_all = "camelCase")]
 pub struct StoreLimit {
     /// The scope of the limit (Seen: "USER")
-    pub scope: String,
+    pub scope: ImStr,
     /// The maximum number of times the article can be purchased
     pub maximum: u32,
     /// The remaining number of items that can be purchased.

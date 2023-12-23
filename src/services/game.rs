@@ -21,7 +21,7 @@ use crate::{
         ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
     },
     definitions::{
-        badges::Badges,
+        badges::{BadgeLevelName, Badges},
         challenges::{ChallengeCounter, ChallengeDefinition, Challenges, CurrencyReward},
         classes::Classes,
         level_tables::LevelTables,
@@ -417,7 +417,7 @@ fn process_badges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBui
             let mut total_currency: u32 = 0;
 
             // Names of the levels that have been earned
-            let mut level_names: Vec<String> = Vec::with_capacity(levels.len());
+            let mut level_names: Vec<BadgeLevelName> = Vec::with_capacity(levels.len());
 
             for level in levels {
                 total_xp += level.xp_reward;
@@ -433,7 +433,7 @@ fn process_badges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBui
             data_builder.add_reward_currency(&reward_name, badge.currency, total_currency);
             data_builder.badges.push(PlayerInfoBadge {
                 count: progress,
-                level_name: highest_level.name.to_string(),
+                level_name: highest_level.name.clone(),
                 rewarded_levels: level_names,
                 name: badge.name,
             });

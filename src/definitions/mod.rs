@@ -11,6 +11,7 @@ pub mod items;
 pub mod level_tables;
 pub mod match_modifiers;
 pub mod packs;
+pub mod shared;
 pub mod skills;
 pub mod store_catalogs;
 pub mod striketeams;

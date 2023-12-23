@@ -1,9 +1,11 @@
-use super::items::ItemName;
-use super::{
-    classes::{Classes, PointMap},
-    level_tables::{LevelTables, ProgressionXp},
+use crate::{
+    database::entity::{Character, User},
+    definitions::{
+        classes::{Classes, PointMap},
+        items::ItemName,
+        level_tables::{LevelTables, ProgressionXp},
+    },
 };
-use crate::database::entity::{Character, User};
 use anyhow::{anyhow, Context};
 use sea_orm::ConnectionTrait;
 

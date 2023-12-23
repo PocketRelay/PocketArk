@@ -1,5 +1,7 @@
 //! Leveling table structures and logic
 
+use super::shared::CustomAttributes;
+use crate::utils::ImStr;
 use anyhow::Context;
 use log::debug;
 use sea_orm::FromJsonQueryResult;
@@ -57,7 +59,7 @@ pub struct LevelTable {
     /// The collection of table entries
     pub table: Vec<LevelTableEntry>,
     /// Custom additional attributes associated with this table
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 impl LevelTable {
@@ -123,9 +125,9 @@ pub struct LevelTableEntry {
     /// The required XP to reach this level entry
     pub xp: u32,
     /// Rewards the level table level provides
-    pub rewards: HashMap<String, f64>,
+    pub rewards: HashMap<ImStr, f64>,
     /// Additional custom attributes (Appears unused by game definitions)
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 impl Serialize for LevelTable {

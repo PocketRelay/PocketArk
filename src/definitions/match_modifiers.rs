@@ -1,3 +1,4 @@
+use super::shared::CustomAttributes;
 use crate::database::entity::currency::CurrencyType;
 use anyhow::Context;
 use log::debug;
@@ -78,7 +79,7 @@ pub struct MatchModifierValue {
     #[serde_as(as = "serde_with::Map<_, _>")]
     pub currency_data: Vec<(CurrencyType, ModifierAmount)>,
     /// Additional attributes applied to the value
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
 }
 
 /// Configures how much of something the modifier should give

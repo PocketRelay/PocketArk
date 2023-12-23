@@ -2,6 +2,11 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
+use super::{
+    i18n::{I18nDescription, I18nName},
+    shared::CustomAttributes,
+};
+use crate::utils::ImStr;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::debug;
@@ -10,16 +15,14 @@ use serde_with::serde_as;
 use std::{str::FromStr, sync::OnceLock};
 use uuid::Uuid;
 
-use super::i18n::{I18nDescription, I18nName};
-
 /// Skill definitions (64)
 const SKILL_DEFINITIONS: &str = include_str!("../resources/data/skillDefinitions.json");
 
 /// Type alias for a [Uuid] that represents a [SkillDefinition] name
 pub type SkillDefinitionName = Uuid;
 
-/// Type alias for a [String] that represents a [Skill] name
-pub type SkillName = String;
+/// Type alias for a [ImStr] that represents a [Skill] name
+pub type SkillName = ImStr;
 
 /// Collection of skill definitions
 pub struct Skills {
@@ -65,7 +68,7 @@ pub struct SkillDefinition {
     pub tiers: Vec<SkillDefinitionTier>,
     /// Additional attributes associated with the skill, appears to be
     /// used for things like the skill icons, active power, and groupings
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
     /// Timestamp for when the skill definition was created
     pub timestamp: DateTime<Utc>,
     /// Localized skill name
@@ -84,7 +87,7 @@ pub struct SkillDefinitionTier {
     pub tier: u8,
     /// Additional custom attributes for the tier, appears unused
     /// by the default game definitions
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
     /// Conditions required for unlocking this tier
     pub unlock_conditions: Vec<UnlockCondition>,
     /// Skills this tier includes
@@ -116,7 +119,7 @@ pub struct Skill {
     pub name: SkillName,
 
     /// Custom attributes associated with the skill
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
     /// Conditions required for unlocking this skill
     pub unlock_conditions: Vec<UnlockCondition>,
     /// Different levels of the skill
@@ -139,7 +142,7 @@ pub struct SkillLevel {
     pub level: u8,
     /// Additional custom attributes for the level, appears unused
     /// by the default game definitions
-    pub custom_attributes: serde_json::Map<String, serde_json::Value>,
+    pub custom_attributes: CustomAttributes,
     /// Conditions required for unlocking this level
     pub unlock_conditions: Vec<UnlockCondition>,
     /// The cost of the level in skill points
