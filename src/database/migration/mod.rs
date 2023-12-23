@@ -8,6 +8,8 @@ mod m20230714_105946_create_characters;
 mod m20230714_112535_create_shared_data;
 mod m20230720_145347_create_challenge_progress;
 mod m20230731_123814_create_strike_teams;
+mod m20231223_184934_create_strike_team_missions;
+mod m20231223_185554_create_strike_team_mission_progress;
 
 pub struct Migrator;
 
@@ -23,6 +25,8 @@ impl MigratorTrait for Migrator {
             Box::new(m20230714_112535_create_shared_data::Migration),
             Box::new(m20230720_145347_create_challenge_progress::Migration),
             Box::new(m20230731_123814_create_strike_teams::Migration),
+            Box::new(m20231223_184934_create_strike_team_missions::Migration),
+            Box::new(m20231223_185554_create_strike_team_mission_progress::Migration),
         ]
     }
 }

@@ -139,7 +139,7 @@ impl Items {
 
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ItemDefinition {
     /// Name of the item
@@ -237,7 +237,7 @@ impl ItemDefinition {
 /// Activity events that should be created when
 /// different things happen to the item
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ItemEvents {
     /// Activity event that should be created when the item is consumed

@@ -21,4 +21,21 @@ impl CustomAttributes {
             // Only return value
             .map(|(_, v)| v)
     }
+
+    pub fn insert(&mut self, key: String, value: serde_json::Value) {
+        if let Some(existing) = self.get_mut(&key) {
+            *existing = value;
+        } else {
+            self.0.push((key, value))
+        }
+    }
+
+    pub fn get_mut(&mut self, key: &str) -> Option<&mut serde_json::Value> {
+        self.0
+            .iter_mut()
+            // Find matching key
+            .find(|(k, v)| k.eq(key))
+            // Only return value
+            .map(|(_, v)| v)
+    }
 }
