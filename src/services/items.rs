@@ -1,6 +1,5 @@
 use crate::database::entity::inventory_items::ItemId;
 use crate::database::entity::{InventoryItem, User};
-use crate::utils::models::LocaleNameWithDesc;
 use anyhow::{anyhow, Context};
 use log::debug;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
@@ -20,6 +19,7 @@ use uuid::{uuid, Uuid};
 
 use super::characters::acquire_item_character;
 use super::classes::ClassDefinitions;
+use super::i18n::{I18nDescription, I18nName};
 use super::level_tables::LevelTables;
 
 /// Item definitions (628)
@@ -141,10 +141,6 @@ pub struct ItemDefinition {
     /// Name of the item
     pub name: ItemName,
 
-    /// Localization information for the item
-    #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
-
     /// Custom attributes associated with the item
     pub custom_attributes: HashMap<String, Value>,
 
@@ -199,6 +195,13 @@ pub struct ItemDefinition {
     /// Not sure the use of this field, seems to always be `null`
     #[serialize_always]
     pub secret: Option<Value>,
+
+    /// Localized item name
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+    /// Localized item description
+    #[serde(flatten)]
+    pub i18n_description: Option<I18nDescription>,
 }
 
 impl ItemDefinition {

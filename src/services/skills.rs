@@ -2,7 +2,6 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
-use crate::utils::models::LocaleNameWithDesc;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::debug;
@@ -10,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::{str::FromStr, sync::OnceLock};
 use uuid::Uuid;
+
+use super::i18n::{I18nDescription, I18nName};
 
 /// Skill definitions (64)
 const SKILL_DEFINITIONS: &str = include_str!("../resources/data/skillDefinitions.json");
@@ -67,9 +68,12 @@ pub struct SkillDefinition {
     pub custom_attributes: serde_json::Map<String, serde_json::Value>,
     /// Timestamp for when the skill definition was created
     pub timestamp: DateTime<Utc>,
-    /// Localized name and description of the skill definition
+    /// Localized skill name
     #[serde(flatten)]
-    pub local: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized skill description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
 }
 
 /// Tier of a [Skill]
@@ -118,9 +122,12 @@ pub struct Skill {
     /// Different levels of the skill
     pub levels: Vec<SkillLevel>,
 
-    /// Localized name and description of the skill
+    /// Localized skill name
     #[serde(flatten)]
-    pub local: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized skill description
+    #[serde(flatten)]
+    pub i18n_description: Option<I18nDescription>,
 }
 
 /// Defines a level of a skill

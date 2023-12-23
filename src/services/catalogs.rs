@@ -1,8 +1,8 @@
-use super::items::ItemName;
-use crate::{
-    database::entity::currency::CurrencyType,
-    utils::models::{DateDuration, LocaleNameWithDesc},
+use super::{
+    i18n::{I18nDescription, I18nName},
+    items::ItemName,
 };
+use crate::{database::entity::currency::CurrencyType, utils::models::DateDuration};
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -53,9 +53,10 @@ pub struct StoreCatalog {
     /// Articles present in the catalog
     pub articles: Vec<StoreArticle>,
 
-    /// Localized naming for the catalog
-    #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    /// Localized catalog name
+    pub i18n_name: String,
+    /// Localized catalog description
+    pub i18n_description: String,
 }
 
 impl StoreCatalog {
@@ -115,9 +116,13 @@ pub struct StoreArticle {
     /// TODO: If per-item limits are added this can probabbly be included in that
     /// database table for simplicity
     pub seen: bool,
-    /// Localized name and description
+
+    /// Localized article name
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized article description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
 }
 
 impl StoreArticle {

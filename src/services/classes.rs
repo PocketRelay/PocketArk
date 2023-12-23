@@ -10,15 +10,11 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_kit
 
-use std::sync::OnceLock;
-
-use crate::{
-    services::{
-        items::{InventoryNamespace, ItemLink, ItemName},
-        level_tables::LevelTableName,
-        skills::SkillTree,
-    },
-    utils::models::LocaleNameWithDesc,
+use super::i18n::{I18nDescription, I18nName};
+use crate::services::{
+    items::{InventoryNamespace, ItemLink, ItemName},
+    level_tables::LevelTableName,
+    skills::SkillTree,
 };
 use anyhow::Context;
 use hashbrown::HashMap;
@@ -26,6 +22,7 @@ use log::debug;
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use std::sync::OnceLock;
 use uuid::Uuid;
 
 /// Class definitions (36)
@@ -145,9 +142,12 @@ pub struct Class {
     /// Same as `inventory_namespace`
     pub default_namespace: InventoryNamespace,
 
-    /// Character class name and description with localized version
+    /// Localized character name
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized character description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
 }
 
 pub type CharacterBonus = serde_json::Map<String, serde_json::Value>;

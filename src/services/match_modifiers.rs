@@ -75,7 +75,7 @@ pub struct MatchModifierValue {
     ///
     /// Stored as a [Vec] of tuples rather than a [serde_json::Map] because its
     /// only ever iterated and not used as a lookup map
-    #[serde_with(as = "serde_with::Map<_, _>")]
+    #[serde_as(as = "serde_with::Map<_, _>")]
     pub currency_data: Vec<(CurrencyType, ModifierAmount)>,
     /// Additional attributes applied to the value
     pub custom_attributes: serde_json::Map<String, serde_json::Value>,

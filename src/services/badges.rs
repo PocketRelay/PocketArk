@@ -1,6 +1,6 @@
 use super::{
     activity::{ActivityDescriptor, ActivityEvent},
-    i18n::{I18nDescription, I18nTitle, Localized},
+    i18n::{I18n, I18nDescription, I18nTitle, Localized},
 };
 use crate::database::entity::currency::CurrencyType;
 use anyhow::Context;
@@ -104,7 +104,7 @@ impl Badge {
 }
 
 impl Localized for Badge {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.i18n_title.localize(i18n);
         self.i18n_description.localize(i18n);
     }

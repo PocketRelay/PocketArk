@@ -75,6 +75,24 @@ pub trait Localized: Sized {
     fn localize(&mut self, i18n: &I18n);
 }
 
+impl<T> Localized for Vec<T>
+where
+    T: Localized,
+{
+    fn localize(&mut self, i18n: &I18n) {
+        self.iter_mut().for_each(|value| value.localize(i18n))
+    }
+}
+
+impl<T> Localized for &mut [T]
+where
+    T: Localized,
+{
+    fn localize(&mut self, i18n: &I18n) {
+        self.iter_mut().for_each(|value| value.localize(i18n))
+    }
+}
+
 /// Serializable structure for including the i18n name and localized
 /// name in JSON
 #[serde_as]
@@ -83,10 +101,32 @@ pub trait Localized: Sized {
 #[serde(rename_all = "camelCase")]
 pub struct I18nName {
     /// I18n lookup key
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub i18n_name: u32,
+    pub i18n_name: I18nKey,
     /// Localized translated name
     pub loc_name: Option<ImStr>,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum I18nKey {
+    /// Valid i18n lookup key
+    Lookup(#[serde_as(as = "serde_with::DisplayFromStr")] u32),
+    /// Some raw string value that can't be used to lookup with
+    ///
+    /// Thanks to EA and some of their translations not actually
+    /// containing the lookup key instead containg something
+    /// like: "FREE_1100_APEX_POINTS_ON_ADD"
+    Raw(ImStr),
+}
+
+impl I18nName {
+    pub const fn new(i18n_name: u32) -> Self {
+        Self {
+            i18n_name: I18nKey::Lookup(i18n_name),
+            loc_name: None,
+        }
+    }
 }
 
 impl Localized for I18nName {
@@ -96,7 +136,12 @@ impl Localized for I18nName {
             return;
         }
 
-        self.loc_name = i18n.lookup(self.i18n_name).map(Box::from);
+        let i18n_name = match self.i18n_name {
+            I18nKey::Lookup(value) => value,
+            _ => return,
+        };
+
+        self.loc_name = i18n.lookup(i18n_name).map(Box::from);
     }
 }
 
@@ -108,10 +153,18 @@ impl Localized for I18nName {
 #[serde(rename_all = "camelCase")]
 pub struct I18nTitle {
     /// I18n lookup key
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub i18n_title: u32,
+    pub i18n_title: I18nKey,
     /// Localized translated title
     pub loc_title: Option<ImStr>,
+}
+
+impl I18nTitle {
+    pub const fn new(i18n_title: u32) -> Self {
+        Self {
+            i18n_title: I18nKey::Lookup(i18n_title),
+            loc_title: None,
+        }
+    }
 }
 
 impl Localized for I18nTitle {
@@ -121,7 +174,12 @@ impl Localized for I18nTitle {
             return;
         }
 
-        self.loc_title = i18n.lookup(self.i18n_title).map(Box::from);
+        let i18n_title = match self.i18n_title {
+            I18nKey::Lookup(value) => value,
+            _ => return,
+        };
+
+        self.loc_title = i18n.lookup(i18n_title).map(Box::from);
     }
 }
 
@@ -133,10 +191,18 @@ impl Localized for I18nTitle {
 #[serde(rename_all = "camelCase")]
 pub struct I18nDescription {
     /// I18n lookup key
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub i18n_description: u32,
+    pub i18n_description: I18nKey,
     /// Localized translated description
     pub loc_description: Option<ImStr>,
+}
+
+impl I18nDescription {
+    pub const fn new(i18n_description: u32) -> Self {
+        Self {
+            i18n_description: I18nKey::Lookup(i18n_description),
+            loc_description: None,
+        }
+    }
 }
 
 impl Localized for I18nDescription {
@@ -146,7 +212,12 @@ impl Localized for I18nDescription {
             return;
         }
 
-        self.loc_description = i18n.lookup(self.i18n_description).map(Box::from);
+        let i18n_description = match self.i18n_description {
+            I18nKey::Lookup(value) => value,
+            _ => return,
+        };
+
+        self.loc_description = i18n.lookup(i18n_description).map(Box::from);
     }
 }
 

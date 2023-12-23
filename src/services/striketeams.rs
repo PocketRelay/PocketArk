@@ -17,8 +17,9 @@ use crate::{
     database::entity::{currency::CurrencyType, StrikeTeam},
     http::models::mission::MissionModifier,
     services::{challenges::CurrencyReward, items::ItemDefinition},
-    utils::models::{LocaleName, LocaleNameWithDesc},
 };
+
+use super::i18n::{I18nDescription, I18nName};
 
 const EQUIPMENT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeams/equipment.json");
 const SPECIALIZATION_DEFINITIONS: &str =
@@ -109,8 +110,14 @@ pub struct StrikeTeamWithMission {
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamEquipment {
     pub name: String,
+
+    /// Localized equipment name
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized equipment description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
+
     pub level_required: u32,
     pub effectiveness: u32,
     pub tags: Option<Vec<String>>,
@@ -122,8 +129,12 @@ pub struct StrikeTeamEquipment {
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamSpecialization {
     pub name: String,
+    /// Localized specialization name
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized specialization description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
     pub tag: String,
     pub effectiveness: u32,
     pub custom_attributes: Map<String, Value>,
@@ -400,8 +411,6 @@ pub struct MissionTypeDescriptor {
 
 impl MissionTypeDescriptor {
     pub fn normal() -> Self {
-        let locale = LocaleName::resolve(12028);
-
         Self {
             name: uuid!("39b9880a-ce11-4be3-a3e7-728763b48614"),
             i18n_name: "12028".to_string(),
@@ -442,8 +451,12 @@ pub struct TeamTrait {
     pub tag: String,
     pub effectiveness: i32,
 
+    /// Localized team trait name
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    /// Localized team trait description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
 }
 
 impl TeamTrait {

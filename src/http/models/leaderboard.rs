@@ -1,6 +1,7 @@
-use crate::utils::models::LocaleNameWithDesc;
+use crate::services::i18n::{I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -10,6 +11,7 @@ pub struct LeaderboardsResponse {
     pub list: Vec<LeaderboardCategory>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LeaderboardCategory {
@@ -24,7 +26,19 @@ pub struct LeaderboardCategory {
     pub owner_id_type: String,
 
     #[serde(flatten)]
-    pub locale: LocaleNameWithDesc,
+    pub i18n_name: I18nName,
+    #[serde(flatten)]
+    pub i18n_description: Option<I18nDescription>,
+}
+
+impl Localized for LeaderboardCategory {
+    fn localize(&mut self, i18n: &crate::services::i18n::I18n) {
+        self.i18n_name.localize(i18n);
+
+        if let Some(i18n_description) = &mut self.i18n_description {
+            i18n_description.localize(i18n);
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
