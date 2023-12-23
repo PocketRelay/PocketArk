@@ -20,21 +20,21 @@ use uuid::Uuid;
 /// Challenge definitions (192)
 const CHALLENGE_DEFINITIONS: &str = include_str!("../resources/data/challengeDefinitions.json");
 
-pub struct ChallengeDefinitions {
+pub struct Challenges {
     pub values: Vec<ChallengeDefinition>,
 }
 
 /// Static storage for the definitions once its loaded
 /// (Allows the definitions to be passed with static lifetimes)
-static STORE: OnceLock<ChallengeDefinitions> = OnceLock::new();
+static STORE: OnceLock<Challenges> = OnceLock::new();
 
-impl ChallengeDefinitions {
+impl Challenges {
     /// Gets a static reference to the global [ChallengeDefinitions] collection
-    pub fn get() -> &'static ChallengeDefinitions {
-        STORE.get_or_init(|| Self::new().unwrap())
+    pub fn get() -> &'static Challenges {
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         debug!("Loading challenges");
         let values: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
             .context("Failed to load challenge definitions")?;
@@ -204,12 +204,11 @@ pub struct ItemReward {
 
 #[cfg(test)]
 mod test {
-    use super::{ChallengeDefinition, CHALLENGE_DEFINITIONS};
+    use super::Challenges;
 
-    /// Tests ensuring the challenge definitions can be parsed
-    /// correctly from the resource file
+    /// Tests ensuring loading succeeds
     #[test]
-    fn ensure_parsing_succeed() {
-        let _: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS).unwrap();
+    fn ensure_load_succeed() {
+        _ = Challenges::load().unwrap();
     }
 }

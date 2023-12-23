@@ -6,9 +6,9 @@ use crate::{
         Character, SharedData,
     },
     definitions::{
-        classes::{ClassDefinitions, ClassName, CustomizationMap},
+        classes::{ClassName, Classes, CustomizationMap},
         level_tables::LevelTables,
-        skills::{SkillDefinition, SkillDefinitions},
+        skills::{SkillDefinition, Skills},
     },
     http::{
         middleware::{user::Auth, JsonDump},
@@ -261,7 +261,7 @@ pub async fn get_classes(
     // Get the unlocked classes
     let unlocked_classes: Vec<ClassName> = Character::get_user_classes(&db, &user).await?;
 
-    let class_definitions = ClassDefinitions::get();
+    let class_definitions = Classes::get();
 
     // Combine classes with unlocked class data states
     let list: Vec<ClassWithState> = class_definitions
@@ -274,7 +274,7 @@ pub async fn get_classes(
         })
         .collect();
 
-    let skill_definitios = SkillDefinitions::get();
+    let skill_definitios = Skills::get();
     let skill_definitions: &'static [SkillDefinition] = &skill_definitios.values;
 
     Ok(Json(CharacterClasses {

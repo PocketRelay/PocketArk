@@ -1,9 +1,8 @@
 use axum::Extension;
 use definitions::i18n::I18n;
 use definitions::{
-    badges::Badges, challenges::ChallengeDefinitions, classes::ClassDefinitions,
-    items::ItemDefinitions, level_tables::LevelTables, match_modifiers::MatchModifiers,
-    striketeams::StrikeTeamDefinitions,
+    badges::Badges, challenges::Challenges, classes::Classes, items::Items,
+    level_tables::LevelTables, match_modifiers::MatchModifiers, striketeams::StrikeTeamDefinitions,
 };
 use log::error;
 use log::LevelFilter;
@@ -34,10 +33,10 @@ async fn main() {
     utils::logging::setup(LevelFilter::Debug);
 
     // Pre-initialize all shared definitions
-    _ = ItemDefinitions::get();
-    _ = ClassDefinitions::get();
+    _ = Items::get();
+    _ = Classes::get();
     _ = LevelTables::get();
-    _ = ChallengeDefinitions::get();
+    _ = Challenges::get();
     _ = I18n::get();
     _ = Badges::get();
     _ = MatchModifiers::get();

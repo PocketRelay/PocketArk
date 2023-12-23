@@ -30,7 +30,7 @@ const CLASS_DEFINITIONS: &str = include_str!("../resources/data/characterClasses
 
 /// Collection of class definitions and lookup tables for finding
 /// classes based on certain fields
-pub struct ClassDefinitions {
+pub struct Classes {
     /// Collection of classses
     pub values: Vec<Class>,
     /// Lookup table for finding a [Class] by its name
@@ -41,15 +41,15 @@ pub struct ClassDefinitions {
 
 /// Static storage for the definitions once its loaded
 /// (Allows the definitions to be passed with static lifetimes)
-static STORE: OnceLock<ClassDefinitions> = OnceLock::new();
+static STORE: OnceLock<Classes> = OnceLock::new();
 
-impl ClassDefinitions {
-    /// Gets a static reference to the global [ClassDefinitions] collection
-    pub fn get() -> &'static ClassDefinitions {
-        STORE.get_or_init(|| Self::new().unwrap())
+impl Classes {
+    /// Gets a static reference to the global [Classes] collection
+    pub fn get() -> &'static Classes {
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         let values: Vec<Class> =
             serde_json::from_str(CLASS_DEFINITIONS).context("Failed to load class definitions")?;
 
@@ -252,12 +252,11 @@ pub enum NameOrEmpty {
 
 #[cfg(test)]
 mod test {
-    use super::{Class, CLASS_DEFINITIONS};
+    use super::Classes;
 
-    /// Tests ensuring the class definitions can be parsed
-    /// correctly from the resource file
+    /// Tests ensuring loading succeeds
     #[test]
-    fn ensure_parsing_succeed() {
-        let _: Vec<Class> = serde_json::from_str(CLASS_DEFINITIONS).unwrap();
+    fn ensure_load_succeed() {
+        _ = Classes::load().unwrap();
     }
 }

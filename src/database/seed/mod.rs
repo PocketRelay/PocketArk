@@ -5,8 +5,8 @@ use super::{
 use crate::{
     database::entity::{Character, Currency, SharedData},
     definitions::{
-        classes::{ClassDefinitions, PointMap},
-        items::ItemDefinitions,
+        classes::{Classes, PointMap},
+        items::Items,
         level_tables::{LevelTables, ProgressionXp},
     },
     utils::{hashing::hash_password, logging::setup_test_logging},
@@ -23,8 +23,8 @@ pub async fn seed() {
         .await
         .unwrap();
 
-    let item_definitions = ItemDefinitions::get();
-    let classes = ClassDefinitions::get();
+    let item_definitions = Items::get();
+    let classes = Classes::get();
     let level_tables = LevelTables::get();
 
     // Initialize the users data

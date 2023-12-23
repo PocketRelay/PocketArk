@@ -67,10 +67,10 @@ impl StrikeTeamDefinitions {
 
     /// Gets a static reference to the global [StrikeTeamDefinitions] collection
     pub fn get() -> &'static StrikeTeamDefinitions {
-        STORE.get_or_init(|| Self::new().unwrap())
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         let equipment: Vec<StrikeTeamEquipment> = serde_json::from_str(EQUIPMENT_DEFINITIONS)
             .context("Failed to load equipment definitions")?;
         let specializations: Vec<StrikeTeamSpecialization> =

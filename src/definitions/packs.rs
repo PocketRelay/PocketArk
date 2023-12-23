@@ -6,9 +6,7 @@
 
 use crate::{
     database::entity::{InventoryItem, User},
-    definitions::items::{
-        BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName, ItemRarity,
-    },
+    definitions::items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity, Items},
 };
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use sea_orm::{ConnectionTrait, DbErr};
@@ -108,7 +106,7 @@ impl Pack {
         db: &C,
         user: &User,
         rng: &mut StdRng,
-        defs: &'def ItemDefinitions,
+        defs: &'def Items,
         rewards: &mut RewardCollection<'def>,
     ) -> Result<(), GenerateError>
     where

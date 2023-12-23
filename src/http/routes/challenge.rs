@@ -1,6 +1,6 @@
 use crate::{
     database::entity::ChallengeProgress,
-    definitions::challenges::ChallengeDefinitions,
+    definitions::challenges::Challenges,
     http::{
         middleware::user::Auth,
         models::{challenge::*, HttpResult},
@@ -24,7 +24,7 @@ pub async fn get_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
 ) -> HttpResult<ChallengesResponse> {
-    let challenge_definitions = ChallengeDefinitions::get();
+    let challenge_definitions = Challenges::get();
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 
     let challenges: Vec<ChallengeItem> = challenge_definitions
@@ -58,7 +58,7 @@ pub async fn get_user_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
 ) -> HttpResult<ChallengesResponse> {
-    let challenge_definitions = ChallengeDefinitions::get();
+    let challenge_definitions = Challenges::get();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 

@@ -23,10 +23,10 @@ static STORE: OnceLock<StoreCatalogs> = OnceLock::new();
 impl StoreCatalogs {
     /// Gets a static reference to the global [StoreCatalogs] collection
     pub fn get() -> &'static StoreCatalogs {
-        STORE.get_or_init(|| Self::new().unwrap())
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         let catalog: StoreCatalog = serde_json::from_str(STORE_CATALOG_DEFINITION)
             .context("Failed to load store catalog definitions")?;
 
@@ -163,15 +163,13 @@ pub struct StorePrice {
     /// The final cost price of the item (The actual price)
     pub final_price: u32,
 }
-
 #[cfg(test)]
 mod test {
-    use super::{StoreCatalog, STORE_CATALOG_DEFINITION};
+    use super::StoreCatalogs;
 
-    /// Tests ensuring the catalog definitions can be parsed
-    /// correctly from the resource file
+    /// Tests ensuring loading succeeds
     #[test]
-    fn ensure_parsing_succeed() {
-        let _: StoreCatalog = serde_json::from_str(STORE_CATALOG_DEFINITION).unwrap();
+    fn ensure_load_succeed() {
+        _ = StoreCatalogs::load().unwrap();
     }
 }

@@ -1,5 +1,12 @@
-use crate::database::entity::inventory_items::ItemId;
-use crate::database::entity::{InventoryItem, User};
+use crate::{
+    database::entity::{inventory_items::ItemId, InventoryItem, User},
+    definitions::{
+        characters::acquire_item_character,
+        classes::Classes,
+        i18n::{I18nDescription, I18nName},
+        level_tables::LevelTables,
+    },
+};
 use anyhow::{anyhow, Context};
 use log::debug;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
@@ -7,20 +14,15 @@ use sea_orm::ConnectionTrait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{serde_as, skip_serializing_none, DeserializeAs, DisplayFromStr};
-use std::collections::HashMap;
-use std::sync::OnceLock;
 use std::{
+    collections::HashMap,
     fmt::{Display, Write},
     num::ParseIntError,
     str::FromStr,
+    sync::OnceLock,
 };
 use thiserror::Error;
 use uuid::{uuid, Uuid};
-
-use super::characters::acquire_item_character;
-use super::classes::ClassDefinitions;
-use super::i18n::{I18nDescription, I18nName};
-use super::level_tables::LevelTables;
 
 /// Item definitions (628)
 const INVENTORY_DEFINITIONS: &str = include_str!("../resources/data/inventoryDefinitions.json");
@@ -31,8 +33,8 @@ pub async fn create_default_items<C>(db: &C, user: &User) -> anyhow::Result<()>
 where
     C: ConnectionTrait + Send,
 {
-    let item_definitions = ItemDefinitions::get();
-    let classes = ClassDefinitions::get();
+    let item_definitions = Items::get();
+    let classes = Classes::get();
     let level_tables = LevelTables::get();
 
     // Create models from initial item defs
@@ -85,7 +87,7 @@ pub struct ItemLink(pub BaseCategory, pub ItemName);
 
 /// Collection of [ItemDefinition]s with a lookup index based
 /// on the [ItemName]s
-pub struct ItemDefinitions {
+pub struct Items {
     /// The underlying collection of [ItemDefinition]s
     values: Vec<ItemDefinition>,
     /// Lookup map for finding the index of a [ItemDefinition] based on its [ItemName]
@@ -94,15 +96,15 @@ pub struct ItemDefinitions {
 
 /// Static storage for the definitions once its loaded
 /// (Allows the definitions to be passed with static lifetimes)
-static STORE: OnceLock<ItemDefinitions> = OnceLock::new();
+static STORE: OnceLock<Items> = OnceLock::new();
 
-impl ItemDefinitions {
-    /// Gets a static reference to the global [ItemDefinitions] collection
-    pub fn get() -> &'static ItemDefinitions {
-        STORE.get_or_init(|| Self::new().unwrap())
+impl Items {
+    /// Gets a static reference to the global [Items] collection
+    pub fn get() -> &'static Items {
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         let values: Vec<ItemDefinition> = serde_json::from_str(INVENTORY_DEFINITIONS)
             .context("Failed to load inventory definitions")?;
 
@@ -588,17 +590,11 @@ impl FromStr for BaseCategory {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashSet;
+    use super::Items;
 
-    use super::{ItemDefinition, INVENTORY_DEFINITIONS};
-
+    /// Tests ensuring loading succeeds
     #[test]
-    fn deserialize_items() {
-        let values: Vec<ItemDefinition> = serde_json::from_str(INVENTORY_DEFINITIONS).unwrap();
-        let mut vars = HashSet::new();
-        for value in &values {
-            vars.insert(&value.name);
-        }
-        println!("{:?}", vars);
+    fn ensure_load_succeed() {
+        _ = Items::load().unwrap();
     }
 }

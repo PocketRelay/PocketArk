@@ -22,23 +22,23 @@ pub type SkillDefinitionName = Uuid;
 pub type SkillName = String;
 
 /// Collection of skill definitions
-pub struct SkillDefinitions {
+pub struct Skills {
     /// The collection of skill definitions
     pub values: Vec<SkillDefinition>,
 }
 
 /// Static storage for the definitions once its loaded
 /// (Allows the definitions to be passed with static lifetimes)
-static STORE: OnceLock<SkillDefinitions> = OnceLock::new();
+static STORE: OnceLock<Skills> = OnceLock::new();
 
-impl SkillDefinitions {
+impl Skills {
     /// Gets a static reference to the global [ChallengeDefinitions] collection
-    pub fn get() -> &'static SkillDefinitions {
-        STORE.get_or_init(|| Self::new().unwrap())
+    pub fn get() -> &'static Skills {
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
     /// Creates and loads the skill definitions from [LEVEL_TABLE_DEFINITIONS]
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         let values: Vec<SkillDefinition> =
             serde_json::from_str(SKILL_DEFINITIONS).context("Failed to parse skill definitions")?;
 
@@ -213,12 +213,11 @@ impl SkillTreeTier {
 
 #[cfg(test)]
 mod test {
-    use super::{SkillDefinition, SKILL_DEFINITIONS};
+    use super::Skills;
 
-    /// Tests ensuring the skill definitions can be parsed
-    /// correctly from the resource file
+    /// Tests ensuring loading succeeds
     #[test]
-    fn ensure_parsing_succeed() {
-        let _: Vec<SkillDefinition> = serde_json::from_str(SKILL_DEFINITIONS).unwrap();
+    fn ensure_load_succeed() {
+        _ = Skills::load().unwrap();
     }
 }

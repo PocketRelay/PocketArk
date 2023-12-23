@@ -11,8 +11,8 @@ use crate::{
     },
     definitions::{
         characters::acquire_item_character,
-        classes::ClassDefinitions,
-        items::{BaseCategory, Category, ItemDefinition, ItemDefinitions, ItemName},
+        classes::Classes,
+        items::{BaseCategory, Category, ItemDefinition, ItemName, Items},
         level_tables::LevelTables,
         packs::{GenerateError, ItemReward, Packs, RewardCollection},
         store_catalogs::{StoreArticleName, StoreCatalogs},
@@ -145,8 +145,8 @@ impl ActivityService {
         C: ConnectionTrait + Send,
     {
         let catalogs = StoreCatalogs::get();
-        let item_definitions = ItemDefinitions::get();
-        let classes = ClassDefinitions::get();
+        let item_definitions = Items::get();
+        let classes = Classes::get();
         let level_tables = LevelTables::get();
 
         let article_name: StoreArticleName = event.attribute_uuid("articleName")?;
@@ -200,8 +200,8 @@ impl ActivityService {
     where
         C: ConnectionTrait + Send,
     {
-        let item_definitions = ItemDefinitions::get();
-        let classes = ClassDefinitions::get();
+        let item_definitions = Items::get();
+        let classes = Classes::get();
         let level_tables = LevelTables::get();
         let packs = Packs::get();
 

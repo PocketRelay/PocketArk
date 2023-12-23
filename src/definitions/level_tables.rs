@@ -23,11 +23,11 @@ static STORE: OnceLock<LevelTables> = OnceLock::new();
 impl LevelTables {
     /// Gets a static reference to the global [LevelTables] collection
     pub fn get() -> &'static LevelTables {
-        STORE.get_or_init(|| Self::new().unwrap())
+        STORE.get_or_init(|| Self::load().unwrap())
     }
 
     /// Creates and loads the level tables from [LEVEL_TABLE_DEFINITIONS]
-    fn new() -> anyhow::Result<Self> {
+    fn load() -> anyhow::Result<Self> {
         let values: Vec<LevelTable> = serde_json::from_str(LEVEL_TABLE_DEFINITIONS)
             .context("Failed to parse level table definitions")?;
 
@@ -170,15 +170,13 @@ impl From<(u32, u32, u32)> for ProgressionXp {
         }
     }
 }
-
 #[cfg(test)]
 mod test {
-    use super::{LevelTable, LEVEL_TABLE_DEFINITIONS};
+    use super::LevelTables;
 
-    /// Tests ensuring the level table definitions can be parsed
-    /// correctly from the resource file
+    /// Tests ensuring loading succeeds
     #[test]
-    fn ensure_parsing_succeed() {
-        let _: Vec<LevelTable> = serde_json::from_str(LEVEL_TABLE_DEFINITIONS).unwrap();
+    fn ensure_load_succeed() {
+        _ = LevelTables::load().unwrap();
     }
 }

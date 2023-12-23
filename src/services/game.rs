@@ -22,8 +22,8 @@ use crate::{
     },
     definitions::{
         badges::Badges,
-        challenges::{ChallengeCounter, ChallengeDefinition, ChallengeDefinitions, CurrencyReward},
-        classes::ClassDefinitions,
+        challenges::{ChallengeCounter, ChallengeDefinition, Challenges, CurrencyReward},
+        classes::Classes,
         level_tables::LevelTables,
         match_modifiers::MatchModifiers,
     },
@@ -205,7 +205,7 @@ async fn process_player_data(
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
     debug!("Processing player data");
 
-    let classes = ClassDefinitions::get();
+    let classes = Classes::get();
     let level_tables = LevelTables::get();
 
     let user = User::get_user(&db, data.nucleus_id)
@@ -453,7 +453,7 @@ pub struct ChallengeProgressChange {
 /// Processes challenge updates that may have occurred from the
 /// collection of `activities`
 fn process_challenges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBuilder) {
-    let challenge_definitions = ChallengeDefinitions::get();
+    let challenge_definitions = Challenges::get();
 
     activities
         .iter()

@@ -1,6 +1,6 @@
 use super::items::ItemName;
 use super::{
-    classes::{ClassDefinitions, PointMap},
+    classes::{Classes, PointMap},
     level_tables::{LevelTables, ProgressionXp},
 };
 use crate::database::entity::{Character, User};
@@ -13,7 +13,7 @@ pub async fn acquire_item_character<C>(
     db: &C,
     user: &User,
     item: &ItemName,
-    classes: &ClassDefinitions,
+    classes: &Classes,
     level_tables: &LevelTables,
 ) -> anyhow::Result<()>
 where

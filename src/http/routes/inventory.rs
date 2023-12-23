@@ -1,6 +1,6 @@
 use crate::{
     database::entity::{inventory_items::ItemId, InventoryItem, User},
-    definitions::items::{InventoryNamespace, ItemDefinition, ItemDefinitions},
+    definitions::items::{InventoryNamespace, ItemDefinition, Items},
     http::{
         middleware::{user::Auth, JsonDump},
         models::{
@@ -29,7 +29,7 @@ pub async fn get_inventory(
 ) -> HttpResult<InventoryResponse> {
     let mut items = InventoryItem::get_all_items(&db, &user).await?;
 
-    let item_definitions = ItemDefinitions::get();
+    let item_definitions = Items::get();
 
     // TODO: Possibly store namespace with item itself then only query that namespace directly
     if let Some(namespace) = query.namespace {
@@ -64,7 +64,7 @@ pub async fn get_inventory(
 /// Obtains the definitions for all the inventory items this includes things
 /// like lootboxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
-    let item_definitions = ItemDefinitions::get();
+    let item_definitions = Items::get();
     let list: &'static [ItemDefinition] = item_definitions.all();
     Json(ItemDefinitionsResponse {
         total_count: list.len(),
@@ -95,7 +95,7 @@ async fn consume_item<C>(
     user: &User,
     item: ItemId,
     count: u32,
-    item_definitions: &'static ItemDefinitions,
+    item_definitions: &'static Items,
 ) -> Result<&'static ItemDefinition, DynHttpError>
 where
     C: ConnectionTrait + Send,
@@ -145,7 +145,7 @@ pub async fn consume_inventory(
         .transaction(|db| {
             Box::pin(async move {
                 let mut events: Vec<ActivityEvent> = Vec::with_capacity(req.items.len());
-                let item_definitions = ItemDefinitions::get();
+                let item_definitions = Items::get();
 
                 // Create the consumption event for each item
                 for target in req.items {
