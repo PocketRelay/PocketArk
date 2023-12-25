@@ -7,5 +7,7 @@ pub type JsonDump<T> = axum::Json<T>;
 #[cfg(debug_assertions)]
 mod json_dump;
 
+pub mod json_validated;
+
 pub mod upgrade;
 pub mod user;

@@ -3,11 +3,14 @@
 
 use crate::blaze::session::{SessionLink, WeakSessionLink};
 use crate::database::entity::users::UserId;
+use crate::http::models::HttpError;
 use crate::utils::hashing::IntHashMap;
 use crate::utils::signing::SigningKey;
 use base64ct::{Base64UrlUnpadded, Encoding};
+use hyper::StatusCode;
 use parking_lot::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use thiserror::Error;
 
 type SessionMap = IntHashMap<UserId, WeakSessionLink>;
 
@@ -135,12 +138,20 @@ impl Sessions {
 }
 
 /// Errors that can occur while verifying a token
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum VerifyError {
     /// The token is expired
+    #[error("Authorization token is expired")]
     Expired,
     /// The token is invalid
+    #[error("Invalid authorization token")]
     Invalid,
+}
+
+impl HttpError for VerifyError {
+    fn status(&self) -> hyper::StatusCode {
+        StatusCode::BAD_REQUEST
+    }
 }
 
 #[cfg(test)]

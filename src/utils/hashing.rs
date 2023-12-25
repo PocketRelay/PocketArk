@@ -16,8 +16,7 @@ pub fn hash_password(password: &str) -> password_hash::Result<String> {
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(password.as_bytes(), &salt)?;
-    let value = format!("{}", password_hash);
-    Ok(value)
+    Ok(password_hash.to_string())
 }
 
 /// Verifies the hash of the provided password checking that

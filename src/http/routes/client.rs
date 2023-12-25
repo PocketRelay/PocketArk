@@ -3,12 +3,18 @@
 
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
-    database::entity::{users::CreateUser, Currency, SharedData, StrikeTeam, User},
+    database::entity::{
+        users::{CreateUser, UserId},
+        Currency, SharedData, StrikeTeam, User,
+    },
     definitions::items::create_default_items,
     http::{
-        middleware::upgrade::BlazeUpgrade,
+        middleware::{json_validated::JsonValidated, upgrade::BlazeUpgrade},
         models::{
-            client::{AuthResponse, ClientError, CreateUserRequest, LoginUserRequest},
+            client::{
+                ClientError, CreateUserRequest, LoginUserRequest, ServerDetailsResponse,
+                TokenResponse,
+            },
             DynHttpError, HttpResult,
         },
     },
@@ -17,88 +23,102 @@ use crate::{
     VERSION,
 };
 use anyhow::Context;
-use axum::{
-    body::Empty,
-    response::{IntoResponse, Response},
-    Extension, Json,
-};
+use axum::{response::IntoResponse, Extension, Json};
 use hyper::{header, http::HeaderValue, StatusCode};
 use log::error;
-use sea_orm::DatabaseConnection;
-use serde::Serialize;
+use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::sync::Arc;
 
-#[derive(Serialize)]
-pub struct ServerDetails {
-    /// Identifier used to ensure the server is a Pocket Relay server
-    ident: &'static str,
-    /// The server version
-    version: &'static str,
-}
-
 /// GET /ark/client/details
-pub async fn details() -> Json<ServerDetails> {
-    Json(ServerDetails {
+///
+/// Used by clients to get details about the server before
+/// it connects
+pub async fn details() -> Json<ServerDetailsResponse> {
+    Json(ServerDetailsResponse {
         ident: "POCKET_ARK_SERVER",
         version: VERSION,
     })
 }
 
 /// POST /ark/client/login
+///
+/// Used by the client tool to login to an account on the server
 pub async fn login(
     Extension(db): Extension<DatabaseConnection>,
     Extension(sessions): Extension<Arc<Sessions>>,
-    Json(req): Json<LoginUserRequest>,
-) -> HttpResult<AuthResponse> {
-    let user = User::by_email(&db, &req.email)
+    JsonValidated(LoginUserRequest { email, password }): JsonValidated<LoginUserRequest>,
+) -> HttpResult<TokenResponse> {
+    // Find the user requested
+    let user = User::by_email(&db, &email)
         .await?
-        .ok_or(ClientError::InvalidUsername)?;
+        .ok_or(ClientError::AccountNotFound)?;
 
-    if !verify_password(&req.password, &user.password) {
+    // Ensure the passwords match
+    if !verify_password(&password, &user.password) {
         return Err(ClientError::IncorrectPassword.into());
     }
 
     let token = sessions.create_token(user.id);
 
-    Ok(Json(AuthResponse { token }))
+    Ok(Json(TokenResponse { token }))
 }
 
 /// POST /ark/client/create
+///
+/// Used by the client tool to create an account on the server
 pub async fn create(
     Extension(db): Extension<DatabaseConnection>,
     Extension(sessions): Extension<Arc<Sessions>>,
-    Json(req): Json<CreateUserRequest>,
-) -> HttpResult<AuthResponse> {
+    JsonValidated(CreateUserRequest {
+        email,
+        username,
+        password,
+    }): JsonValidated<CreateUserRequest>,
+) -> HttpResult<TokenResponse> {
     // Ensure the email doesn't exist already
-    if User::email_exists(&db, &req.email).await? {
+    if User::email_exists(&db, &email).await? {
         return Err(ClientError::EmailTaken.into());
     }
 
     // Ensure the username doesn't exist already
-    if User::username_exists(&db, &req.username).await? {
+    if User::username_exists(&db, &username).await? {
         return Err(ClientError::UsernameAlreadyTaken.into());
     }
 
-    let password = hash_password(&req.password).context("Failed to hash password")?;
+    let password = hash_password(&password).context("Failed to hash password")?;
 
     let create = CreateUser {
-        email: req.email,
-        username: req.username,
+        email,
+        username,
         password,
     };
 
-    let user = User::create(&db, create).await?;
+    let user = db
+        .transaction(|db| {
+            Box::pin(async move {
+                // Create the user account
+                let user = User::create(db, create).await?;
 
-    // Initialize the users data
-    create_default_items(&db, &user).await?;
+                // Give the user all the default items
+                create_default_items(db, &user).await?;
 
-    Currency::set_default(&db, &user).await?;
-    SharedData::create_default(&db, &user).await?;
-    StrikeTeam::create_default(&db, &user).await?;
+                // Give the user the default currencies
+                Currency::set_default(db, &user).await?;
+
+                // Setup the user shared data
+                SharedData::create_default(db, &user).await?;
+
+                // Setup the user strike teams
+                StrikeTeam::create_default(db, &user).await?;
+
+                Ok::<_, DynHttpError>(user)
+            })
+        })
+        .await?;
 
     let token = sessions.create_token(user.id);
 
-    Ok(Json(AuthResponse { token }))
+    Ok(Json(TokenResponse { token }))
 }
 
 /// GET /ark/client/upgrade
@@ -108,16 +128,14 @@ pub async fn upgrade(
     Extension(sessions): Extension<Arc<Sessions>>,
 
     upgrade: BlazeUpgrade,
-) -> Result<Response, DynHttpError> {
-    let user_id: u32 = sessions
-        .verify_token(&upgrade.token)
-        .map_err(|_| ClientError::AuthFailed)?;
+) -> Result<impl IntoResponse, DynHttpError> {
+    let user_id: UserId = sessions.verify_token(&upgrade.token)?;
 
     let user = User::by_id(&db, user_id)
         .await?
-        .ok_or(VerifyError::Invalid)
-        .map_err(|_| ClientError::AuthFailed)?;
+        .ok_or(VerifyError::Invalid)?;
 
+    // Handle the client upgrading in a new task
     tokio::spawn(async move {
         let socket = match upgrade.upgrade().await {
             Ok(value) => value,
@@ -130,14 +148,12 @@ pub async fn upgrade(
         Session::start(socket.upgrade, user, router, sessions).await;
     });
 
-    let mut response = Empty::new().into_response();
-    // Use the switching protocols status code
-    *response.status_mut() = StatusCode::SWITCHING_PROTOCOLS;
-
-    let headers = response.headers_mut();
-    // Add the upgraidng headers
-    headers.insert(header::CONNECTION, HeaderValue::from_static("upgrade"));
-    headers.insert(header::UPGRADE, HeaderValue::from_static("blaze"));
-
-    Ok(response)
+    // Tell the client to switch protocols
+    Ok((
+        StatusCode::SWITCHING_PROTOCOLS,
+        [
+            (header::CONNECTION, HeaderValue::from_static("upgrade")),
+            (header::UPGRADE, HeaderValue::from_static("blaze")),
+        ],
+    ))
 }

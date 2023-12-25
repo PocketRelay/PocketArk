@@ -51,6 +51,7 @@ hashbrown = { version = "0.14", default-features = false, features = [
 ] }
 serde_path_to_error = "0.1.14"
 num_enum = "0.7.1"
+validator = { version = "0.16.1", features = ["derive"] }
 
 [dependencies.log4rs]
 version = "1.2.0"
