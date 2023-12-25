@@ -30,11 +30,11 @@ mod user_match;
 pub fn router() -> Router {
     Router::new()
         .nest(
-            "/ark/client",
+            "/api/server",
             Router::new()
+                .route("/", get(client::details))
                 .route("/login", post(client::login))
                 .route("/create", post(client::create))
-                .route("/details", get(client::details))
                 .route("/upgrade", get(client::upgrade)),
         )
         .route("/auth", post(auth::authenticate))
