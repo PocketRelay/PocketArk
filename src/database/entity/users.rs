@@ -2,16 +2,23 @@ use std::future::Future;
 
 use crate::database::DbResult;
 use sea_orm::entity::prelude::*;
-use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::{IntoActiveModel, QuerySelect};
 
+/// Type alias for a [u32] representing a user ID
 pub type UserId = u32;
 
+/// User database structure
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {
+    /// Unqiue ID for the account
     #[sea_orm(primary_key)]
     pub id: u32,
+    /// Email address of the account
+    pub email: String,
+    /// Username for the account
     pub username: String,
+    /// Password for the account
     pub password: String,
 }
 
@@ -33,32 +40,94 @@ pub enum Relation {
     StrikeTeams,
 }
 
+/// Partial structure for creating a new user
+#[derive(DeriveIntoActiveModel)]
+pub struct CreateUser {
+    /// The email to give the user
+    pub email: String,
+    /// The username to give the user
+    pub username: String,
+    /// The password to give the user
+    pub password: String,
+}
+
 impl Model {
-    pub fn create_user(
-        db: &DatabaseConnection,
-        username: String,
-        password: String,
-    ) -> impl Future<Output = DbResult<Self>> + Send + '_ {
-        ActiveModel {
-            id: NotSet,
-            username: Set(username),
-            password: Set(password),
-        }
-        .insert(db)
+    /// Creates a new user from the provided [CreateUser] structure
+    pub fn create<C>(
+        db: &C,
+        mut create: CreateUser,
+    ) -> impl Future<Output = DbResult<Self>> + Send + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        // Emails are stored in lowercase to be case-insensitive
+        create.email = create.email.to_lowercase();
+
+        create.into_active_model().insert(db)
     }
 
-    pub async fn get_user(db: &DatabaseConnection, id: u32) -> DbResult<Option<Self>> {
-        Entity::find_by_id(id).one(db).await
-    }
-
-    pub async fn get_by_username(
-        db: &DatabaseConnection,
-        username: &str,
-    ) -> DbResult<Option<Self>> {
-        Entity::find()
+    /// Checks if an account with a matching `username` already
+    /// exists in the database
+    pub async fn username_exists<'db, C>(db: &C, username: &str) -> DbResult<bool>
+    where
+        C: ConnectionTrait + Send,
+    {
+        let result: Option<String> = Entity::find()
+            .select_only()
+            .column(Column::Username)
+            // Match against the email
             .filter(Column::Username.eq(username))
+            .into_tuple()
             .one(db)
-            .await
+            .await?;
+
+        Ok(result.is_some())
+    }
+
+    /// Checks if an account with a matching `email` already
+    /// exists in the database
+    pub async fn email_exists<'db, C>(db: &C, email: &str) -> DbResult<bool>
+    where
+        C: ConnectionTrait + Send,
+    {
+        // Emails are stored in lowercase to be case-insensitive
+        let email_lower = email.to_lowercase();
+
+        let result: Option<String> = Entity::find()
+            .select_only()
+            .column(Column::Email)
+            // Match against the email
+            .filter(Column::Email.eq(email_lower))
+            .into_tuple()
+            .one(db)
+            .await?;
+
+        Ok(result.is_some())
+    }
+
+    /// Finds a user by its [UserId]
+    pub fn by_id<C>(db: &C, id: UserId) -> impl Future<Output = DbResult<Option<Self>>> + Send + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find_by_id(id).one(db)
+    }
+
+    /// Finds a user by its `email`
+    pub fn by_email<'db, C>(
+        db: &'db C,
+        email: &str,
+    ) -> impl Future<Output = DbResult<Option<Self>>> + Send + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        // Emails are stored in lowercase to be case-insensitive
+        let email_lower = email.to_lowercase();
+
+        Entity::find()
+            // Match against the email
+            .filter(Column::Email.eq(email_lower))
+            .one(db)
     }
 }
 

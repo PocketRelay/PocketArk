@@ -3,12 +3,12 @@
 
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
-    database::entity::{Currency, SharedData, StrikeTeam, User},
+    database::entity::{users::CreateUser, Currency, SharedData, StrikeTeam, User},
     definitions::items::create_default_items,
     http::{
         middleware::upgrade::BlazeUpgrade,
         models::{
-            client::{AuthRequest, AuthResponse, ClientError},
+            client::{AuthResponse, ClientError, CreateUserRequest, LoginUserRequest},
             DynHttpError, HttpResult,
         },
     },
@@ -16,6 +16,7 @@ use crate::{
     utils::hashing::{hash_password, verify_password},
     VERSION,
 };
+use anyhow::Context;
 use axum::{
     body::Empty,
     response::{IntoResponse, Response},
@@ -47,9 +48,9 @@ pub async fn details() -> Json<ServerDetails> {
 pub async fn login(
     Extension(db): Extension<DatabaseConnection>,
     Extension(sessions): Extension<Arc<Sessions>>,
-    Json(req): Json<AuthRequest>,
+    Json(req): Json<LoginUserRequest>,
 ) -> HttpResult<AuthResponse> {
-    let user = User::get_by_username(&db, &req.username)
+    let user = User::by_email(&db, &req.email)
         .await?
         .ok_or(ClientError::InvalidUsername)?;
 
@@ -66,15 +67,27 @@ pub async fn login(
 pub async fn create(
     Extension(db): Extension<DatabaseConnection>,
     Extension(sessions): Extension<Arc<Sessions>>,
-    Json(req): Json<AuthRequest>,
+    Json(req): Json<CreateUserRequest>,
 ) -> HttpResult<AuthResponse> {
-    if User::get_by_username(&db, &req.username).await?.is_some() {
+    // Ensure the email doesn't exist already
+    if User::email_exists(&db, &req.email).await? {
+        return Err(ClientError::EmailTaken.into());
+    }
+
+    // Ensure the username doesn't exist already
+    if User::username_exists(&db, &req.username).await? {
         return Err(ClientError::UsernameAlreadyTaken.into());
     }
 
-    let password = hash_password(&req.password).map_err(|_| ClientError::FailedHashPassword)?;
+    let password = hash_password(&req.password).context("Failed to hash password")?;
 
-    let user = User::create_user(&db, req.username, password).await?;
+    let create = CreateUser {
+        email: req.email,
+        username: req.username,
+        password,
+    };
+
+    let user = User::create(&db, create).await?;
 
     // Initialize the users data
     create_default_items(&db, &user).await?;
@@ -100,7 +113,7 @@ pub async fn upgrade(
         .verify_token(&upgrade.token)
         .map_err(|_| ClientError::AuthFailed)?;
 
-    let user = User::get_user(&db, user_id)
+    let user = User::by_id(&db, user_id)
         .await?
         .ok_or(VerifyError::Invalid)
         .map_err(|_| ClientError::AuthFailed)?;

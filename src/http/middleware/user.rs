@@ -67,7 +67,7 @@ impl<S> FromRequestParts<S> for Auth {
                 .verify_token(token)
                 .map_err(|_| AuthError::InvalidToken)?;
 
-            let user = User::get_user(&db, user_id)
+            let user = User::by_id(&db, user_id)
                 .await?
                 .ok_or(VerifyError::Invalid)
                 .map_err(|_| AuthError::InvalidToken)?;

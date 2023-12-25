@@ -208,7 +208,7 @@ async fn process_player_data(
     let classes = Classes::get();
     let level_tables = LevelTables::get();
 
-    let user = User::get_user(&db, data.nucleus_id)
+    let user = User::by_id(&db, data.nucleus_id)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
 

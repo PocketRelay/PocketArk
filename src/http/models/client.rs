@@ -12,6 +12,10 @@ pub enum ClientError {
     IncorrectPassword,
 
     /// Username is already taken
+    #[error("Email already in use")]
+    EmailTaken,
+
+    /// Username is already taken
     #[error("Username already in use")]
     UsernameAlreadyTaken,
 
@@ -28,15 +32,29 @@ impl HttpError for ClientError {
         match self {
             ClientError::InvalidUsername => StatusCode::NOT_FOUND,
             ClientError::IncorrectPassword | ClientError::AuthFailed => StatusCode::BAD_REQUEST,
-            ClientError::UsernameAlreadyTaken => StatusCode::CONFLICT,
+            ClientError::UsernameAlreadyTaken | ClientError::EmailTaken => StatusCode::CONFLICT,
             ClientError::FailedHashPassword => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
 
+/// Request to create a new user
 #[derive(Debug, Deserialize)]
-pub struct AuthRequest {
+pub struct CreateUserRequest {
+    /// The email for the user
+    pub email: String,
+    /// The username for the user
     pub username: String,
+    /// The password for the user
+    pub password: String,
+}
+
+/// Request to login to a user
+#[derive(Debug, Deserialize)]
+pub struct LoginUserRequest {
+    /// The user email
+    pub email: String,
+    /// The user password
     pub password: String,
 }
 

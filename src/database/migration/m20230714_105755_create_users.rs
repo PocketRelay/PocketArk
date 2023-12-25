@@ -11,6 +11,7 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(Users::Table)
                     .if_not_exists()
+                    // Unique ID for the account
                     .col(
                         ColumnDef::new(Users::Id)
                             .unsigned()
@@ -18,12 +19,21 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
+                    // Email address of the account
+                    .col(
+                        ColumnDef::new(Users::Email)
+                            .string()
+                            .unique_key()
+                            .not_null(),
+                    )
+                    // Username of the account
                     .col(
                         ColumnDef::new(Users::Username)
                             .string()
                             .unique_key()
                             .not_null(),
                     )
+                    // Password for the account
                     .col(ColumnDef::new(Users::Password).string().not_null())
                     .to_owned(),
             )
@@ -41,6 +51,7 @@ impl MigrationTrait for Migration {
 pub enum Users {
     Table,
     Id,
+    Email,
     Username,
     Password,
 }

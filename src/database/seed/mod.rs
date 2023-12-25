@@ -3,7 +3,7 @@ use super::{
     entity::{currency::CurrencyType, InventoryItem, User},
 };
 use crate::{
-    database::entity::{Character, Currency, SharedData},
+    database::entity::{users::CreateUser, Character, Currency, SharedData},
     definitions::{
         classes::{Classes, PointMap},
         items::Items,
@@ -19,9 +19,13 @@ pub async fn seed() {
 
     let db = connect_database().await;
 
-    let user = User::create_user(&db, "test".to_string(), hash_password("test").unwrap())
-        .await
-        .unwrap();
+    let create_user = CreateUser {
+        email: "test@test.com".to_string(),
+        username: "Test".to_string(),
+        password: hash_password("test").unwrap(),
+    };
+
+    let user = User::create(&db, create_user).await.unwrap();
 
     let item_definitions = Items::get();
     let classes = Classes::get();
