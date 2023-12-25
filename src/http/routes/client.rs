@@ -3,13 +3,10 @@
 
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
-    database::entity::{
-        users::{CreateUser, UserId},
-        Currency, SharedData, StrikeTeam, User,
-    },
+    database::entity::{users::CreateUser, Currency, SharedData, StrikeTeam, User},
     definitions::items::create_default_items,
     http::{
-        middleware::{json_validated::JsonValidated, upgrade::BlazeUpgrade},
+        middleware::{json_validated::JsonValidated, upgrade::Upgrade, user::Auth},
         models::{
             client::{
                 ClientError, CreateUserRequest, LoginUserRequest, ServerDetailsResponse,
@@ -18,7 +15,7 @@ use crate::{
             DynHttpError, HttpResult,
         },
     },
-    services::sessions::{Sessions, VerifyError},
+    services::sessions::Sessions,
     utils::hashing::{hash_password, verify_password},
     VERSION,
 };
@@ -122,22 +119,17 @@ pub async fn create(
 }
 
 /// GET /ark/client/upgrade
+///
+/// Handles upgrading a HTTP connection to a blaze stream for game traffic
 pub async fn upgrade(
+    Auth(user): Auth,
     Extension(router): Extension<Arc<BlazeRouter>>,
-    Extension(db): Extension<DatabaseConnection>,
     Extension(sessions): Extension<Arc<Sessions>>,
-
-    upgrade: BlazeUpgrade,
+    Upgrade(upgrade): Upgrade,
 ) -> Result<impl IntoResponse, DynHttpError> {
-    let user_id: UserId = sessions.verify_token(&upgrade.token)?;
-
-    let user = User::by_id(&db, user_id)
-        .await?
-        .ok_or(VerifyError::Invalid)?;
-
     // Handle the client upgrading in a new task
     tokio::spawn(async move {
-        let socket = match upgrade.upgrade().await {
+        let io = match upgrade.await {
             Ok(value) => value,
             Err(err) => {
                 error!("Failed to upgrade blaze socket: {}", err);
@@ -145,7 +137,7 @@ pub async fn upgrade(
             }
         };
 
-        Session::start(socket.upgrade, user, router, sessions).await;
+        Session::start(io, user, router, sessions).await;
     });
 
     // Tell the client to switch protocols
