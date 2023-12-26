@@ -97,6 +97,7 @@ pub async fn purchase_equipment(
 ) -> HttpResult<PurchaseResponse> {
     let strike_teams = StrikeTeamDefinitions::get();
 
+    // Find the strike team the user wants to equip
     let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
@@ -114,12 +115,20 @@ pub async fn purchase_equipment(
         .get(&query.currency)
         .ok_or(CurrencyError::InvalidCurrency)?;
 
-    let currency_balance = try_spend_currency(&db, &user, query.currency, equipment_cost).await?;
+    let (team, currency_balance): (StrikeTeam, Currency) = db
+        .transaction(|db| {
+            Box::pin(async move {
+                // Spend the cost of the strike team equipment
+                let currency_balance =
+                    try_spend_currency(db, &user, query.currency, equipment_cost).await?;
 
-    // TODO: Transaction to revert incase equipment setting fails
+                // Assign the equipment to the team
+                let team = team.set_equipment(db, Some(equipment.clone())).await?;
 
-    // Consume currency
-    let team = team.set_equipment(&db, Some(equipment.clone())).await?;
+                Ok::<_, DynHttpError>((team, currency_balance))
+            })
+        })
+        .await?;
 
     Ok(Json(PurchaseResponse {
         currency_balance,
