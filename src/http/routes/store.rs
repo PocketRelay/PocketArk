@@ -44,13 +44,13 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
 }
 
 /// Attempts to spend the provided `amount` of the specified `currency`
-/// for the provided `user`
-async fn spend_currency<C>(
+/// for the provided `user`, returns the new currency after updating
+pub async fn try_spend_currency<C>(
     db: &C,
     user: &User,
     currency: CurrencyType,
     amount: u32,
-) -> Result<(), DynHttpError>
+) -> Result<Currency, DynHttpError>
 where
     C: ConnectionTrait + Send,
 {
@@ -68,9 +68,9 @@ where
     let new_balance = currency.balance - amount;
 
     // Take the price from the currency balance
-    currency.update(db, new_balance).await?;
+    let currency = currency.update(db, new_balance).await?;
 
-    Ok(())
+    Ok(currency)
 }
 
 /// POST /store/article
@@ -98,7 +98,7 @@ pub async fn obtain_article(
         .transaction(|db| {
             Box::pin(async move {
                 // Spend the cost of the article
-                spend_currency(db, &user, req.currency, price.final_price).await?;
+                _ = try_spend_currency(db, &user, req.currency, price.final_price).await?;
 
                 // Create the activity event
                 let event = ActivityEvent::new(ActivityName::ArticlePurchased)

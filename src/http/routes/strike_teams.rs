@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, Currency, StrikeTeam},
+    database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, StrikeTeam},
     definitions::striketeams::{
         StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeamWithMission,
     },
@@ -22,6 +22,8 @@ use log::debug;
 use sea_orm::DatabaseConnection;
 use std::collections::HashMap;
 use uuid::Uuid;
+
+use super::store::try_spend_currency;
 
 /// GET /striketeams
 pub async fn get(
@@ -98,10 +100,6 @@ pub async fn purchase_equipment(
 ) -> HttpResult<PurchaseResponse> {
     let strike_teams = StrikeTeamDefinitions::get();
 
-    let currency = Currency::get(&db, &user, query.currency)
-        .await?
-        .ok_or(CurrencyError::InsufficientCurrency)?;
-
     let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
@@ -114,23 +112,16 @@ pub async fn purchase_equipment(
         .find(|equip| equip.name.eq(&name))
         .ok_or(StrikeTeamError::UnknownEquipmentItem)?;
 
-    let equipment_cost = equipment
+    let equipment_cost = *equipment
         .cost_by_currency
-        .get(&currency.ty)
-        .copied()
+        .get(&query.currency)
         .ok_or(CurrencyError::InvalidCurrency)?;
 
-    // Cannot afford
-    if currency.balance < equipment_cost {
-        return Err(CurrencyError::InsufficientCurrency.into());
-    }
+    let currency_balance = try_spend_currency(&db, &user, query.currency, equipment_cost).await?;
 
     // TODO: Transaction to revert incase equipment setting fails
 
-    let new_balance = currency.balance - equipment_cost;
-
     // Consume currency
-    let currency_balance = currency.update(&db, new_balance).await?;
     let team = team.set_equipment(&db, Some(equipment.clone())).await?;
 
     Ok(Json(PurchaseResponse {
@@ -194,21 +185,12 @@ pub async fn purchase(
         .copied()
         .ok_or(StrikeTeamError::MaxTeams)?;
 
-    let currency = Currency::get(&db, &user, CurrencyType::Mission)
-        .await?
-        .ok_or(CurrencyError::InsufficientCurrency)?;
-
-    // Cannot afford
-    if currency.balance < strike_team_cost {
-        return Err(CurrencyError::InsufficientCurrency.into());
-    }
+    let currency_balance =
+        try_spend_currency(&db, &user, CurrencyType::Mission, strike_team_cost).await?;
 
     // TODO: Transaction to revert incase strike team creation fails
 
-    let new_balance = currency.balance - strike_team_cost;
-
     // Consume currency
-    let currency_balance = currency.update(&db, new_balance).await?;
     let team = StrikeTeam::create_default(&db, &user).await?;
 
     // Get new cost
