@@ -17,7 +17,7 @@ impl CustomAttributes {
         self.0
             .iter()
             // Find matching key
-            .find(|(k, v)| k.eq(key))
+            .find(|(k, _)| k.eq(key))
             // Only return value
             .map(|(_, v)| v)
     }
@@ -34,7 +34,7 @@ impl CustomAttributes {
         self.0
             .iter_mut()
             // Find matching key
-            .find(|(k, v)| k.eq(key))
+            .find(|(k, _)| k.eq(key))
             // Only return value
             .map(|(_, v)| v)
     }
