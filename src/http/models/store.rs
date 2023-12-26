@@ -18,20 +18,12 @@ pub enum StoreError {
     /// Couldn't find the article requested
     #[error("Unknown article")]
     UnknownArticle,
-    /// Article cannot be purchased with the requested currency
-    #[error("Invalid currency")]
-    InvalidCurrency,
-
-    /// User doesn't have enough currency to purchase the item
-    #[error("Currency balance cannot be less than 0.")]
-    InsufficientCurrency,
 }
 
 impl HttpError for StoreError {
     fn status(&self) -> StatusCode {
         match self {
             StoreError::UnknownArticle => StatusCode::NOT_FOUND,
-            StoreError::InvalidCurrency | StoreError::InsufficientCurrency => StatusCode::CONFLICT,
         }
     }
 }

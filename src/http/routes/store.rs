@@ -8,7 +8,7 @@ use crate::{
                 ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, StoreError, UpdateSeenArticles, UserCurrenciesResponse,
             },
-            DynHttpError, HttpResult,
+            CurrencyError, DynHttpError, HttpResult,
         },
     },
     services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
@@ -58,11 +58,11 @@ where
     let currency = Currency::get(db, user, currency)
         .await?
         // User doesn't have any of the requested currency
-        .ok_or(StoreError::InsufficientCurrency)?;
+        .ok_or(CurrencyError::InsufficientCurrency)?;
 
     // Ensure they can afford the price
     if currency.balance < amount {
-        return Err(StoreError::InsufficientCurrency.into());
+        return Err(CurrencyError::InsufficientCurrency.into());
     }
 
     let new_balance = currency.balance - amount;
@@ -92,7 +92,7 @@ pub async fn obtain_article(
     // Find the price in the specified currency
     let price = article
         .price_by_currency(req.currency)
-        .ok_or(StoreError::InvalidCurrency)?;
+        .ok_or(CurrencyError::InvalidCurrency)?;
 
     let result: ActivityResult = db
         .transaction(|db| {

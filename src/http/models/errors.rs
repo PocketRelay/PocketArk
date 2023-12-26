@@ -1,4 +1,5 @@
-//! Module for HTTP error dynamic backed types
+//! Module for HTTP error dynamic backed types, also contains
+//! shared HTTP error types used by multiple route groups
 
 use hyper::StatusCode;
 use log::error;
@@ -14,6 +15,27 @@ use axum::{
 };
 use sea_orm::{DbErr, TransactionError};
 use serde::Serialize;
+
+/// Errors that can be encountered when working with currency
+#[derive(Debug, Error)]
+pub enum CurrencyError {
+    /// Item cannot be purchased with the requested currency
+    #[error("Invalid currency")]
+    InvalidCurrency,
+    /// User doesn't have enough currency to purchase the item
+    #[error("Currency balance cannot be less than 0.")]
+    InsufficientCurrency,
+}
+
+impl HttpError for CurrencyError {
+    fn status(&self) -> StatusCode {
+        match self {
+            CurrencyError::InvalidCurrency | CurrencyError::InsufficientCurrency => {
+                StatusCode::CONFLICT
+            }
+        }
+    }
+}
 
 /// Type alias for dynamic error handling and JSON responses
 pub type HttpResult<T> = Result<Json<T>, DynHttpError>;

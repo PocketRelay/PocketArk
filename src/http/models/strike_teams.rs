@@ -12,12 +12,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum StrikeTeamError {
-    /// Article cannot be purchased with the requested currency
-    #[error("Invalid currency")]
-    InvalidCurrency,
-    /// User doesn't have enough currency to purchase the item
-    #[error("Currency balance cannot be less than 0.")]
-    InsufficientCurrency,
     #[error("Strike team doesn't exist")]
     UnknownTeam,
     #[error("Unknown equipment item")]
@@ -30,10 +24,7 @@ pub enum StrikeTeamError {
 impl HttpError for StrikeTeamError {
     fn status(&self) -> StatusCode {
         match self {
-            StrikeTeamError::InvalidCurrency => StatusCode::BAD_REQUEST,
-            StrikeTeamError::InsufficientCurrency | StrikeTeamError::MaxTeams => {
-                StatusCode::CONFLICT
-            }
+            StrikeTeamError::MaxTeams => StatusCode::CONFLICT,
             StrikeTeamError::UnknownTeam | StrikeTeamError::UnknownEquipmentItem => {
                 StatusCode::NOT_FOUND
             }

@@ -10,7 +10,7 @@ use crate::{
                 PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamsList,
                 StrikeTeamsResponse,
             },
-            DynHttpError, HttpResult, ListWithCount, RawJson,
+            CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson,
         },
     },
 };
@@ -100,7 +100,7 @@ pub async fn purchase_equipment(
 
     let currency = Currency::get(&db, &user, query.currency)
         .await?
-        .ok_or(StrikeTeamError::InsufficientCurrency)?;
+        .ok_or(CurrencyError::InsufficientCurrency)?;
 
     let team = StrikeTeam::get_by_id(&db, &user, id)
         .await?
@@ -118,11 +118,11 @@ pub async fn purchase_equipment(
         .cost_by_currency
         .get(&currency.ty)
         .copied()
-        .ok_or(StrikeTeamError::InvalidCurrency)?;
+        .ok_or(CurrencyError::InvalidCurrency)?;
 
     // Cannot afford
     if currency.balance < equipment_cost {
-        return Err(StrikeTeamError::InsufficientCurrency.into());
+        return Err(CurrencyError::InsufficientCurrency.into());
     }
 
     // TODO: Transaction to revert incase equipment setting fails
@@ -196,11 +196,11 @@ pub async fn purchase(
 
     let currency = Currency::get(&db, &user, CurrencyType::Mission)
         .await?
-        .ok_or(StrikeTeamError::InsufficientCurrency)?;
+        .ok_or(CurrencyError::InsufficientCurrency)?;
 
     // Cannot afford
     if currency.balance < strike_team_cost {
-        return Err(StrikeTeamError::InsufficientCurrency.into());
+        return Err(CurrencyError::InsufficientCurrency.into());
     }
 
     // TODO: Transaction to revert incase strike team creation fails
