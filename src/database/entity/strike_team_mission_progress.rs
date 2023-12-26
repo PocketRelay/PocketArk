@@ -1,8 +1,8 @@
 //! Stores the mission progress for an individual user towards a
 //! strike team mission
 
-use super::strike_team_mission::StrikeTeamMissionId;
 use super::users::UserId;
+use super::{strike_team_mission::StrikeTeamMissionId, strike_teams::StrikeTeamId};
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -17,6 +17,8 @@ pub struct Model {
     pub mission_id: StrikeTeamMissionId,
     /// The ID of the user this progress is for
     pub user_id: UserId,
+    /// The ID of the strike team on the mission
+    pub strike_team_id: StrikeTeamId,
     /// The users current mission state
     pub user_mission_state: UserMissionState,
     /// Whether the user has seen the mission

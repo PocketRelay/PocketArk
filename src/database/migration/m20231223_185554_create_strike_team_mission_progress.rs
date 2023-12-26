@@ -1,7 +1,7 @@
 use sea_orm_migration::prelude::*;
 
 use super::{
-    m20230714_105755_create_users::Users,
+    m20230714_105755_create_users::Users, m20230731_123814_create_strike_teams::StrikeTeams,
     m20231223_184934_create_strike_team_missions::StrikeTeamMissions,
 };
 
@@ -26,6 +26,13 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(StrikeTeamMissionProgress::UserId)
                             .unsigned()
                             .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(StrikeTeamMissionProgress::StrikeTeamId)
+                            .unsigned()
+                            .not_null()
+                            // Unique because a strike team can only be on one mission at a time
+                            .unique_key(),
                     )
                     .col(
                         ColumnDef::new(StrikeTeamMissionProgress::MissionId)
@@ -67,6 +74,15 @@ impl MigrationTrait for Migration {
                             .to(StrikeTeamMissions::Table, StrikeTeamMissions::Id)
                             .on_delete(ForeignKeyAction::Cascade),
                     )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(
+                                StrikeTeamMissionProgress::Table,
+                                StrikeTeamMissionProgress::StrikeTeamId,
+                            )
+                            .to(StrikeTeams::Table, StrikeTeams::Id)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
                     .to_owned(),
             )
             .await
@@ -88,6 +104,7 @@ enum StrikeTeamMissionProgress {
     Table,
     MissionId,
     UserId,
+    StrikeTeamId,
     UserMissionState,
     Seen,
     Completed,

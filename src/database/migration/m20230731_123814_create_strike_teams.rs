@@ -98,7 +98,7 @@ impl MigrationTrait for Migration {
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum StrikeTeams {
+pub enum StrikeTeams {
     Table,
     Id,
     UserId,
