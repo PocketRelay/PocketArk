@@ -20,6 +20,8 @@ pub type SharedData = shared_data::Model;
 pub type InventoryItem = inventory_items::Model;
 pub type User = users::Model;
 pub type StrikeTeam = strike_teams::Model;
+pub type StrikeTeamMission = strike_team_mission::Model;
+pub type StrikeTeamMissionProgress = strike_team_mission_progress::Model;
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]

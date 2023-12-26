@@ -12,6 +12,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum StrikeTeamError {
+    #[error("Team on mission")]
+    TeamOnMission,
     #[error("Strike team doesn't exist")]
     UnknownTeam,
     #[error("Unknown equipment item")]
@@ -24,7 +26,7 @@ pub enum StrikeTeamError {
 impl HttpError for StrikeTeamError {
     fn status(&self) -> StatusCode {
         match self {
-            StrikeTeamError::MaxTeams => StatusCode::CONFLICT,
+            StrikeTeamError::MaxTeams | StrikeTeamError::TeamOnMission => StatusCode::CONFLICT,
             StrikeTeamError::UnknownTeam | StrikeTeamError::UnknownEquipmentItem => {
                 StatusCode::NOT_FOUND
             }

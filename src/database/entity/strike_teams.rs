@@ -1,5 +1,5 @@
 use super::users::UserId;
-use super::User;
+use super::{StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
 use crate::definitions::{
     level_tables::{LevelTables, ProgressionXp},
@@ -58,6 +58,9 @@ pub enum Relation {
         to = "super::users::Column::Id"
     )]
     User,
+
+    #[sea_orm(has_one = "super::strike_team_mission_progress::Entity")]
+    MissionProgress,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
@@ -143,6 +146,16 @@ impl Model {
         Ok(())
     }
 
+    // Checks if the strike team is on a mission
+    pub async fn is_on_mission<C>(&self, db: &C) -> DbResult<bool>
+    where
+        C: ConnectionTrait + Send,
+    {
+        StrikeTeamMissionProgress::get_by_team(db, self)
+            .await
+            .map(|value| value.is_some())
+    }
+
     pub async fn get_by_id<C>(db: &C, user: &User, id: StrikeTeamId) -> DbResult<Option<Self>>
     where
         C: ConnectionTrait + Send,
@@ -207,6 +220,12 @@ impl Model {
 impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::User.def()
+    }
+}
+
+impl Related<super::strike_team_mission_progress::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::MissionProgress.def()
     }
 }
 

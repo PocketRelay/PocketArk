@@ -102,7 +102,9 @@ pub async fn purchase_equipment(
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
 
-    // TODO: If on mission respond with 409 Conflict Team on mission
+    if team.is_on_mission(&db).await? {
+        return Err(StrikeTeamError::TeamOnMission.into());
+    }
 
     let equipment = strike_teams
         .equipment

@@ -1,7 +1,12 @@
 //! Stores the mission progress for an individual user towards a
 //! strike team mission
 
+use std::future::Future;
+
+use crate::database::DbResult;
+
 use super::users::UserId;
+use super::StrikeTeam;
 use super::{strike_team_mission::StrikeTeamMissionId, strike_teams::StrikeTeamId};
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -35,6 +40,19 @@ pub enum Relation {
         to = "super::users::Column::Id"
     )]
     User,
+    #[sea_orm(
+        belongs_to = "super::strike_teams::Entity",
+        from = "Column::StrikeTeamId",
+        to = "super::strike_teams::Column::Id"
+    )]
+    StrikeTeam,
+
+    #[sea_orm(
+        belongs_to = "super::strike_team_mission::Entity",
+        from = "Column::MissionId",
+        to = "super::strike_team_mission::Column::Id"
+    )]
+    Mission,
 }
 
 /// Enum for the different known currency types
@@ -51,6 +69,28 @@ pub enum UserMissionState {
     Completed = 3,
 }
 
-impl Model {}
+impl Model {
+    pub fn get_by_team<'db, C>(
+        db: &'db C,
+        team: &StrikeTeam,
+    ) -> impl Future<Output = DbResult<Option<Self>>> + Send + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        team.find_related(Entity).one(db)
+    }
+}
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
+
+impl Related<super::strike_team_mission_progress::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
