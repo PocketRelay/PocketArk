@@ -40,6 +40,7 @@ pub enum Relation {
         to = "super::users::Column::Id"
     )]
     User,
+
     #[sea_orm(
         belongs_to = "super::strike_teams::Entity",
         from = "Column::StrikeTeamId",
@@ -87,9 +88,15 @@ impl Related<super::users::Entity> for Entity {
     }
 }
 
-impl Related<super::strike_team_mission_progress::Entity> for Entity {
+impl Related<super::strike_teams::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::User.def()
+        Relation::StrikeTeam.def()
+    }
+}
+
+impl Related<super::strike_team_mission::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Mission.def()
     }
 }
 
