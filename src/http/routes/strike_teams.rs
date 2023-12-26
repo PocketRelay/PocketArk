@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, StrikeTeam},
+    database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, Currency, StrikeTeam},
     definitions::striketeams::{
         StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeamWithMission,
     },
@@ -19,7 +19,7 @@ use axum::{
     Extension, Json,
 };
 use log::debug;
-use sea_orm::DatabaseConnection;
+use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -41,15 +41,12 @@ pub async fn get(
         })
         .collect();
 
-    let mut next_purchase_costs: HashMap<String, u32> = HashMap::new();
-
-    // Get new cost
-    let strike_team_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
+    // Create a map of the next costs
+    let next_purchase_costs: HashMap<CurrencyType, u32> = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
         .get(teams.len())
-        .copied();
-    if let Some(strike_team_cost) = strike_team_cost {
-        next_purchase_costs.insert("MissionCurrency".to_string(), strike_team_cost);
-    }
+        .into_iter()
+        .map(|value| (CurrencyType::Mission, *value))
+        .collect();
 
     Ok(Json(StrikeTeamsResponse {
         teams: StrikeTeamsList {
@@ -177,25 +174,32 @@ pub async fn purchase(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
+    // Get the number of teams they already have
     let strike_teams = StrikeTeam::get_user_count(&db, &user).await? as usize;
 
-    // Get new cost
-    let strike_team_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
+    // Get the cost of a new team
+    let strike_team_cost = *StrikeTeamDefinitions::STRIKE_TEAM_COSTS
         .get(strike_teams)
-        .copied()
         .ok_or(StrikeTeamError::MaxTeams)?;
 
-    let currency_balance =
-        try_spend_currency(&db, &user, CurrencyType::Mission, strike_team_cost).await?;
+    let (team, currency_balance): (StrikeTeam, Currency) = db
+        .transaction(|db| {
+            Box::pin(async move {
+                // Spend the cost of the strike team
+                let currency_balance =
+                    try_spend_currency(db, &user, CurrencyType::Mission, strike_team_cost).await?;
 
-    // TODO: Transaction to revert incase strike team creation fails
+                // Create the strike team
+                let team = StrikeTeam::create_default(db, &user).await?;
 
-    // Consume currency
-    let team = StrikeTeam::create_default(&db, &user).await?;
+                Ok::<_, DynHttpError>((team, currency_balance))
+            })
+        })
+        .await?;
 
-    // Get new cost
+    // Get the cost of the next team
     let next_purchase_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
-        .get(strike_teams + 2)
+        .get(strike_teams + 1)
         .copied();
 
     Ok(Json(PurchaseResponse {

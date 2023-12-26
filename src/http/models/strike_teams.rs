@@ -60,7 +60,7 @@ pub struct PurchaseQuery {
 pub struct StrikeTeamsResponse {
     pub teams: StrikeTeamsList,
     pub min_specialization_level: u32,
-    pub next_purchase_costs: HashMap<String, u32>,
+    pub next_purchase_costs: HashMap<CurrencyType, u32>,
     pub inventory_item_limit: usize,
     pub inventory_item_count: usize,
 }
