@@ -5,31 +5,30 @@
 //! The collection of strike team missions available are the same for *every* player
 //! and are rotated
 
-use anyhow::{bail, Context};
+use crate::{
+    database::entity::{StrikeTeam, User},
+    definitions::{
+        challenges::CurrencyReward,
+        i18n::{I18nDesc, I18nDescription, I18nName},
+        items::{ItemDefinition, ItemName},
+        level_tables::{LevelTable, LevelTableName, LevelTables, ProgressionXp},
+        shared::CustomAttributes,
+    },
+    utils::ImStr,
+};
+use anyhow::Context;
 use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
 use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
+use std::sync::OnceLock;
 use uuid::{uuid, Uuid};
-
-use super::{
-    challenges::CurrencyReward,
-    i18n::{I18nDesc, I18nDescription, I18nName},
-    items::{ItemDefinition, ItemName},
-    level_tables::{LevelTableName, ProgressionXp},
-    shared::CustomAttributes,
-    striketeams::TeamTrait,
-};
-use crate::{
-    database::entity::{StrikeTeam, User},
-    definitions::level_tables::{LevelTable, LevelTables},
-    utils::ImStr,
-};
 
 /// Type alias for a [ImStr] representing a [MissionTag::name]
 pub type MissionTagName = ImStr;
 
-// Sourced from "NATO phonetic alphabet", these are the default strike team names used by the game
+const STRIKE_TEAM_TRAIT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeamTraits.json");
+const STRIKE_TEAM_TAG_DEFINITIONS: &str = include_str!("../resources/data/strikeTeamTags.json");
 
 /// Collection of names that strike teams are randomly named from
 ///
@@ -58,13 +57,41 @@ static STRIKE_TEAM_ICON_SETS: &[(&str, &str)] = &[
     ("icon10", "Team10"),
 ];
 
+pub const MAX_STRIKE_TEAMS: usize = 6;
+pub static STRIKE_TEAM_COSTS: [u32; MAX_STRIKE_TEAMS] = [0, 40, 80, 120, 160, 200];
+
+pub struct StrikeTeams {
+    pub traits: StrikeTeamTraits,
+    pub tags: MissionTags,
+}
+
+/// Static storage for the definitions once its loaded
+/// (Allows the definitions to be passed with static lifetimes)
+static STORE: OnceLock<StrikeTeams> = OnceLock::new();
+
+impl StrikeTeams {
+    /// Gets a static reference to the global [StrikeTeamDefinitions] collection
+    pub fn get() -> &'static StrikeTeams {
+        STORE.get_or_init(|| Self::load().unwrap())
+    }
+
+    fn load() -> anyhow::Result<Self> {
+        let traits: StrikeTeamTraits = serde_json::from_str(STRIKE_TEAM_TRAIT_DEFINITIONS)
+            .context("Failed to load strike team traits")?;
+        let tags: MissionTags = serde_json::from_str(STRIKE_TEAM_TAG_DEFINITIONS)
+            .context("Failed to load strike teammission tags")?;
+
+        Ok(Self { traits, tags })
+    }
+}
+
 /// Data used to create a strike team
 pub struct StrikeTeamData {
     pub name: StrikeTeamName,
     pub icon: StrikeTeamIcon,
     pub level: u32,
     pub xp: ProgressionXp,
-    pub positive_trait: TeamTrait,
+    pub positive_trait: StrikeTeamTrait,
 }
 
 /// Creates a new strike team for the provided user
@@ -85,6 +112,8 @@ pub fn random_strike_team<R>(rng: &mut R) -> anyhow::Result<StrikeTeamData>
 where
     R: Rng,
 {
+    let strike_teams = StrikeTeams::get();
+
     // Default level
     let level: u32 = 1;
 
@@ -107,7 +136,7 @@ where
         .context("Unable to determine initial xp")?;
 
     // Every team starts with one positive trait
-    let positive_trait = random_positive_trait(rng)?;
+    let positive_trait = strike_teams.traits.random_postitive(rng)?;
 
     Ok(StrikeTeamData {
         name,
@@ -116,10 +145,6 @@ where
         xp,
         positive_trait,
     })
-}
-
-fn random_positive_trait<R>(rng: &mut R) -> anyhow::Result<TeamTrait> {
-    bail!("Not implemented")
 }
 
 /// Type alias for the name of a strike team
@@ -164,6 +189,7 @@ impl StrikeTeamIcon {
     }
 }
 
+/// Collection of mission tags, split based on their different types
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MissionTags {
     /// Mission tags for enemies (To choose which enemy is used)
@@ -181,12 +207,39 @@ pub struct StrikeTeamTraits {
     pub negative: Box<[StrikeTeamTrait]>,
 }
 
-impl StrikeTeamTraits {}
+impl StrikeTeamTraits {
+    /// Choose a random positive trait
+    fn random_postitive<R>(&self, rng: &mut R) -> anyhow::Result<StrikeTeamTrait>
+    where
+        R: Rng,
+    {
+        self.positive
+            .choose(rng)
+            .context("Failed to choose trait")
+            .cloned()
+    }
+
+    /// Finds a [StrikeTeamTrait] by a specific mission `tag` and uses
+    /// `positive` to determine whether the trait must be positive or negative
+    fn by_mission_tag(&self, tag: &MissionTagName, positive: bool) -> Option<&StrikeTeamTrait> {
+        let list: &[StrikeTeamTrait] = match positive {
+            true => &self.positive,
+            false => &self.negative,
+        };
+
+        list.iter().find(|value| {
+            value
+                .tag
+                .as_ref()
+                .is_some_and(|value_tag| value_tag.eq(tag))
+        })
+    }
+}
 
 /// Represents a trait a strike team can have, can be either
 /// a positive or negative trait
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StrikeTeamTrait {
     /// Same as the `i18nName` field
     pub name: ImStr,

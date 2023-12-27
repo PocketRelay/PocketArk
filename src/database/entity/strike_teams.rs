@@ -1,11 +1,10 @@
 use super::users::UserId;
 use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
-use crate::definitions::strike_teams::{StrikeTeamData, StrikeTeamIcon, StrikeTeamName};
-use crate::definitions::{
-    level_tables::ProgressionXp,
-    striketeams::{StrikeTeamEquipment, TeamTrait},
+use crate::definitions::strike_teams::{
+    StrikeTeamData, StrikeTeamIcon, StrikeTeamName, StrikeTeamTrait,
 };
+use crate::definitions::{level_tables::ProgressionXp, striketeams::StrikeTeamEquipment};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
@@ -39,9 +38,9 @@ pub struct Model {
     /// Equipment if the strike team has one active
     pub equipment: Option<StrikeTeamEquipment>,
     /// Positive traits this strike team has
-    pub positive_traits: SeaJson<Vec<TeamTrait>>,
+    pub positive_traits: SeaJson<Vec<StrikeTeamTrait>>,
     /// Negative traits this strike team has
-    pub negative_traits: SeaJson<Vec<TeamTrait>>,
+    pub negative_traits: SeaJson<Vec<StrikeTeamTrait>>,
     /// Unknown usage
     pub out_of_date: bool,
 }

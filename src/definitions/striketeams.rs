@@ -46,11 +46,6 @@ pub struct MissionTag {
     pub i18n_name: I18nName,
     #[serde(flatten)]
     pub i18n_desc: I18nDesc,
-
-    #[serde(skip_serializing)]
-    pub positive: Option<TeamTrait>,
-    #[serde(skip_serializing)]
-    pub negative: Option<TeamTrait>,
 }
 
 pub struct StrikeTeamDefinitions {
@@ -451,25 +446,4 @@ pub struct MissionDescriptorAttr {
     pub selector_icon: Option<String>,
     #[serde(flatten)]
     pub extra: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct TeamTrait {
-    pub name: String,
-    pub tag: String,
-    pub effectiveness: i32,
-
-    /// Localized team trait name
-    #[serde(flatten)]
-    pub i18n_name: I18nName,
-    /// Localized team trait description
-    #[serde(flatten)]
-    pub i18n_description: I18nDescription,
-}
-
-impl TeamTrait {
-    pub fn random_trait() -> Option<Self> {
-        todo!("Random trait impl")
-    }
 }
