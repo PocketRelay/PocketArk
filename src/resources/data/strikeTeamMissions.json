@@ -2145,22 +2145,20 @@
             ]
         }
     },
-    "special": {
-        "apex": [
-            {
-                "descriptor": {
-                    "name": "7c3141d4-512f-4bd2-a6d1-0d674a55a6e8",
-                    "i18nName": "221327",
-                    "locName": "CELEBRATORY MISSION",
-                    "i18nDesc": "221328",
-                    "locDesc": "A special mission, available for a limited time for a special occasion.",
-                    "customAttributes": {
-                        "Icon": "SpecAssault",
-                        "SelectorIcon": "SpecAssaultSmall"
-                    }
-                },
-                "accessibility": "Any"
-            }
-        ]
-    }
+    "special": [
+        {
+            "descriptor": {
+                "name": "7c3141d4-512f-4bd2-a6d1-0d674a55a6e8",
+                "i18nName": "221327",
+                "locName": "CELEBRATORY MISSION",
+                "i18nDesc": "221328",
+                "locDesc": "A special mission, available for a limited time for a special occasion.",
+                "customAttributes": {
+                    "Icon": "SpecAssault",
+                    "SelectorIcon": "SpecAssaultSmall"
+                }
+            },
+            "accessibility": "Any"
+        }
+    ]
 }

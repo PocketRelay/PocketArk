@@ -6,7 +6,9 @@
 //! and are rotated
 
 use crate::{
-    database::entity::{StrikeTeam, User},
+    database::entity::{
+        currency::CurrencyType, strike_team_mission::MissionAccessibility, StrikeTeam, User,
+    },
     definitions::{
         challenges::CurrencyReward,
         i18n::{I18nDesc, I18nDescription, I18nName},
@@ -21,14 +23,18 @@ use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
 use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
-use std::sync::OnceLock;
+use std::{collections::HashMap, sync::OnceLock};
 use uuid::{uuid, Uuid};
+
+use super::items::Items;
 
 /// Type alias for a [ImStr] representing a [MissionTag::name]
 pub type MissionTagName = ImStr;
 
 const STRIKE_TEAM_TRAIT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeamTraits.json");
 const STRIKE_TEAM_TAG_DEFINITIONS: &str = include_str!("../resources/data/strikeTeamTags.json");
+const STRIKE_TEAM_MISSION_DEFINITIONS: &str =
+    include_str!("../resources/data/strikeTeamMissions.json");
 
 /// Collection of names that strike teams are randomly named from
 ///
@@ -63,6 +69,7 @@ pub static STRIKE_TEAM_COSTS: [u32; MAX_STRIKE_TEAMS] = [0, 40, 80, 120, 160, 20
 pub struct StrikeTeams {
     pub traits: StrikeTeamTraits,
     pub tags: MissionTags,
+    pub missions: MissionDefinitions,
 }
 
 /// Static storage for the definitions once its loaded
@@ -79,9 +86,15 @@ impl StrikeTeams {
         let traits: StrikeTeamTraits = serde_json::from_str(STRIKE_TEAM_TRAIT_DEFINITIONS)
             .context("Failed to load strike team traits")?;
         let tags: MissionTags = serde_json::from_str(STRIKE_TEAM_TAG_DEFINITIONS)
-            .context("Failed to load strike teammission tags")?;
+            .context("Failed to load strike team mission tags")?;
+        let missions: MissionDefinitions = serde_json::from_str(STRIKE_TEAM_MISSION_DEFINITIONS)
+            .context("Failed to load strike team mission definitions")?;
 
-        Ok(Self { traits, tags })
+        Ok(Self {
+            traits,
+            tags,
+            missions,
+        })
     }
 }
 
@@ -258,6 +271,47 @@ pub struct StrikeTeamTrait {
     pub i18n_description: I18nDescription,
 }
 
+#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum MissionDifficulty {
+    Bronze,
+    Silver,
+    Gold,
+    Platinum,
+}
+
+/// Collection of mission definitions
+#[derive(Deserialize)]
+pub struct MissionDefinitions {
+    /// Collection of missions for each difficulty level
+    pub difficulty: HashMap<MissionDifficulty, MissionTypeGroup>,
+    /// Collection of special missions that aren't given by random
+    pub special: Vec<MissionDefinition>,
+}
+
+/// Mission definitions grouped based on the
+/// different types (standard and apex)
+#[derive(Deserialize)]
+pub struct MissionTypeGroup {
+    pub standard: Vec<MissionDefinition>,
+    pub apex: Vec<MissionDefinition>,
+}
+
+/// Definition for a mission
+#[derive(Deserialize)]
+pub struct MissionDefinition {
+    /// The mission descriptor
+    pub descriptor: MissionDescriptor,
+    /// The mission accessibility
+    pub accessibility: MissionAccessibility,
+    /// Optional collection of waves for custom missions
+    #[serde(default)]
+    pub waves: Option<Vec<MissionWave>>,
+    /// Optional overriden mission rewards
+    #[serde(default)]
+    pub rewards: Option<MissionRewards>,
+}
+
 /// Represents a tag that a mission can have associated with it
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MissionTag {
@@ -364,7 +418,96 @@ pub struct MissionRewards {
     #[serde_as(as = "serde_with::Map<_, _>")]
     pub sp_item_rewards: Vec<(ItemName, u32)>,
     /// Definitions of the items that should be earned
+    #[serde(default)]
     pub item_definitions: Vec<ItemDefinition>,
+}
+
+impl MissionRewards {
+    pub fn default(difficulty: MissionDifficulty, accessibility: MissionAccessibility) -> Self {
+        let mut currency_reward = CurrencyReward {
+            name: CurrencyType::Mission,
+            value: 0,
+        };
+
+        let mut mp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
+        let mut sp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
+
+        match accessibility {
+            MissionAccessibility::Any | MissionAccessibility::MultiPlayer => {
+                // Platinum gives 15 mission currency instead of 10
+                if let MissionDifficulty::Platinum = difficulty {
+                    currency_reward.value = 15
+                } else {
+                    currency_reward.value = 10
+                }
+
+                match difficulty {
+                    MissionDifficulty::Bronze => {
+                        // "Bronze Item Loot Box"
+                        sp_item_rewards.push((uuid!("14d5e5ba-dbb5-4336-ad07-607eb39409bb"), 1));
+                        // "Research Data Loot Box"
+                        sp_item_rewards.push((uuid!("71c483fd-371f-4dd4-b9a1-11f189322972"), 1));
+                    }
+                    MissionDifficulty::Silver => {
+                        // "Silver Item Loot Box"
+                        sp_item_rewards.push((uuid!("a7d46d7a-1f42-4eac-b106-c2fb96aa3e7a"), 1));
+                        // "Research Data Loot Box"
+                        sp_item_rewards.push((uuid!("71c483fd-371f-4dd4-b9a1-11f189322972"), 1));
+                    }
+                    MissionDifficulty::Gold | MissionDifficulty::Platinum => {
+                        // "Gold Item Loot Box"
+                        sp_item_rewards.push((uuid!("58383d3f-d74d-4518-b27e-988f56ade54c"), 1));
+                        // "Research Data Loot Box"
+                        sp_item_rewards.push((uuid!("71c483fd-371f-4dd4-b9a1-11f189322972"), 1));
+                    }
+                };
+            }
+            MissionAccessibility::SinglePlayer => {
+                // Strike team missions give 5 mission currency
+                currency_reward.value = 5;
+
+                match difficulty {
+                    MissionDifficulty::Bronze => {
+                        // "Bronze Credit Loot Box"
+                        sp_item_rewards.push((uuid!("e300500e-885e-4ee5-bbdc-f706b30b362a"), 1));
+                        // "Bronze Material Loot Box"
+                        sp_item_rewards.push((uuid!("1440d464-0245-49f9-8533-4930b9283d78"), 1));
+                    }
+                    MissionDifficulty::Silver => {
+                        // "Silver Credit Loot Box"
+                        sp_item_rewards.push((uuid!("e4556800-5eef-d487-182f-5044f0f2d534"), 1));
+                        // "Silver Material Loot Box"
+                        sp_item_rewards.push((uuid!("004f85aa-f7ac-4262-8109-e7e7d6d94bd5"), 1));
+                    }
+                    MissionDifficulty::Gold => {
+                        // "Gold Credit Loot Box"
+                        sp_item_rewards.push((uuid!("9860be4d-b3b2-445f-aa7d-1728fc163ddb"), 1));
+                        // "Silver Material Loot Box"
+                        sp_item_rewards.push((uuid!("61d3f563-ad29-4f97-9c80-71c72549a5fe"), 1));
+                    }
+                    // Platnum mission should *never* be single player (Strike team) missions
+                    MissionDifficulty::Platinum => {}
+                };
+            }
+        };
+
+        let items = Items::get();
+
+        let item_definitions = mp_item_rewards
+            .iter()
+            .chain(sp_item_rewards.iter())
+            .filter_map(|(item, _)| items.by_name(item))
+            .cloned()
+            .collect();
+
+        Self {
+            name: Uuid::new_v4(),
+            currency_reward,
+            mp_item_rewards,
+            sp_item_rewards,
+            item_definitions,
+        }
+    }
 }
 
 pub type MissionWaveName = Uuid;
