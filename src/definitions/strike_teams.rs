@@ -14,12 +14,42 @@ use super::{
     challenges::CurrencyReward,
     i18n::{I18nDesc, I18nDescription, I18nName},
     items::{ItemDefinition, ItemName},
+    level_tables::{LevelTable, LevelTableName},
     shared::CustomAttributes,
 };
 use crate::utils::ImStr;
 
 /// Type alias for a [ImStr] representing a [MissionTag::name]
 pub type MissionTagName = ImStr;
+
+// Sourced from "NATO phonetic alphabet", these are the default strike team names used by the game
+
+/// Collection of names that strike teams are randomly named from
+///
+/// Sourced from "NATO phonetic alphabet"
+static STRIKE_TEAM_NAMES: &[&str] = &[
+    "Yankee", "Delta", "India", "Echo", "Zulu", "Charlie", "Whiskey", "Lima", "Bravo", "Sierra",
+    "November", "X-Ray", "Golf", "Alpha", "Romeo", "Kilo", "Tango", "Quebec", "Foxtrot", "Papa",
+    "Mike", "Oscar", "Juliet", "Uniform", "Victor", "Hotel",
+];
+
+/// Name of the [LevelTable] used for leveling strike teams
+static STRIKE_TEAM_LEVEL_TABLE: LevelTableName = uuid!("5e6f7542-7309-9367-8437-fe83678e5c28");
+
+/// Collection of strike team icons and their associated internal
+/// team name
+static STRIKE_TEAM_ICON_SETS: &[(&str, &str)] = &[
+    ("icon1", "Team01"),
+    ("icon2", "Team02"),
+    ("icon3", "Team03"),
+    ("icon4", "Team04"),
+    ("icon5", "Team05"),
+    ("icon6", "Team06"),
+    ("icon7", "Team07"),
+    ("icon8", "Team08"),
+    ("icon9", "Team09"),
+    ("icon10", "Team10"),
+];
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MissionTags {
