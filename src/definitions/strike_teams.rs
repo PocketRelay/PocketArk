@@ -24,6 +24,7 @@ use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
+use strum::Display;
 use uuid::{uuid, Uuid};
 
 use super::items::Items;
@@ -63,6 +64,12 @@ static STRIKE_TEAM_ICON_SETS: &[(&str, &str)] = &[
     ("icon10", "Team10"),
 ];
 
+/// Different maps that can be used for missions
+static MISSION_LEVELS: [&str; 9] = [
+    "MPGreen", "MPBlack", "MPBlue", "MPGrey", "MPOrange", "MPYellow", "MPAqua", "MPTower",
+    "MPHangar",
+];
+
 pub const MAX_STRIKE_TEAMS: usize = 6;
 pub static STRIKE_TEAM_COSTS: [u32; MAX_STRIKE_TEAMS] = [0, 40, 80, 120, 160, 200];
 
@@ -96,6 +103,95 @@ impl StrikeTeams {
             missions,
         })
     }
+}
+
+pub fn random_mission<R>(
+    rng: &mut R,
+    difficulty: MissionDifficulty,
+    apex: bool,
+) -> anyhow::Result<()>
+where
+    R: Rng,
+{
+    let strike_teams = StrikeTeams::get();
+
+    let missions = &strike_teams.missions;
+
+    // Filter mission by the difficulty
+    let difficulty_group = missions
+        .difficulty
+        .get(&difficulty)
+        .context("Missing difficulty group")?;
+
+    // Choose the mission set
+    let missions = match apex {
+        true => &difficulty_group.apex,
+        false => &difficulty_group.standard,
+    };
+
+    // Choose a mission from the collection
+    let mission = missions.choose(rng).context("Failed to choose mission")?;
+
+    // Get the mission descriptor
+    let descriptor = mission.descriptor.clone();
+
+    // Get the default mission type
+    let mission_type = MissionType::default();
+
+    // Pick the map for the mission
+    let level = MISSION_LEVELS
+        .choose(rng)
+        .context("Failed to choose level")
+        .map(|value| value.to_string())?;
+
+    let enemy_tag = strike_teams.tags.random_enemy(rng)?;
+    let mission_tag = strike_teams.tags.random_missions(rng, 2);
+
+    // Create the static modifiers
+    let static_modifiers: Vec<MissionModifier> = [
+        MissionModifier {
+            name: "difficulty".into(),
+            value: difficulty.to_string().into(),
+        },
+        MissionModifier {
+            name: "enemyType".into(),
+            value: enemy_tag.name.clone(),
+        },
+        MissionModifier {
+            name: "level".into(),
+            value: level.into(),
+        },
+    ]
+    .into_iter()
+    .collect();
+
+    // TODO: Randomly select dynamic modifiers
+    let mut dynamic_modifiers: Vec<MissionModifier> = Vec::new();
+
+    // Create the mission rewards
+    let rewards = mission
+        .rewards
+        .clone()
+        .unwrap_or_else(|| MissionRewards::default(difficulty, mission.accessibility));
+
+    let custom_attributes = CustomAttributes::default();
+
+    // Get the custom wave definitions or empty list
+    let waves = mission.waves.clone().unwrap_or_default();
+
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_secs();
+
+    // TODO: Generate start and end times
+    let start_seconds = 0;
+    let end_seconds = 0;
+
+    // TODO: Generate random mission length
+    let sp_length_seconds = 4000;
+
+    Ok(())
 }
 
 /// Data used to create a strike team
@@ -211,6 +307,23 @@ pub struct MissionTags {
     pub mission: Vec<MissionTag>,
 }
 
+impl MissionTags {
+    pub fn random_enemy<R>(&self, rng: &mut R) -> anyhow::Result<&MissionTag>
+    where
+        R: Rng,
+    {
+        self.enemy.choose(rng).context("Failed to choose enemey")
+    }
+
+    /// Selects multiple random mission tags
+    pub fn random_missions<R>(&self, rng: &mut R, amount: usize) -> Vec<&MissionTag>
+    where
+        R: Rng,
+    {
+        self.mission.choose_multiple(rng, amount).collect()
+    }
+}
+
 /// Collection of traits based on a positive or negative factor
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StrikeTeamTraits {
@@ -271,12 +384,16 @@ pub struct StrikeTeamTrait {
     pub i18n_description: I18nDescription,
 }
 
-#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum MissionDifficulty {
+    #[strum(serialize = "bronze")]
     Bronze,
+    #[strum(serialize = "silver")]
     Silver,
+    #[strum(serialize = "gold")]
     Gold,
+    #[strum(serialize = "platinum")]
     Platinum,
 }
 
