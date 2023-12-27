@@ -8,10 +8,10 @@
 //! ```
 //! (Don't include hyphens in the definition name)
 
-use super::users::UserId;
+use super::{users::UserId, SeaGenericMap};
 use crate::{
     database::{
-        entity::{InventoryItem, User, ValueMap},
+        entity::{InventoryItem, User},
         DbResult,
     },
     definitions::items::ItemName,
@@ -47,7 +47,7 @@ pub struct Model {
     pub definition_name: ItemName,
     pub stack_size: u32,
     pub seen: bool,
-    pub instance_attributes: ValueMap,
+    pub instance_attributes: SeaGenericMap,
     pub created: DateTimeUtc,
     pub last_grant: DateTimeUtc,
     #[serde(rename = "earndBy")]
@@ -93,7 +93,7 @@ impl Model {
             user_id: Set(user.id),
             definition_name: Set(definition_name),
             stack_size: Set(stack_size),
-            instance_attributes: Set(ValueMap::default()),
+            instance_attributes: Set(SeaGenericMap::default()),
             created: Set(now),
             last_grant: Set(now),
             earned_by: Set("granted".to_string()),

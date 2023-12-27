@@ -1,4 +1,4 @@
-use super::{users::UserId, User};
+use super::{users::UserId, SeaJson, User};
 use crate::{
     database::DbResult,
     definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
@@ -6,7 +6,7 @@ use crate::{
     utils::ImStr,
 };
 use chrono::Utc;
-use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
+use sea_orm::{entity::prelude::*, ActiveValue::Set, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::future::Future;
@@ -27,7 +27,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub challenge_id: ChallengeId,
     /// Counter states for the challenge
-    pub counters: ChallengeCounters,
+    pub counters: SeaJson<Vec<ChallengeProgressCounter>>,
     /// The current state of the challenge
     pub state: ChallengeState,
     pub times_completed: u32,
@@ -36,10 +36,6 @@ pub struct Model {
     pub last_changed: DateTimeUtc,
     pub rewarded: bool,
 }
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct ChallengeCounters(Vec<ChallengeProgressCounter>);
 
 /// Type alias for a [ImStr] representing the name of a [ChallengeProgressCounter]
 pub type ChallengeCounterName = ImStr;
@@ -252,7 +248,7 @@ impl Model {
         let mut model = challenge.into_active_model();
         model.last_changed = Set(now);
         model.times_completed = Set(counter.times_completed);
-        model.counters = Set(ChallengeCounters(counters));
+        model.counters = Set(SeaJson(counters));
 
         if first_completion {
             model.first_completed = Set(Some(now));

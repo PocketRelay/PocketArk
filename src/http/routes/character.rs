@@ -2,8 +2,8 @@ use std::mem::swap;
 
 use crate::{
     database::entity::{
-        characters::{self, CharacterId, EquipmentList},
-        Character, SharedData,
+        characters::{self, CharacterId},
+        Character, SeaJson, SharedData,
     },
     definitions::{
         classes::{ClassName, Classes, CustomizationMap},
@@ -124,7 +124,7 @@ pub async fn update_character_equip(
         .ok_or(CharactersError::NotFound)?;
 
     let mut character = character.into_active_model();
-    character.equipments = ActiveValue::Set(EquipmentList(req.list));
+    character.equipments = ActiveValue::Set(SeaJson(req.list));
     let _ = character.update(&db).await?;
 
     Ok(StatusCode::NO_CONTENT)

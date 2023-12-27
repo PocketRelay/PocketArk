@@ -1,4 +1,4 @@
-use super::{characters::CharacterId, User};
+use super::{characters::CharacterId, SeaJson, User};
 use crate::{
     database::DbResult,
     definitions::{
@@ -26,7 +26,7 @@ pub struct Model {
     // Shared equipment configuration
     pub shared_equipment: CharacterSharedEquipment,
     // Shared progression states
-    pub shared_progression: SharedProgressionList,
+    pub shared_progression: SeaJson<Vec<SharedProgression>>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
@@ -38,10 +38,6 @@ pub struct SharedStats {
     #[serde(flatten)]
     pub other: HashMap<String, serde_json::Value>,
 }
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct SharedProgressionList(pub Vec<SharedProgression>);
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 pub struct CharacterSharedEquipment {

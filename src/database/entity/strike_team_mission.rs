@@ -3,9 +3,11 @@ use crate::definitions::strike_teams::MissionTag;
 use crate::definitions::strike_teams::{
     MissionDescriptor, MissionModifier, MissionRewards, MissionType, MissionWave,
 };
-use sea_orm::{prelude::*, FromJsonQueryResult};
+use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+
+use super::SeaJson;
 
 /// Strike team mission ID keying has been replaced with integer keys rather than the UUIDs
 /// used by the official game, this is because its *very* annoying to work with
@@ -28,13 +30,13 @@ pub struct Model {
     /// Mission accessiblity
     pub accessibility: MissionAccessibility,
     /// Custom defined mission waves
-    pub waves: MissionWaves,
+    pub waves: SeaJson<Vec<MissionWave>>,
     /// Mission tags
-    pub tags: MissionTags,
+    pub tags: SeaJson<Vec<MissionTag>>,
     /// Static mission modifiers
-    pub static_modifiers: MissionModifiers,
+    pub static_modifiers: SeaJson<Vec<MissionModifier>>,
     /// Dynamic mission modifiers
-    pub dynamic_modifiers: MissionModifiers,
+    pub dynamic_modifiers: SeaJson<Vec<MissionModifier>>,
     /// The mission rewarads
     pub rewards: MissionRewards,
     /// Custom attributes associated with the mission
@@ -46,18 +48,6 @@ pub struct Model {
     /// The time in seconds the mission will take to complete (Strike teams)
     pub sp_length_seconds: u16,
 }
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct MissionTags(pub Vec<MissionTag>);
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct MissionWaves(pub Vec<MissionWave>);
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct MissionModifiers(pub Vec<MissionModifier>);
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {}

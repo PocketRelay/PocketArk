@@ -1,5 +1,5 @@
 use super::users::UserId;
-use super::{StrikeTeamMissionProgress, User};
+use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
 use crate::definitions::{
     level_tables::{LevelTables, ProgressionXp},
@@ -43,9 +43,9 @@ pub struct Model {
     /// Equipment if the strike team has one active
     pub equipment: Option<StrikeTeamEquipment>,
     /// Positive traits this strike team has
-    pub positive_traits: TraitList,
+    pub positive_traits: SeaJson<Vec<TeamTrait>>,
     /// Negative traits this strike team has
-    pub negative_traits: TraitList,
+    pub negative_traits: SeaJson<Vec<TeamTrait>>,
     /// Unknown usage
     pub out_of_date: bool,
 }
@@ -62,10 +62,6 @@ pub enum Relation {
     #[sea_orm(has_one = "super::strike_team_mission_progress::Entity")]
     MissionProgress,
 }
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct TraitList(pub Vec<TeamTrait>);
 
 // Sourced from "NATO phonetic alphabet", these are the default strike team names used by the game
 static STRIKE_TEAM_NAMES: &[&str] = &[
@@ -210,8 +206,8 @@ impl Model {
             icon: Set(icon),
             level: Set(level),
             xp: Set(xp),
-            positive_traits: Set(TraitList(positive_traits)),
-            negative_traits: Set(TraitList(negative_traits)),
+            positive_traits: Set(SeaJson(positive_traits)),
+            negative_traits: Set(SeaJson(negative_traits)),
             ..Default::default()
         }
     }

@@ -2,10 +2,9 @@ use std::{any::type_name, boxed::Box};
 
 use sea_orm::{
     sea_query::{ArrayType, ColumnType, ValueType, ValueTypeErr},
-    FromJsonQueryResult, TryGetableFromJson,
+    TryGetableFromJson,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use serde_json::Map;
 
 pub mod challenge_progress;
 pub mod characters;
@@ -28,9 +27,8 @@ pub type StrikeTeam = strike_teams::Model;
 pub type StrikeTeamMission = strike_team_mission::Model;
 pub type StrikeTeamMissionProgress = strike_team_mission_progress::Model;
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct ValueMap(pub Map<String, serde_json::Value>);
+/// Wrapper around a generic [serde_json::Map]
+pub type SeaGenericMap = SeaJson<serde_json::Map<String, serde_json::Value>>;
 
 /// Wrapper around JSON serializable types that allows them to be used
 /// as value types for SeaORM

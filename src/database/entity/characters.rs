@@ -1,4 +1,4 @@
-use super::{users::UserId, User, ValueMap};
+use super::{users::UserId, SeaGenericMap, SeaJson, User};
 use crate::{
     database::DbResult,
     definitions::{
@@ -50,13 +50,13 @@ pub struct Model {
     /// Mapping for total points given
     pub points_granted: PointMap,
     /// Skill tree progression data
-    pub skill_trees: SkillTrees,
+    pub skill_trees: SeaJson<Vec<SkillTree>>,
     /// Character attributes
     pub attributes: CharacterAttributes,
     /// Character bonus data
-    pub bonus: ValueMap,
+    pub bonus: SeaGenericMap,
     /// Character equipment list
-    pub equipments: EquipmentList,
+    pub equipments: SeaJson<Vec<CharacterEquipment>>,
     /// Character customization data
     pub customization: CustomizationMap,
     /// Character usage stats
@@ -77,14 +77,6 @@ pub struct PlayStats {
     #[serde(flatten)]
     pub other: HashMap<String, serde_json::Value>,
 }
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct EquipmentList(pub Vec<CharacterEquipment>);
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(transparent)]
-pub struct SkillTrees(pub Vec<SkillTree>);
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
@@ -163,10 +155,10 @@ impl Model {
                 skill_points: Some(3),
             }),
             points_granted: Set(PointMap::default()),
-            skill_trees: Set(SkillTrees(skill_trees)),
+            skill_trees: Set(SeaJson(skill_trees)),
             attributes: Set(attributes),
-            bonus: Set(ValueMap(bonus)),
-            equipments: Set(EquipmentList(equipment)),
+            bonus: Set(SeaJson(bonus)),
+            equipments: Set(SeaJson(equipment)),
             customization: Set(customization),
             play_stats: Set(PlayStats::default()),
             last_used: Set(None),
