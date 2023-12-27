@@ -1,7 +1,7 @@
 use super::HttpError;
 use crate::{
     database::entity::{currency::CurrencyType, Currency, StrikeTeam},
-    definitions::striketeams::{StrikeTeamWithMission, TeamTrait},
+    definitions::strike_teams::{StrikeTeamTrait, StrikeTeamWithMission},
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;
@@ -39,7 +39,7 @@ impl HttpError for StrikeTeamError {
 pub struct ResolveMissionResponse {
     pub team: StrikeTeamWithMission,
     pub mission_successful: bool,
-    pub traits_acquired: Vec<TeamTrait>,
+    pub traits_acquired: Vec<StrikeTeamTrait>,
     pub activity_response: ActivityResult,
 }
 

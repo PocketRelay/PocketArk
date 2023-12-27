@@ -3,7 +3,7 @@
 
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
-    database::entity::{users::CreateUser, Currency, SharedData, StrikeTeam, User},
+    database::entity::{users::CreateUser, Currency, SharedData, User},
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
         middleware::{json_validated::JsonValidated, upgrade::Upgrade, user::Auth},

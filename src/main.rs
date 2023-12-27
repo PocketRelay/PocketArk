@@ -1,8 +1,9 @@
 use axum::Extension;
 use definitions::i18n::I18n;
+use definitions::strike_teams::StrikeTeams;
 use definitions::{
     badges::Badges, challenges::Challenges, classes::Classes, items::Items,
-    level_tables::LevelTables, match_modifiers::MatchModifiers, striketeams::StrikeTeamDefinitions,
+    level_tables::LevelTables, match_modifiers::MatchModifiers,
 };
 use log::error;
 use log::LevelFilter;
@@ -40,7 +41,7 @@ async fn main() {
     _ = I18n::get();
     _ = Badges::get();
     _ = MatchModifiers::get();
-    _ = StrikeTeamDefinitions::get();
+    _ = StrikeTeams::get();
 
     let (database, signing_key) = join!(crate::database::init(), SigningKey::global());
 

@@ -169,6 +169,7 @@ pub struct StorePrice {
     /// The final cost price of the item (The actual price)
     pub final_price: u32,
 }
+
 #[cfg(test)]
 mod test {
     use super::StoreCatalogs;

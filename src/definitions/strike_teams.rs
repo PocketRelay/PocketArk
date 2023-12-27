@@ -23,7 +23,11 @@ use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
 use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
-use std::{collections::HashMap, sync::OnceLock};
+use std::{
+    collections::HashMap,
+    sync::OnceLock,
+    time::{SystemTime, UNIX_EPOCH},
+};
 use strum::Display;
 use uuid::{uuid, Uuid};
 
@@ -33,6 +37,10 @@ use super::items::Items;
 pub type MissionTagName = ImStr;
 
 const STRIKE_TEAM_TRAIT_DEFINITIONS: &str = include_str!("../resources/data/strikeTeamTraits.json");
+const STRIKE_TEAM_SPECIALIZATION_DEFINITIONS: &str =
+    include_str!("../resources/data/strikeTeamSpecialization.json");
+const STRIKE_TEAM_EQUIPMENT_DEFINITIONS: &str =
+    include_str!("../resources/data/strikeTeamEquipment.json");
 const STRIKE_TEAM_TAG_DEFINITIONS: &str = include_str!("../resources/data/strikeTeamTags.json");
 const STRIKE_TEAM_MISSION_DEFINITIONS: &str =
     include_str!("../resources/data/strikeTeamMissions.json");
@@ -77,6 +85,8 @@ pub struct StrikeTeams {
     pub traits: StrikeTeamTraits,
     pub tags: MissionTags,
     pub missions: MissionDefinitions,
+    pub equipment: Vec<StrikeTeamEquipment>,
+    pub specializations: Vec<StrikeTeamSpecialization>,
 }
 
 /// Static storage for the definitions once its loaded
@@ -96,11 +106,19 @@ impl StrikeTeams {
             .context("Failed to load strike team mission tags")?;
         let missions: MissionDefinitions = serde_json::from_str(STRIKE_TEAM_MISSION_DEFINITIONS)
             .context("Failed to load strike team mission definitions")?;
+        let equipment: Vec<StrikeTeamEquipment> =
+            serde_json::from_str(STRIKE_TEAM_EQUIPMENT_DEFINITIONS)
+                .context("Failed to load strike team equipment definitions")?;
+        let specializations: Vec<StrikeTeamSpecialization> =
+            serde_json::from_str(STRIKE_TEAM_SPECIALIZATION_DEFINITIONS)
+                .context("Failed to load strike team equipment definitions")?;
 
         Ok(Self {
             traits,
             tags,
             missions,
+            equipment,
+            specializations,
         })
     }
 }
@@ -652,4 +670,111 @@ pub enum WaveType {
     /// Wave is the extraction
     #[serde(rename = "WaveType_Extraction")]
     Extraction,
+}
+
+/// Type alias for a [String] representing the name of a [StrikeTeamEquipment]
+pub type StrikeTeamEquipmentName = String;
+
+/// Equipment that a strike team can purchase
+///
+/// For reference: https://masseffectandromeda.fandom.com/wiki/Strike_team#Equipment
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamEquipment {
+    /// Unique name for the equipment
+    pub name: StrikeTeamEquipmentName,
+
+    /// Strike team level required to purchase the equipment
+    pub level_required: u32,
+
+    /// Effectiveness boost given by the equipment
+    pub effectiveness: u32,
+
+    /// Optional collection of tags that are affected by this
+    /// equipment, not present if effect is always applied
+    pub tags: Option<Vec<String>>,
+
+    /// Cost of the equipment for different currency types
+    pub cost_by_currency: HashMap<CurrencyType, u32>,
+
+    /// Additional custom attributes
+    pub custom_attributes: CustomAttributes,
+
+    /// Localized equipment name
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+    /// Localized equipment description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamSpecialization {
+    /// Name of the specialization
+    pub name: String,
+    /// The tag that the specialization affects
+    pub tag: String,
+    /// The effectiveness of the specialization
+    pub effectiveness: u32,
+    /// Additional custom attributes (Appears unused in official config)
+    pub custom_attributes: CustomAttributes,
+
+    /// Localized specialization name
+    #[serde(flatten)]
+    pub i18n_name: I18nName,
+    /// Localized specialization description
+    #[serde(flatten)]
+    pub i18n_description: I18nDescription,
+}
+
+// #[derive(Debug, Serialize)]
+// #[serde(rename_all = "camelCase")]
+// pub struct TeamSuccessRates {
+//     // ID and name of the strike team
+//     pub id: Uuid,
+//     pub name: String,
+//     // mapping between mission ID and sucess %
+//     pub mission_success_rate: HashMap<Uuid, f32>,
+// }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamWithMission {
+    #[serde(flatten)]
+    pub team: StrikeTeam,
+    pub mission: Option<StrikeTeamMission>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamMission {
+    pub name: Uuid,
+    // pub live_mission: Mission,
+    // pub finish_time: Option<DateTime<Utc>>,
+    pub successful: bool,
+    pub earn_negative_trait: bool,
+}
+
+// #[derive(Debug, Serialize)]
+// #[serde(rename_all = "camelCase")]
+// pub struct MissionWithUserData {
+//     #[serde(flatten)]
+//     pub mission: Mission,
+
+//     pub seen: bool,
+//     pub user_mission_state: MissionState,
+//     pub completed: bool,
+// }
+
+#[cfg(test)]
+mod test {
+    use super::StrikeTeams;
+
+    /// Tests ensuring loading succeeds
+    #[test]
+    fn ensure_load_succeed() {
+        _ = StrikeTeams::load().unwrap();
+    }
 }

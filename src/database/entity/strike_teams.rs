@@ -1,10 +1,10 @@
 use super::users::UserId;
 use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
+use crate::definitions::level_tables::ProgressionXp;
 use crate::definitions::strike_teams::{
-    StrikeTeamData, StrikeTeamIcon, StrikeTeamName, StrikeTeamTrait,
+    StrikeTeamData, StrikeTeamEquipment, StrikeTeamIcon, StrikeTeamName, StrikeTeamTrait,
 };
-use crate::definitions::{level_tables::ProgressionXp, striketeams::StrikeTeamEquipment};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};

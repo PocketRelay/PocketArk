@@ -1,10 +1,10 @@
 use crate::{
     database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, Currency, StrikeTeam},
     definitions::{
-        strike_teams::create_user_strike_team,
-        striketeams::{
-            StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization,
-            StrikeTeamWithMission,
+        strike_teams::StrikeTeamWithMission,
+        strike_teams::{
+            create_user_strike_team, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeams,
+            MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS,
         },
     },
     http::{
@@ -46,7 +46,7 @@ pub async fn get(
         .collect();
 
     // Create a map of the next costs
-    let next_purchase_costs: HashMap<CurrencyType, u32> = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
+    let next_purchase_costs: HashMap<CurrencyType, u32> = STRIKE_TEAM_COSTS
         .get(teams.len())
         .into_iter()
         .map(|value| (CurrencyType::Mission, *value))
@@ -55,7 +55,7 @@ pub async fn get(
     Ok(Json(StrikeTeamsResponse {
         teams: StrikeTeamsList {
             total_count: teams.len(),
-            cap: StrikeTeamDefinitions::MAX_STRIKE_TEAMS,
+            cap: MAX_STRIKE_TEAMS,
             list: teams,
         },
         min_specialization_level: 16,
@@ -69,26 +69,26 @@ pub async fn get(
 pub async fn get_success_rate() -> RawJson {
     // TODO: Calculate the success rate for each strike team against each mission
 
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/successRate.json");
+    static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/successRate.json");
     RawJson(DEFS)
 }
 
 /// GET /striketeams/missionConfig
 pub async fn get_mission_config() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/missionConfig.json");
+    static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/missionConfig.json");
     RawJson(DEFS)
 }
 
 /// GET /striketeams/specializations
 pub async fn get_specializations() -> Json<ListWithCount<StrikeTeamSpecialization>> {
-    let strike_teams = StrikeTeamDefinitions::get();
+    let strike_teams = StrikeTeams::get();
 
     Json(ListWithCount::new(&strike_teams.specializations))
 }
 
 /// GET /striketeams/equipment
 pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
-    let strike_teams = StrikeTeamDefinitions::get();
+    let strike_teams = StrikeTeams::get();
     Json(ListWithCount::new(&strike_teams.equipment))
 }
 
@@ -99,7 +99,7 @@ pub async fn purchase_equipment(
     Path((id, name)): Path<(StrikeTeamId, String)>,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<PurchaseResponse> {
-    let strike_teams = StrikeTeamDefinitions::get();
+    let strike_teams = StrikeTeams::get();
 
     // Find the strike team the user wants to equip
     let team = StrikeTeam::get_by_id(&db, &user, id)
@@ -149,7 +149,8 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
 
     // TODO: Randomize outcome
 
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/placeholderResolve.json");
+    static DEFS: &str =
+        include_str!("../../resources/defaults/strikeTeams/placeholderResolve.json");
     RawJson(DEFS)
 }
 
@@ -161,7 +162,7 @@ pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson 
 
     // TODO: Randomize outcome
 
-    static DEFS: &str = include_str!("../../resources/data/strikeTeams/missionSpecific.json");
+    static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/missionSpecific.json");
     RawJson(DEFS)
 }
 
@@ -193,7 +194,7 @@ pub async fn purchase(
     let strike_teams = StrikeTeam::get_user_count(&db, &user).await? as usize;
 
     // Get the cost of a new team
-    let strike_team_cost = *StrikeTeamDefinitions::STRIKE_TEAM_COSTS
+    let strike_team_cost = *STRIKE_TEAM_COSTS
         .get(strike_teams)
         .ok_or(StrikeTeamError::MaxTeams)?;
 
@@ -213,9 +214,7 @@ pub async fn purchase(
         .await?;
 
     // Get the cost of the next team
-    let next_purchase_cost = StrikeTeamDefinitions::STRIKE_TEAM_COSTS
-        .get(strike_teams + 1)
-        .copied();
+    let next_purchase_cost = STRIKE_TEAM_COSTS.get(strike_teams + 1).copied();
 
     Ok(Json(PurchaseResponse {
         currency_balance,
