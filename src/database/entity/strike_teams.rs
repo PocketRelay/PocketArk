@@ -3,18 +3,13 @@ use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
 use crate::definitions::strike_teams::{StrikeTeamData, StrikeTeamIcon, StrikeTeamName};
 use crate::definitions::{
-    level_tables::{LevelTables, ProgressionXp},
+    level_tables::ProgressionXp,
     striketeams::{StrikeTeamEquipment, TeamTrait},
 };
-use crate::utils::ImStr;
-use rand::rngs::StdRng;
-use rand::seq::SliceRandom;
-use rand::SeedableRng;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use uuid::{uuid, Uuid};
 
 /// Strike Team ID keying has been replaced with integer keys rather than the UUIDs
 /// used by the official game, this is because its *very* annoying to work with

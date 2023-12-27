@@ -16,13 +16,13 @@ use super::{
     challenges::CurrencyReward,
     i18n::{I18nDesc, I18nDescription, I18nName},
     items::{ItemDefinition, ItemName},
-    level_tables::{LevelTable, LevelTableName, ProgressionXp},
+    level_tables::{LevelTableName, ProgressionXp},
     shared::CustomAttributes,
-    striketeams::{StrikeTeamEquipment, TeamTrait},
+    striketeams::TeamTrait,
 };
 use crate::{
     database::entity::{StrikeTeam, User},
-    definitions::level_tables::LevelTables,
+    definitions::level_tables::{LevelTable, LevelTables},
     utils::ImStr,
 };
 
@@ -93,7 +93,7 @@ where
     let name = random_team_name(rng)?;
     let icon = StrikeTeamIcon::random(rng)?;
 
-    let level_table = level_tables
+    let level_table: &LevelTable = level_tables
         .by_name(&STRIKE_TEAM_LEVEL_TABLE)
         .context("Missing strike team level table")?;
 
