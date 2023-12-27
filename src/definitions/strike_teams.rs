@@ -292,6 +292,17 @@ pub struct MissionType {
     pub give_xp: bool,
 }
 
+impl Default for MissionType {
+    fn default() -> Self {
+        Self {
+            name: uuid!("1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c"),
+            descriptor: Default::default(),
+            give_currency: true,
+            give_xp: true,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
@@ -305,11 +316,11 @@ pub struct MissionTypeDescriptor {
     pub custom_attributes: CustomAttributes,
 }
 
-impl MissionTypeDescriptor {
-    pub fn normal() -> Self {
+impl Default for MissionTypeDescriptor {
+    fn default() -> Self {
         Self {
             name: uuid!("39b9880a-ce11-4be3-a3e7-728763b48614"),
-            i18n_name: I18nName::new(12028), /* "Normal" */
+            i18n_name: I18nName::new(12028 /* "Normal" */),
             i18n_desc: None,
             custom_attributes: Default::default(),
         }

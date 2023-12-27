@@ -162,27 +162,6 @@ pub struct MissionWithUserData {
     pub completed: bool,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Mission {
-    pub name: Uuid,
-    pub descriptor: MissionDescriptor,
-    pub mission_type: MissionType,
-    pub accessibility: MissionAccessibility,
-    pub waves: Vec<Wave>,
-    pub tags: Vec<&'static MissionTag>,
-    pub static_modifiers: Vec<MissionModifier>,
-    pub dynamic_modifiers: Vec<MissionModifier>,
-    pub rewards: MissionRewards,
-    pub custom_attributes: CustomAttributes,
-    // Time to start displaying the mission
-    pub start_seconds: u64,
-    // Time to stop displaying the mission
-    pub end_seconds: u64,
-    // How long the singleplayer mission will take to complete (Strike teams)
-    pub sp_length_seconds: u32,
-}
-
 // New missions are posted every four hours, starting at midnight, Eastern Standard Time (-5:00 UTC).
 
 impl Mission {
@@ -377,50 +356,6 @@ pub enum MissionState {
     PendingResolve,
     Available,
     Completed,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MissionType {
-    pub name: Uuid,
-    pub descriptor: MissionTypeDescriptor,
-    pub give_currency: bool,
-    pub give_xp: bool,
-}
-
-impl MissionType {
-    pub fn normal() -> Self {
-        Self {
-            name: uuid!("1cedd0c2-652b-d879-d8c9-0ff8b1b0bf9c"),
-            descriptor: MissionTypeDescriptor::normal(),
-            give_currency: true,
-            give_xp: true,
-        }
-    }
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MissionTypeDescriptor {
-    pub name: Uuid,
-    #[serde(flatten)]
-    pub i18n_name: I18nName,
-
-    #[serde(flatten)]
-    pub i18n_desc: Option<I18nDesc>,
-
-    pub custom_attributes: CustomAttributes,
-}
-
-impl MissionTypeDescriptor {
-    pub fn normal() -> Self {
-        Self {
-            name: uuid!("39b9880a-ce11-4be3-a3e7-728763b48614"),
-            i18n_name: I18nName::new(12028), /* "Normal" */
-            i18n_desc: None,
-            custom_attributes: Default::default(),
-        }
-    }
 }
 
 #[skip_serializing_none]
