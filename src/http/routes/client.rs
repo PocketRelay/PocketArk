@@ -4,7 +4,7 @@
 use crate::{
     blaze::{router::BlazeRouter, session::Session},
     database::entity::{users::CreateUser, Currency, SharedData, StrikeTeam, User},
-    definitions::items::create_default_items,
+    definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
         middleware::{json_validated::JsonValidated, upgrade::Upgrade, user::Auth},
         models::{
@@ -106,7 +106,7 @@ pub async fn create(
                 SharedData::create_default(db, &user).await?;
 
                 // Setup the user strike teams
-                StrikeTeam::create_default(db, &user).await?;
+                create_user_strike_team(db, &user).await?;
 
                 Ok::<_, DynHttpError>(user)
             })

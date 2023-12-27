@@ -5,7 +5,9 @@
 //! The collection of strike team missions available are the same for *every* player
 //! and are rotated
 
-use sea_orm::FromJsonQueryResult;
+use anyhow::{bail, Context};
+use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
+use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use uuid::{uuid, Uuid};
@@ -14,10 +16,15 @@ use super::{
     challenges::CurrencyReward,
     i18n::{I18nDesc, I18nDescription, I18nName},
     items::{ItemDefinition, ItemName},
-    level_tables::{LevelTable, LevelTableName},
+    level_tables::{LevelTable, LevelTableName, ProgressionXp},
     shared::CustomAttributes,
+    striketeams::{StrikeTeamEquipment, TeamTrait},
 };
-use crate::utils::ImStr;
+use crate::{
+    database::entity::{StrikeTeam, User},
+    definitions::level_tables::LevelTables,
+    utils::ImStr,
+};
 
 /// Type alias for a [ImStr] representing a [MissionTag::name]
 pub type MissionTagName = ImStr;
@@ -50,6 +57,112 @@ static STRIKE_TEAM_ICON_SETS: &[(&str, &str)] = &[
     ("icon9", "Team09"),
     ("icon10", "Team10"),
 ];
+
+/// Data used to create a strike team
+pub struct StrikeTeamData {
+    pub name: StrikeTeamName,
+    pub icon: StrikeTeamIcon,
+    pub level: u32,
+    pub xp: ProgressionXp,
+    pub positive_trait: TeamTrait,
+}
+
+/// Creates a new strike team for the provided user
+pub async fn create_user_strike_team<C>(db: &C, user: &User) -> anyhow::Result<StrikeTeam>
+where
+    C: ConnectionTrait + Send,
+{
+    // Generate random strike team data
+    let mut rng = StdRng::from_entropy();
+    let strike_team_data = random_strike_team(&mut rng).context("Failed to create strike team")?;
+
+    // Create the strike team
+    let team = StrikeTeam::create(db, &user, strike_team_data).await?;
+    Ok(team)
+}
+
+pub fn random_strike_team<R>(rng: &mut R) -> anyhow::Result<StrikeTeamData>
+where
+    R: Rng,
+{
+    // Default level
+    let level: u32 = 1;
+
+    let level_tables = LevelTables::get();
+
+    let name = random_team_name(rng)?;
+    let icon = StrikeTeamIcon::random(rng)?;
+
+    let level_table = level_tables
+        .by_name(&STRIKE_TEAM_LEVEL_TABLE)
+        .context("Missing strike team level table")?;
+
+    let xp = level_table
+        .get_xp_values(level)
+        .map(|(previous, current, next)| ProgressionXp {
+            last: previous,
+            current,
+            next,
+        })
+        .context("Unable to determine initial xp")?;
+
+    // Every team starts with one positive trait
+    let positive_trait = random_positive_trait(rng)?;
+
+    Ok(StrikeTeamData {
+        name,
+        icon,
+        level,
+        xp,
+        positive_trait,
+    })
+}
+
+fn random_positive_trait<R>(rng: &mut R) -> anyhow::Result<TeamTrait> {
+    bail!("Not implemented")
+}
+
+/// Type alias for the name of a strike team
+pub type StrikeTeamName = String;
+
+/// Chooses a random strike team name from [STRIKE_TEAM_NAMES]
+fn random_team_name<R>(rng: &mut R) -> anyhow::Result<StrikeTeamName>
+where
+    R: Rng,
+{
+    STRIKE_TEAM_NAMES
+        .choose(rng)
+        .context("Failed to choose name")
+        .map(|value| value.to_string())
+}
+
+/// Icon that the a strike team can use
+///
+/// For reference: https://masseffectandromeda.fandom.com/wiki/Strike_team#Team_composition
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamIcon {
+    /// Name of the icon
+    pub name: ImStr,
+    /// Icon image path
+    pub image: ImStr,
+}
+
+impl StrikeTeamIcon {
+    /// Choose a random strike team icon
+    fn random<R>(rng: &mut R) -> anyhow::Result<Self>
+    where
+        R: Rng,
+    {
+        STRIKE_TEAM_ICON_SETS
+            .choose(rng)
+            .context("Failed to choose icon")
+            .map(|(name, image)| Self {
+                name: ImStr::from(*name),
+                image: ImStr::from(*image),
+            })
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MissionTags {

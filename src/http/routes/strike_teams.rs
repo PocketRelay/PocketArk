@@ -1,7 +1,11 @@
 use crate::{
     database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, Currency, StrikeTeam},
-    definitions::striketeams::{
-        StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeamWithMission,
+    definitions::{
+        strike_teams::create_user_strike_team,
+        striketeams::{
+            StrikeTeamDefinitions, StrikeTeamEquipment, StrikeTeamSpecialization,
+            StrikeTeamWithMission,
+        },
     },
     http::{
         middleware::user::Auth,
@@ -14,11 +18,13 @@ use crate::{
         },
     },
 };
+use anyhow::Context;
 use axum::{
     extract::{Path, Query},
     Extension, Json,
 };
 use log::debug;
+use rand::{rngs::StdRng, SeedableRng};
 use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -201,7 +207,7 @@ pub async fn purchase(
                     try_spend_currency(db, &user, CurrencyType::Mission, strike_team_cost).await?;
 
                 // Create the strike team
-                let team = StrikeTeam::create_default(db, &user).await?;
+                let team = create_user_strike_team(db, &user).await?;
 
                 Ok::<_, DynHttpError>((team, currency_balance))
             })

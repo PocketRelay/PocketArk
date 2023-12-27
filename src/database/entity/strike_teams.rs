@@ -1,6 +1,7 @@
 use super::users::UserId;
 use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
+use crate::definitions::strike_teams::{StrikeTeamData, StrikeTeamIcon, StrikeTeamName};
 use crate::definitions::{
     level_tables::{LevelTables, ProgressionXp},
     striketeams::{StrikeTeamEquipment, TeamTrait},
@@ -10,7 +11,7 @@ use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{prelude::*, FromJsonQueryResult, IntoActiveModel};
+use sea_orm::{prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use uuid::{uuid, Uuid};
@@ -33,7 +34,7 @@ pub struct Model {
     #[serde(skip)]
     pub user_id: UserId,
     /// Name of the strike team (Shown in game)
-    pub name: String,
+    pub name: StrikeTeamName,
     /// Icon to use with the strike team
     pub icon: StrikeTeamIcon,
     /// Current level of the strike team
@@ -63,62 +64,23 @@ pub enum Relation {
     MissionProgress,
 }
 
-// Sourced from "NATO phonetic alphabet", these are the default strike team names used by the game
-static STRIKE_TEAM_NAMES: &[&str] = &[
-    "Yankee", "Delta", "India", "Echo", "Zulu", "Charlie", "Whiskey", "Lima", "Bravo", "Sierra",
-    "November", "X-Ray", "Golf", "Alpha", "Romeo", "Kilo", "Tango", "Quebec", "Foxtrot", "Papa",
-    "Mike", "Oscar", "Juliet", "Uniform", "Victor", "Hotel",
-];
-
-/// Icon that the strike team should use
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
-#[serde(rename_all = "camelCase")]
-pub struct StrikeTeamIcon {
-    /// Name of the icon
-    pub name: ImStr,
-    /// Icon image path
-    pub image: ImStr,
-}
-
-/// Set of default known icons from the game
-static ICON_SETS: &[(&str, &str)] = &[
-    ("icon1", "Team01"),
-    ("icon2", "Team02"),
-    ("icon3", "Team03"),
-    ("icon4", "Team04"),
-    ("icon5", "Team05"),
-    ("icon6", "Team06"),
-    ("icon7", "Team07"),
-    ("icon8", "Team08"),
-    ("icon9", "Team09"),
-    ("icon10", "Team10"),
-];
-
-impl StrikeTeamIcon {
-    pub fn random(rng: &mut StdRng) -> Self {
-        let (name, image) = ICON_SETS.choose(rng).expect("Missing strike team icon set");
-
-        StrikeTeamIcon {
-            name: Box::from(*name),
-            image: Box::from(*image),
-        }
-    }
-}
-
 impl Model {
-    /// The level table used for strike team levels
-    const LEVEL_TABLE: Uuid = uuid!("5e6f7542-7309-9367-8437-fe83678e5c28");
-
-    pub async fn create_default<C>(db: &C, user: &User) -> DbResult<Self>
+    pub async fn create<C>(db: &C, user: &User, data: StrikeTeamData) -> DbResult<Self>
     where
         C: ConnectionTrait + Send,
     {
-        let level_tables = LevelTables::get();
-
-        let mut rng = StdRng::from_entropy();
-        let mut strike_team = Self::random(&mut rng, level_tables);
-        strike_team.user_id = Set(user.id);
-        strike_team.insert(db).await
+        ActiveModel {
+            user_id: Set(user.id),
+            name: Set(data.name),
+            icon: Set(data.icon),
+            level: Set(data.level),
+            xp: Set(data.xp),
+            positive_traits: Set(SeaJson(vec![data.positive_trait])),
+            negative_traits: Set(Default::default()),
+            ..Default::default()
+        }
+        .insert(db)
+        .await
     }
 
     pub async fn set_equipment<C>(
@@ -174,42 +136,6 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         user.find_related(Entity).count(db).await
-    }
-
-    pub fn random(rng: &mut StdRng, level_tables: &LevelTables) -> ActiveModel {
-        let name = STRIKE_TEAM_NAMES
-            .choose(rng)
-            .expect("Failed to choose strike team name")
-            .to_string();
-        let level_table = level_tables
-            .by_name(&Self::LEVEL_TABLE)
-            .expect("Missing strike team level table");
-
-        let level = 1;
-        let next_xp = level_table
-            .get_xp_requirement(level)
-            .expect("Missing xp requirement for next strike team level");
-
-        let xp = ProgressionXp {
-            current: 0,
-            last: 0,
-            next: next_xp,
-        };
-
-        let icon = StrikeTeamIcon::random(rng);
-
-        let positive_traits = Vec::new();
-        let negative_traits = Vec::new();
-
-        ActiveModel {
-            name: Set(name),
-            icon: Set(icon),
-            level: Set(level),
-            xp: Set(xp),
-            positive_traits: Set(SeaJson(positive_traits)),
-            negative_traits: Set(SeaJson(negative_traits)),
-            ..Default::default()
-        }
     }
 }
 
