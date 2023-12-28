@@ -6,8 +6,8 @@ use crate::definitions::strike_teams::{
     MissionDescriptor, MissionModifier, MissionRewards, MissionType, MissionWave,
 };
 use crate::definitions::strike_teams::{MissionTag, StrikeTeamMissionData};
-use sea_orm::InsertResult;
 use sea_orm::{prelude::*, ActiveValue::Set};
+use sea_orm::{InsertResult, QueryOrder, QuerySelect};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -75,8 +75,18 @@ pub enum MissionAccessibility {
 
 impl Model {
     /// Finds the newest strike team mission
-    pub async fn newest_mission() {
-        unimplemented!()
+    pub fn newest_mission<C>(db: &C) -> impl Future<Output = DbResult<Option<u64>>> + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find()
+            .select_only()
+            // Select only the start seconds
+            .column(Column::StartSeconds)
+            // Order by the newest
+            .order_by_desc(Column::StartSeconds)
+            .into_tuple::<u64>()
+            .one(db)
     }
 
     pub fn create<C>(
