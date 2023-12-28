@@ -4,14 +4,14 @@
 use std::{ops::Add, time::Duration};
 
 use anyhow::Context;
-use chrono::{DateTime, Datelike, Days, FixedOffset, NaiveDateTime, TimeZone, Timelike, Utc};
+use chrono::{Datelike, Days, TimeZone, Timelike, Utc};
 use log::error;
 use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::{prelude::DateTimeUtc, ConnectionTrait, DatabaseConnection, TransactionTrait};
+use sea_orm::{prelude::DateTimeUtc, DatabaseConnection};
 use tokio::time::sleep;
 
 use crate::{
-    database::{entity::StrikeTeamMission, DbResult},
+    database::entity::StrikeTeamMission,
     definitions::strike_teams::{random_mission, MissionDifficulty, StrikeTeamMissionData},
 };
 
@@ -26,13 +26,35 @@ pub struct MissionBackgroundTask {
 type HourOffset = u32;
 
 impl MissionBackgroundTask {
+    pub fn new(db: DatabaseConnection) -> Self {
+        Self { db }
+    }
+
+    /// Starts the task in a background tokio task
+    pub fn start(self) {
+        tokio::spawn(async move {
+            self.run();
+        });
+    }
+
     const HOURS_IN_DAY: u32 = 24;
     const SCHEDULE_HOURLY_INTERVAL: u32 = 4;
     const TOTAL_DAILY_OFFSETS: u32 = Self::HOURS_IN_DAY / Self::SCHEDULE_HOURLY_INTERVAL;
 
     /// Finds the date time of the last created mission
-    async fn last_mission_time(&self) -> DbResult<Option<DateTimeUtc>> {
-        unimplemented!()
+    async fn last_mission_time(&self) -> anyhow::Result<Option<DateTimeUtc>> {
+        let start_seconds: u64 = match StrikeTeamMission::newest_mission(&self.db).await {
+            Ok(Some(value)) => value,
+            Ok(None) => return Ok(None),
+            Err(err) => return Err(err.into()),
+        };
+
+        let date_time = Utc
+            .timestamp_opt(start_seconds as i64, 0)
+            .single()
+            .context("Failed to determine last mission date")?;
+
+        Ok(Some(date_time))
     }
 
     /// Finds the offset nearest to the provided `hour`
@@ -58,7 +80,7 @@ impl MissionBackgroundTask {
             .collect()
     }
 
-    pub async fn run(&self) {
+    async fn run(&self) {
         let mut failures = 0;
 
         loop {
@@ -81,7 +103,7 @@ impl MissionBackgroundTask {
         }
     }
 
-    pub async fn process(&self) -> anyhow::Result<()> {
+    async fn process(&self) -> anyhow::Result<()> {
         let current_time = Utc::now();
 
         let last_date_time = self
