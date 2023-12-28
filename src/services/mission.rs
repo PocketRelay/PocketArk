@@ -142,20 +142,18 @@ impl MissionBackgroundTask {
             }
         };
 
-        if let Some(last_offset) = last_offset {
-            // Collect any offsets missed
-            let missed_offsets = Self::inclusive_offsets(last_offset + 1, next_offset - 1);
+        // Collect any offsets missed
+        let missed_offsets = (last_offset.unwrap_or_default() + 1)..next_offset;
 
-            // Computed missed offsets before waiting
-            if !missed_offsets.is_empty() {
-                debug!(
-                    "Creating missed strike team missions for offsets: {:?}",
-                    &missed_offsets
-                );
+        // Computed missed offsets before waiting
+        if !missed_offsets.is_empty() {
+            debug!(
+                "Creating missed strike team missions for offsets: {:?}",
+                &missed_offsets
+            );
 
-                for offset in missed_offsets {
-                    self.create_mission_offset(offset).await?;
-                }
+            for offset in missed_offsets {
+                self.create_mission_offset(offset).await?;
             }
         }
 
@@ -266,7 +264,7 @@ impl MissionBackgroundTask {
             next_offset += 1;
         }
 
-        if next_offset == Self::TOTAL_DAILY_OFFSETS {
+        if next_offset > Self::TOTAL_DAILY_OFFSETS {
             None
         } else {
             Some(next_offset)
