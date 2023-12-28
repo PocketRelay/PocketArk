@@ -12,7 +12,7 @@ use tokio::time::sleep;
 
 use crate::{
     database::DbResult,
-    definitions::strike_teams::{random_mission, MissionDifficulty},
+    definitions::strike_teams::{random_mission, MissionDifficulty, StrikeTeamMissionData},
 };
 
 /// Background task that handles creating missions on the fixed
@@ -141,7 +141,7 @@ impl MissionBackgroundTask {
         let mut rng = StdRng::from_entropy();
 
         // Mission data to create
-        let mut mission_data: Vec<()> = Vec::new();
+        let mut mission_data: Vec<StrikeTeamMissionData> = Vec::new();
 
         // Bronze standard issued at 12am and 12pm
         if offset == AM_12 || offset == PM_12 {

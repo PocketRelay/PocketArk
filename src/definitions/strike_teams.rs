@@ -123,11 +123,30 @@ impl StrikeTeams {
     }
 }
 
+/// Data required for building and creating a new
+/// strike team mission
+/// (Passed to the database layer)
+pub struct StrikeTeamMissionData {
+    pub descriptor: MissionDescriptor,
+    pub mission_type: MissionType,
+    pub tags: Vec<MissionTag>,
+    pub static_modifiers: Vec<MissionModifier>,
+    pub dynamic_modifiers: Vec<MissionModifier>,
+    pub rewards: MissionRewards,
+    pub custom_attributes: CustomAttributes,
+    pub waves: Vec<MissionWave>,
+    pub start_seconds: u64,
+    pub end_seconds: u64,
+    pub sp_length_seconds: u32,
+}
+
+/// Generates a random mission for the provided `difficulty` and whether
+/// the mission should be an Apex mission
 pub fn random_mission<R>(
     rng: &mut R,
     difficulty: MissionDifficulty,
     apex: bool,
-) -> anyhow::Result<()>
+) -> anyhow::Result<StrikeTeamMissionData>
 where
     R: Rng,
 {
@@ -163,7 +182,12 @@ where
         .map(|value| value.to_string())?;
 
     let enemy_tag = strike_teams.tags.random_enemy(rng)?;
-    let mission_tag = strike_teams.tags.random_missions(rng, 2);
+    let mission_tags = strike_teams.tags.random_missions(rng, 2);
+
+    // Create the collection of tags
+    let mut tags: Vec<MissionTag> = Vec::with_capacity(mission_tags.len() + 1);
+    tags.push(enemy_tag.clone());
+    tags.extend(mission_tags.iter().map(|value| (*value).clone()));
 
     // Create the static modifiers
     let static_modifiers: Vec<MissionModifier> = [
@@ -184,7 +208,7 @@ where
     .collect();
 
     // TODO: Randomly select dynamic modifiers
-    let mut dynamic_modifiers: Vec<MissionModifier> = Vec::new();
+    let dynamic_modifiers: Vec<MissionModifier> = Vec::new();
 
     // Create the mission rewards
     let rewards = mission
@@ -202,14 +226,29 @@ where
         .expect("Time went backwards")
         .as_secs();
 
-    // TODO: Generate start and end times
-    let start_seconds = 0;
-    let end_seconds = 0;
+    // Mission starts immediately and ends after 24 hours
+    let start_seconds = now;
+    let end_seconds = now + 86400 /* 24 hours */;
 
-    // TODO: Generate random mission length
-    let sp_length_seconds = 4000;
+    let mut sp_length_seconds = rng.gen_range(3000..=9000);
+    // Apex missions have an additional duration added
+    if apex {
+        sp_length_seconds += rng.gen_range(1000..=3000);
+    }
 
-    Ok(())
+    Ok(StrikeTeamMissionData {
+        descriptor,
+        mission_type,
+        tags,
+        static_modifiers,
+        dynamic_modifiers,
+        rewards,
+        custom_attributes,
+        waves,
+        start_seconds,
+        end_seconds,
+        sp_length_seconds,
+    })
 }
 
 /// Data used to create a strike team
@@ -231,7 +270,7 @@ where
     let strike_team_data = random_strike_team(&mut rng).context("Failed to create strike team")?;
 
     // Create the strike team
-    let team = StrikeTeam::create(db, &user, strike_team_data).await?;
+    let team = StrikeTeam::create(db, user, strike_team_data).await?;
     Ok(team)
 }
 
