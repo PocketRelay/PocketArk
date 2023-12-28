@@ -6,10 +6,14 @@ use std::{ops::Add, time::Duration};
 use anyhow::Context;
 use chrono::{DateTime, Datelike, Days, FixedOffset, NaiveDateTime, TimeZone, Timelike, Utc};
 use log::error;
+use rand::{rngs::StdRng, SeedableRng};
 use sea_orm::{prelude::DateTimeUtc, ConnectionTrait, DatabaseConnection};
 use tokio::time::sleep;
 
-use crate::database::DbResult;
+use crate::{
+    database::DbResult,
+    definitions::strike_teams::{random_mission, MissionDifficulty},
+};
 
 /// Background task that handles creating missions on the fixed
 /// four hourly schedule
@@ -134,35 +138,47 @@ impl MissionBackgroundTask {
         const PM_8: HourOffset = 5;
         const PM_12: HourOffset = 6;
 
+        let mut rng = StdRng::from_entropy();
+
+        // Mission data to create
+        let mut mission_data: Vec<()> = Vec::new();
+
         // Bronze standard issued at 12am and 12pm
         if offset == AM_12 || offset == PM_12 {
             // Bronze Standard
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Bronze, false)?);
         }
 
         // Silver standard issued at 4am and 4pm
         if offset == AM_4 || offset == PM_4 {
             // Silver Standard
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Silver, false)?);
         }
 
         // Gold standard issued at 8am and 8pm
         if offset == AM_8 || offset == PM_8 {
             // Gold Standard
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Gold, false)?);
         }
 
         // Bronze apex issued at 12am
         if offset == AM_12 {
             // Bronze Apex
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Bronze, true)?);
         }
 
         // Gold apex issued at 4pm
         if offset == PM_4 {
             // Gold Apex
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Gold, true)?);
         }
 
         // Silver and platinum apex issued at 8pm
         if offset == PM_8 {
             // Silver Apex
             // Platinum Apex
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Silver, true)?);
+            mission_data.push(random_mission(&mut rng, MissionDifficulty::Platinum, true)?);
         }
 
         Ok(())
