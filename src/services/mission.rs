@@ -33,7 +33,7 @@ impl MissionBackgroundTask {
     /// Starts the task in a background tokio task
     pub fn start(self) {
         tokio::spawn(async move {
-            self.run();
+            self.run().await;
         });
     }
 
