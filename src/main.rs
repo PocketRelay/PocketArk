@@ -7,6 +7,7 @@ use definitions::{
 };
 use log::error;
 use log::LevelFilter;
+use services::mission::MissionBackgroundTask;
 use services::{game_manager::GameManager, sessions::Sessions};
 
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
@@ -43,19 +44,22 @@ async fn main() {
     _ = MatchModifiers::get();
     _ = StrikeTeams::get();
 
-    let (database, signing_key) = join!(crate::database::init(), SigningKey::global());
+    let (db, signing_key) = join!(crate::database::init(), SigningKey::global());
+
+    // Start the strike team mission background task
+    MissionBackgroundTask::new(db.clone()).start();
 
     let game_manager = Arc::new(GameManager::new());
     let sessions = Arc::new(Sessions::new(signing_key));
 
     let mut router = blaze::routes::router();
-    router.add_extension(database.clone());
+    router.add_extension(db.clone());
     router.add_extension(game_manager.clone());
     let router = router.build();
 
     let router = http::routes::router()
         .layer(Extension(router))
-        .layer(Extension(database))
+        .layer(Extension(db))
         .layer(Extension(game_manager))
         .layer(Extension(sessions));
 
