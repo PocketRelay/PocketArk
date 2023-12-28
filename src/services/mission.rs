@@ -5,7 +5,7 @@ use std::{ops::Add, time::Duration};
 
 use anyhow::Context;
 use chrono::{Datelike, Days, TimeZone, Timelike, Utc};
-use log::error;
+use log::{debug, error};
 use rand::{rngs::StdRng, SeedableRng};
 use sea_orm::{prelude::DateTimeUtc, DatabaseConnection};
 use tokio::time::sleep;
@@ -121,32 +121,55 @@ impl MissionBackgroundTask {
             // Find the offset for the last date
             .and_then(|last| Self::offset_for_hour(last.hour()));
 
-        // Get the next offset to execute at
-        let next_offset = match Self::get_next_offset(&current_time, last_offset) {
-            Some(value) => value,
+        // Get the datetime to wait until before executing
+        let (next_date, next_offset) = match Self::get_next_offset(&current_time, last_offset) {
+            Some(next_offset) => {
+                // Determine how long to sleep for till the next offset
+                let next_date = current_time
+                    // Update the hour to the fixed schedule offset
+                    .with_hour((next_offset * Self::SCHEDULE_HOURLY_INTERVAL) - 1)
+                    .expect("Invalid hour for daily offset");
+
+                (next_date, next_offset)
+            }
             // No more offsets available for today (Sleep till next day)
             None => {
+                let next_offset = 1;
+
                 // Restart processing a day from now at the first hour
                 let next_date = current_time.with_hour(0).unwrap().add(Days::new(1));
-                Self::sleep_until(next_date).await?;
-                return Ok(());
+                (next_date, next_offset)
             }
         };
 
-        // Determine how long to sleep for till the next offset
-        let next_date = current_time
-            // Update the hour to the fixed schedule offset
-            .with_hour((next_offset * Self::SCHEDULE_HOURLY_INTERVAL) - 1)
-            .expect("Invalid hour for daily offset");
+        if let Some(last_offset) = last_offset {
+            // Collect any offsets missed
+            let missed_offsets = Self::inclusive_offsets(last_offset + 1, next_offset - 1);
 
+            // Computed missed offsets before waiting
+            if !missed_offsets.is_empty() {
+                debug!(
+                    "Creating missed strike team missions for offsets: {:?}",
+                    &missed_offsets
+                );
+
+                for offset in missed_offsets {
+                    self.create_mission_offset(offset).await?;
+                }
+            }
+        }
+
+        debug!(
+            "Creating strike team mission at ({}): {}",
+            next_offset, &next_date
+        );
+
+        // Wait until its time to create the offset
         Self::sleep_until(next_date).await?;
 
-        // Determine the offsets that should be computed (Gets all the missed offsets since last)
-        let offsets = Self::inclusive_offsets(last_offset.unwrap_or_default(), next_offset);
-
-        for offset in offsets {
-            self.create_mission_offset(offset).await?;
-        }
+        // Create the mission for current offset
+        debug!("Creating strike team missions for offset: {}", next_offset);
+        self.create_mission_offset(next_offset).await?;
 
         Ok(())
     }
