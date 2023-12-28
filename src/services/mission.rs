@@ -7,11 +7,11 @@ use anyhow::Context;
 use chrono::{DateTime, Datelike, Days, FixedOffset, NaiveDateTime, TimeZone, Timelike, Utc};
 use log::error;
 use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::{prelude::DateTimeUtc, ConnectionTrait, DatabaseConnection};
+use sea_orm::{prelude::DateTimeUtc, ConnectionTrait, DatabaseConnection, TransactionTrait};
 use tokio::time::sleep;
 
 use crate::{
-    database::DbResult,
+    database::{entity::StrikeTeamMission, DbResult},
     definitions::strike_teams::{random_mission, MissionDifficulty, StrikeTeamMissionData},
 };
 
@@ -180,6 +180,10 @@ impl MissionBackgroundTask {
             mission_data.push(random_mission(&mut rng, MissionDifficulty::Silver, true)?);
             mission_data.push(random_mission(&mut rng, MissionDifficulty::Platinum, true)?);
         }
+
+        StrikeTeamMission::create_many(&self.db, mission_data)
+            .await
+            .context("Failed to create strike team missions")?;
 
         Ok(())
     }

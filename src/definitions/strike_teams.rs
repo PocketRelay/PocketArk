@@ -130,6 +130,7 @@ pub struct StrikeTeamMissionData {
     pub descriptor: MissionDescriptor,
     pub mission_type: MissionType,
     pub tags: Vec<MissionTag>,
+    pub accessibility: MissionAccessibility,
     pub static_modifiers: Vec<MissionModifier>,
     pub dynamic_modifiers: Vec<MissionModifier>,
     pub rewards: MissionRewards,
@@ -137,7 +138,7 @@ pub struct StrikeTeamMissionData {
     pub waves: Vec<MissionWave>,
     pub start_seconds: u64,
     pub end_seconds: u64,
-    pub sp_length_seconds: u32,
+    pub sp_length_seconds: u16,
 }
 
 /// Generates a random mission for the provided `difficulty` and whether
@@ -150,6 +151,15 @@ pub fn random_mission<R>(
 where
     R: Rng,
 {
+    let accessibility = match (&difficulty, apex) {
+        // Platinum can only be played in multiplayer
+        (MissionDifficulty::Platinum, _) => MissionAccessibility::MultiPlayer,
+        // Apex missions can be either multiplayer or striketeam
+        (_, true) => MissionAccessibility::Any,
+        // Strike team only mission
+        (_, false) => MissionAccessibility::SinglePlayer,
+    };
+
     let strike_teams = StrikeTeams::get();
 
     let missions = &strike_teams.missions;
@@ -239,6 +249,7 @@ where
     Ok(StrikeTeamMissionData {
         descriptor,
         mission_type,
+        accessibility,
         tags,
         static_modifiers,
         dynamic_modifiers,

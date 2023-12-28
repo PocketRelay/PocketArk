@@ -1,9 +1,13 @@
+use std::future::Future;
+
+use crate::database::DbResult;
 use crate::definitions::shared::CustomAttributes;
-use crate::definitions::strike_teams::MissionTag;
 use crate::definitions::strike_teams::{
     MissionDescriptor, MissionModifier, MissionRewards, MissionType, MissionWave,
 };
-use sea_orm::prelude::*;
+use crate::definitions::strike_teams::{MissionTag, StrikeTeamMissionData};
+use sea_orm::InsertResult;
+use sea_orm::{prelude::*, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -69,6 +73,60 @@ pub enum MissionAccessibility {
     SinglePlayer = 2,
 }
 
-impl Model {}
+impl Model {
+    /// Finds the newest strike team mission
+    pub async fn newest_mission() {
+        unimplemented!()
+    }
+
+    pub fn create<C>(
+        db: &C,
+        data: StrikeTeamMissionData,
+    ) -> impl Future<Output = DbResult<Self>> + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        ActiveModel {
+            descriptor: Set(data.descriptor),
+            mission_type: Set(data.mission_type),
+            tags: Set(SeaJson(data.tags)),
+            accessibility: Set(data.accessibility),
+            static_modifiers: Set(SeaJson(data.static_modifiers)),
+            dynamic_modifiers: Set(SeaJson(data.dynamic_modifiers)),
+            rewards: Set(data.rewards),
+            custom_attributes: Set(data.custom_attributes),
+            waves: Set(SeaJson(data.waves)),
+            start_seconds: Set(data.start_seconds),
+            end_seconds: Set(data.end_seconds),
+            sp_length_seconds: Set(data.sp_length_seconds),
+            ..Default::default()
+        }
+        .insert(db)
+    }
+    pub fn create_many<C>(
+        db: &C,
+        data: Vec<StrikeTeamMissionData>,
+    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::insert_many(data.into_iter().map(|data| ActiveModel {
+            descriptor: Set(data.descriptor),
+            mission_type: Set(data.mission_type),
+            tags: Set(SeaJson(data.tags)),
+            accessibility: Set(data.accessibility),
+            static_modifiers: Set(SeaJson(data.static_modifiers)),
+            dynamic_modifiers: Set(SeaJson(data.dynamic_modifiers)),
+            rewards: Set(data.rewards),
+            custom_attributes: Set(data.custom_attributes),
+            waves: Set(SeaJson(data.waves)),
+            start_seconds: Set(data.start_seconds),
+            end_seconds: Set(data.end_seconds),
+            sp_length_seconds: Set(data.sp_length_seconds),
+            ..Default::default()
+        }))
+        .exec(db)
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
