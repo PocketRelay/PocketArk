@@ -6,10 +6,11 @@ use crate::definitions::strike_teams::{
     MissionDescriptor, MissionModifier, MissionRewards, MissionType, MissionWave,
 };
 use crate::definitions::strike_teams::{MissionTag, StrikeTeamMissionData};
+use log::debug;
 use sea_orm::{prelude::*, ActiveValue::Set};
 use sea_orm::{InsertResult, QueryOrder, QuerySelect};
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde_with::{serde_as, skip_serializing_none};
 
 use super::strike_team_mission_progress::UserMissionState;
 use super::{SeaJson, StrikeTeamMissionProgress, User};
@@ -19,6 +20,7 @@ use super::{SeaJson, StrikeTeamMissionProgress, User};
 /// UUIDs as primary keys in the SQLite database (Basically defeats the purpose of SeaORM)
 pub type StrikeTeamMissionId = u32;
 
+#[serde_as]
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "strike_team_missions")]
@@ -27,6 +29,7 @@ pub struct Model {
     /// Unique ID of the strike team mission
     #[sea_orm(primary_key)]
     #[serde(rename = "name")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub id: StrikeTeamMissionId,
     /// The mission descriptor details
     pub descriptor: MissionDescriptor,
@@ -102,13 +105,16 @@ impl Model {
     {
         Entity::find()
             .find_also_related(super::strike_team_mission_progress::Entity)
-            .filter(Column::EndSeconds.gt(current_time).or(
-                super::strike_team_mission_progress::Column::UserMissionState.is_in([
-                    UserMissionState::PendingResolve,
-                    UserMissionState::InProgress,
-                ]),
-            ))
-            .filter(super::strike_team_mission_progress::Column::UserId.eq(user.id))
+            .filter(
+                Column::EndSeconds.gt(current_time).or(
+                    super::strike_team_mission_progress::Column::UserMissionState
+                        .is_in([
+                            UserMissionState::PendingResolve,
+                            UserMissionState::InProgress,
+                        ])
+                        .and(super::strike_team_mission_progress::Column::UserId.eq(user.id)),
+                ),
+            )
             .all(db)
             .await
     }
@@ -134,10 +140,10 @@ impl Model {
                         .or(
                             super::strike_team_mission_progress::Column::UserMissionState
                                 .eq(UserMissionState::Available),
-                        ),
+                        )
+                        .and(super::strike_team_mission_progress::Column::UserId.eq(user.id)),
                 ),
             )
-            .filter(super::strike_team_mission_progress::Column::UserId.eq(user.id))
             .all(db)
             .await
     }

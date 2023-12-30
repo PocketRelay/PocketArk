@@ -8,13 +8,14 @@ use crate::definitions::strike_teams::{
 use sea_orm::ActiveValue::Set;
 use sea_orm::{prelude::*, IntoActiveModel};
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde_with::{serde_as, skip_serializing_none};
 
 /// Strike Team ID keying has been replaced with integer keys rather than the UUIDs
 /// used by the official game, this is because its *very* annoying to work with
 /// UUIDs as primary keys in the SQLite database (Basically defeats the purpose of SeaORM)
 pub type StrikeTeamId = u32;
 
+#[serde_as]
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "strike_teams")]
@@ -22,7 +23,7 @@ pub type StrikeTeamId = u32;
 pub struct Model {
     /// Unique ID of the strike team
     #[sea_orm(primary_key)]
-    #[serde(skip)]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub id: StrikeTeamId,
     /// ID of the user that owns this strike team
     #[serde(skip)]
