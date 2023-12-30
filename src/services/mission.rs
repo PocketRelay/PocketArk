@@ -43,7 +43,7 @@ impl MissionBackgroundTask {
 
     /// Finds the date time of the last created mission
     async fn last_mission_time(&self) -> anyhow::Result<Option<DateTimeUtc>> {
-        let start_seconds: u64 = match StrikeTeamMission::newest_mission(&self.db).await {
+        let start_seconds: i64 = match StrikeTeamMission::newest_mission(&self.db).await {
             Ok(Some(value)) => value,
             Ok(None) => return Ok(None),
             Err(err) => return Err(err.into()),
@@ -85,7 +85,7 @@ impl MissionBackgroundTask {
 
         loop {
             if let Err(err) = self.process().await {
-                error!("Error while processing mission background task: {}", err);
+                error!("Error while processing mission background task: {:?}", err);
 
                 failures += 1;
 

@@ -16,9 +16,10 @@ use crate::{
         models::{
             strike_teams::{
                 PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamMissionSpecific,
-                StrikeTeamMissionWithState, StrikeTeamsList, StrikeTeamsResponse,
+                StrikeTeamMissionWithState, StrikeTeamSuccessRate, StrikeTeamsList,
+                StrikeTeamsResponse,
             },
-            CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson,
+            CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson, VecWithCount,
         },
     },
 };
@@ -74,14 +75,36 @@ pub async fn get(
 pub async fn get_success_rate(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
-) -> HttpResult<RawJson> {
-    let current_time = Utc::now().timestamp() as u64;
+) -> HttpResult<VecWithCount<StrikeTeamSuccessRate>> {
+    let current_time = Utc::now().timestamp();
     let strike_teams = StrikeTeam::get_by_user(&db, &user).await?;
     let missions = StrikeTeamMission::available_missions(&db, &user, current_time).await?;
 
-    // TODO: Calculate the success rate for each strike team against each mission
-    static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/successRate.json");
-    RawJson(DEFS)
+    fn compute_success_rate(_strike_team: &StrikeTeam, _mission: &StrikeTeamMission) -> f32 {
+        // Compute actual success rate
+        1.0
+    }
+
+    let rates: Vec<StrikeTeamSuccessRate> = strike_teams
+        .into_iter()
+        .map(|team| {
+            let mission_success_rate = missions
+                .iter()
+                .map(|(mission, _)| {
+                    let rate = compute_success_rate(&team, mission);
+                    (mission.id, rate)
+                })
+                .collect();
+
+            StrikeTeamSuccessRate {
+                id: team.id,
+                name: team.name,
+                mission_success_rate,
+            }
+        })
+        .collect();
+
+    Ok(Json(VecWithCount::new(rates)))
 }
 
 /// GET /striketeams/missionConfig

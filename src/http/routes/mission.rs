@@ -26,7 +26,7 @@ pub async fn current_missions(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<VecWithCount<StrikeTeamMissionWithState>> {
-    let current_time = Utc::now().timestamp() as u64;
+    let current_time = Utc::now().timestamp();
     let missions = StrikeTeamMission::visible_missions(&db, &user, current_time).await?;
 
     let missions: Vec<StrikeTeamMissionWithState> = missions
@@ -46,6 +46,8 @@ pub async fn current_missions(
             },
         })
         .collect();
+
+    debug!("MISSION LIST: {:?}", missions);
 
     Ok(Json(VecWithCount::new(missions)))
 }

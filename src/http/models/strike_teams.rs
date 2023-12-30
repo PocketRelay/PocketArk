@@ -2,9 +2,10 @@ use super::HttpError;
 use crate::{
     database::entity::{
         currency::CurrencyType, strike_team_mission::StrikeTeamMissionId,
-        strike_team_mission_progress::UserMissionState, Currency, StrikeTeam, StrikeTeamMission,
+        strike_team_mission_progress::UserMissionState, strike_teams::StrikeTeamId, Currency,
+        StrikeTeam, StrikeTeamMission,
     },
-    definitions::strike_teams::{StrikeTeamTrait, StrikeTeamWithMission},
+    definitions::strike_teams::{StrikeTeamName, StrikeTeamTrait, StrikeTeamWithMission},
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;
@@ -101,4 +102,15 @@ pub struct StrikeTeamMissionWithState {
     pub user_mission_state: UserMissionState,
     pub seen: bool,
     pub completed: bool,
+}
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamSuccessRate {
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub id: StrikeTeamId,
+    pub name: StrikeTeamName,
+    #[serde_as(as = "serde_with::Map<serde_with::DisplayFromStr, _>")]
+    pub mission_success_rate: Vec<(StrikeTeamMissionId, f32)>,
 }

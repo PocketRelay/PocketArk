@@ -47,9 +47,9 @@ pub struct Model {
     /// Custom attributes associated with the mission
     pub custom_attributes: CustomAttributes,
     /// The time in seconds when the mission became available
-    pub start_seconds: u64,
+    pub start_seconds: i64,
     /// The time in seconds when the mission is no longer available
-    pub end_seconds: u64,
+    pub end_seconds: i64,
     /// The time in seconds the mission will take to complete (Strike teams)
     pub sp_length_seconds: u16,
 }
@@ -95,7 +95,7 @@ impl Model {
     pub async fn visible_missions<C>(
         db: &C,
         user: &User,
-        current_time: u64,
+        current_time: i64,
     ) -> DbResult<Vec<(Self, Option<StrikeTeamMissionProgress>)>>
     where
         C: ConnectionTrait + Send,
@@ -120,7 +120,7 @@ impl Model {
     pub async fn available_missions<C>(
         db: &C,
         user: &User,
-        current_time: u64,
+        current_time: i64,
     ) -> DbResult<Vec<(Self, Option<StrikeTeamMissionProgress>)>>
     where
         C: ConnectionTrait + Send,
@@ -143,7 +143,7 @@ impl Model {
     }
 
     /// Finds the newest strike team mission
-    pub fn newest_mission<C>(db: &C) -> impl Future<Output = DbResult<Option<u64>>> + '_
+    pub fn newest_mission<C>(db: &C) -> impl Future<Output = DbResult<Option<i64>>> + '_
     where
         C: ConnectionTrait + Send,
     {
@@ -153,7 +153,7 @@ impl Model {
             .column(Column::StartSeconds)
             // Order by the newest
             .order_by_desc(Column::StartSeconds)
-            .into_tuple::<u64>()
+            .into_tuple::<i64>()
             .one(db)
     }
 

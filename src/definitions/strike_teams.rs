@@ -19,6 +19,7 @@ use crate::{
     utils::ImStr,
 };
 use anyhow::Context;
+use chrono::Utc;
 use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
 use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
@@ -136,8 +137,8 @@ pub struct StrikeTeamMissionData {
     pub rewards: MissionRewards,
     pub custom_attributes: CustomAttributes,
     pub waves: Vec<MissionWave>,
-    pub start_seconds: u64,
-    pub end_seconds: u64,
+    pub start_seconds: i64,
+    pub end_seconds: i64,
     pub sp_length_seconds: u16,
 }
 
@@ -231,10 +232,7 @@ where
     // Get the custom wave definitions or empty list
     let waves = mission.waves.clone().unwrap_or_default();
 
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards")
-        .as_secs();
+    let now = Utc::now().timestamp();
 
     // Mission starts immediately and ends after 24 hours
     let start_seconds = now;
