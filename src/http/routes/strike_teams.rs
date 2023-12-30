@@ -1,5 +1,9 @@
 use crate::{
-    database::entity::{currency::CurrencyType, strike_teams::StrikeTeamId, Currency, StrikeTeam},
+    database::entity::{
+        currency::CurrencyType, strike_team_mission::StrikeTeamMissionId,
+        strike_team_mission_progress::UserMissionState, strike_teams::StrikeTeamId, Currency,
+        StrikeTeam, StrikeTeamMission, StrikeTeamMissionProgress,
+    },
     definitions::{
         strike_teams::StrikeTeamWithMission,
         strike_teams::{
@@ -11,8 +15,8 @@ use crate::{
         middleware::user::Auth,
         models::{
             strike_teams::{
-                PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamsList,
-                StrikeTeamsResponse,
+                PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamMissionSpecific,
+                StrikeTeamMissionWithState, StrikeTeamsList, StrikeTeamsResponse,
             },
             CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson,
         },
@@ -22,8 +26,9 @@ use axum::{
     extract::{Path, Query},
     Extension, Json,
 };
+use chrono::Utc;
 use log::debug;
-use sea_orm::{DatabaseConnection, TransactionTrait};
+use sea_orm::{prelude::DateTimeUtc, DatabaseConnection, TransactionTrait};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -66,9 +71,15 @@ pub async fn get(
 }
 
 /// GET /striketeams/successRate
-pub async fn get_success_rate() -> RawJson {
-    // TODO: Calculate the success rate for each strike team against each mission
+pub async fn get_success_rate(
+    Extension(db): Extension<DatabaseConnection>,
+    Auth(user): Auth,
+) -> HttpResult<RawJson> {
+    let current_time = Utc::now().timestamp() as u64;
+    let strike_teams = StrikeTeam::get_by_user(&db, &user).await?;
+    let missions = StrikeTeamMission::available_missions(&db, &user, current_time).await?;
 
+    // TODO: Calculate the success rate for each strike team against each mission
     static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/successRate.json");
     RawJson(DEFS)
 }
@@ -147,7 +158,8 @@ pub async fn purchase_equipment(
 pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
     debug!("Strike team mission resolve: {}", id);
 
-    // TODO: Randomize outcome
+    // TODO: Handle resolving a mission in pending resolve state
+    // updating to completed state and granting rewards
 
     static DEFS: &str =
         include_str!("../../resources/defaults/strikeTeams/placeholderResolve.json");
@@ -157,13 +169,43 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
 /// POST /striketeams/:id/mission/:id
 ///
 /// Obtain the details about a specific strike team mission
-pub async fn get_mission(Path((id, mission_id)): Path<(Uuid, Uuid)>) -> RawJson {
+pub async fn get_mission(
+    Auth(user): Auth,
+    Path((id, mission_id)): Path<(StrikeTeamId, StrikeTeamMissionId)>,
+    Extension(db): Extension<DatabaseConnection>,
+) -> HttpResult<StrikeTeamMissionSpecific> {
     debug!("Strike team get mission : {} {}", id, mission_id);
 
-    // TODO: Randomize outcome
+    let mission = StrikeTeamMission::by_id(&db, mission_id)
+        .await?
+        .ok_or(StrikeTeamError::UnknownMission)?;
+    let strike_team = StrikeTeam::get_by_id(&db, &user, id)
+        .await?
+        .ok_or(StrikeTeamError::UnknownTeam)?;
+    let progress = StrikeTeamMissionProgress::get_by_team(&db, &strike_team).await?;
 
-    static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/missionSpecific.json");
-    RawJson(DEFS)
+    let live_mission = match progress {
+        Some(value) => StrikeTeamMissionWithState {
+            mission,
+            user_mission_state: value.user_mission_state,
+            seen: value.seen,
+            completed: value.completed,
+        },
+        None => StrikeTeamMissionWithState {
+            mission,
+            user_mission_state: UserMissionState::Available,
+            seen: false,
+            completed: false,
+        },
+    };
+
+    let finish_time: DateTimeUtc = Utc::now(); /* TODO: Proper finish time */
+
+    Ok(Json(StrikeTeamMissionSpecific {
+        name: mission_id,
+        live_mission,
+        finish_time,
+    }))
 }
 
 /// POST /striketeams/:id/retire

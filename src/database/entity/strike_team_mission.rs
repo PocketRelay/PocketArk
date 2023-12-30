@@ -11,7 +11,8 @@ use sea_orm::{InsertResult, QueryOrder, QuerySelect};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use super::SeaJson;
+use super::strike_team_mission_progress::UserMissionState;
+use super::{SeaJson, StrikeTeamMissionProgress, User};
 
 /// Strike team mission ID keying has been replaced with integer keys rather than the UUIDs
 /// used by the official game, this is because its *very* annoying to work with
@@ -54,7 +55,10 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::strike_team_mission_progress::Entity")]
+    MissionProgress,
+}
 
 /// Enum for the different known currency types
 #[derive(
@@ -74,6 +78,70 @@ pub enum MissionAccessibility {
 }
 
 impl Model {
+    pub fn by_id<C>(
+        db: &C,
+        id: StrikeTeamMissionId,
+    ) -> impl Future<Output = DbResult<Option<Self>>> + Send + '_
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find_by_id(id).one(db)
+    }
+
+    /// Gets all missions that are still available
+    ///
+    /// TODO: Also need to check progress tables for all user speciifc missions
+    /// that are still awaiting completion
+    pub async fn visible_missions<C>(
+        db: &C,
+        user: &User,
+        current_time: u64,
+    ) -> DbResult<Vec<(Self, Option<StrikeTeamMissionProgress>)>>
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find()
+            .find_also_related(super::strike_team_mission_progress::Entity)
+            .filter(Column::EndSeconds.gt(current_time).or(
+                super::strike_team_mission_progress::Column::UserMissionState.is_in([
+                    UserMissionState::PendingResolve,
+                    UserMissionState::InProgress,
+                ]),
+            ))
+            .filter(super::strike_team_mission_progress::Column::UserId.eq(user.id))
+            .all(db)
+            .await
+    }
+
+    /// Gets all missions that are still available
+    ///
+    /// TODO: Also need to check progress tables for all user speciifc missions
+    /// that are still awaiting completion
+    pub async fn available_missions<C>(
+        db: &C,
+        user: &User,
+        current_time: u64,
+    ) -> DbResult<Vec<(Self, Option<StrikeTeamMissionProgress>)>>
+    where
+        C: ConnectionTrait + Send,
+    {
+        Entity::find()
+            .find_also_related(super::strike_team_mission_progress::Entity)
+            .filter(
+                Column::EndSeconds.gt(current_time).and(
+                    super::strike_team_mission_progress::Column::UserMissionState
+                        .is_null()
+                        .or(
+                            super::strike_team_mission_progress::Column::UserMissionState
+                                .eq(UserMissionState::Available),
+                        ),
+                ),
+            )
+            .filter(super::strike_team_mission_progress::Column::UserId.eq(user.id))
+            .all(db)
+            .await
+    }
+
     /// Finds the newest strike team mission
     pub fn newest_mission<C>(db: &C) -> impl Future<Output = DbResult<Option<u64>>> + '_
     where
@@ -136,6 +204,12 @@ impl Model {
             ..Default::default()
         }))
         .exec(db)
+    }
+}
+
+impl Related<super::strike_team_mission_progress::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::MissionProgress.def()
     }
 }
 

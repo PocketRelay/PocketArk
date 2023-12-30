@@ -28,6 +28,27 @@ where
     pub total_count: usize,
     pub list: &'static [V],
 }
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VecWithCount<V>
+where
+    V: Debug + Sized + Serialize + 'static,
+{
+    pub total_count: usize,
+    pub list: Vec<V>,
+}
+
+impl<V> VecWithCount<V>
+where
+    V: Debug + Sized + Serialize + 'static,
+{
+    pub fn new(list: Vec<V>) -> Self {
+        Self {
+            total_count: list.len(),
+            list,
+        }
+    }
+}
 
 impl<V> ListWithCount<V>
 where

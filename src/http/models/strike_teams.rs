@@ -1,12 +1,16 @@
 use super::HttpError;
 use crate::{
-    database::entity::{currency::CurrencyType, Currency, StrikeTeam},
+    database::entity::{
+        currency::CurrencyType, strike_team_mission::StrikeTeamMissionId,
+        strike_team_mission_progress::UserMissionState, Currency, StrikeTeam, StrikeTeamMission,
+    },
     definitions::strike_teams::{StrikeTeamTrait, StrikeTeamWithMission},
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;
+use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde_with::{serde_as, skip_serializing_none};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -16,6 +20,8 @@ pub enum StrikeTeamError {
     TeamOnMission,
     #[error("Strike team doesn't exist")]
     UnknownTeam,
+    #[error("Strike team mission doesn't exist")]
+    UnknownMission,
     #[error("Unknown equipment item")]
     UnknownEquipmentItem,
     /// Cannot recruit any more teams
@@ -27,9 +33,9 @@ impl HttpError for StrikeTeamError {
     fn status(&self) -> StatusCode {
         match self {
             StrikeTeamError::MaxTeams | StrikeTeamError::TeamOnMission => StatusCode::CONFLICT,
-            StrikeTeamError::UnknownTeam | StrikeTeamError::UnknownEquipmentItem => {
-                StatusCode::NOT_FOUND
-            }
+            StrikeTeamError::UnknownTeam
+            | StrikeTeamError::UnknownEquipmentItem
+            | StrikeTeamError::UnknownMission => StatusCode::NOT_FOUND,
         }
     }
 }
@@ -73,4 +79,26 @@ pub struct StrikeTeamsList {
     pub total_count: usize,
     pub list: Vec<StrikeTeamWithMission>,
     pub cap: usize,
+}
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamMissionSpecific {
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub name: StrikeTeamMissionId,
+    pub live_mission: StrikeTeamMissionWithState,
+
+    pub finish_time: DateTimeUtc,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamMissionWithState {
+    #[serde(flatten)]
+    pub mission: StrikeTeamMission,
+
+    pub user_mission_state: UserMissionState,
+    pub seen: bool,
+    pub completed: bool,
 }

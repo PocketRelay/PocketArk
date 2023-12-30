@@ -1,29 +1,53 @@
 use crate::{
+    database::entity::{strike_team_mission_progress::UserMissionState, StrikeTeamMission},
     http::{
-        middleware::JsonDump,
+        middleware::{user::Auth, JsonDump},
         models::{
             errors::{DynHttpError, HttpResult},
             mission::*,
-            RawJson,
+            strike_teams::StrikeTeamMissionWithState,
+            VecWithCount,
         },
     },
     services::game_manager::GameManager,
 };
 use axum::{extract::Path, Extension, Json};
+use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
 use sea_orm::DatabaseConnection;
 use serde_json::Value;
 use std::sync::Arc;
 
-static CURRENT_MISSIONS_DEFINITION: &str =
-    include_str!("../../resources/data/currentMissions.json");
-
 /// GET /mission/current
 ///
 /// Obtains a list of currently avaiable missions
-pub async fn current_missions() -> RawJson {
-    RawJson(CURRENT_MISSIONS_DEFINITION)
+pub async fn current_missions(
+    Auth(user): Auth,
+    Extension(db): Extension<DatabaseConnection>,
+) -> HttpResult<VecWithCount<StrikeTeamMissionWithState>> {
+    let current_time = Utc::now().timestamp() as u64;
+    let missions = StrikeTeamMission::visible_missions(&db, &user, current_time).await?;
+
+    let missions: Vec<StrikeTeamMissionWithState> = missions
+        .into_iter()
+        .map(|(mission, progress)| match progress {
+            Some(value) => StrikeTeamMissionWithState {
+                mission,
+                user_mission_state: value.user_mission_state,
+                seen: value.seen,
+                completed: value.completed,
+            },
+            None => StrikeTeamMissionWithState {
+                mission,
+                user_mission_state: UserMissionState::Available,
+                seen: false,
+                completed: false,
+            },
+        })
+        .collect();
+
+    Ok(Json(VecWithCount::new(missions)))
 }
 
 /// GET /user/mission/:id
