@@ -40,7 +40,7 @@ impl HttpError for InventoryError {
 
 /// Paramas for requesting inventory
 #[derive(Debug, Default, Deserialize)]
-#[serde(default)]
+#[serde(default, rename_all = "camelCase")]
 pub struct InventoryRequestQuery {
     /// Whether to include definitions in the response
     pub include_definitions: bool,
