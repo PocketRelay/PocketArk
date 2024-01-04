@@ -139,9 +139,11 @@ impl Model {
                         .is_null()
                         .or(
                             super::strike_team_mission_progress::Column::UserMissionState
-                                .eq(UserMissionState::Available),
-                        )
-                        .and(super::strike_team_mission_progress::Column::UserId.eq(user.id)),
+                                .eq(UserMissionState::Available)
+                                .and(
+                                    super::strike_team_mission_progress::Column::UserId.eq(user.id),
+                                ),
+                        ),
                 ),
             )
             .all(db)

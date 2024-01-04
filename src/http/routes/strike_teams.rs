@@ -79,7 +79,7 @@ pub async fn get_success_rate(
 
     fn compute_success_rate(_strike_team: &StrikeTeam, _mission: &StrikeTeamMission) -> f32 {
         // Compute actual success rate
-        1.0
+        0.91
     }
 
     let rates: Vec<StrikeTeamSuccessRate> = strike_teams
