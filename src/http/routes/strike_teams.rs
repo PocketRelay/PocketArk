@@ -4,20 +4,17 @@ use crate::{
         strike_team_mission_progress::UserMissionState, strike_teams::StrikeTeamId, Currency,
         StrikeTeam, StrikeTeamMission, StrikeTeamMissionProgress,
     },
-    definitions::{
-        strike_teams::StrikeTeamWithMission,
-        strike_teams::{
-            create_user_strike_team, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeams,
-            MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS,
-        },
+    definitions::strike_teams::{
+        create_user_strike_team, StrikeTeamEquipment, StrikeTeamSpecialization, StrikeTeams,
+        MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS,
     },
     http::{
         middleware::user::Auth,
         models::{
             strike_teams::{
                 PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamMissionSpecific,
-                StrikeTeamMissionWithState, StrikeTeamSuccessRate, StrikeTeamsList,
-                StrikeTeamsResponse,
+                StrikeTeamMissionWithState, StrikeTeamSuccessRate, StrikeTeamWithMission,
+                StrikeTeamsList, StrikeTeamsResponse,
             },
             CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson, VecWithCount,
         },

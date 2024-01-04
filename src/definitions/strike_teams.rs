@@ -32,7 +32,10 @@ use std::{
 use strum::Display;
 use uuid::{uuid, Uuid};
 
-use super::items::Items;
+use super::{
+    i18n::{I18n, Localized},
+    items::Items,
+};
 
 /// Type alias for a [ImStr] representing a [MissionTag::name]
 pub type MissionTagName = ImStr;
@@ -162,6 +165,7 @@ where
     };
 
     let strike_teams = StrikeTeams::get();
+    let i18n = I18n::get();
 
     let missions = &strike_teams.missions;
 
@@ -390,6 +394,15 @@ impl MissionTags {
     }
 }
 
+impl Localized for MissionTags {
+    fn localize(&mut self, i18n: &I18n) {
+        self.enemy
+            .iter_mut()
+            .chain(self.mission.iter_mut())
+            .for_each(|value| value.localize(i18n))
+    }
+}
+
 /// Collection of traits based on a positive or negative factor
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StrikeTeamTraits {
@@ -428,6 +441,15 @@ impl StrikeTeamTraits {
     }
 }
 
+impl Localized for StrikeTeamTraits {
+    fn localize(&mut self, i18n: &I18n) {
+        self.positive
+            .iter_mut()
+            .chain(self.negative.iter_mut())
+            .for_each(|value| value.localize(i18n))
+    }
+}
+
 /// Represents a trait a strike team can have, can be either
 /// a positive or negative trait
 #[skip_serializing_none]
@@ -450,6 +472,13 @@ pub struct StrikeTeamTrait {
     pub i18n_description: I18nDescription,
 }
 
+impl Localized for StrikeTeamTrait {
+    fn localize(&mut self, i18n: &I18n) {
+        self.i18n_name.localize(i18n);
+        self.i18n_description.localize(i18n);
+    }
+}
+
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum MissionDifficulty {
@@ -470,6 +499,18 @@ pub struct MissionDefinitions {
     pub difficulty: HashMap<MissionDifficulty, MissionTypeGroup>,
     /// Collection of special missions that aren't given by random
     pub special: Vec<MissionDefinition>,
+}
+
+impl Localized for MissionDefinitions {
+    fn localize(&mut self, i18n: &I18n) {
+        self.difficulty
+            .iter_mut()
+            // Iterate all difficulty based missions
+            .flat_map(|(_, group)| group.standard.iter_mut().chain(group.apex.iter_mut()))
+            // Include special missions
+            .chain(self.special.iter_mut())
+            .for_each(|definition| definition.localize(i18n))
+    }
 }
 
 /// Mission definitions grouped based on the
@@ -495,6 +536,12 @@ pub struct MissionDefinition {
     pub rewards: Option<MissionRewards>,
 }
 
+impl Localized for MissionDefinition {
+    fn localize(&mut self, i18n: &I18n) {
+        self.descriptor.localize(i18n);
+    }
+}
+
 /// Represents a tag that a mission can have associated with it
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MissionTag {
@@ -506,6 +553,13 @@ pub struct MissionTag {
     /// Localized description of the tag (Appears unused)
     #[serde(flatten)]
     pub i18n_desc: I18nDesc,
+}
+
+impl Localized for MissionTag {
+    fn localize(&mut self, i18n: &I18n) {
+        self.i18n_name.localize(i18n);
+        self.i18n_desc.localize(i18n);
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -540,6 +594,12 @@ impl Default for MissionType {
     }
 }
 
+impl Localized for MissionType {
+    fn localize(&mut self, i18n: &I18n) {
+        self.descriptor.localize(i18n);
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
@@ -564,6 +624,15 @@ impl Default for MissionTypeDescriptor {
     }
 }
 
+impl Localized for MissionTypeDescriptor {
+    fn localize(&mut self, i18n: &I18n) {
+        self.i18n_name.localize(i18n);
+        if let Some(i18n_desc) = &mut self.i18n_desc {
+            i18n_desc.localize(i18n);
+        }
+    }
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
@@ -582,6 +651,15 @@ pub struct MissionDescriptor {
     /// Localized description for the mission type
     #[serde(flatten)]
     pub i18n_desc: Option<I18nDesc>,
+}
+
+impl Localized for MissionDescriptor {
+    fn localize(&mut self, i18n: &I18n) {
+        self.i18n_name.localize(i18n);
+        if let Some(i18n_desc) = &mut self.i18n_desc {
+            i18n_desc.localize(i18n);
+        }
+    }
 }
 
 pub type MissionRewardsId = Uuid;
@@ -757,6 +835,13 @@ pub struct StrikeTeamEquipment {
     pub i18n_description: I18nDescription,
 }
 
+impl Localized for StrikeTeamEquipment {
+    fn localize(&mut self, i18n: &I18n) {
+        self.i18n_name.localize(i18n);
+        self.i18n_description.localize(i18n);
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamSpecialization {
@@ -777,44 +862,12 @@ pub struct StrikeTeamSpecialization {
     pub i18n_description: I18nDescription,
 }
 
-// #[derive(Debug, Serialize)]
-// #[serde(rename_all = "camelCase")]
-// pub struct TeamSuccessRates {
-//     // ID and name of the strike team
-//     pub id: Uuid,
-//     pub name: String,
-//     // mapping between mission ID and sucess %
-//     pub mission_success_rate: HashMap<Uuid, f32>,
-// }
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct StrikeTeamWithMission {
-    #[serde(flatten)]
-    pub team: StrikeTeam,
-    pub mission: Option<StrikeTeamMission>,
+impl Localized for StrikeTeamSpecialization {
+    fn localize(&mut self, i18n: &I18n) {
+        self.i18n_name.localize(i18n);
+        self.i18n_description.localize(i18n);
+    }
 }
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct StrikeTeamMission {
-    pub name: Uuid,
-    // pub live_mission: Mission,
-    // pub finish_time: Option<DateTime<Utc>>,
-    pub successful: bool,
-    pub earn_negative_trait: bool,
-}
-
-// #[derive(Debug, Serialize)]
-// #[serde(rename_all = "camelCase")]
-// pub struct MissionWithUserData {
-//     #[serde(flatten)]
-//     pub mission: Mission,
-
-//     pub seen: bool,
-//     pub user_mission_state: MissionState,
-//     pub completed: bool,
-// }
 
 #[cfg(test)]
 mod test {

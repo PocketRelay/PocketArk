@@ -5,7 +5,7 @@ use crate::{
         strike_team_mission_progress::UserMissionState, strike_teams::StrikeTeamId, Currency,
         StrikeTeam, StrikeTeamMission,
     },
-    definitions::strike_teams::{StrikeTeamName, StrikeTeamTrait, StrikeTeamWithMission},
+    definitions::strike_teams::{StrikeTeamName, StrikeTeamTrait},
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;
@@ -80,6 +80,26 @@ pub struct StrikeTeamsList {
     pub total_count: usize,
     pub list: Vec<StrikeTeamWithMission>,
     pub cap: usize,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamWithMission {
+    #[serde(flatten)]
+    pub team: StrikeTeam,
+    pub mission: Option<StrikeTeamActiveMission>,
+}
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrikeTeamActiveMission {
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub name: StrikeTeamMissionId,
+    pub live_mission: StrikeTeamMissionWithState,
+    pub finish_time: Option<DateTimeUtc>,
+    pub successful: bool,
+    pub earn_negative_trait: bool,
 }
 
 #[serde_as]
