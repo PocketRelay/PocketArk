@@ -70,16 +70,6 @@ impl MissionBackgroundTask {
             })
     }
 
-    /// Gets all the offsets between and including the two hour values.
-    /// Used to get missed offsets
-    fn inclusive_offsets(first: HourOffset, second: HourOffset) -> Vec<HourOffset> {
-        (first..=second)
-            // Filter only offset values
-            .filter(|value| (*value) % Self::SCHEDULE_HOURLY_INTERVAL == 0)
-            // Collect the results
-            .collect()
-    }
-
     async fn run(&self) {
         let mut failures = 0;
 
