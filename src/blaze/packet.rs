@@ -10,8 +10,8 @@ use std::{fmt::Debug, hash::Hash, sync::Arc};
 use std::{io, ops::Deref};
 use tdf::types::bytes::serialize_bytes;
 use tdf::{
-    serialize_vec, DecodeResult, TdfDeserialize, TdfDeserializer, TdfSerialize, TdfSerializer,
-    TdfStringifier,
+    DecodeResult, TdfDeserialize, TdfDeserializer, TdfSerialize, TdfSerializer, TdfStringifier,
+    serialize_vec,
 };
 use tokio_util::codec::{Decoder, Encoder};
 
@@ -234,7 +234,6 @@ impl Packet {
 }
 
 /// Tokio codec for encoding and decoding packets
-#[derive(Default)]
 pub struct PacketCodec;
 
 /// Decoder implementation
@@ -264,7 +263,7 @@ impl Encoder<Packet> for PacketCodec {
     }
 }
 
-/// Wrapper over a packet structure to provde debug logging
+/// Wrapper over a packet structure to provide debug logging
 /// with names resolved for the component
 pub struct PacketDebug<'a> {
     /// Reference to the packet itself

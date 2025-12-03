@@ -74,7 +74,7 @@ impl Session {
     ) -> WeakSessionLink {
         // Create blaze socket handler
         let (blaze_future, blaze_rx, blaze_tx) =
-            BlazeSocketFuture::new(Framed::new(TokioIo::new(io), PacketCodec::default()));
+            BlazeSocketFuture::new(Framed::new(TokioIo::new(io), PacketCodec));
 
         spawn(async move {
             if let Err(cause) = blaze_future.await {

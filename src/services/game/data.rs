@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
+use chrono::Utc;
 use log::debug;
 use sea_orm::{DatabaseConnection, DbErr};
 use thiserror::Error;
@@ -18,13 +19,14 @@ use crate::{
         match_modifiers::MatchModifiers,
     },
     http::models::mission::{
-        CompleteMissionData, MissionModifier, MissionPlayerData, MissionPlayerInfo,
+        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
     services::activity::{
         ActivityEvent, ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated,
         PrestigeData, PrestigeProgression,
     },
+    utils::models::Sku,
 };
 
 #[derive(Debug, Error)]
@@ -155,8 +157,71 @@ impl PlayerDataBuilder {
     }
 }
 
+pub async fn process_mission_data(
+    db: &DatabaseConnection,
+    mission_data: CompleteMissionData,
+) -> MissionDetails {
+    let now = Utc::now();
+
+    let waves = mission_data
+        .player_data
+        .iter()
+        .map(|value| value.waves_completed)
+        .max()
+        .unwrap_or_default();
+
+    let level: String = mission_data
+        .modifiers
+        .iter()
+        .find(|value| value.name == "level")
+        .map(|value| value.value.clone())
+        .unwrap_or_else(|| "MPAqua".to_string());
+    let difficulty: String = mission_data
+        .modifiers
+        .iter()
+        .find(|value| value.name == "difficulty")
+        .map(|value| value.value.clone())
+        .unwrap_or_else(|| "bronze".to_string());
+    let enemy_type: String = mission_data
+        .modifiers
+        .iter()
+        .find(|value| value.name == "enemytype")
+        .map(|value| value.value.clone())
+        .unwrap_or_else(|| "outlaw".to_string());
+
+    let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
+
+    for value in &mission_data.player_data {
+        match process_player_data(db, value, &mission_data).await {
+            Ok(info) => {
+                player_infos.push(info);
+            }
+            Err(err) => {
+                log::error!("Error while processing player: {}", err);
+            }
+        }
+    }
+
+    MissionDetails {
+        sku: Sku,
+        name: mission_data.match_id,
+        duration_sec: mission_data.duration_sec,
+        percent_complete: mission_data.percent_complete,
+        waves_encountered: waves,
+        extraction_state: mission_data.extraction_state,
+        enemy_type,
+        difficulty,
+        map: level,
+        start: now,
+        end: now,
+        processed: now,
+        player_infos,
+        modifiers: mission_data.modifiers,
+    }
+}
+
 pub async fn process_player_data(
-    db: DatabaseConnection,
+    db: &DatabaseConnection,
     data: &MissionPlayerData,
     mission_data: &CompleteMissionData,
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
@@ -165,12 +230,12 @@ pub async fn process_player_data(
     let classes = Classes::get();
     let level_tables = LevelTables::get();
 
-    let user = User::by_id(&db, data.nucleus_id)
+    let user = User::by_id(db, data.nucleus_id)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
 
     debug!("Loaded processing user");
-    let mut shared_data = SharedData::get(&db, &user).await?;
+    let mut shared_data = SharedData::get(db, &user).await?;
 
     debug!("Loaded shared data");
 
@@ -179,7 +244,7 @@ pub async fn process_player_data(
         .active_character_id
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
-    let mut character = Character::find_by_id_user(&db, &user, active_character_id)
+    let mut character = Character::find_by_id_user(db, &user, active_character_id)
         .await?
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
@@ -250,7 +315,7 @@ pub async fn process_player_data(
             prestige_value.level = level;
 
             // Save the changed progression
-            shared_data = shared_data.save_progression(&db).await?;
+            shared_data = shared_data.save_progression(db).await?;
         } else {
             // TODO: Handle appending new shared progression
         }
@@ -267,7 +332,7 @@ pub async fn process_player_data(
 
     // Save challenge changes
     for (index, change) in data_builder.challenges_updates.iter().enumerate() {
-        let (model, counter, change_type) = ChallengeProgress::update(&db, &user, change).await?;
+        let (model, counter, change_type) = ChallengeProgress::update(db, &user, change).await?;
 
         let status_change = match change_type {
             CounterUpdateType::Changed => ChallengeStatusChange::Changed,
@@ -294,14 +359,14 @@ pub async fn process_player_data(
 
     // Update character level and xp
     if new_xp != previous_xp || level > previous_level {
-        character = character.update_xp(&db, new_xp, level).await?
+        character = character.update_xp(db, new_xp, level).await?
     }
 
     debug!("Updating currencies");
 
     // Add all the new currency amounts
     Currency::add_many(
-        &db,
+        db,
         &user,
         data_builder
             .total_currency

@@ -2,8 +2,8 @@
 //! authenticated sessions on the server
 
 use crate::blaze::session::{SessionLink, WeakSessionLink};
-use crate::database::entity::users::UserId;
 use crate::database::entity::User;
+use crate::database::entity::users::UserId;
 use crate::http::models::HttpError;
 use crate::utils::hashing::IntHashMap;
 use crate::utils::signing::SigningKey;
@@ -49,6 +49,7 @@ impl Sessions {
     }
 
     /// Creates a new association token
+    #[allow(unused)]
     pub fn create_assoc_token(&self) -> String {
         let uuid = Uuid::new_v4();
         let data: &[u8; 16] = uuid.as_bytes();

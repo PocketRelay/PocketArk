@@ -12,15 +12,12 @@ use crate::{
     database::entity::users::UserId,
     http::models::mission::{CompleteMissionData, MissionDetails, MissionModifier},
     services::{
-        game::{data::process_player_data, player::GamePlayer, store::Games},
+        game::{player::GamePlayer, store::Games},
         tunnel::TunnelService,
     },
-    utils::models::Sku,
 };
-use chrono::Utc;
-use log::{debug, error, warn};
+use log::{debug, warn};
 use parking_lot::RwLock;
-use sea_orm::DatabaseConnection;
 use std::sync::{Arc, Weak};
 use tdf::TdfMap;
 
@@ -170,77 +167,17 @@ impl Game {
         self.modifiers = modifiers;
     }
 
-    /// TODO: "Get or compute" not just get
-    ///
-    /// TODO: Needs to be rework to not be asynchronous, as &mut self requires holding the game lock
-    pub async fn get_mission_details(&mut self, db: &DatabaseConnection) -> Option<MissionDetails> {
-        if let Some(processed) = self.processed_data.clone() {
-            return Some(processed);
-        }
+    /// Get the mission data for processing
+    pub fn get_mission_data(&self) -> Option<CompleteMissionData> {
+        self.mission_data.clone()
+    }
 
-        let mission_data = self.mission_data.clone()?;
+    pub fn get_processed_data(&self) -> Option<MissionDetails> {
+        self.processed_data.clone()
+    }
 
-        let now = Utc::now();
-
-        let waves = mission_data
-            .player_data
-            .iter()
-            .map(|value| value.waves_completed)
-            .max()
-            .unwrap_or_default();
-
-        let level: String = mission_data
-            .modifiers
-            .iter()
-            .find(|value| value.name == "level")
-            .map(|value| value.value.clone())
-            .unwrap_or_else(|| "MPAqua".to_string());
-        let difficulty: String = mission_data
-            .modifiers
-            .iter()
-            .find(|value| value.name == "difficulty")
-            .map(|value| value.value.clone())
-            .unwrap_or_else(|| "bronze".to_string());
-        let enemy_type: String = mission_data
-            .modifiers
-            .iter()
-            .find(|value| value.name == "enemytype")
-            .map(|value| value.value.clone())
-            .unwrap_or_else(|| "outlaw".to_string());
-
-        let mut player_infos = Vec::with_capacity(mission_data.player_data.len());
-
-        for value in &mission_data.player_data {
-            match process_player_data(db.clone(), value, &mission_data).await {
-                Ok(info) => {
-                    player_infos.push(info);
-                }
-                Err(err) => {
-                    error!("Error while processing player: {}", err);
-                }
-            }
-        }
-
-        let data = MissionDetails {
-            sku: Sku,
-            name: mission_data.match_id,
-            duration_sec: mission_data.duration_sec,
-            percent_complete: mission_data.percent_complete,
-            waves_encountered: waves,
-            extraction_state: mission_data.extraction_state,
-            enemy_type,
-            difficulty,
-            map: level,
-            start: now,
-            end: now,
-            processed: now,
-            player_infos,
-            modifiers: mission_data.modifiers,
-        };
-
-        self.processed_data = Some(data.clone());
-
-        Some(data)
+    pub fn set_processed(&mut self, data: MissionDetails) {
+        self.processed_data = Some(data);
     }
 
     pub fn set_state(&mut self, state: u8) {
@@ -363,6 +300,7 @@ impl Game {
         slot
     }
 
+    #[allow(unused)]
     pub fn update_mesh(&mut self, target_id: UserId, status: PlayerNetConnectionStatus) {
         // We only care about a connected state
         if !matches!(status, PlayerNetConnectionStatus::Connected) {

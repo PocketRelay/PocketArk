@@ -9,7 +9,7 @@ use crate::{
             strike_teams::StrikeTeamMissionWithState,
         },
     },
-    services::game::store::Games,
+    services::game::{data::process_mission_data, store::Games},
 };
 use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
@@ -69,14 +69,17 @@ pub async fn get_mission(
         .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
-    // TODO: Update mission details handling
-    // let mission_data = game
-    //     .write()
-    //     .get_mission_details(&db)
-    //     .await
-    //     .ok_or(MissionError::MissingMissionData)?;
+    if let Some(mission_data) = game.read().get_processed_data() {
+        return Ok(Json(mission_data));
+    }
 
-    let mission_data = todo!();
+    let mission_data = game
+        .read()
+        .get_mission_data()
+        .ok_or(MissionError::MissingMissionData)?;
+
+    let mission_data = process_mission_data(&db, mission_data).await;
+    game.write().set_processed(mission_data.clone());
 
     Ok(Json(mission_data))
 }

@@ -26,6 +26,7 @@ impl Default for Games {
 
 impl Games {
     /// Obtains the total count of games in the list
+    #[allow(unused)]
     pub fn total(&self) -> usize {
         self.games.read().len()
     }

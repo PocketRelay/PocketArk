@@ -6,8 +6,8 @@
 
 use crate::{
     database::entity::{
-        challenge_progress::{ChallengeCounterName, ChallengeId},
         Currency, InventoryItem, User,
+        challenge_progress::{ChallengeCounterName, ChallengeId},
     },
     definitions::{
         characters::acquire_item_character,
@@ -19,9 +19,9 @@ use crate::{
     },
 };
 use log::debug;
-use rand::{rngs::StdRng, SeedableRng};
+use rand::{SeedableRng, rngs::StdRng};
 use sea_orm::ConnectionTrait;
-use serde::{ser::SerializeStruct, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use serde_json::Value;
 use std::{
     collections::HashMap,
@@ -221,7 +221,7 @@ impl ActivityService {
                 // Create a random generator
                 let mut rng = StdRng::from_entropy();
 
-                // Generate colleciton of rewards
+                // Generate collection of rewards
                 pack.generate_rewards(db, user, &mut rng, item_definitions, &mut rewards)
                     .await
                     .map_err(ItemConsumeError::GenerateError)?;
@@ -501,6 +501,7 @@ impl ActivityEvent {
         self
     }
 
+    #[allow(unused)]
     pub fn attribute_string(&self, key: &str) -> Result<&String, AttributeError> {
         let attribute = self
             .attributes
@@ -649,13 +650,13 @@ pub struct ActivityResult {
     pub character_class_name: Option<Uuid>,
 
     /// The number of challenges completed
-    pub challeges_completed: u32,
+    pub challenges_completed: u32,
     /// Challenges that were updates
     pub challenges_updated: Vec<ChallengeUpdated>,
 
     /// Unknown field
     pub news_triggered: u32,
-    /// The currrent currency amounts that the player has
+    /// The current currency amounts that the player has
     pub currencies: Vec<Currency>,
     /// The different currency amounts that were earned
     pub currency_earned: Vec<Currency>,
@@ -667,7 +668,7 @@ pub struct ActivityResult {
 
     /// Entitlements that were granted from the activity
     ///
-    /// TODO: Haven't encounted a value for this yet so its untyped
+    /// TODO: Haven't encountered a value for this yet so its untyped
     pub entitlements_granted: Vec<Value>,
 
     /// Prestige progression that resulted from the activity
@@ -709,7 +710,7 @@ impl Serialize for ActivityResult {
         }
 
         value.serialize_field("challengesUpdatedCount", &self.challenges_updated.len())?;
-        value.serialize_field("challengesCompletedCount", &self.challeges_completed)?;
+        value.serialize_field("challengesCompletedCount", &self.challenges_completed)?;
         value.serialize_field("challengesUpdated", &self.challenges_updated)?;
 
         // Collect the updated challenge IDs for serialization
