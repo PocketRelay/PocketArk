@@ -18,12 +18,11 @@ use crate::definitions::{
     skills::SkillTree,
 };
 use anyhow::Context;
-use hashbrown::HashMap;
 use log::debug;
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::sync::OnceLock;
+use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
 /// Class definitions (36)
