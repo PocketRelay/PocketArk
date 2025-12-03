@@ -23,7 +23,6 @@ use crate::{
         game::{GameID, WeakGameRef},
         sessions::Sessions,
     },
-    utils::lock::{QueueLock, QueueLockGuard, TicketAcquireFuture},
 };
 use bytes::Bytes;
 use futures::{
