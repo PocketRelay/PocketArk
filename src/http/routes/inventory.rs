@@ -1,19 +1,19 @@
 use crate::{
-    database::entity::{inventory_items::ItemId, InventoryItem, User},
+    database::entity::{InventoryItem, User, inventory_items::ItemId},
     definitions::items::{InventoryNamespace, ItemDefinition, Items},
     http::{
-        middleware::{user::Auth, JsonDump},
+        middleware::{JsonDump, user::Auth},
         models::{
+            DynHttpError, HttpResult,
             inventory::{
                 ConsumeRequest, InventoryError, InventoryRequestQuery, InventoryResponse,
                 InventorySeenRequest, ItemDefinitionsResponse,
             },
-            DynHttpError, HttpResult,
         },
     },
     services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
 };
-use axum::{extract::Query, Extension, Json};
+use axum::{Extension, Json, extract::Query};
 use hyper::StatusCode;
 use log::debug;
 use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
@@ -32,18 +32,18 @@ pub async fn get_inventory(
     let item_definitions = Items::get();
 
     // TODO: Possibly store namespace with item itself then only query that namespace directly
-    if let Some(namespace) = query.namespace {
-        if !matches!(
+    if let Some(namespace) = query.namespace
+        && !matches!(
             namespace,
             InventoryNamespace::None | InventoryNamespace::Default
-        ) {
-            // Remove items that aren't in the same namespace
-            items.retain(|item| {
-                item_definitions
-                    .by_name(&item.definition_name)
-                    .is_some_and(|def| def.default_namespace.eq(&namespace))
-            });
-        }
+        )
+    {
+        // Remove items that aren't in the same namespace
+        items.retain(|item| {
+            item_definitions
+                .by_name(&item.definition_name)
+                .is_some_and(|def| def.default_namespace.eq(&namespace))
+        });
     }
 
     let definitions = if query.include_definitions {
@@ -62,7 +62,7 @@ pub async fn get_inventory(
 /// GET /inventory/definitions
 ///
 /// Obtains the definitions for all the inventory items this includes things
-/// like lootboxes, characters, weapons, etc.
+/// like loot boxes, characters, weapons, etc.
 pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
     let item_definitions = Items::get();
     let list: &'static [ItemDefinition] = item_definitions.all();
@@ -114,7 +114,7 @@ where
         return Err(InventoryError::NotConsumable.into());
     }
 
-    // Sanity check incase the item exists in the DB even after becoming empty
+    // Sanity check in case the item exists in the DB even after becoming empty
     if item.stack_size < count {
         return Err(InventoryError::NotEnough.into());
     }
@@ -130,7 +130,7 @@ where
 /// POST /inventory/consume
 ///
 /// Consumes an item from the inventory providing details about the changes to
-/// the inventory. Used when lootboxes are opened and when consumables are used
+/// the inventory. Used when loot boxes are opened and when consumables are used
 /// within the game.
 pub async fn consume_inventory(
     Auth(user): Auth,

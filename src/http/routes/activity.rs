@@ -1,6 +1,6 @@
 use crate::{
     http::{
-        middleware::{user::Auth, JsonDump},
+        middleware::{JsonDump, user::Auth},
         models::RawJson,
     },
     services::activity::ActivityResult,
@@ -11,7 +11,7 @@ use serde_json::Value;
 
 /// POST /activity
 ///
-/// This endpoint recieves requests whenever in game activities
+/// This endpoint receives requests whenever in game activities
 /// from the activity metadata definitions are completed. The request
 /// contains details about the activity
 pub async fn create_report(
@@ -39,7 +39,7 @@ pub async fn get_metadata() -> RawJson {
 
 /// PUT /wv/playthrough/0
 ///
-/// Server recieves updates about the players
+/// Server receives updates about the players
 /// singleplayer playthrough choices
 pub async fn update_playthrough(req: String) {
     debug!("Update playthrough {}", req);

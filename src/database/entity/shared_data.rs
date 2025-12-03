@@ -1,4 +1,4 @@
-use super::{characters::CharacterId, SeaJson, User};
+use super::{SeaJson, User, characters::CharacterId};
 use crate::{
     database::DbResult,
     definitions::{
@@ -7,8 +7,8 @@ use crate::{
         level_tables::ProgressionXp,
     },
 };
-use sea_orm::{entity::prelude::*, ActiveValue::Set, FromJsonQueryResult, IntoActiveModel};
-use serde::{ser::SerializeStruct, Deserialize, Serialize};
+use sea_orm::{ActiveValue::Set, FromJsonQueryResult, IntoActiveModel, entity::prelude::*};
+use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use std::collections::HashMap;
 use std::future::Future;
 
@@ -21,7 +21,7 @@ pub struct Model {
     pub user_id: u32,
     // ID of the currently active character for the user
     pub active_character_id: Option<CharacterId>,
-    // Shared statistis about the user
+    // Shared statistics about the user
     pub shared_stats: SharedStats,
     // Shared equipment configuration
     pub shared_equipment: CharacterSharedEquipment,
@@ -125,6 +125,7 @@ impl Model {
         shared_data.update(db)
     }
 
+    #[allow(unused)]
     pub fn save_progression<C>(self, db: &C) -> impl Future<Output = DbResult<Self>> + '_
     where
         C: ConnectionTrait + Send,

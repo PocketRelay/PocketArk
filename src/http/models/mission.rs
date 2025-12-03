@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{characters::CharacterId, currency::CurrencyType, InventoryItem},
+    database::entity::{InventoryItem, characters::CharacterId, currency::CurrencyType},
     definitions::{badges::BadgeLevelName, challenges::CurrencyReward},
     services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
@@ -16,6 +16,7 @@ use uuid::Uuid;
 use super::HttpError;
 
 #[derive(Debug, Error)]
+#[allow(unused)]
 pub enum MissionError {
     #[error("Unknown game")]
     UnknownGame,
@@ -72,6 +73,7 @@ pub struct MissionActivityReport {
     pub options: Value,
 }
 
+#[allow(unused)]
 impl MissionActivityReport {
     /// Provides the total score earned across all of the
     /// activities

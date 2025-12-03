@@ -5,7 +5,7 @@ use crate::utils::ImStr;
 use anyhow::Context;
 use log::debug;
 use sea_orm::FromJsonQueryResult;
-use serde::{ser::SerializeStruct, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
@@ -66,6 +66,7 @@ impl LevelTable {
     /// Computes the new xp and level values from the provided
     /// initial xp, level and the earned xp amount. Uses the
     /// current level table
+    #[allow(unused)]
     pub fn compute_leveling(
         &self,
         mut xp: ProgressionXp,
@@ -81,7 +82,7 @@ impl LevelTable {
                 break;
             }
 
-            // Incrase level
+            // Increase level
             xp.current -= next_xp;
             level += 1;
 

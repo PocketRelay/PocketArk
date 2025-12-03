@@ -1,8 +1,8 @@
 use axum::{
+    Router,
     error_handling::HandleErrorLayer,
     response::{IntoResponse, Response},
     routing::{any, get, post, put},
-    Router,
 };
 use hyper::StatusCode;
 use tower::ServiceBuilder;
@@ -35,7 +35,8 @@ pub fn router() -> Router {
                 .route("/", get(client::details))
                 .route("/login", post(client::login))
                 .route("/create", post(client::create))
-                .route("/upgrade", get(client::upgrade)),
+                .route("/upgrade", get(client::upgrade))
+                .route("/tunnel", get(client::tunnel)),
         )
         .route("/auth", post(auth::authenticate))
         .route("/configuration", get(configuration::get_configuration))

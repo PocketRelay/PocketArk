@@ -2,8 +2,8 @@ use std::mem::swap;
 
 use crate::{
     database::entity::{
-        characters::{self, CharacterId},
         Character, SeaJson, SharedData,
+        characters::{self, CharacterId},
     },
     definitions::{
         classes::{ClassName, Classes, CustomizationMap},
@@ -11,14 +11,14 @@ use crate::{
         skills::{SkillDefinition, Skills},
     },
     http::{
-        middleware::{user::Auth, JsonDump},
+        middleware::{JsonDump, user::Auth},
         models::{
             character::*,
             errors::{DynHttpError, HttpResult},
         },
     },
 };
-use axum::{extract::Path, Extension, Json};
+use axum::{Extension, Json, extract::Path};
 use hyper::StatusCode;
 use log::debug;
 use sea_orm::{
@@ -39,7 +39,7 @@ pub async fn get_characters(
 
 /// GET /character/:id
 ///
-/// Gets the defintion and details for the character of the provided ID
+/// Gets the definition and details for the character of the provided ID
 pub async fn get_character(
     Path(character_id): Path<CharacterId>,
     Auth(user): Auth,
@@ -243,7 +243,7 @@ pub async fn update_skill_tree(
         }
     });
 
-    // TODO: Update available skillpoints
+    // TODO: Update available skill points
 
     let mut character = character.into_active_model();
     character.skill_trees =
@@ -274,8 +274,8 @@ pub async fn get_classes(
         })
         .collect();
 
-    let skill_definitios = Skills::get();
-    let skill_definitions: &'static [SkillDefinition] = &skill_definitios.values;
+    let skill_definitions = Skills::get();
+    let skill_definitions: &'static [SkillDefinition] = &skill_definitions.values;
 
     Ok(Json(CharacterClasses {
         list,

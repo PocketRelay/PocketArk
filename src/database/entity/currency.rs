@@ -1,9 +1,9 @@
-use super::{users::UserId, Currency, User};
+use super::{Currency, User, users::UserId};
 use crate::database::DbResult;
 use sea_orm::{
-    entity::prelude::*, sea_query::OnConflict, ActiveValue::Set, InsertResult, IntoActiveModel,
+    ActiveValue::Set, InsertResult, IntoActiveModel, entity::prelude::*, sea_query::OnConflict,
 };
-use serde::{ser::SerializeStruct, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use serde_with::{DeserializeAs, DisplayFromStr};
 use std::{fmt::Display, future::Future, str::FromStr};
 
@@ -52,6 +52,7 @@ impl ActiveModelBehavior for ActiveModel {}
 impl Model {
     /// The maximum safe amount of currency to have before the game
     /// wraps it to a negative unusable amount
+    #[allow(unused)]
     pub const MAX_SAFE_CURRENCY: u32 = 100_000_000;
 
     /// Sets the default currency values for the provided `user`
@@ -73,7 +74,7 @@ impl Model {
         )
     }
 
-    /// Conflict strategy for replacing the existing blance
+    /// Conflict strategy for replacing the existing balance
     /// when a balance exists
     fn set_balance_conflict() -> OnConflict {
         // Update the value column if a key already exists
@@ -86,6 +87,7 @@ impl Model {
     /// Sets the balance of a specific `ty` currency to `value`
     /// for the specific `user`. Will create the currency if it
     /// doesn't exist.
+    #[allow(unused)]
     pub fn set<'db, C>(
         db: &'db C,
         user: &User,
@@ -159,6 +161,7 @@ impl Model {
 
     /// Conflict strategy for adding the balancing onto
     /// an existing balance
+    #[allow(unused)]
     fn add_balance_conflict() -> OnConflict {
         // Update the value column if a key already exists
         OnConflict::columns([Column::UserId, Column::Ty])
@@ -175,6 +178,7 @@ impl Model {
     }
 
     /// Adds an amount to a specific currency balance
+    #[allow(unused)]
     pub fn add<'db, C>(
         db: &'db C,
         user: &User,
@@ -194,6 +198,7 @@ impl Model {
     }
 
     /// Adds an amount to multiple balances
+    #[allow(unused)]
     pub fn add_many<'db, C, I>(
         db: &'db C,
         user: &User,

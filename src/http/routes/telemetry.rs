@@ -4,7 +4,7 @@ use log::debug;
 
 /// POST /pinEvents
 ///
-/// Recieves telemetry messages from the client always responding
+/// Receives telemetry messages from the client always responding
 /// with an ok status
 ///
 /// TODO: Log / save the messages sent to this endpoint (Its JSON just string is more readable)

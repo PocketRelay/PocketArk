@@ -1,9 +1,10 @@
 use log::LevelFilter;
 use log4rs::{
+    Config,
     append::{console::ConsoleAppender, file::FileAppender},
     config::{Appender, Logger, Root},
     encode::pattern::PatternEncoder,
-    init_config, Config,
+    init_config,
 };
 
 /// The pattern to use when logging

@@ -31,7 +31,7 @@ const CLASS_DEFINITIONS: &str = include_str!("../resources/data/characterClasses
 /// Collection of class definitions and lookup tables for finding
 /// classes based on certain fields
 pub struct Classes {
-    /// Collection of classses
+    /// Collection of classes
     pub values: Vec<Class>,
     /// Lookup table for finding a [Class] by its name
     lookup_by_name: HashMap<ClassName, usize>,
@@ -74,6 +74,7 @@ impl Classes {
     }
 
     /// Finds a class definition by its `name`
+    #[allow(unused)]
     pub fn by_name(&self, name: &ClassName) -> Option<&Class> {
         self.lookup_by_name
             .get(name)

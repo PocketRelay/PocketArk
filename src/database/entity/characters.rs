@@ -1,4 +1,4 @@
-use super::{users::UserId, SeaGenericMap, SeaJson, User};
+use super::{SeaGenericMap, SeaJson, User, users::UserId};
 use crate::{
     database::DbResult,
     definitions::{
@@ -12,11 +12,11 @@ use crate::{
     utils::models::Sku,
 };
 use sea_orm::{
-    entity::prelude::*,
     ActiveValue::{NotSet, Set},
     FromJsonQueryResult, IntoActiveModel, QuerySelect,
+    entity::prelude::*,
 };
-use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, future::Future};
 use uuid::Uuid;
@@ -96,6 +96,7 @@ impl Related<super::users::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 impl Model {
+    #[allow(unused)]
     pub fn update_xp<C>(
         self,
         db: &C,

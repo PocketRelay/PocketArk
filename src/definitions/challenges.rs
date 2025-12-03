@@ -6,7 +6,7 @@ use crate::{
         shared::CustomAttributes,
     },
     services::activity::{ActivityDescriptor, ActivityEvent},
-    utils::{models::DateDuration, ImStr},
+    utils::{ImStr, models::DateDuration},
 };
 use anyhow::Context;
 use log::debug;
@@ -40,6 +40,7 @@ impl Challenges {
         Ok(Self { values })
     }
 
+    #[allow(unused)]
     pub fn get_by_activity(
         &self,
         activity: &ActivityEvent,
@@ -111,6 +112,7 @@ pub struct ChallengeDefinition {
 impl ChallengeDefinition {
     /// Attempts to find a counter associated to this definition that
     /// matches the provided `activity`
+    #[allow(unused)]
     pub fn get_by_activity(
         &self,
         activity: &ActivityEvent,
@@ -154,6 +156,7 @@ pub struct ChallengeCounter {
 impl ChallengeCounter {
     /// Finds an [ActivityDescriptor] from this counters collection of [ChallengeCounter::activities]
     /// that matches the provided mission `activity`
+    #[allow(unused)]
     pub fn get_by_activity(
         &self,
         activity: &ActivityEvent,

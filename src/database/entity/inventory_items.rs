@@ -8,21 +8,21 @@
 //! ```
 //! (Don't include hyphens in the definition name)
 
-use super::{users::UserId, SeaGenericMap};
+use super::{SeaGenericMap, users::UserId};
 use crate::{
     database::{
-        entity::{InventoryItem, User},
         DbResult,
+        entity::{InventoryItem, User},
     },
     definitions::items::ItemName,
 };
 use chrono::Utc;
 use futures::Future;
 use sea_orm::{
-    entity::prelude::*,
-    sea_query::{Expr, OnConflict},
     ActiveValue::{NotSet, Set},
     IntoActiveModel, UpdateResult,
+    entity::prelude::*,
+    sea_query::{Expr, OnConflict},
 };
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -178,6 +178,7 @@ impl Model {
         user.find_related(Entity).all(db)
     }
 
+    #[allow(unused)]
     pub fn get_items<'db, C>(
         db: &'db C,
         user: &User,
@@ -205,6 +206,7 @@ impl Model {
 
     /// Finds a item with a matching definition `name` within the users
     /// collection of items
+    #[allow(unused)]
     pub fn get_by_name<'db, C>(
         db: &'db C,
         user: &User,
@@ -217,7 +219,7 @@ impl Model {
             .filter(Column::DefinitionName.eq(name))
             .one(db)
     }
-    /// Finds all items with a defintiion name in the collection of `names` that
+    /// Finds all items with a definition name in the collection of `names` that
     /// are within the user collection of items
     pub fn all_by_names<'db, C>(
         db: &'db C,

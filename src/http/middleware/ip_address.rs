@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use axum::{
     Extension,
     extract::{ConnectInfo, FromRequestParts, rejection::ExtensionRejection},

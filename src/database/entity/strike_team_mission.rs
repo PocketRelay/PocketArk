@@ -6,7 +6,7 @@ use crate::definitions::strike_teams::{
     MissionDescriptor, MissionModifier, MissionRewards, MissionType, MissionWave,
 };
 use crate::definitions::strike_teams::{MissionTag, StrikeTeamMissionData};
-use sea_orm::{prelude::*, ActiveValue::Set};
+use sea_orm::{ActiveValue::Set, prelude::*};
 use sea_orm::{InsertResult, QueryOrder, QuerySelect};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
@@ -34,7 +34,7 @@ pub struct Model {
     pub descriptor: MissionDescriptor,
     /// The mission type details
     pub mission_type: MissionType,
-    /// Mission accessiblity
+    /// Mission accessibility
     pub accessibility: MissionAccessibility,
     /// Custom defined mission waves
     pub waves: SeaJson<Vec<MissionWave>>,
@@ -44,7 +44,7 @@ pub struct Model {
     pub static_modifiers: SeaJson<Vec<MissionModifier>>,
     /// Dynamic mission modifiers
     pub dynamic_modifiers: SeaJson<Vec<MissionModifier>>,
-    /// The mission rewarads
+    /// The mission rewards
     pub rewards: MissionRewards,
     /// Custom attributes associated with the mission
     pub custom_attributes: CustomAttributes,
@@ -92,7 +92,7 @@ impl Model {
 
     /// Gets all missions that are still available
     ///
-    /// TODO: Also need to check progress tables for all user speciifc missions
+    /// TODO: Also need to check progress tables for all user specific missions
     /// that are still awaiting completion
     pub async fn visible_missions<C>(
         db: &C,
@@ -120,7 +120,7 @@ impl Model {
 
     /// Gets all missions that are still available
     ///
-    /// TODO: Also need to check progress tables for all user speciifc missions
+    /// TODO: Also need to check progress tables for all user specific missions
     /// that are still awaiting completion
     pub async fn available_missions<C>(
         db: &C,
@@ -164,6 +164,7 @@ impl Model {
             .one(db)
     }
 
+    #[allow(unused)]
     pub fn create<C>(
         db: &C,
         data: StrikeTeamMissionData,
