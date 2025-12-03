@@ -51,6 +51,7 @@ pub struct LeaderboardRow {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 pub struct LeaderboardParams {
     #[serde(default)]
     pub offset: u32,

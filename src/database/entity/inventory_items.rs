@@ -69,14 +69,14 @@ impl Model {
     /// Adds an item for the provided player. If an item with a matching `definition_name`
     /// already exists in the database the `stack_size` and `last_grant` columns will be updated
     ///
-    /// ## Argumnets
+    /// ## Arguments
     /// * `db`              - The database connection
     /// * `user`            - The user this item belongs to
     /// * `definition_name` - The name of the item definition
     /// * `stack_size`      - The stack size to use / add for the item
     /// * `capacity`        - The stack max capacity if the definition defines one
-    pub async fn add_item<'db, C>(
-        db: &'db C,
+    pub async fn add_item<C>(
+        db: &C,
         user: &User,
         definition_name: ItemName,
         stack_size: u32,

@@ -211,8 +211,8 @@ pub struct ItemDefinition {
 impl Localized for ItemDefinition {
     fn localize(&mut self, i18n: &super::i18n::I18n) {
         self.i18n_name.localize(i18n);
-        if let Some(i18n_descripttion) = &mut self.i18n_description {
-            i18n_descripttion.localize(i18n);
+        if let Some(i18n_description) = &mut self.i18n_description {
+            i18n_description.localize(i18n);
         }
     }
 }
@@ -251,6 +251,7 @@ pub struct ItemEvents {
 /// Structure for tracking a change in stack size
 /// for a specific item
 #[derive(Debug)]
+#[allow(unused)]
 pub struct ItemChanged {
     /// ID of the item
     pub item_id: ItemId,
@@ -266,8 +267,8 @@ pub struct ItemChanged {
 pub enum InventoryNamespace {
     /// Default namespace
     Default,
-    /// Striketeam related namespace
-    Striketeams,
+    /// Strike team related namespace
+    StrikeTeams,
     /// Blank namespace
     #[serde(rename = "")]
     None,

@@ -63,7 +63,7 @@ pub struct Model {
     pub play_stats: PlayStats,
     /// Last time this character was used
     pub last_used: Option<DateTimeUtc>,
-    /// Whether this chracter is promotable
+    /// Whether this character is promotable
     pub promotable: bool,
 }
 
@@ -193,7 +193,7 @@ impl Model {
 
     /// Collects all the [ClassName]s of the classes that the provided user
     /// has unlocked
-    pub async fn get_user_classes<'db, C>(db: &'db C, user: &User) -> DbResult<Vec<ClassName>>
+    pub async fn get_user_classes<C>(db: &C, user: &User) -> DbResult<Vec<ClassName>>
     where
         C: ConnectionTrait + Send,
     {

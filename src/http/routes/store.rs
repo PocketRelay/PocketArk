@@ -5,7 +5,7 @@ use crate::{
         middleware::{user::Auth, JsonDump},
         models::{
             store::{
-                ClaimUncalimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
+                ClaimUnclaimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, StoreError, UpdateSeenArticles, UserCurrenciesResponse,
             },
             CurrencyError, DynHttpError, HttpResult,
@@ -124,8 +124,8 @@ pub async fn obtain_article(
 /// POST /store/unclaimed/claimAll
 ///
 /// Possibly claims earned items from end of match?
-pub async fn claim_unclaimed() -> Json<ClaimUncalimedResponse> {
-    Json(ClaimUncalimedResponse {
+pub async fn claim_unclaimed() -> Json<ClaimUnclaimedResponse> {
+    Json(ClaimUnclaimedResponse {
         claim_results: vec![],
         results_complete: true,
     })

@@ -24,11 +24,7 @@ use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
 use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
-use std::{
-    collections::HashMap,
-    sync::OnceLock,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::{collections::HashMap, sync::OnceLock};
 use strum::Display;
 use uuid::{uuid, Uuid};
 
@@ -158,14 +154,14 @@ where
     let accessibility = match (&difficulty, apex) {
         // Platinum can only be played in multiplayer
         (MissionDifficulty::Platinum, _) => MissionAccessibility::MultiPlayer,
-        // Apex missions can be either multiplayer or striketeam
+        // Apex missions can be either multiplayer or strike team
         (_, true) => MissionAccessibility::Any,
         // Strike team only mission
         (_, false) => MissionAccessibility::SinglePlayer,
     };
 
     let strike_teams = StrikeTeams::get();
-    let i18n = I18n::get();
+    let _i18n = I18n::get();
 
     let missions = &strike_teams.missions;
 
@@ -315,7 +311,7 @@ where
         .context("Unable to determine initial xp")?;
 
     // Every team starts with one positive trait
-    let positive_trait = strike_teams.traits.random_postitive(rng)?;
+    let positive_trait = strike_teams.traits.random_positive(rng)?;
 
     Ok(StrikeTeamData {
         name,
@@ -373,7 +369,7 @@ impl StrikeTeamIcon {
 pub struct MissionTags {
     /// Mission tags for enemies (To choose which enemy is used)
     pub enemy: Vec<MissionTag>,
-    /// Mission specific tags (To chooes various factors about the mission i.e night-time)
+    /// Mission specific tags (To choose various factors about the mission i.e night-time)
     pub mission: Vec<MissionTag>,
 }
 
@@ -382,7 +378,7 @@ impl MissionTags {
     where
         R: Rng,
     {
-        self.enemy.choose(rng).context("Failed to choose enemey")
+        self.enemy.choose(rng).context("Failed to choose enemy")
     }
 
     /// Selects multiple random mission tags
@@ -414,7 +410,7 @@ pub struct StrikeTeamTraits {
 
 impl StrikeTeamTraits {
     /// Choose a random positive trait
-    fn random_postitive<R>(&self, rng: &mut R) -> anyhow::Result<StrikeTeamTrait>
+    fn random_positive<R>(&self, rng: &mut R) -> anyhow::Result<StrikeTeamTrait>
     where
         R: Rng,
     {
@@ -426,6 +422,7 @@ impl StrikeTeamTraits {
 
     /// Finds a [StrikeTeamTrait] by a specific mission `tag` and uses
     /// `positive` to determine whether the trait must be positive or negative
+    #[allow(unused)]
     fn by_mission_tag(&self, tag: &MissionTagName, positive: bool) -> Option<&StrikeTeamTrait> {
         let list: &[StrikeTeamTrait] = match positive {
             true => &self.positive,
@@ -531,7 +528,7 @@ pub struct MissionDefinition {
     /// Optional collection of waves for custom missions
     #[serde(default)]
     pub waves: Option<Vec<MissionWave>>,
-    /// Optional overriden mission rewards
+    /// Optional overridden mission rewards
     #[serde(default)]
     pub rewards: Option<MissionRewards>,
 }
@@ -675,7 +672,7 @@ pub struct MissionRewards {
     /// Multiplayer items earned from the mission
     #[serde_as(as = "serde_with::Map<_, _>")]
     pub mp_item_rewards: Vec<(ItemName, u32)>,
-    /// Singleplayer items earned from the mission
+    /// Single player items earned from the mission
     #[serde_as(as = "serde_with::Map<_, _>")]
     pub sp_item_rewards: Vec<(ItemName, u32)>,
     /// Definitions of the items that should be earned
@@ -690,7 +687,7 @@ impl MissionRewards {
             value: 0,
         };
 
-        let mut mp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
+        let mp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
         let mut sp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
 
         match accessibility {
@@ -746,7 +743,7 @@ impl MissionRewards {
                         // "Silver Material Loot Box"
                         sp_item_rewards.push((uuid!("61d3f563-ad29-4f97-9c80-71c72549a5fe"), 1));
                     }
-                    // Platnum mission should *never* be single player (Strike team) missions
+                    // Platinum mission should *never* be single player (Strike team) missions
                     MissionDifficulty::Platinum => {}
                 };
             }

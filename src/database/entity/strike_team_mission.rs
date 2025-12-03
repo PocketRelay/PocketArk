@@ -6,7 +6,6 @@ use crate::definitions::strike_teams::{
     MissionDescriptor, MissionModifier, MissionRewards, MissionType, MissionWave,
 };
 use crate::definitions::strike_teams::{MissionTag, StrikeTeamMissionData};
-use log::debug;
 use sea_orm::{prelude::*, ActiveValue::Set};
 use sea_orm::{InsertResult, QueryOrder, QuerySelect};
 use serde::{Deserialize, Serialize};

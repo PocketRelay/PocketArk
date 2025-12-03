@@ -218,6 +218,7 @@ pub struct CustomizationEntry {
 /// Different equipment slot names
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(clippy::enum_variant_names)]
 pub enum EquipmentSlot {
     WeaponSlot1,
     WeaponSlot2,

@@ -56,13 +56,14 @@ pub struct ObtainStoreItemResponse {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ClaimUncalimedResponse {
+pub struct ClaimUnclaimedResponse {
     pub claim_results: Vec<Value>,
     pub results_complete: bool,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(unused)]
 pub struct UpdateSeenArticles {
     pub article_names: Vec<Uuid>,
 }

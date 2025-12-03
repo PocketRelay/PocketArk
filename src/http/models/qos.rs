@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 pub struct QosQuery {
     pub vers: u32,
     pub qtyp: u32,
@@ -8,12 +9,14 @@ pub struct QosQuery {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 pub struct FirewallQuery {
     pub vers: u32,
     pub nint: u32,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 pub struct FireTypeQuery {
     pub vers: u32,
     pub rqid: u32,

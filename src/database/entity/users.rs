@@ -11,7 +11,7 @@ pub type UserId = u32;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {
-    /// Unqiue ID for the account
+    /// Unique ID for the account
     #[sea_orm(primary_key)]
     pub id: u32,
     /// Email address of the account
@@ -68,7 +68,7 @@ impl Model {
 
     /// Checks if an account with a matching `username` already
     /// exists in the database
-    pub async fn username_exists<'db, C>(db: &C, username: &str) -> DbResult<bool>
+    pub async fn username_exists<C>(db: &C, username: &str) -> DbResult<bool>
     where
         C: ConnectionTrait + Send,
     {
@@ -86,7 +86,7 @@ impl Model {
 
     /// Checks if an account with a matching `email` already
     /// exists in the database
-    pub async fn email_exists<'db, C>(db: &C, email: &str) -> DbResult<bool>
+    pub async fn email_exists<C>(db: &C, email: &str) -> DbResult<bool>
     where
         C: ConnectionTrait + Send,
     {

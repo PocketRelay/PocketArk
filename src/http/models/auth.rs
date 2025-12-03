@@ -5,6 +5,7 @@ use crate::utils::models::Sku;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(unused)]
 pub struct AuthRequest {
     pub auth_method: String,
     pub language: String,

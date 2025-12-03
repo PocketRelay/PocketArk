@@ -58,8 +58,8 @@ pub enum ItemConsumeError {
 }
 
 impl ActivityService {
-    pub async fn process_event<'db, C>(
-        db: &'db C,
+    pub async fn process_event<C>(
+        db: &C,
         user: &User,
         event: ActivityEvent,
     ) -> anyhow::Result<ActivityResult>
@@ -76,8 +76,8 @@ impl ActivityService {
         Ok(result)
     }
 
-    pub async fn process_events<'db, C>(
-        db: &'db C,
+    pub async fn process_events<C>(
+        db: &C,
         user: &User,
         events: Vec<ActivityEvent>,
     ) -> anyhow::Result<ActivityResult>
@@ -100,8 +100,8 @@ impl ActivityService {
     /// onto an existing result set.
     ///
     /// Doesn't update [ActivityResult::currencies]
-    pub async fn process_event_inner<'db, C>(
-        db: &'db C,
+    pub async fn process_event_inner<C>(
+        db: &C,
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,
@@ -135,8 +135,8 @@ impl ActivityService {
         Ok(())
     }
 
-    pub async fn process_article_purchased<'db, C>(
-        db: &'db C,
+    pub async fn process_article_purchased<C>(
+        db: &C,
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,
@@ -191,8 +191,8 @@ impl ActivityService {
 
     /// Handles granting rewards and other changes from consuming
     /// an inventory item
-    pub async fn process_item_consumed<'db, C>(
-        db: &'db C,
+    pub async fn process_item_consumed<C>(
+        db: &C,
         user: &User,
         event: ActivityEvent,
         result: &mut ActivityResult,

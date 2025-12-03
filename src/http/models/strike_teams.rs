@@ -43,6 +43,7 @@ impl HttpError for StrikeTeamError {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(unused)]
 pub struct ResolveMissionResponse {
     pub team: StrikeTeamWithMission,
     pub mission_successful: bool,

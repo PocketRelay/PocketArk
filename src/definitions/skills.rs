@@ -51,6 +51,7 @@ impl Skills {
     }
 
     /// Find a [SkillDefinition] by its `name`
+    #[allow(unused)]
     pub fn by_name(&self, name: &SkillDefinitionName) -> Option<&SkillDefinition> {
         self.values
             .iter()
@@ -152,7 +153,8 @@ pub struct SkillLevel {
     pub bonus: Vec<(String, serde_json::Value)>,
 }
 
-/// Defines a reference to some value seperated by colons
+/// Defines a reference to some value separated by colons
+#[allow(unused)]
 pub struct PathRef(Vec<String>);
 
 impl FromStr for PathRef {

@@ -37,6 +37,7 @@ pub type SeaGenericMap = SeaJson<serde_json::Map<String, serde_json::Value>>;
 pub struct SeaJson<T>(pub T);
 
 impl<T> SeaJson<T> {
+    #[allow(unused)]
     fn into_inner(self) -> T {
         self.0
     }
