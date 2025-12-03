@@ -27,6 +27,7 @@
     "enemytype",
     "cntx",
     "MADR",
-    "Stringifier"
+    "Stringifier",
+    "reqwest"
   ]
 }

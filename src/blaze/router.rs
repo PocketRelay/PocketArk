@@ -92,6 +92,11 @@ impl BlazeRouterBuilder {
         }
     }
 
+    pub fn extension<T: Send + Sync + 'static>(mut self, val: T) -> Self {
+        self.add_extension(val);
+        self
+    }
+
     pub fn add_extension<T: Send + Sync + 'static>(&mut self, val: T) -> Option<T> {
         self.extensions
             .insert(TypeId::of::<T>(), Box::new(val))

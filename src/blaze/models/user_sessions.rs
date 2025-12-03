@@ -25,9 +25,27 @@ pub struct QosNetworkData {
     #[tdf(tag = "NAHR")]
     pub nahr: u32,
     #[tdf(tag = "NATT")]
-    pub natt: u8,
+    pub natt: NatType,
     #[tdf(tag = "UBPS")]
     pub ubps: u32,
+}
+
+//
+#[derive(Debug, Default, Copy, Clone, Serialize, TdfDeserialize, TdfSerialize, TdfTyped)]
+#[repr(u8)]
+pub enum NatType {
+    /// Players behind an open NAT can usually connect to any other player and are ideal game hosts.
+    Open = 0x0,
+    /// Players behind a moderate NAT can usually connect to other open or moderate players.
+    Moderate = 0x1,
+    /// Players behind a strict (but sequential) NAT can usually only connect to open players and are poor game hosts.
+    StrictSequential = 0x2,
+    /// Players behind a strict (non-sequential) NAT can usually only connect to open players and are the worst game hosts.
+    Strict = 0x3,
+    /// unknown NAT type; possibly timed out trying to detect NAT.
+    #[default]
+    #[tdf(default)]
+    Unknown = 0x4,
 }
 
 #[derive(Default, Debug, Clone, TdfSerialize, TdfDeserialize, TdfTyped, Serialize)]

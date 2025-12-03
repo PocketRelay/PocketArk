@@ -1,14 +1,20 @@
-use std::str::FromStr;
+use std::{net::Ipv4Addr, str::FromStr};
 
 use serde::Serialize;
 use tdf::{
     ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfGeneric, TdfMap, TdfSerialize, TdfType,
-    TdfTyped, types::string::write_empty_str,
+    TdfTyped,
+    types::{string::write_empty_str, tagged_union::TAGGED_UNSET_KEY},
 };
 
 use crate::{
+    blaze::models::user_sessions::{NatType, PairAddress},
+    config::{Config, TunnelConfig},
     database::entity::users::UserId,
-    services::game::{AttrMap, Game, GameID},
+    services::{
+        game::{AttrMap, Game, GameID},
+        tunnel::http_tunnel::TUNNEL_HOST_LOCAL_PORT,
+    },
 };
 
 use super::user_sessions::NetworkAddress;
@@ -272,6 +278,7 @@ pub const UNSPECIFIED_TEAM_INDEX: u16 = 0xffff;
 pub struct GameSetupResponse<'a> {
     pub game: &'a Game,
     pub context: GameSetupContext,
+    pub config: &'a Config,
 }
 
 impl TdfSerialize for GameSetupResponse<'_> {
@@ -340,11 +347,41 @@ impl TdfSerialize for GameSetupResponse<'_> {
 
             w.tag_str_empty(b"GTYP");
             w.tag_str_empty(b"GURL");
+
+            let host_net = host.net().unwrap_or_default();
+
+            // Whether to tunnel the connection
+            let tunnel = match &self.config.tunnel {
+                TunnelConfig::Stricter => !matches!(host_net.qos.natt, NatType::Open),
+                TunnelConfig::Always => true,
+                TunnelConfig::Disabled => false,
+            };
+
             {
                 w.tag_list_start(b"HNET", TdfType::Group, 1);
-                w.write_byte(2);
-                if let NetworkAddress::AddressPair(pair) = &host.net.addr {
-                    TdfSerialize::serialize(pair, w)
+
+                // Override for tunneling
+                if tunnel {
+                    // Forced local host for test dedicated server
+                    w.write_byte(3);
+                    TdfSerialize::serialize(
+                        &PairAddress {
+                            addr: Ipv4Addr::LOCALHOST,
+                            port: TUNNEL_HOST_LOCAL_PORT,
+                            maci: 0,
+                        },
+                        w,
+                    );
+                } else {
+                    // Open NATs can directly have players connect normally
+                    if let NetworkAddress::AddressPair(pair) = &host_net.addr {
+                        w.write_byte(2 /* Address pair type */);
+                        TdfSerialize::serialize(pair, w)
+                    } else {
+                        // Uh oh.. host networking is missing...?
+                        w.write_byte(TAGGED_UNSET_KEY);
+                        w.write_byte(0);
+                    }
                 }
             }
 

@@ -13,6 +13,7 @@ axum = { version = "^0.8.7", features = ["tracing", "tower-log"] }
 hyper = { version = "^1.8.1", features = ["full"] }
 tower = "^0.5.2"
 tower-http = { version = "^0.6.7", features = ["full"] }
+hyper-util = { version = "0.1.18", features = ["tokio"] }
 
 # Async runtime and utilities
 tokio = { version = "^1", features = ["full"] }
@@ -20,7 +21,7 @@ tokio-util = { version = "0.7.17", features = ["full"] }
 futures = "^0.3.31"
 
 # Logging
-log = "^0.4.28"
+log = { version = "^0.4.28", features = ["serde"] }
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 
 # Serialization
@@ -75,8 +76,12 @@ strum = { version = "0.27.2", features = ["derive"] }
 
 # Validation
 validator = { version = "0.20.0", features = ["derive"] }
-hyper-util = { version = "0.1.18", features = ["tokio"] }
+
+# UDP tunnel impl
 pocket-relay-udp-tunnel = "0.0.0"
+
+# Library for obtaining the local IP address of the device
+local-ip-address = "0.6"
 
 # Logging backend
 [dependencies.log4rs]
@@ -102,3 +107,9 @@ features = [
 version = "^1.1.19"
 default-features = false
 features = ["runtime-tokio-rustls", "sqlx-sqlite"]
+
+# HTTP Client
+[dependencies.reqwest]
+version = "0.12"
+default-features = false
+features = ["json", "rustls-tls"]

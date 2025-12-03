@@ -9,6 +9,7 @@ use crate::{
         packet::Packet,
         session::SessionLink,
     },
+    config::Config,
     database::entity::users::UserId,
     http::models::mission::{CompleteMissionData, MissionDetails, MissionModifier},
     services::{
@@ -36,7 +37,7 @@ pub trait GameAddPlayerExt {
     fn add_player(
         &self,
         tunnel_service: &TunnelService,
-        // config: &Config,
+        config: &Config,
         player: GamePlayer,
         session: SessionLink,
         context: GameSetupContext,
@@ -47,7 +48,7 @@ impl GameAddPlayerExt for GameRef {
     fn add_player(
         &self,
         tunnel_service: &TunnelService,
-        // config: &Config,
+        config: &Config,
         player: GamePlayer,
         session: SessionLink,
         context: GameSetupContext,
@@ -55,7 +56,7 @@ impl GameAddPlayerExt for GameRef {
         // Add the player to the game
         let (game_id, index) = {
             let game = &mut *self.write();
-            let slot = game.add_player(player, context);
+            let slot = game.add_player(player, context, config);
             (game.id, slot)
         };
 
@@ -254,7 +255,12 @@ impl Game {
         }
     }
 
-    pub fn add_player(&mut self, player: GamePlayer, context: GameSetupContext) -> usize {
+    pub fn add_player(
+        &mut self,
+        player: GamePlayer,
+        context: GameSetupContext,
+        config: &Config,
+    ) -> usize {
         let slot = self.players.len();
 
         self.players.push(player);
@@ -285,6 +291,7 @@ impl Game {
             GameSetupResponse {
                 game: self,
                 context,
+                config,
             },
         ));
 

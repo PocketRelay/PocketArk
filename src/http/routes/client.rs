@@ -4,6 +4,7 @@
 use crate::{
     VERSION,
     blaze::{data::SessionData, router::BlazeRouter, session::Session},
+    config::Config,
     database::entity::{Currency, SharedData, User, users::CreateUser},
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
@@ -40,10 +41,17 @@ use uuid::Uuid;
 ///
 /// Used by clients to get details about the server before
 /// it connects
-pub async fn details() -> Json<ServerDetailsResponse> {
+pub async fn details(
+    Extension(sessions): Extension<Arc<Sessions>>,
+    Extension(config): Extension<Arc<Config>>,
+) -> Json<ServerDetailsResponse> {
+    let association = sessions.create_assoc_token();
+
     Json(ServerDetailsResponse {
         ident: "POCKET_ARK_SERVER",
         version: VERSION,
+        association,
+        tunnel_port: config.udp_tunnel.get_exposed_port(),
     })
 }
 

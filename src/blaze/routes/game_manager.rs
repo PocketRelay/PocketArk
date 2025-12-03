@@ -8,6 +8,7 @@ use crate::{
         router::{Blaze, Extension, SessionAuth},
         session::{self, SessionLink},
     },
+    config::Config,
     services::{
         game::{self, DEFAULT_FIT, Game, GameAddPlayerExt, player::GamePlayer, store::Games},
         tunnel::TunnelService,
@@ -20,6 +21,7 @@ pub async fn start_matchmaking_scenario(
     mut player: GamePlayer,
     Blaze(req): Blaze<StartMatchmakingScenarioRequest>,
     Extension(games): Extension<Arc<Games>>,
+    Extension(config): Extension<Arc<Config>>,
     Extension(tunnel_service): Extension<Arc<TunnelService>>,
 ) -> Blaze<StartMatchmakingScenarioResponse> {
     let user_id = player.user.id;
@@ -56,6 +58,7 @@ pub async fn start_matchmaking_scenario(
             // Add the player to the game
             game_ref.add_player(
                 &tunnel_service,
+                &config,
                 player,
                 session,
                 GameSetupContext::Matchmaking {

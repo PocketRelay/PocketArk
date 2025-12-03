@@ -38,6 +38,10 @@ pub struct ServerDetailsResponse {
     pub ident: &'static str,
     /// The server version
     pub version: &'static str,
+    /// Random association token for the client to use
+    pub association: String,
+    /// Port the tunnel server is running on
+    pub tunnel_port: Option<u16>,
 }
 
 /// Request to create a new user
