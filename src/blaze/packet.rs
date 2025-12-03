@@ -234,6 +234,7 @@ impl Packet {
 }
 
 /// Tokio codec for encoding and decoding packets
+#[derive(Default)]
 pub struct PacketCodec;
 
 /// Decoder implementation

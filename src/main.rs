@@ -5,16 +5,19 @@ use definitions::{
     badges::Badges, challenges::Challenges, classes::Classes, items::Items,
     level_tables::LevelTables, match_modifiers::MatchModifiers,
 };
-use log::error;
 use log::LevelFilter;
+use log::error;
 use services::mission::MissionBackgroundTask;
-use services::{game_manager::GameManager, sessions::Sessions};
+use services::sessions::Sessions;
 
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::sync::Arc;
 use tokio::join;
 use tokio::signal;
 use utils::{constants::SERVER_PORT, signing::SigningKey};
+
+use crate::services::game::store::Games;
+use crate::services::tunnel::TunnelService;
 
 #[allow(unused)]
 mod blaze;
@@ -47,18 +50,23 @@ async fn main() {
     // Start the strike team mission background task
     MissionBackgroundTask::new(db.clone()).start();
 
-    let game_manager = Arc::new(GameManager::new());
+    let games = Arc::new(Games::default());
     let sessions = Arc::new(Sessions::new(signing_key));
+    let (tunnel_service, _udp_forward_rx) = TunnelService::new();
+    let tunnel_service = Arc::new(tunnel_service);
 
     let mut router = blaze::routes::router();
     router.add_extension(db.clone());
-    router.add_extension(game_manager.clone());
+    router.add_extension(games.clone());
+    router.add_extension(tunnel_service.clone());
+    router.add_extension(sessions.clone());
     let router = router.build();
 
     let router = http::routes::router()
         .layer(Extension(router))
         .layer(Extension(db))
-        .layer(Extension(game_manager))
+        .layer(Extension(games))
+        .layer(Extension(tunnel_service))
         .layer(Extension(sessions));
 
     let addr: SocketAddr = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, SERVER_PORT));
@@ -70,11 +78,14 @@ async fn main() {
         }
     };
 
-    if let Err(err) = axum::serve(listener, router.into_make_service())
-        .with_graceful_shutdown(async move {
-            _ = signal::ctrl_c().await;
-        })
-        .await
+    if let Err(err) = axum::serve(
+        listener,
+        router.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .with_graceful_shutdown(async move {
+        _ = signal::ctrl_c().await;
+    })
+    .await
     {
         error!("Error while running server: {:?}", err);
     }

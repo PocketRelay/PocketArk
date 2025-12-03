@@ -1,7 +1,7 @@
 [package]
 name = "pocket-ark"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Mass Effect Andromeda private server"
 license = "MIT"
 keywords = ["EA", "PocketArk", "MassEffectAndromeda"]
@@ -76,6 +76,7 @@ strum = { version = "0.27.2", features = ["derive"] }
 # Validation
 validator = { version = "0.20.0", features = ["derive"] }
 hyper-util = { version = "0.1.18", features = ["tokio"] }
+pocket-relay-udp-tunnel = "0.0.0"
 
 # Logging backend
 [dependencies.log4rs]

@@ -7,22 +7,22 @@ use log::{debug, error};
 use std::{
     any::{Any, TypeId},
     convert::Infallible,
-    future::ready,
     future::Future,
+    future::ready,
     marker::PhantomData,
     sync::Arc,
 };
 use tdf::{
-    serialize_vec, types::bytes::serialize_bytes, TdfDeserialize, TdfDeserializer, TdfSerialize,
+    TdfDeserialize, TdfDeserializer, TdfSerialize, serialize_vec, types::bytes::serialize_bytes,
 };
 
 use crate::{
-    blaze::models::errors::GlobalError, database::entity::User, services::game::Player,
+    blaze::models::errors::GlobalError, database::entity::User, services::game::player::GamePlayer,
     utils::hashing::IntHashMap,
 };
 
 use super::{
-    components::{component_key, ComponentKey},
+    components::{ComponentKey, component_key},
     models::errors::BlazeError,
     packet::{FireFrame2, Packet},
     session::SessionLink,
@@ -224,13 +224,12 @@ impl FromPacketRequest for SessionAuth {
     where
         Self: 'a,
     {
-        let data = &*req.state.data.lock();
-        let user = data.user.clone();
+        let user = req.state.data.get_player().expect("missing user");
         Box::pin(ready(Ok(SessionAuth(user))))
     }
 }
 
-impl FromPacketRequest for Player {
+impl FromPacketRequest for GamePlayer {
     type Rejection = BlazeError;
 
     fn from_packet_request<'a>(
@@ -239,12 +238,13 @@ impl FromPacketRequest for Player {
     where
         Self: 'a,
     {
-        let data = &*req.state.data.lock();
-        Box::pin(ready(Ok(Player::new(
-            data.user.clone(),
+        let user = req.state.data.get_player().expect("missing user");
+        let net = req.state.data.net().expect("missing user");
+
+        Box::pin(ready(Ok(GamePlayer::new(
+            user,
             Arc::downgrade(&req.state),
-            req.state.notify_handle(),
-            data.net.clone(),
+            net,
         ))))
     }
 }

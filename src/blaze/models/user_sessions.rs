@@ -1,9 +1,9 @@
 use crate::{
     blaze::{
         components::{self, game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
-        session::NetData,
+        data::NetData,
     },
-    database::entity::{users::UserId, User},
+    database::entity::{User, users::UserId},
 };
 use bitflags::bitflags;
 use serde::Serialize;
@@ -74,19 +74,43 @@ pub struct PairAddress {
     pub port: u16,
 }
 
+/// Request to update the stored networking information for a session
 #[derive(Debug, TdfDeserialize)]
-pub struct UpdateNetworkInfo {
+pub struct UpdateNetworkRequest {
     #[tdf(tag = "INFO")]
     pub info: NetworkInfo,
 }
 
-#[derive(Debug, TdfDeserialize, TdfTyped)]
-#[tdf(group)]
+#[derive(Debug)]
 pub struct NetworkInfo {
-    #[tdf(tag = "ADDR")]
-    pub addr: NetworkAddress,
-    #[tdf(tag = "NQOS")]
+    /// The client address net groups
+    pub address: NetworkAddress,
+    /// Latency to the different ping sites
+    pub ping_site_latency: Option<TdfMap<String, u32>>,
+    /// The client Quality of Service data
     pub qos: QosNetworkData,
+}
+
+// Contains optional field so must manually deserialize
+impl TdfDeserializeOwned for NetworkInfo {
+    fn deserialize_owned(
+        r: &mut tdf::prelude::TdfDeserializer<'_>,
+    ) -> tdf::prelude::DecodeResult<Self> {
+        let address: NetworkAddress = r.tag(b"ADDR")?;
+        let ping_site_latency: Option<TdfMap<String, u32>> = r.try_tag(b"NLMP")?;
+        let qos: QosNetworkData = r.tag(b"NQOS")?;
+        tdf::GroupSlice::deserialize_content_skip(r)?;
+
+        Ok(Self {
+            address,
+            ping_site_latency,
+            qos,
+        })
+    }
+}
+
+impl TdfTyped for NetworkInfo {
+    const TYPE: TdfType = TdfType::Group;
 }
 
 #[derive(Debug, TdfDeserialize)]

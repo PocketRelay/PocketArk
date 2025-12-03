@@ -33,6 +33,10 @@ pub mod game_manager {
     pub const PLAYER_ATTR_UPDATE: u16 = 90;
     pub const GAME_STATE_CHANGE: u16 = 100;
 
+    // TODO: Order these
+    pub const GAME_PLAYER_STATE_CHANGE: u16 = 0x74;
+    pub const PLAYER_JOIN_COMPLETED: u16 = 0x1E;
+
     pub const GAME_TYPE: ObjectType = ObjectType::new(COMPONENT, 1);
 }
 
@@ -56,6 +60,7 @@ pub mod user_sessions {
     pub const USER_SESSION_EXTENDED_DATA_UPDATE: u16 = 1;
     pub const USER_ADDED: u16 = 2;
     pub const USER_REMOVED: u16 = 3;
+    pub const USER_UPDATED: u16 = 5;
     pub const UPDATE_AUTH: u16 = 8;
 
     pub const PLAYER_SESSION_TYPE: ObjectType = ObjectType::new(COMPONENT, 2);

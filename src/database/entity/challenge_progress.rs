@@ -1,12 +1,12 @@
-use super::{users::UserId, SeaJson, User};
+use super::{SeaJson, User, users::UserId};
 use crate::{
     database::DbResult,
     definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
-    services::game::ChallengeProgressChange,
+    services::game::data::ChallengeProgressChange,
     utils::ImStr,
 };
 use chrono::Utc;
-use sea_orm::{entity::prelude::*, ActiveValue::Set, IntoActiveModel};
+use sea_orm::{ActiveValue::Set, IntoActiveModel, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::future::Future;

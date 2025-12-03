@@ -1,8 +1,9 @@
 use std::str::FromStr;
 
+use serde::Serialize;
 use tdf::{
-    types::string::write_empty_str, ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfGeneric,
-    TdfMap, TdfSerialize, TdfType, TdfTyped,
+    ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfGeneric, TdfMap, TdfSerialize, TdfType,
+    TdfTyped, types::string::write_empty_str,
 };
 
 use crate::{
@@ -73,6 +74,14 @@ pub struct UpdateStateRequest {
     pub gid: u32,
     #[tdf(tag = "GSTA")]
     pub state: u8,
+}
+
+#[derive(TdfDeserialize, TdfTyped)]
+#[repr(u8)]
+pub enum PlayerNetConnectionStatus {
+    Disconnected = 0x0,
+    EstablishingConnection = 0x1,
+    Connected = 0x2,
 }
 
 #[derive(TdfDeserialize)]
@@ -341,7 +350,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
 
             // Max player capacity
             w.tag_u8(b"MCAP", 1); // should be 4?
-                                  // Min player capacity
+            // Min player capacity
             w.tag_u8(b"MNCP", 1);
             w.tag_str_empty(b"NPSI");
             w.tag_ref(b"NQOS", &host.net.qos);
@@ -554,4 +563,40 @@ impl TdfSerialize for PlayerAttributesChange<'_> {
         w.tag_owned(b"GID", self.game_id);
         w.tag_owned(b"PID", self.user_id);
     }
+}
+
+#[derive(TdfSerialize)]
+pub struct PlayerStateChange {
+    #[tdf(tag = "GID")]
+    pub gid: GameID,
+    #[tdf(tag = "PID")]
+    pub pid: UserId,
+    #[tdf(tag = "STAT")]
+    pub state: PlayerState,
+}
+
+#[derive(
+    Default, Debug, Serialize, Clone, Copy, PartialEq, Eq, TdfDeserialize, TdfSerialize, TdfTyped,
+)]
+#[repr(u8)]
+pub enum PlayerState {
+    /// Link between the mesh points is not connected
+    #[default]
+    #[tdf(default)]
+    Reserved = 0x0,
+    Queued = 0x1,
+    /// Link is being formed between two mesh points
+    ActiveConnecting = 0x2,
+    ActiveMigrating = 0x3,
+    /// Link is connected between two mesh points
+    ActiveConnected = 0x4,
+    ActiveKickPending = 0x5,
+}
+
+#[derive(TdfSerialize)]
+pub struct JoinComplete {
+    #[tdf(tag = "GID")]
+    pub game_id: GameID,
+    #[tdf(tag = "PID")]
+    pub player_id: UserId,
 }

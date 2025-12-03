@@ -2,29 +2,39 @@
 //! and the PocketArk client
 
 use crate::{
-    blaze::{router::BlazeRouter, session::Session},
-    database::entity::{users::CreateUser, Currency, SharedData, User},
+    VERSION,
+    blaze::{data::SessionData, router::BlazeRouter, session::Session},
+    database::entity::{Currency, SharedData, User, users::CreateUser},
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
-        middleware::{json_validated::JsonValidated, upgrade::Upgrade, user::Auth},
+        middleware::{
+            association::Association, ip_address::IpAddress, json_validated::JsonValidated,
+            upgrade::Upgrade, user::Auth,
+        },
         models::{
+            DynHttpError, HttpResult,
             client::{
                 ClientError, CreateUserRequest, LoginUserRequest, ServerDetailsResponse,
                 TokenResponse,
             },
-            DynHttpError, HttpResult,
         },
     },
-    services::sessions::Sessions,
+    services::{
+        sessions::{AssociationId, Sessions},
+        tunnel::{TunnelService, http_tunnel::HttpTunnel},
+    },
     utils::hashing::{hash_password, verify_password},
-    VERSION,
 };
 use anyhow::Context;
-use axum::{response::IntoResponse, Extension, Json};
-use hyper::{header, http::HeaderValue, StatusCode};
-use log::error;
+use axum::{
+    Extension, Json,
+    response::{IntoResponse, Response},
+};
+use hyper::{StatusCode, header, http::HeaderValue, upgrade::OnUpgrade};
+use log::{debug, error};
 use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::sync::Arc;
+use uuid::Uuid;
 
 /// GET /ark/client/details
 ///
@@ -118,11 +128,13 @@ pub async fn create(
     Ok(Json(TokenResponse { token }))
 }
 
-/// GET /ark/client/upgrade
+/// GET /api/server/upgrade
 ///
 /// Handles upgrading a HTTP connection to a blaze stream for game traffic
 pub async fn upgrade(
+    IpAddress(addr): IpAddress,
     Auth(user): Auth,
+    Association(association_id): Association,
     Extension(router): Extension<Arc<BlazeRouter>>,
     Extension(sessions): Extension<Arc<Sessions>>,
     Upgrade(upgrade): Upgrade,
@@ -137,7 +149,16 @@ pub async fn upgrade(
             }
         };
 
-        Session::start(io, user, router, sessions).await;
+        let id = Uuid::new_v4();
+
+        debug!("Session started (SID: {id}, ASSOC: {association_id:?}, ADDR: {addr})");
+        let data = SessionData::new(addr, association_id);
+        let link = Session::start(id, io, data, router);
+
+        let assoc = sessions.add_session(user, link.clone());
+        if let Some(session) = link.upgrade() {
+            session.data.set_auth(assoc);
+        }
     });
 
     // Tell the client to switch protocols
@@ -148,4 +169,54 @@ pub async fn upgrade(
             (header::UPGRADE, HeaderValue::from_static("blaze")),
         ],
     ))
+}
+
+/// GET /api/server/tunnel
+///
+/// Handles upgrading connections from the Pocket Relay Client tool
+/// from HTTP over to the Blaze protocol to proxy the game traffic
+/// as blaze sessions using HTTP Upgrade
+pub async fn tunnel(
+    Association(association_id): Association,
+    Extension(tunnel_service): Extension<Arc<TunnelService>>,
+    Upgrade(upgrade): Upgrade,
+) -> Response {
+    // Handle missing token
+    let Some(association_id) = association_id else {
+        return (StatusCode::BAD_REQUEST, "Missing association token").into_response();
+    };
+
+    // Spawn the upgrading process to its own task
+    tokio::spawn(handle_upgrade_tunnel(
+        upgrade,
+        association_id,
+        tunnel_service,
+    ));
+
+    // Let the client know to upgrade its connection
+    (
+        // Switching protocols status code
+        StatusCode::SWITCHING_PROTOCOLS,
+        // Headers required for upgrading
+        [(header::CONNECTION, "upgrade"), (header::UPGRADE, "tunnel")],
+    )
+        .into_response()
+}
+
+/// Handles upgrading a connection and starting a new session
+/// from the connection
+pub async fn handle_upgrade_tunnel(
+    upgrade: OnUpgrade,
+    association: AssociationId,
+    tunnel_service: Arc<TunnelService>,
+) {
+    let upgraded = match upgrade.await {
+        Ok(upgraded) => upgraded,
+        Err(err) => {
+            error!("Failed to upgrade client connection: {err}");
+            return;
+        }
+    };
+
+    HttpTunnel::start(tunnel_service, association, upgraded);
 }

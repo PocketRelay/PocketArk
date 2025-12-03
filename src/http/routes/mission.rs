@@ -1,17 +1,17 @@
 use crate::{
-    database::entity::{strike_team_mission_progress::UserMissionState, StrikeTeamMission},
+    database::entity::{StrikeTeamMission, strike_team_mission_progress::UserMissionState},
     http::{
-        middleware::{user::Auth, JsonDump},
+        middleware::{JsonDump, user::Auth},
         models::{
+            VecWithCount,
             errors::{DynHttpError, HttpResult},
             mission::*,
             strike_teams::StrikeTeamMissionWithState,
-            VecWithCount,
         },
     },
-    services::game_manager::GameManager,
+    services::game::store::Games,
 };
-use axum::{extract::Path, Extension, Json};
+use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 /// GET /mission/current
 ///
-/// Obtains a list of currently avaiable missions
+/// Obtains a list of currently available missions
 pub async fn current_missions(
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
@@ -61,21 +61,22 @@ pub async fn current_missions(
 pub async fn get_mission(
     Path(mission_id): Path<u32>,
     Extension(db): Extension<DatabaseConnection>,
-    Extension(game_manager): Extension<Arc<GameManager>>,
+    Extension(games): Extension<Arc<Games>>,
 ) -> HttpResult<MissionDetails> {
     debug!("Requested mission details: {}", mission_id);
 
-    let game = game_manager
-        .get_game(mission_id)
-        .await
+    let game = games
+        .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
-    let game = &mut *game.write().await;
+    // TODO: Update mission details handling
+    // let mission_data = game
+    //     .write()
+    //     .get_mission_details(&db)
+    //     .await
+    //     .ok_or(MissionError::MissingMissionData)?;
 
-    let mission_data = game
-        .get_mission_details(&db)
-        .await
-        .ok_or(MissionError::MissingMissionData)?;
+    let mission_data = todo!();
 
     Ok(Json(mission_data))
 }
@@ -85,19 +86,17 @@ pub async fn get_mission(
 /// Starts a mission
 pub async fn start_mission(
     Path(mission_id): Path<u32>,
-    Extension(game_manager): Extension<Arc<GameManager>>,
+    Extension(games): Extension<Arc<Games>>,
     JsonDump(req): JsonDump<StartMissionRequest>,
 ) -> HttpResult<StartMissionResponse> {
     debug!("Mission started: {} {:?}", mission_id, req);
 
-    let game = game_manager
-        .get_game(mission_id)
-        .await
+    let game = games
+        .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
     {
-        let game = &mut *game.write().await;
-        game.set_modifiers(req.modifiers);
+        game.write().set_modifiers(req.modifiers);
     }
 
     let res = StartMissionResponse {
@@ -111,19 +110,17 @@ pub async fn start_mission(
 /// Submits the details of a mission that has been finished
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
-    Extension(game_manager): Extension<Arc<GameManager>>,
+    Extension(games): Extension<Arc<Games>>,
     JsonDump(req): JsonDump<CompleteMissionData>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Mission finished: {} {:#?}", mission_id, req);
 
-    let game = game_manager
-        .get_game(mission_id)
-        .await
+    let game = games
+        .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
     {
-        let game = &mut *game.write().await;
-        game.set_complete_mission(req)
+        game.write().set_complete_mission(req);
     }
 
     Ok(StatusCode::NO_CONTENT)

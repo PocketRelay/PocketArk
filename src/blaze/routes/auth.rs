@@ -18,7 +18,7 @@ pub async fn auth(
     );
 
     packet.frame.notify = 1;
-    session.notify_handle().notify(packet);
+    session.tx.notify(packet);
 
     Blaze(AuthResponse { user })
 }

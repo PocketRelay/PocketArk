@@ -17,6 +17,8 @@
     "appender",
     "firetype",
     "playthrough",
-    "striketeams"
+    "striketeams",
+    "Unpadded",
+    "Matchmake"
   ]
 }
