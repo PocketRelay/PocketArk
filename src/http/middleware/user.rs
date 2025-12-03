@@ -4,7 +4,6 @@ use crate::{
     services::sessions::{Sessions, VerifyError},
 };
 use axum::extract::FromRequestParts;
-use futures::future::BoxFuture;
 use hyper::StatusCode;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
@@ -31,18 +30,16 @@ impl HttpError for AuthError {
     }
 }
 
-impl<S> FromRequestParts<S> for Auth {
+impl<S> FromRequestParts<S> for Auth
+where
+    S: Send + Sync,
+{
     type Rejection = DynHttpError;
 
-    fn from_request_parts<'a, 'b, 'c>(
-        parts: &'a mut axum::http::request::Parts,
-        _state: &'b S,
-    ) -> BoxFuture<'c, Result<Self, Self::Rejection>>
-    where
-        'a: 'c,
-        'b: 'c,
-        Self: 'c,
-    {
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        _state: &S,
+    ) -> Result<Self, Self::Rejection> {
         let db = parts
             .extensions
             .get::<DatabaseConnection>()
@@ -55,24 +52,22 @@ impl<S> FromRequestParts<S> for Auth {
             .expect("Sessions extension missing")
             .clone();
 
-        Box::pin(async move {
-            // Extract the token from the headers
-            let token = parts
-                .headers
-                .get(TOKEN_HEADER)
-                .and_then(|value| value.to_str().ok())
-                .ok_or(AuthError::MissingToken)?;
+        // Extract the token from the headers
+        let token = parts
+            .headers
+            .get(TOKEN_HEADER)
+            .and_then(|value| value.to_str().ok())
+            .ok_or(AuthError::MissingToken)?;
 
-            let user_id: u32 = sessions
-                .verify_token(token)
-                .map_err(|_| AuthError::InvalidToken)?;
+        let user_id: u32 = sessions
+            .verify_token(token)
+            .map_err(|_| AuthError::InvalidToken)?;
 
-            let user = User::by_id(&db, user_id)
-                .await?
-                .ok_or(VerifyError::Invalid)
-                .map_err(|_| AuthError::InvalidToken)?;
+        let user = User::by_id(&db, user_id)
+            .await?
+            .ok_or(VerifyError::Invalid)
+            .map_err(|_| AuthError::InvalidToken)?;
 
-            Ok(Self(user))
-        })
+        Ok(Self(user))
     }
 }

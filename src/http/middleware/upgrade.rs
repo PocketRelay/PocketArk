@@ -1,5 +1,4 @@
 use axum::{
-    async_trait,
     extract::FromRequestParts,
     http::{request::Parts, Method, StatusCode},
     response::IntoResponse,
@@ -20,7 +19,6 @@ pub enum UpgradeError {
 /// to upgrade the connection
 pub struct Upgrade(pub OnUpgrade);
 
-#[async_trait]
 impl<S> FromRequestParts<S> for Upgrade
 where
     S: Send + Sync,

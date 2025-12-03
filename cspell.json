@@ -7,6 +7,16 @@
     "Seedable",
     "rngs",
     "chrono",
-    "singleplayer"
+    "singleplayer",
+    "Jacobtread",
+    "serde",
+    "bitflags",
+    "dotenvy",
+    "rustls",
+    "sqlx",
+    "appender",
+    "firetype",
+    "playthrough",
+    "striketeams"
   ]
 }

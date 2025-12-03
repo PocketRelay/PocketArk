@@ -1,9 +1,9 @@
 //! JSON extractor that validates the underlying value
 //! is valid using [validator::Validate]
 
-use axum::{async_trait, extract::FromRequest, BoxError};
+use axum::extract::{FromRequest, Request};
 use bytes::Bytes;
-use hyper::{body::HttpBody, Request, StatusCode};
+use hyper::StatusCode;
 use log::error;
 use serde::de::DeserializeOwned;
 use thiserror::Error;
@@ -41,19 +41,15 @@ impl HttpError for RejectionError {
     }
 }
 
-#[async_trait]
-impl<T, S, B> FromRequest<S, B> for JsonValidated<T>
+impl<T, S> FromRequest<S> for JsonValidated<T>
 where
     T: DeserializeOwned + Validate,
-    B: HttpBody + Send + 'static,
-    B::Data: Send,
-    B::Error: Into<BoxError>,
     S: Send + Sync,
 {
     type Rejection = DynHttpError;
 
-    async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        // Get request byets
+    async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
+        // Get request bytes
         let bytes = Bytes::from_request(req, state).await.map_err(|err| {
             error!("Failed to get request bytes: {}", err);
             RejectionError::BadContent

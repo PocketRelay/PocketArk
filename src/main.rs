@@ -30,8 +30,6 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[tokio::main]
 async fn main() {
-    std::env::set_var("RUST_LOG", "tower_http=trace");
-
     utils::logging::setup(LevelFilter::Debug);
 
     // Pre-initialize all shared definitions
@@ -64,13 +62,20 @@ async fn main() {
         .layer(Extension(sessions));
 
     let addr: SocketAddr = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, SERVER_PORT));
-    if let Err(err) = axum::Server::bind(&addr)
-        .serve(router.into_make_service())
+    let listener = match tokio::net::TcpListener::bind("0.0.0.0:3000").await {
+        Ok(value) => value,
+        Err(err) => {
+            error!("Failed to bind HTTP server on {}: {:?}", addr, err);
+            return;
+        }
+    };
+
+    if let Err(err) = axum::serve(listener, router.into_make_service())
         .with_graceful_shutdown(async move {
             _ = signal::ctrl_c().await;
         })
         .await
     {
-        error!("Failed to bind HTTP server on {}: {:?}", addr, err);
+        error!("Error while running server: {:?}", err);
     }
 }

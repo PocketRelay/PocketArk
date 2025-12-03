@@ -101,7 +101,7 @@ where
 /// Translation key, requires handling for raw string types
 ///
 /// Thanks to EA and some of their translations not actually
-/// containing the lookup key instead containg something
+/// containing the lookup key instead containing something
 /// like: "FREE_1100_APEX_POINTS_ON_ADD"
 #[serde_as]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -178,6 +178,7 @@ pub struct I18nTitle {
 }
 
 impl I18nTitle {
+    #[allow(unused)]
     pub const fn new(i18n_title: u32) -> Self {
         Self {
             i18n_title: I18nKey::Lookup(i18n_title),

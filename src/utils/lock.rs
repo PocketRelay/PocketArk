@@ -26,16 +26,16 @@ impl QueueLock {
         }
     }
 
-    /// Aquire a ticket for the queue, returns a future
+    /// Acquire a ticket for the queue, returns a future
     /// which completes when its the tickets turn to access
-    pub fn aquire(&self) -> TicketAquireFuture {
+    pub fn acquire(&self) -> TicketAcquireFuture {
         let ticket = self
             .inner
             .next_ticket
             .fetch_add(1, std::sync::atomic::Ordering::AcqRel);
         let poll = PollSemaphore::new(self.inner.semaphore.clone());
 
-        TicketAquireFuture {
+        TicketAcquireFuture {
             inner: self.inner.clone(),
             poll,
             ticket,
@@ -57,7 +57,7 @@ struct QueueLockInner {
 /// TODO: If these futures are dropped early then
 /// the lock wont be able to unlock, figure out how
 /// to fix this..?
-pub struct TicketAquireFuture {
+pub struct TicketAcquireFuture {
     /// The queue lock being waited on
     inner: Arc<QueueLockInner>,
     /// Pollable semaphore
@@ -66,7 +66,7 @@ pub struct TicketAquireFuture {
     ticket: usize,
 }
 
-impl Drop for TicketAquireFuture {
+impl Drop for TicketAcquireFuture {
     fn drop(&mut self) {
         let current = self
             .inner
@@ -87,7 +87,7 @@ pub struct QueueLockGuard {
     inner: Arc<QueueLockInner>,
 }
 
-impl Future for TicketAquireFuture {
+impl Future for TicketAcquireFuture {
     type Output = QueueLockGuard;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {

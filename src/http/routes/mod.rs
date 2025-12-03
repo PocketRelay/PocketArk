@@ -2,7 +2,7 @@ use axum::{
     error_handling::HandleErrorLayer,
     response::{IntoResponse, Response},
     routing::{any, get, post, put},
-    BoxError, Router,
+    Router,
 };
 use hyper::StatusCode;
 use tower::ServiceBuilder;
@@ -53,11 +53,11 @@ pub fn router() -> Router {
                 .route("/missionConfig", get(strike_teams::get_mission_config))
                 .route("/specializations", get(strike_teams::get_specializations))
                 .route("/equipment", get(strike_teams::get_equipment))
-                .route("/:id/mission/resolve", post(strike_teams::resolve_mission))
-                .route("/:id/mission/:id", get(strike_teams::get_mission))
-                .route("/:id/retire", post(strike_teams::retire))
+                .route("/{id}/mission/resolve", post(strike_teams::resolve_mission))
+                .route("/{id}/mission/{id}", get(strike_teams::get_mission))
+                .route("/{id}/retire", post(strike_teams::retire))
                 .route(
-                    "/:id/equipment/:name",
+                    "/{id}/equipment/{name}",
                     post(strike_teams::purchase_equipment),
                 )
                 .route("/purchase", post(strike_teams::purchase)),
@@ -67,7 +67,7 @@ pub fn router() -> Router {
             "/character",
             Router::new()
                 .nest(
-                    "/:id",
+                    "/{id}",
                     Router::new()
                         .route("/", get(character::get_character))
                         .route("/active", post(character::set_active))
@@ -113,7 +113,7 @@ pub fn router() -> Router {
                 .nest(
                     "/mission",
                     Router::new().nest(
-                        "/:id",
+                        "/{id}",
                         Router::new()
                             .route("/", get(mission::get_mission))
                             .route("/start", post(mission::start_mission))
@@ -142,14 +142,14 @@ pub fn router() -> Router {
                 .route("/seen", put(inventory::update_inventory_seen))
                 .route("/consume", post(inventory::consume_inventory)),
         )
-        .route("//em/v3/*path", any(ok))
+        .route("//em/v3/{*path}", any(ok))
         .route("/presence/session", put(presence::update_session))
         .route("/pinEvents", post(telemetry::pin_events))
         .nest(
             "/leaderboards",
             Router::new()
                 .route("/", get(leaderboard::get_leaderboards))
-                .route("/:id", get(leaderboard::get_leaderboard)),
+                .route("/{id}", get(leaderboard::get_leaderboard)),
         )
         .route("/wv/playthrough/0", put(activity::update_playthrough))
         .nest(
@@ -161,7 +161,7 @@ pub fn router() -> Router {
         )
         .layer(
             ServiceBuilder::new()
-                .layer(HandleErrorLayer::new(|_error: BoxError| async move {
+                .layer(HandleErrorLayer::new(|_error| async move {
                     (StatusCode::INTERNAL_SERVER_ERROR, "Unhandled server error")
                 }))
                 .layer(RequestDecompressionLayer::new()),

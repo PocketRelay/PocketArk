@@ -62,9 +62,6 @@ pub fn setup(logging_level: LevelFilter) {
 
 #[cfg(test)]
 pub fn setup_test_logging() {
-    // Enable tracing
-    std::env::set_var("RUST_LOG", "trace");
-
     let pattern = Box::new(PatternEncoder::new(LOGGING_PATTERN));
     let console = Box::new(ConsoleAppender::builder().encoder(pattern.clone()).build());
 
