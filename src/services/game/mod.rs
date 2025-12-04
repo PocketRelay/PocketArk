@@ -23,6 +23,7 @@ use std::sync::{Arc, Weak};
 use tdf::TdfMap;
 
 pub mod data;
+pub mod matchmaking;
 pub mod player;
 pub mod store;
 
