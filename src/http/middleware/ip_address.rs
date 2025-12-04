@@ -7,8 +7,14 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use hyper::{HeaderMap, StatusCode, header::ToStrError};
-use std::net::{AddrParseError, IpAddr, Ipv4Addr, SocketAddr};
+use log::warn;
+use std::{
+    net::{AddrParseError, IpAddr, Ipv4Addr, SocketAddr},
+    sync::Arc,
+};
 use thiserror::Error;
+
+use crate::config::Config;
 
 /// Middleware that extracts the IP address of the connection
 pub struct IpAddress(pub Ipv4Addr);
@@ -23,23 +29,22 @@ where
     type Rejection = IpAddressError;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        // TODO: Config reverse proxy handling
-        // let config = parts
-        //     .extensions
-        //     .get::<Arc<Config>>()
-        //     .expect("Missing runtime config");
+        let config = parts
+            .extensions
+            .get::<Arc<Config>>()
+            .expect("Missing runtime config");
 
-        // // Reverse proxies should respect the X-Real-IP header
-        // if config.reverse_proxy {
-        //     return extract_ip_header(&parts.headers)
-        // .map_err(|err| {
-        //     warn!("Failed to extract X-Real-IP header from incoming request. If you are NOT using a reverse proxy\n\
-        //     disable the `reverse_proxy` config property, otherwise check that your reverse proxy is configured\n\
-        //     correctly according the guide. (Closing connection with error) cause: {err}");
-        //     err
-        // })
-        // .map(Self);
-        // }
+        // Reverse proxies should respect the X-Real-IP header
+        if config.reverse_proxy {
+            return extract_ip_header(&parts.headers)
+                .map_err(|err| {
+                    warn!("Failed to extract X-Real-IP header from incoming request. If you are NOT using a reverse proxy\n\
+                    disable the `reverse_proxy` config property, otherwise check that your reverse proxy is configured\n\
+                    correctly according the guide. (Closing connection with error) cause: {err}");
+                    err
+                })
+                .map(Self);
+        }
 
         Extension::<ConnectInfo<SocketAddr>>::from_request_parts(parts, state)
             .await
