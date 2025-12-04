@@ -7,7 +7,7 @@
 
 use crate::{
     database::entity::{
-        currency::CurrencyType, strike_team_mission::MissionAccessibility, StrikeTeam, User,
+        StrikeTeam, User, currency::CurrencyType, strike_team_mission::MissionAccessibility,
     },
     definitions::{
         challenges::CurrencyReward,
@@ -20,13 +20,13 @@ use crate::{
 };
 use anyhow::Context;
 use chrono::Utc;
-use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::StdRng, seq::SliceRandom};
 use sea_orm::{ConnectionTrait, FromJsonQueryResult};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
 use strum::Display;
-use uuid::{uuid, Uuid};
+use uuid::{Uuid, uuid};
 
 use super::{
     i18n::{I18n, Localized},

@@ -5,9 +5,9 @@ use crate::{
         LeaderboardsResponse,
     },
 };
-use axum::{extract::Path, Json};
+use axum::{Json, extract::Path};
 use serde_json::Map;
-use uuid::{uuid, Uuid};
+use uuid::{Uuid, uuid};
 
 /// GET /leaderboards
 ///

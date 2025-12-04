@@ -1,6 +1,6 @@
 use super::HttpError;
 use crate::{
-    database::entity::{characters::CharacterId, Character, SharedData},
+    database::entity::{Character, SharedData, characters::CharacterId},
     definitions::{
         classes::{CharacterEquipment, Class, CustomizationEntry},
         level_tables::LevelTable,

@@ -5,7 +5,7 @@ use crate::{
         items::ItemName,
         shared::CustomAttributes,
     },
-    utils::{models::DateDuration, ImStr},
+    utils::{ImStr, models::DateDuration},
 };
 use anyhow::Context;
 use serde::{Deserialize, Serialize};

@@ -1,7 +1,7 @@
 use parking_lot::{RwLock, RwLockReadGuard};
 use serde::Serialize;
 use std::{net::Ipv4Addr, sync::Arc, task::Context, time::Duration};
-use tokio::time::{interval_at, Instant, Interval, MissedTickBehavior};
+use tokio::time::{Instant, Interval, MissedTickBehavior, interval_at};
 
 use crate::{
     blaze::{
@@ -17,7 +17,7 @@ use crate::{
         packet::Packet,
         session::WeakSessionLink,
     },
-    database::entity::{users::UserId, User},
+    database::entity::{User, users::UserId},
     services::{
         game::{GameID, GameRef, WeakGameRef},
         sessions::{AssociationId, SessionUserAssociation},

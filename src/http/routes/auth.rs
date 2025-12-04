@@ -2,10 +2,10 @@ use std::sync::Arc;
 
 use crate::{
     http::{
-        middleware::{user::Auth, JsonDump},
+        middleware::{JsonDump, user::Auth},
         models::{
-            auth::{AuthRequest, AuthResponse, AuthUser},
             HttpResult,
+            auth::{AuthRequest, AuthResponse, AuthUser},
         },
     },
     services::sessions::Sessions,

@@ -514,11 +514,7 @@ impl Filter {
                     .get(key)
                     .is_some_and(|attr| attr.eq(value));
 
-                if matches {
-                    Some(0)
-                } else {
-                    None
-                }
+                if matches { Some(0) } else { None }
             }
             Filter::Many(filters) => {
                 let mut weight_sum = 0;
@@ -531,11 +527,7 @@ impl Filter {
                     }
                 }
 
-                if matches {
-                    Some(weight_sum)
-                } else {
-                    None
-                }
+                if matches { Some(weight_sum) } else { None }
             }
             Filter::And(left, right) => {
                 let left = left.apply_filter(item)?;

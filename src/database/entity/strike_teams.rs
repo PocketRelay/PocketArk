@@ -6,7 +6,7 @@ use crate::definitions::strike_teams::{
     StrikeTeamData, StrikeTeamEquipment, StrikeTeamIcon, StrikeTeamName, StrikeTeamTrait,
 };
 use sea_orm::ActiveValue::Set;
-use sea_orm::{prelude::*, IntoActiveModel};
+use sea_orm::{IntoActiveModel, prelude::*};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 

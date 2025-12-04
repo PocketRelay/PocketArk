@@ -1,6 +1,6 @@
 use super::HttpError;
 use crate::{
-    database::entity::{inventory_items::ItemId, InventoryItem},
+    database::entity::{InventoryItem, inventory_items::ItemId},
     definitions::items::{InventoryNamespace, ItemDefinition},
 };
 use hyper::StatusCode;

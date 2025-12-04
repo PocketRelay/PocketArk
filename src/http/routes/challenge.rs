@@ -3,7 +3,7 @@ use crate::{
     definitions::challenges::Challenges,
     http::{
         middleware::user::Auth,
-        models::{challenge::*, HttpResult},
+        models::{HttpResult, challenge::*},
     },
 };
 use axum::{Extension, Json};

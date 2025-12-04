@@ -1,9 +1,9 @@
 use super::{
     connect_database,
-    entity::{currency::CurrencyType, InventoryItem, User},
+    entity::{InventoryItem, User, currency::CurrencyType},
 };
 use crate::{
-    database::entity::{users::CreateUser, Character, Currency, SharedData},
+    database::entity::{Character, Currency, SharedData, users::CreateUser},
     definitions::{
         classes::{Classes, PointMap},
         items::Items,

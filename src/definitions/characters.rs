@@ -6,7 +6,7 @@ use crate::{
         level_tables::{LevelTables, ProgressionXp},
     },
 };
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use sea_orm::ConnectionTrait;
 
 /// Handles the initialization of a character after an item for

@@ -1,9 +1,9 @@
 use super::HttpError;
 use crate::{
     database::entity::{
-        currency::CurrencyType, strike_team_mission::StrikeTeamMissionId,
-        strike_team_mission_progress::UserMissionState, strike_teams::StrikeTeamId, Currency,
-        StrikeTeam, StrikeTeamMission,
+        Currency, StrikeTeam, StrikeTeamMission, currency::CurrencyType,
+        strike_team_mission::StrikeTeamMissionId, strike_team_mission_progress::UserMissionState,
+        strike_teams::StrikeTeamId,
     },
     definitions::strike_teams::{StrikeTeamName, StrikeTeamTrait},
     services::activity::ActivityResult,

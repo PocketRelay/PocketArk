@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{inventory_items::ItemId, InventoryItem, User},
+    database::entity::{InventoryItem, User, inventory_items::ItemId},
     definitions::{
         characters::acquire_item_character,
         classes::Classes,
@@ -7,13 +7,13 @@ use crate::{
         level_tables::LevelTables,
     },
 };
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use log::debug;
 use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
 use sea_orm::ConnectionTrait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use serde_with::{serde_as, skip_serializing_none, DeserializeAs, DisplayFromStr};
+use serde_with::{DeserializeAs, DisplayFromStr, serde_as, skip_serializing_none};
 use std::{
     collections::HashMap,
     fmt::{Display, Write},
@@ -22,7 +22,7 @@ use std::{
     sync::OnceLock,
 };
 use thiserror::Error;
-use uuid::{uuid, Uuid};
+use uuid::{Uuid, uuid};
 
 use super::shared::CustomAttributes;
 

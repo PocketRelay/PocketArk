@@ -1,14 +1,14 @@
 use crate::{
-    database::entity::{currency::CurrencyType, Currency, User},
+    database::entity::{Currency, User, currency::CurrencyType},
     definitions::store_catalogs::StoreCatalogs,
     http::{
-        middleware::{user::Auth, JsonDump},
+        middleware::{JsonDump, user::Auth},
         models::{
+            CurrencyError, DynHttpError, HttpResult,
             store::{
                 ClaimUnclaimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, StoreError, UpdateSeenArticles, UserCurrenciesResponse,
             },
-            CurrencyError, DynHttpError, HttpResult,
         },
     },
     services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},

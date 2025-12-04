@@ -1,6 +1,6 @@
 use super::HttpError;
 use crate::{
-    database::entity::{currency::CurrencyType, Currency, InventoryItem},
+    database::entity::{Currency, InventoryItem, currency::CurrencyType},
     definitions::{
         items::ItemDefinition,
         store_catalogs::{StoreArticleName, StoreCatalog},

@@ -6,8 +6,8 @@ use std::{
 };
 
 use argon2::{
-    password_hash::{self, rand_core::OsRng, PasswordVerifier, SaltString},
     Argon2, PasswordHash, PasswordHasher,
+    password_hash::{self, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 
 /// Hashes the provided password using the Argon2 algorithm returning

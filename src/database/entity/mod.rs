@@ -1,10 +1,10 @@
 use std::{any::type_name, boxed::Box};
 
 use sea_orm::{
-    sea_query::{ArrayType, ColumnType, ValueType, ValueTypeErr},
     TryGetableFromJson,
+    sea_query::{ArrayType, ColumnType, ValueType, ValueTypeErr},
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 pub mod challenge_progress;
 pub mod characters;

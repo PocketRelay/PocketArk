@@ -5,8 +5,8 @@ use std::future::Future;
 
 use crate::database::DbResult;
 
-use super::users::UserId;
 use super::StrikeTeam;
+use super::users::UserId;
 use super::{strike_team_mission::StrikeTeamMissionId, strike_teams::StrikeTeamId};
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};

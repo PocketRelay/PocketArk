@@ -6,13 +6,13 @@ use std::{ops::Add, time::Duration};
 use anyhow::Context;
 use chrono::{Datelike, Days, TimeZone, Timelike, Utc};
 use log::{debug, error};
-use rand::{rngs::StdRng, SeedableRng};
-use sea_orm::{prelude::DateTimeUtc, DatabaseConnection};
+use rand::{SeedableRng, rngs::StdRng};
+use sea_orm::{DatabaseConnection, prelude::DateTimeUtc};
 use tokio::time::sleep;
 
 use crate::{
     database::entity::StrikeTeamMission,
-    definitions::strike_teams::{random_mission, MissionDifficulty, StrikeTeamMissionData},
+    definitions::strike_teams::{MissionDifficulty, StrikeTeamMissionData, random_mission},
 };
 
 /// Background task that handles creating missions on the fixed

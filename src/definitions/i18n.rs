@@ -6,8 +6,8 @@
 //! Translation mappings are stored in the csv file at `src/resources/data/i18n.csv`
 
 use crate::utils::{
-    hashing::{int_hash_map, IntHashMap},
     ImStr,
+    hashing::{IntHashMap, int_hash_map},
 };
 use anyhow::Context;
 use csv::ReaderBuilder;
