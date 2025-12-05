@@ -155,9 +155,9 @@ impl TdfSerialize for NotifyMatchmakingStatus {
                 w.group(b"VGRS", |w| w.tag_u8(b"VVAL", 0));
             });
         }
-        w.tag_owned(b"MSCD", self.pid); // pid
-        w.tag_owned(b"MSID", self.pid); // pid
-        w.tag_owned(b"USID", self.pid); // pid
+        w.tag_owned(b"MSCD", self.pid);
+        w.tag_owned(b"MSID", self.pid);
+        w.tag_owned(b"USID", self.pid);
     }
 }
 
@@ -636,4 +636,128 @@ pub struct JoinComplete {
     pub game_id: GameID,
     #[tdf(tag = "PID")]
     pub player_id: UserId,
+}
+
+pub struct AsyncMatchmakingStatus {
+    pub user_id: UserId,
+}
+
+impl TdfSerialize for AsyncMatchmakingStatus {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.tag_list_start(b"ASIL", TdfType::Group, 1);
+        w.group_body(|w| {
+            // Create game status
+            w.group(b"CGS", |w| {
+                // Evaluate status
+                // PlayerCountSufficient = 1,
+                // AcceptableHostFound = 2,
+                // TeamSizesSufficient = 4
+                w.tag_u8(b"EVST", 1 | 2 | 4 /* 7 */);
+                // Number of matchmaking sessions
+                w.tag_u8(b"MMSN", 1);
+                // Number of matched players
+                w.tag_u8(b"NOMP", 0);
+            });
+
+            // Find game status
+            w.group(b"FGS", |w| {
+                // Number of games
+                w.tag_zero(b"GNUM");
+            });
+
+            // Geo location rule status
+            w.group(b"GEOS", |w| {
+                // Max distance
+                w.tag_zero(b"DIST");
+            });
+
+            // Host balance rule status
+            w.group(b"HBRD", |w| {
+                // Host balance values
+                // HOSTS_STRICTLY_BALANCED = 0,
+                // HOSTS_BALANCED = 1,
+                // HOSTS_UNBALANCED = 2,
+
+                w.tag_u8(b"BVAL", 1);
+            });
+
+            // Host viability rule status
+            w.group(b"HVRD", |w| {
+                // Host viability values
+                // CONNECTION_ASSURED = 0,
+                // CONNECTION_LIKELY = 1,
+                // CONNECTION_FEASIBLE = 2,
+                // CONNECTION_UNLIKELY = 3,
+
+                w.tag_zero(b"VVAL");
+            });
+
+            // Ping site rule status
+            w.group(b"PSRS", |_| {});
+
+            // Rank rule status
+            w.group(b"RRDA", |w| {
+                // Matched rank flags
+                w.tag_zero(b"RVAL");
+            });
+
+            // Unknown
+            w.group(b"PLCN", |w| {
+                w.tag_u8(b"PMAX", 1);
+                w.tag_u8(b"PMIN", 1);
+            });
+
+            // Unknown
+            w.group(b"TOTS", |w| {
+                w.tag_u8(b"PMAX", 4);
+                w.tag_u8(b"PMIN", 4);
+            });
+
+            // Unknown
+            w.group(b"TPPS", |w| {
+                w.tag_zero(b"BDIF");
+                w.tag_zero(b"BOTN");
+                w.tag_str_empty(b"NAME");
+                w.tag_zero(b"TDIF");
+                w.tag_zero(b"TOPN");
+            });
+
+            // Unknown
+            w.group(b"TUBS", |w| {
+                w.tag_zero(b"MUED");
+                w.tag_str_empty(b"NAME");
+                w.tag_zero(b"SDIF");
+            });
+
+            // Team size rule status
+            w.group(b"TSRS", |w| {
+                // Max team size accepted
+                w.tag_zero(b"TMAX");
+                // Min team size accepted
+                w.tag_zero(b"TMIN");
+            });
+
+            // Unknown
+            w.group(b"TBRS", |w| {
+                w.tag_zero(b"SDIF");
+            });
+
+            // Unknown
+            w.group(b"TCPS", |w| {
+                w.tag_str_empty(b"NAME");
+            });
+
+            // Unknown
+            w.group(b"TMSS", |w| {
+                w.tag_zero(b"PCNT");
+            });
+
+            // Virtual game rule status
+            w.group(b"VGRS", |w| w.tag_zero(b"VVAL"));
+        });
+
+        w.tag_owned(b"MSCD", self.user_id);
+        w.tag_owned(b"MSID", self.user_id);
+        w.tag_owned(b"USID", self.user_id);
+    }
 }

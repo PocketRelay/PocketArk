@@ -63,6 +63,11 @@ pub fn router() -> BlazeRouterBuilder {
     );
     router.route(
         components::game_manager::COMPONENT,
+        components::game_manager::CANCEL_MATCHMAKING_SCENARIO,
+        game_manager::cancel_matchmaking_scenario,
+    );
+    router.route(
+        components::game_manager::COMPONENT,
         components::game_manager::UPDATE_PLAYER_ATTR,
         game_manager::update_player_attr,
     );

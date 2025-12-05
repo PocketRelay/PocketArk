@@ -1,5 +1,5 @@
 use crate::{
-    services::game::{Game, GameID, GameRef},
+    services::game::{Game, GameID, GameJoinableState, GameRef, rules::RuleSet},
     utils::hashing::IntHashMap,
 };
 use parking_lot::RwLock;
@@ -37,6 +37,18 @@ impl Games {
 
     pub fn get_by_id(&self, game_id: GameID) -> Option<GameRef> {
         self.games.read().get(&game_id).cloned()
+    }
+
+    /// Find a game that matches the provided rule set
+    pub fn get_by_rule_set(&self, rule_set: &RuleSet) -> Option<(GameID, GameRef)> {
+        self.games
+            .read()
+            .iter()
+            .find(|(_game_id, game_ref)| {
+                let join_state = game_ref.read().joinable_state(Some(rule_set));
+                matches!(join_state, GameJoinableState::Joinable)
+            })
+            .map(|(game_id, game_ref)| (*game_id, game_ref.clone()))
     }
 
     // Get the next available game ID

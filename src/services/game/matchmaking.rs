@@ -1,348 +1,140 @@
-//! Field used to determine how match happens is: {field}MFT
-//! - When not specified, value must be an exact match
-//! - Can also be "matchAny" to match any value
-//! - When matching exact value check against {field}
-//!
-//! {field}RND possibly a random choice by the client? For the server to use
-//! if there are no games when creating the game
-//!
-//! GameSize is matchAny when performing a quick match
-//!
-//! coopGameVisibility (0 = Private, 1 = Public)
-//!
-//! Searching for mission specific ones set mission type to a uuid
-//! mission slot to the mission specific slot, sets modifiers count to an amount
-//! and stores a number like 00000004 in the modifiers field sets the name to a uuid
-//!
-//!
+use std::{collections::VecDeque, time::SystemTime};
 
-use super::AttrMap;
+use log::debug;
+use parking_lot::Mutex;
 
-#[derive(Debug)]
-pub enum Rule {
-    Match {
-        /// Attribute containing the value
-        attr: &'static str,
-        /// Attribute containing the random default value
-        rand_attr: &'static str,
-        /// Attribute containing the match mode
-        mode_attr: &'static str,
+use crate::{
+    blaze::{
+        components::game_manager,
+        models::game_manager::{AsyncMatchmakingStatus, GameSetupContext, MatchmakingResult},
+        packet::Packet,
     },
+    config::Config,
+    database::entity::users::UserId,
+    services::{game::GameID, tunnel::TunnelService},
+};
 
-    /// Exact match attribute
-    ExactField {
-        /// Attribute containing the value
-        attr: &'static str,
-    },
+use super::{GameAddPlayerExt, GameJoinableState, GamePlayer, GameRef, rules::RuleSet};
 
-    /// Special rule for the "GameSize" rule
-    GameSize,
+#[derive(Default)]
+pub struct Matchmaking {
+    /// Matchmaking entry queue
+    queue: Mutex<VecDeque<MatchmakingEntry>>,
 }
 
-/// Known rules and the attribute they operate over
-pub static RULES: &[Rule] = &[
-    Rule::Match {
-        attr: "difficulty",
-        rand_attr: "difficultyRND",
-        mode_attr: "difficultyMFT",
-    },
-    Rule::Match {
-        attr: "enemytype",
-        rand_attr: "enemytypeRND",
-        mode_attr: "enemytypeMFT",
-    },
-    Rule::Match {
-        attr: "level",
-        rand_attr: "levelRND",
-        mode_attr: "levelMFT",
-    },
-    // Game visibility
-    Rule::ExactField {
-        attr: "coopGameVisibility",
-    },
-    // Mission
-    Rule::ExactField {
-        attr: "missionSlot",
-    },
-    Rule::ExactField {
-        attr: "modifierCount",
-    },
-    Rule::ExactField { attr: "modifiers" },
-];
-
-/// Attribute determining the game privacy for public
-/// match checking
-const PRIVACY_ATTR: &str = "coopGameVisibility";
-
-/// Defines a rule to be matched and the value to match
-#[derive(Debug)]
-pub struct MatchRule {
-    /// Rule being matched for
-    rule: &'static Rule,
-
-    value: MatchRuleValue,
+/// Entry into the matchmaking queue
+struct MatchmakingEntry {
+    /// The player entry
+    player: GamePlayer,
+    /// The rules that a game must match for the player to join
+    rule_set: RuleSet,
+    /// Time that the player entered matchmaking
+    started: SystemTime,
 }
 
-#[derive(Debug)]
-pub enum MatchRuleValue {
-    MatchRule {
-        /// Value to match using
-        value: String,
-        /// Random value to use
-        rand_value: Option<String>,
-        /// Mode to perform the match with
-        match_mode: Option<String>,
-    },
-    Value(String),
-}
+const DEFAULT_FIT: u16 = 21600;
 
-/// Set of rules to match
-#[derive(Debug)]
-pub struct RuleSet {
-    /// The rules to match
-    rules: Vec<MatchRule>,
-}
+impl Matchmaking {
+    pub fn remove(&self, player_id: UserId) {
+        self.queue
+            .lock()
+            .retain(|value| value.player.user.id != player_id);
+    }
 
-impl RuleSet {
-    /// Creates a new set of rule matches from the provided rule value pairs
-    pub fn new(pairs: Vec<(String, String)>) -> Self {
-        let mut rules = Vec::new();
+    pub fn queue(&self, player: GamePlayer, rule_set: RuleSet) {
+        let started = SystemTime::now();
+        self.queue.lock().push_back(MatchmakingEntry {
+            player,
+            rule_set,
+            started,
+        });
+    }
 
-        for rule in RULES {
-            match rule {
-                Rule::Match {
-                    attr,
-                    rand_attr,
-                    mode_attr,
-                } => {
-                    let attr = pairs
-                        .iter()
-                        .find(|value| value.0.eq(attr))
-                        .map(|value| value.1.clone());
-                    let rand_value = pairs
-                        .iter()
-                        .find(|value| value.0.eq(rand_attr))
-                        .map(|value| value.1.clone());
-                    let match_mode = pairs
-                        .iter()
-                        .find(|value| value.0.eq(mode_attr))
-                        .map(|value| value.1.clone());
+    pub fn process_queue(
+        &self,
+        tunnel_service: &TunnelService,
+        config: &Config,
 
-                    if let Some(value) = attr {
-                        rules.push(MatchRule {
-                            rule,
-                            value: MatchRuleValue::MatchRule {
-                                value,
-                                rand_value,
-                                match_mode,
-                            },
-                        })
+        link: &GameRef,
+        game_id: GameID,
+    ) {
+        let queue = &mut *self.queue.lock();
+
+        while let Some(entry) = queue.front() {
+            let join_state = { link.read().joinable_state(Some(&entry.rule_set)) };
+
+            // TODO: If player has been in queue long enough create
+            // a game matching their specifics
+
+            match join_state {
+                GameJoinableState::Joinable => {
+                    let entry = queue
+                        .pop_front()
+                        .expect("Expecting matchmaking entry but nothing was present");
+
+                    debug!("Found player from queue adding them to the game (GID: {game_id})");
+                    let time = SystemTime::now();
+                    let elapsed = time.duration_since(entry.started);
+                    if let Ok(elapsed) = elapsed {
+                        debug!("Matchmaking time elapsed: {}s", elapsed.as_secs())
                     }
+
+                    // Add the player to the game
+                    self.add_from_matchmaking(tunnel_service, config, link.clone(), entry.player);
                 }
-
-                Rule::ExactField { attr } => {
-                    let attr = pairs
-                        .iter()
-                        .find(|value| value.0.eq(attr))
-                        .map(|value| value.1.clone());
-
-                    if let Some(attr) = attr {
-                        rules.push(MatchRule {
-                            rule,
-                            value: MatchRuleValue::Value(attr),
-                        });
-                    }
+                GameJoinableState::Full | GameJoinableState::Stopping => {
+                    // If the game is not joinable push the entry back to the
+                    // front of the queue and early return
+                    break;
                 }
-
-                Rule::GameSize => {
-                    let attr = pairs
-                        .iter()
-                        .find(|value| value.0.eq("GameSize"))
-                        .map(|value| value.1.clone());
-
-                    if let Some(attr) = attr {
-                        rules.push(MatchRule {
-                            rule,
-                            value: MatchRuleValue::Value(attr),
-                        });
-                    }
+                GameJoinableState::NotMatch => {
+                    // TODO: Check started time and timeout
+                    // player if they've been waiting too long
                 }
             }
         }
-
-        Self { rules }
     }
 
-    /// Checks if the rules provided in this rule set match the values in
-    /// the attributes map.
-    pub fn matches(&self, attributes: &AttrMap, game_size: usize) -> bool {
-        // Non public matches are unable to be matched
-        if let Some(privacy) = attributes.get(PRIVACY_ATTR)
-            && privacy != "1"
-        {
-            return false;
-        }
+    pub fn add_from_matchmaking(
+        &self,
+        tunnel_service: &TunnelService,
+        config: &Config,
 
-        // Handle matching requested rules
-        for rule in &self.rules {
-            match (rule.rule, &rule.value) {
-                (
-                    Rule::Match { attr, .. },
-                    MatchRuleValue::MatchRule {
-                        value, match_mode, ..
-                    },
-                ) => {
-                    // We don't care what the value is
-                    if match_mode.as_ref().is_some_and(|value| value == "matchAny") {
-                        continue;
-                    }
+        game_ref: GameRef,
+        player: GamePlayer,
+    ) {
+        let session = match player.link.upgrade() {
+            Some(value) => value,
+            // Session was dropped
+            None => return,
+        };
 
-                    // Ensure the attribute is present and matching
-                    if !attributes
-                        .get(*attr)
-                        .is_some_and(|attr_value| attr_value.eq(value))
-                    {
-                        return false;
-                    }
-                }
+        let user_id = player.user.id;
 
-                (Rule::ExactField { attr }, MatchRuleValue::Value(value)) => {
-                    // Ensure the attribute is present and matching
-                    if !attributes
-                        .get(*attr)
-                        .is_some_and(|attr_value| attr_value.eq(value))
-                    {
-                        return false;
-                    }
-                }
+        // MUST be sent to players at least once when matchmaking otherwise it may fail
+        player.notify(Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::MATCHMAKING_ASYNC_STATUS,
+            AsyncMatchmakingStatus { user_id },
+        ));
 
-                (Rule::GameSize, MatchRuleValue::Value(value)) => {
-                    if value != "matchAny" && value != &game_size.to_string() {
-                        return false;
-                    }
-                }
-
-                _ => {
-                    // unexpected case
-                }
-            }
-        }
-
-        true
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::services::game::AttrMap;
-
-    use super::RuleSet;
-
-    /// Public match should succeed if the attributes meet the specified criteria
-    #[test]
-    fn test_public_match() {
-        let attributes = [
-            ("coopGameVisibility", "1"),
-            ("difficulty", "1"),
-            ("difficultyRND", ""),
-            ("difficultyUI", "1"),
-            ("enemytype", "0"),
-            ("enemytypeRND", "2"),
-            ("enemytypeUI", "0"),
-            ("isInLobby", "true"),
-            ("level", "7"),
-            ("levelRND", ""),
-            ("levelUI", "7"),
-            ("lockState", "0"),
-            ("missionSlot", "0"),
-            ("missiontype", "Custom"),
-            ("mode", "contact_multiplayer"),
-            ("modifierCount", "0"),
-            ("modifiers", ""),
-            ("name", "Custom"),
-        ]
-        .into_iter()
-        .map(|(key, value)| (key.to_string(), value.to_string()))
-        .collect::<AttrMap>();
-
-        let rules = [
-            ("GameSize", "matchAny"),
-            ("coopGameVisibility", "1"),
-            ("difficulty", "1"),
-            ("difficultyRND", ""),
-            ("enemytype", "0"),
-            ("enemytypeMFT", "matchAny"),
-            ("enemytypeRND", "2"),
-            ("level", "0"),
-            ("levelMFT", "matchAny"),
-            ("levelRND", "13"),
-            ("missionSlot", "0"),
-            ("modifierCount", "0"),
-            ("modifiers", ""),
-            ("name", ""),
-        ]
-        .into_iter()
-        .map(|(key, value)| (key.to_string(), value.to_string()))
-        .collect::<Vec<(String, String)>>();
-
-        let rule_set = RuleSet::new(rules);
-
-        let matches = rule_set.matches(&attributes, 4);
-
-        assert!(matches, "Rule set didn't match the provided attributes");
-    }
-
-    /// Private match should never match
-    #[test]
-    fn test_private_match() {
-        let attributes = [
-            ("coopGameVisibility", "0"),
-            ("difficulty", "1"),
-            ("difficultyRND", ""),
-            ("difficultyUI", "1"),
-            ("enemytype", "0"),
-            ("enemytypeRND", "2"),
-            ("enemytypeUI", "0"),
-            ("isInLobby", "true"),
-            ("level", "7"),
-            ("levelRND", ""),
-            ("levelUI", "7"),
-            ("lockState", "0"),
-            ("missionSlot", "0"),
-            ("missiontype", "Custom"),
-            ("mode", "contact_multiplayer"),
-            ("modifierCount", "0"),
-            ("modifiers", ""),
-            ("name", "Custom"),
-        ]
-        .into_iter()
-        .map(|(key, value)| (key.to_string(), value.to_string()))
-        .collect::<AttrMap>();
-
-        let rules = [
-            ("GameSize", "matchAny"),
-            ("coopGameVisibility", "1"),
-            ("difficulty", "1"),
-            ("difficultyRND", ""),
-            ("enemytype", "0"),
-            ("enemytypeMFT", "matchAny"),
-            ("enemytypeRND", "2"),
-            ("level", "0"),
-            ("levelMFT", "matchAny"),
-            ("levelRND", "13"),
-            ("missionSlot", "0"),
-            ("modifierCount", "0"),
-            ("modifiers", ""),
-            ("name", ""),
-        ]
-        .into_iter()
-        .map(|(key, value)| (key.to_string(), value.to_string()))
-        .collect::<Vec<(String, String)>>();
-
-        let rule_set = RuleSet::new(rules);
-
-        let matches = rule_set.matches(&attributes, 4);
-
-        assert!(!matches, "Rule set shouldn't match the provided attributes");
+        // Add player to the game
+        game_ref.add_player(
+            tunnel_service,
+            config,
+            player,
+            session,
+            GameSetupContext::Matchmaking {
+                fit_score: DEFAULT_FIT,
+                fit_score_2: 0,
+                max_fit_score: DEFAULT_FIT,
+                id_1: user_id,
+                id_2: user_id,
+                result: MatchmakingResult::JoinedExistingGame,
+                tout: 15000000,
+                ttm: 51109,
+                id_3: user_id,
+            },
+        );
     }
 }

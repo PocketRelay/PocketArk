@@ -23,10 +23,12 @@ pub mod game_manager {
     pub const UPDATE_GAME_ATTR: u16 = 7;
     pub const UPDATE_PLAYER_ATTR: u16 = 8;
     pub const START_MATCHMAKING_SCENARIO: u16 = 16;
+    pub const CANCEL_MATCHMAKING_SCENARIO: u16 = 17;
     pub const REPLAY_GAME: u16 = 19;
     pub const LEAVE_GAME_BY_GROUP: u16 = 22;
 
     // Notifications
+    pub const MATCHMAKING_ASYNC_STATUS: u16 = 12;
     pub const GAME_SETUP: u16 = 20;
     pub const PLAYER_REMOVED: u16 = 40;
     pub const GAME_ATTR_UPDATE: u16 = 80;

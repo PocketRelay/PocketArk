@@ -13,7 +13,7 @@ use crate::{
     database::entity::users::UserId,
     http::models::mission::{CompleteMissionData, MissionDetails, MissionModifier},
     services::{
-        game::{player::GamePlayer, store::Games},
+        game::{player::GamePlayer, rules::RuleSet, store::Games},
         tunnel::TunnelService,
     },
 };
@@ -25,6 +25,7 @@ use tdf::TdfMap;
 pub mod data;
 pub mod matchmaking;
 pub mod player;
+pub mod rules;
 pub mod store;
 
 /// Attributes map type
@@ -91,6 +92,20 @@ pub struct Game {
     pub games_store: Arc<Games>,
     /// Access to the tunneling service
     pub tunnel_service: Arc<TunnelService>,
+}
+
+/// Different results for checking if a game is
+/// joinable
+pub enum GameJoinableState {
+    /// Game is currently joinable
+    Joinable,
+    /// Game is full
+    Full,
+    /// The game doesn't match the provided rules
+    NotMatch,
+    /// The game is stopping
+    #[allow(unused)]
+    Stopping,
 }
 
 pub const DEFAULT_FIT: u16 = 21600;
@@ -387,6 +402,27 @@ impl Game {
 
         // TODO: Is this supposed to be here?
         self.rem_user_sub(player);
+    }
+
+    pub fn joinable_state(&self, rule_set: Option<&RuleSet>) -> GameJoinableState {
+        // TODO: Determine stopping state
+        // if let GameState::Destructing = self.state {
+        //     return GameJoinableState::Stopping;
+        // }
+
+        // Handle full game
+        if self.players.len() >= Self::MAX_PLAYERS {
+            return GameJoinableState::Full;
+        }
+
+        // Check rule set matches
+        if let Some(rule_set) = rule_set
+            && !rule_set.matches(&self.attributes, self.players.len())
+        {
+            return GameJoinableState::NotMatch;
+        }
+
+        GameJoinableState::Joinable
     }
 
     /// Writes the provided packet to all connected sessions.

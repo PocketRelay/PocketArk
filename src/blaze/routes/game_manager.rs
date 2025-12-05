@@ -1,3 +1,6 @@
+use log::{debug, info};
+use tdf::TdfMap;
+
 use crate::{
     blaze::{
         models::game_manager::{
@@ -10,7 +13,11 @@ use crate::{
     },
     config::Config,
     services::{
-        game::{self, DEFAULT_FIT, Game, GameAddPlayerExt, player::GamePlayer, store::Games},
+        activity::AttributeError,
+        game::{
+            self, DEFAULT_FIT, Game, GameAddPlayerExt, GameJoinableState, matchmaking::Matchmaking,
+            player::GamePlayer, rules::RuleSet, store::Games,
+        },
         tunnel::TunnelService,
     },
 };
@@ -23,8 +30,22 @@ pub async fn start_matchmaking_scenario(
     Extension(games): Extension<Arc<Games>>,
     Extension(config): Extension<Arc<Config>>,
     Extension(tunnel_service): Extension<Arc<TunnelService>>,
+    Extension(matchmaking): Extension<Arc<Matchmaking>>,
 ) -> Blaze<StartMatchmakingScenarioResponse> {
     let user_id = player.user.id;
+
+    let attributes: TdfMap<String, String> = req
+        .attributes
+        .into_iter()
+        .filter_map(|(key, value)| {
+            let inner = value.inner?;
+            let value = match inner.value {
+                tdf::TdfGenericValue::String(value) => value,
+                _ => return None,
+            };
+            Some((key, value))
+        })
+        .collect();
 
     match req.ty {
         MatchmakeScenario::QuickMatch => {
@@ -33,21 +54,25 @@ pub async fn start_matchmaking_scenario(
             // - Send async matchmaking update (4, 12)
             // - Couldn't find one? create new one
             // - found one? send game details
+
+            let rules = RuleSet::new(attributes.into_inner());
+
+            info!("Player {} started matchmaking", player.user.username);
+
+            // Find a game thats currently joinable and matches the required rules
+            match games.get_by_rule_set(&rules) {
+                Some((game_id, game_ref)) => {
+                    debug!("Found matching game (GID: {game_id})");
+
+                    // Add the player to the game
+                    matchmaking.add_from_matchmaking(&tunnel_service, &config, game_ref, player);
+                }
+                None => {
+                    matchmaking.queue(player, rules);
+                }
+            };
         }
         MatchmakeScenario::CreatePublicGame => {
-            let attributes = req
-                .attributes
-                .into_iter()
-                .filter_map(|(key, value)| {
-                    let inner = value.inner?;
-                    let value = match inner.value {
-                        tdf::TdfGenericValue::String(value) => value,
-                        _ => return None,
-                    };
-                    Some((key, value))
-                })
-                .collect();
-
             // Player is the host player (They are connected by default)
             player.state = PlayerState::ActiveConnected;
 
@@ -73,20 +98,46 @@ pub async fn start_matchmaking_scenario(
                     id_3: user_id,
                 },
             );
+
+            matchmaking.process_queue(&tunnel_service, &config, &game_ref, game_id);
         }
     }
 
     Blaze(StartMatchmakingScenarioResponse { user_id })
 }
 
+pub async fn cancel_matchmaking_scenario(
+    session: SessionLink,
+    SessionAuth(user): SessionAuth,
+    Extension(matchmaking): Extension<Arc<Matchmaking>>,
+) -> Blaze<()> {
+    let user_id = user.id;
+    session.data.clear_game();
+    matchmaking.remove(user_id);
+    Blaze(())
+}
+
 pub async fn update_game_attr(
     Blaze(req): Blaze<UpdateGameAttrRequest>,
     Extension(games): Extension<Arc<Games>>,
+    Extension(config): Extension<Arc<Config>>,
+    Extension(tunnel_service): Extension<Arc<TunnelService>>,
+    Extension(matchmaking): Extension<Arc<Matchmaking>>,
 ) {
-    let game = games.get_by_id(req.gid).expect("Unknown game");
+    let game_id = req.gid;
+    let game_ref = games.get_by_id(game_id).expect("Unknown game");
 
-    let game = &mut *game.write();
-    game.set_attributes(req.attr);
+    // Update matchmaking for the changed game
+    let join_state = {
+        let game = &mut *game_ref.write();
+        game.set_attributes(req.attr);
+
+        game.joinable_state(None)
+    };
+
+    if let GameJoinableState::Joinable = join_state {
+        matchmaking.process_queue(&tunnel_service, &config, &game_ref, game_id);
+    }
 }
 
 pub async fn update_player_attr(

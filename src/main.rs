@@ -18,6 +18,7 @@ use tokio::signal;
 use utils::signing::SigningKey;
 
 use crate::config::{TunnelConfig, VERSION, load_config};
+use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
 use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
@@ -64,6 +65,7 @@ async fn main() {
 
     let games = Arc::new(Games::default());
     let sessions = Arc::new(Sessions::new(signing_key));
+    let matchmaking = Arc::new(Matchmaking::default());
 
     let (tunnel_service, udp_forward_rx) = TunnelService::new();
     let tunnel_service = Arc::new(tunnel_service);
@@ -103,6 +105,7 @@ async fn main() {
         .extension(games.clone())
         .extension(tunnel_service.clone())
         .extension(sessions.clone())
+        .extension(matchmaking.clone())
         .build();
 
     // Create the HTTP router
