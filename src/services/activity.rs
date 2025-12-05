@@ -221,9 +221,17 @@ impl ActivityService {
                 // Create a random generator
                 let mut rng = StdRng::from_entropy();
 
+                let required_names = item_definitions.droppable_required_names();
+
+                // Collect the owned items
+                let owned_items: Vec<InventoryItem> =
+                    InventoryItem::all_by_names(db, user, required_names).await?;
+
+                // Get droppable items
+                let droppable_items = item_definitions.droppable_items(&owned_items);
+
                 // Generate collection of rewards
-                pack.generate_rewards(db, user, &mut rng, item_definitions, &mut rewards)
-                    .await
+                pack.generate_rewards(&mut rng, &droppable_items, &mut rewards)
                     .map_err(ItemConsumeError::GenerateError)?;
             }
 

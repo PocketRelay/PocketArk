@@ -4,12 +4,9 @@
 //! The randomness used for these packs are only guesses and may not
 //! be accurate to the actual game loot tables.
 
-use crate::{
-    database::entity::{InventoryItem, User},
-    definitions::items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity, Items},
-};
+use crate::definitions::items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity};
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
-use sea_orm::{ConnectionTrait, DbErr};
+use sea_orm::DbErr;
 use serde_json::Value;
 use std::{collections::HashMap, sync::OnceLock};
 use thiserror::Error;
@@ -97,78 +94,15 @@ impl Pack {
 
     /// Generates a [RewardCollection] from this [Pack] using the provided
     /// random number generator `rng`
-    ///
-    /// Requires database access for checking item ownership requirement
-    /// in order to match
-    ///
-    pub async fn generate_rewards<'def, C>(
+    pub fn generate_rewards<'def>(
         &self,
-        db: &C,
-        user: &User,
         rng: &mut StdRng,
-        defs: &'def Items,
+        droppable_items: &[&'def ItemDefinition],
         rewards: &mut RewardCollection<'def>,
-    ) -> Result<(), GenerateError>
-    where
-        C: ConnectionTrait + Send,
-    {
-        // Creates a list of items that are applicable for dropping (If they match filters)
-        // this step is done so unlock definitions and droppability don't have to be
-        // done for every single collection filter
-        let mut items: Vec<&ItemDefinition> = defs
-            // Iterate all the definitions
-            .all()
-            .iter()
-            // Only include droppable items
-            .filter(|item| item.is_droppable())
-            .collect();
-
-        // Collection of requirements for items (For requirement filtering)
-        let required_items: Vec<ItemName> = items
-            .iter()
-            .filter_map(|item| item.unlock_definition.as_ref())
-            .copied()
-            .collect();
-
-        // Collect the owned items
-        let owned_items: Vec<InventoryItem> =
-            InventoryItem::all_by_names(db, user, required_items).await?;
-
-        // Remove items that don't meet the owned requirement
-        items.retain(|definition| {
-            let unlock_def_name: &ItemName = match definition.unlock_definition.as_ref() {
-                Some(value) => value,
-                // No unlocking requirement
-                None => return true,
-            };
-
-            // Find the item definition for the lock requirment
-            let unlock_def: &ItemDefinition = match defs.by_name(unlock_def_name) {
-                Some(value) => value,
-                // Unlock definition doesn't exist (Filter out, item must be invalid)
-                None => return false,
-            };
-
-            // Ensure the user owns atleast one of the item
-            let owned_item = match owned_items
-                .iter()
-                .find(|item| item.definition_name == definition.name)
-            {
-                Some(value) => value,
-
-                // Requirement of owning the item not met
-                None => return false,
-            };
-
-            // If there is a max capacity for the item ensure its been reached
-            unlock_def
-                .capacity
-                .is_some_and(|capacity| owned_item.stack_size == capacity)
-        });
-
+    ) -> Result<(), GenerateError> {
         // Generate rewards from each collection
         for collection in self.collections.iter() {
-            collection.generate_rewards(rng, &items, rewards)?;
+            collection.generate_rewards(rng, droppable_items, rewards)?;
         }
 
         Ok(())
@@ -723,7 +657,7 @@ fn generate_packs() -> HashMap<ItemName, Pack> {
                     .clone()
                     // Apply additional weight to characters
                     .merge(Filter::base_category(BaseCategory::Characters).weight(32))
-                    // Exculde Rare and Ultra rare from this selection
+                    // Exclude Rare and Ultra rare from this selection
                     .and(Filter::rarities([ItemRarity::Rare, ItemRarity::UltraRare]).not()),
             )
             .amount(3),
@@ -755,7 +689,7 @@ fn generate_packs() -> HashMap<ItemName, Pack> {
                         ])
                         .weight(32),
                     )
-                    // Exculde Rare and Ultra rare from this selection
+                    // Exclude Rare and Ultra rare from this selection
                     .and(Filter::rarities([ItemRarity::Rare, ItemRarity::UltraRare]).not()),
             )
             .amount(3),

@@ -125,6 +125,30 @@ impl Items {
         })
     }
 
+    /// Collects a list of [ItemName] for any items that these item
+    /// definitions may depend on, these items are then looked up in the
+    /// the user inventory before generating rewards in order to check
+    /// rules like "Must have A tier before we can drop B tier"
+    pub fn droppable_required_names(&self) -> Vec<ItemName> {
+        self.values
+            .iter()
+            // Only include droppable items
+            .filter(|item| item.is_droppable())
+            // Use unlock definition
+            .filter_map(|item| item.unlock_definition.as_ref())
+            .copied()
+            .collect()
+    }
+
+    /// Collect all items that are droppable and have met the conditions
+    /// for being dropped
+    pub fn droppable_items(&self, owned_items: &[InventoryItem]) -> Vec<&ItemDefinition> {
+        self.values
+            .iter()
+            .filter(|item| item.is_droppable() && item.is_conditions_met(self, owned_items))
+            .collect()
+    }
+
     /// Returns a slice to all the [ItemDefinition]s in this collection
     pub fn all(&self) -> &[ItemDefinition] {
         &self.values
@@ -231,6 +255,49 @@ impl ItemDefinition {
     #[inline]
     pub fn is_deletable(&self) -> bool {
         self.deletable.unwrap_or_default()
+    }
+
+    /// Get the parent "unlock definition" if one is present
+    ///
+    /// (This is the item that must be unlocked before this can be locked)
+    fn unlock_definition<'def>(&self, defs: &'def Items) -> Option<&'def ItemDefinition> {
+        self.unlock_definition
+            .as_ref()
+            .and_then(|unlock_def_name| defs.by_name(unlock_def_name))
+    }
+
+    /// Get this item from the list of owned items if present
+    fn get_owned_item<'owned>(
+        &self,
+        owned_items: &'owned [InventoryItem],
+    ) -> Option<&'owned InventoryItem> {
+        owned_items
+            .iter()
+            .find(|item| item.definition_name == self.name)
+    }
+
+    /// Checks if the "unlock_definition" of this item definition is met
+    fn is_unlock_definition_met(&self, owned_items: &[InventoryItem]) -> bool {
+        self.get_owned_item(owned_items)
+            // Ensure we also have the required capacity if present
+            .is_some_and(|owned_item| {
+                self.capacity
+                    .is_none_or(|required_capacity| owned_item.stack_size >= required_capacity)
+            })
+    }
+
+    /// Checks if the item drop conditions are met, recursively checks parent items
+    /// to ensure the parent unlock conditions are met
+    pub fn is_conditions_met(&self, defs: &Items, owned_items: &[InventoryItem]) -> bool {
+        let unlock_def: &ItemDefinition = match self.unlock_definition(defs) {
+            Some(value) => value,
+            // No unlocking requirement
+            None => return true,
+        };
+
+        unlock_def.is_unlock_definition_met(owned_items)
+        // Ensure any parent definitions are also unlocked
+            && unlock_def.is_conditions_met(defs, owned_items)
     }
 }
 
