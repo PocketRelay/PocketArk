@@ -238,7 +238,14 @@ pub struct CharacterEquipment {
     /// The name of the item in the equipment slot
     pub name: NameOrEmpty,
     /// Items attached to the equipment
-    pub attachments: Vec<ItemName>,
+    pub attachments: Vec<AttachmentName>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AttachmentName {
+    ItemName(ItemName),
+    Other(String),
 }
 
 /// Can be either an item name or empty string,
