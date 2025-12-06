@@ -111,6 +111,7 @@ pub async fn cancel_matchmaking_scenario(
     SessionAuth(user): SessionAuth,
     Extension(matchmaking): Extension<Arc<Matchmaking>>,
 ) -> Blaze<()> {
+    info!("Player {} cancelled matchmaking", user.username);
     let user_id = user.id;
     session.data.clear_game();
     matchmaking.remove(user_id);
