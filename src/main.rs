@@ -115,6 +115,7 @@ async fn main() {
         .layer(Extension(games))
         .layer(Extension(tunnel_service))
         .layer(Extension(sessions))
+        .layer(Extension(config))
         .into_make_service_with_connect_info::<SocketAddr>();
 
     info!("Starting server on {addr} (v{VERSION})");
