@@ -4,13 +4,25 @@
 //! The randomness used for these packs are only guesses and may not
 //! be accurate to the actual game loot tables.
 
-use crate::definitions::items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity};
+use crate::definitions::{
+    items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity},
+    packs::parser::{FilterParseError, parse_filter},
+};
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use sea_orm::DbErr;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, sync::OnceLock};
+use serde_with::{DeserializeAs, DisplayFromStr};
+use std::{
+    collections::HashMap,
+    fmt::{Display, Write},
+    str::FromStr,
+    sync::OnceLock,
+};
 use thiserror::Error;
 use uuid::uuid;
+
+mod parser;
 
 /// Collection of defined [Pack]s
 pub struct Packs {
@@ -78,6 +90,7 @@ impl PackBuilder {
 }
 
 /// Represents a pack that can be used to generate items
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Pack {
     /// The name of the pack item
     pub name: ItemName,
@@ -110,7 +123,7 @@ impl Pack {
 }
 
 /// Chance for gaining an item from a specific filter
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 struct PackCollection {
     /// The filter for choosing these pack items
     filter: Filter,
@@ -251,7 +264,7 @@ impl<'a> RewardCollection<'a> {
 type Weight = u32;
 
 /// Item filtering
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Filter {
     /// Filter that never matches anything (Fallback)
     Never,
@@ -278,6 +291,64 @@ enum Filter {
 
     /// Filter with an additional weighted randomness amount
     Weighted(Box<Filter>, Weight),
+}
+
+impl FromStr for Filter {
+    type Err = FilterParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        parse_filter(s)
+    }
+}
+
+impl<'de> Deserialize<'de> for Filter {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        DisplayFromStr::deserialize_as(deserializer)
+    }
+}
+
+impl Serialize for Filter {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl Display for Filter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Filter::Never => write!(f, "Never"),
+            Filter::Named(uuid) => write!(f, "(Name={uuid})"),
+            Filter::Rarity(item_rarity) => write!(f, "(Rarity={item_rarity})"),
+            Filter::Category(category) => write!(f, "(Category={category})"),
+            Filter::Attribute(key, value) => match value {
+                Value::String(value) => write!(f, "(Attribute={key},{value})"),
+                _ => write!(f, "(Attribute={key},{value})"),
+            },
+            Filter::Many(filters) => {
+                let last_index = filters.len() - 1;
+
+                for (index, filter) in filters.iter().enumerate() {
+                    Display::fmt(filter, f)?;
+
+                    if index != last_index {
+                        f.write_char(',')?;
+                    }
+                }
+
+                Ok(())
+            }
+            Filter::And(left, right) => write!(f, "({left} && {right})"),
+            Filter::Or(left, right) => write!(f, "({left} || {right})"),
+            Filter::Not(filter) => write!(f, "(!{filter})"),
+            Filter::Weighted(filter, weight) => write!(f, "({filter}^{weight})"),
+        }
+    }
 }
 
 #[allow(unused)]
@@ -1219,4 +1290,44 @@ fn generate_packs() -> HashMap<ItemName, Pack> {
     .into_iter()
     .map(|pack| (pack.name, pack))
     .collect()
+}
+
+#[test]
+fn test_serialize_packs() {
+    let packs = generate_packs();
+    let value = serde_json::to_string_pretty(&packs).unwrap();
+    std::fs::write("packs.json", &value).unwrap();
+}
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashMap;
+
+    use crate::definitions::packs::{Pack, generate_packs};
+
+    /// Tests that the packs JSON generated from code matches that which is
+    /// serialized and parsed back again
+    #[test]
+    fn test_generated_packs_matches() {
+        let packs = generate_packs();
+        let value = serde_json::to_string(&packs).unwrap();
+        let parsed: HashMap<uuid::Uuid, Pack> = serde_json::from_str(&value).unwrap();
+
+        let mut left = packs.into_iter().collect::<Vec<_>>();
+        let mut right = parsed.into_iter().collect::<Vec<_>>();
+
+        left.sort_by_key(|value| value.0);
+        right.sort_by_key(|value| value.0);
+
+        assert_eq!(left, right);
+    }
+
+    /// Generates a packs file from the current data
+    #[test]
+    #[ignore = "not an automated test, utility for generating a file"]
+    fn generate_packs_file() {
+        let packs = generate_packs();
+        let value = serde_json::to_string_pretty(&packs).unwrap();
+        std::fs::write("packs.json", value).unwrap();
+    }
 }

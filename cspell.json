@@ -32,6 +32,11 @@
     "RESPEC",
     "TOTINO'S",
     "KETT",
-    "accum"
+    "accum",
+    "let value = stack.pop();\n                    match value {\n                        \n                    }"
+  ],
+  "words": [
+    "value",
+    "Peekable"
   ]
 }

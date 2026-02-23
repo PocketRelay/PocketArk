@@ -547,6 +547,7 @@ impl Display for WeaponCategory {
         })
     }
 }
+
 /// Errors that can occur when parsing an [ItemLink]
 #[derive(Debug, Error)]
 pub enum ItemLinkError {
