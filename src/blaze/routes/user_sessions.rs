@@ -1,7 +1,18 @@
-use crate::blaze::{
-    models::user_sessions::{NetworkInfo, UpdateHardwareFlags, UpdateNetworkRequest},
-    router::Blaze,
-    session::SessionLink,
+use std::sync::Arc;
+
+use crate::{
+    blaze::{
+        models::{
+            errors::ServerResult,
+            user_sessions::{
+                LookupRequest, LookupResponse, NetworkInfo, UpdateHardwareFlags,
+                UpdateNetworkRequest, UserSessionsError,
+            },
+        },
+        router::{Blaze, Extension},
+        session::SessionLink,
+    },
+    services::sessions::Sessions,
 };
 
 pub async fn update_network_info(
@@ -28,4 +39,23 @@ pub async fn update_network_info(
 
 pub async fn update_hardware_flags(session: SessionLink, Blaze(req): Blaze<UpdateHardwareFlags>) {
     session.data.set_hardware_flags(req.hardware_flags);
+}
+
+/// Attempts to lookup another authenticated session details
+pub async fn lookup_user(
+    Blaze(req): Blaze<LookupRequest>,
+    Extension(sessions): Extension<Arc<Sessions>>,
+) -> ServerResult<Blaze<LookupResponse>> {
+    // Lookup the session
+    let session = sessions
+        .lookup_session(req.player_id)
+        .ok_or(UserSessionsError::UserNotFound)?;
+
+    // Get the lookup response from the session
+    let response = session
+        .data
+        .get_lookup_response()
+        .ok_or(UserSessionsError::UserNotFound)?;
+
+    Ok(Blaze(response))
 }

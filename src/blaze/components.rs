@@ -14,6 +14,9 @@ pub mod authentication {
     pub const LIST_ENTITLEMENTS_2: u16 = 29;
 }
 
+// Missing packet handler for 0x0004->0x0041 (4->65) PACKER_CREATE_GAME
+// Missing packet handler for 0x0004->0x0043 (4->67) MESH_ENDPOINTS_CONNECTION_LOST
+
 pub mod game_manager {
     use tdf::ObjectType;
 
@@ -22,6 +25,7 @@ pub mod game_manager {
     pub const UPDATE_GAME_STATE: u16 = 3;
     pub const UPDATE_GAME_ATTR: u16 = 7;
     pub const UPDATE_PLAYER_ATTR: u16 = 8;
+    pub const FINALIZE_GAME_CREATION: u16 = 15;
     pub const START_MATCHMAKING_SCENARIO: u16 = 16;
     pub const CANCEL_MATCHMAKING_SCENARIO: u16 = 17;
     pub const REPLAY_GAME: u16 = 19;
@@ -30,7 +34,12 @@ pub mod game_manager {
     // Notifications
     pub const MATCHMAKING_ASYNC_STATUS: u16 = 12;
     pub const GAME_SETUP: u16 = 20;
+    pub const PLAYER_JOINING: u16 = 0x15;
     pub const PLAYER_REMOVED: u16 = 40;
+
+    pub const MESH_ENDPOINTS_CONNECTED: u16 = 65;
+    pub const MESH_ENDPOINTS_CONNECTION_LOST: u16 = 67;
+
     pub const GAME_ATTR_UPDATE: u16 = 80;
     pub const PLAYER_ATTR_UPDATE: u16 = 90;
     pub const GAME_STATE_CHANGE: u16 = 100;
@@ -40,6 +49,8 @@ pub mod game_manager {
     pub const PLAYER_JOIN_COMPLETED: u16 = 0x1E;
 
     pub const GAME_TYPE: ObjectType = ObjectType::new(COMPONENT, 1);
+
+    pub const MATCHMAKING_SESSION_CONNECTION_VALIDATED: u16 = 11;
 }
 
 pub mod util {
@@ -49,6 +60,7 @@ pub mod util {
     pub const PING: u16 = 2;
     pub const PRE_AUTH: u16 = 7;
     pub const POST_AUTH: u16 = 8;
+    pub const SET_CLIENT_METRICS: u16 = 22;
 }
 
 pub mod user_sessions {
@@ -57,6 +69,8 @@ pub mod user_sessions {
     pub const COMPONENT: u16 = 30722;
 
     pub const UPDATE_HARDWARE_FLAGS: u16 = 8;
+    pub const LOOKUP_USER: u16 = 12;
+
     pub const UPDATE_NETWORK_INFO: u16 = 20;
 
     pub const USER_SESSION_EXTENDED_DATA_UPDATE: u16 = 1;

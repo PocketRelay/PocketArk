@@ -15,6 +15,13 @@ use tdf::prelude::*;
 
 use super::util::PING_SITE_ALIAS;
 
+#[derive(Debug, Clone)]
+#[repr(u16)]
+#[allow(unused)]
+pub enum UserSessionsError {
+    UserNotFound = 0xb,
+}
+
 #[derive(Debug, Clone, Copy, Default, Serialize, TdfSerialize, TdfDeserialize, TdfTyped)]
 #[tdf(group)]
 pub struct QosNetworkData {
@@ -60,7 +67,7 @@ pub enum NetworkAddress {
 }
 
 /// Pair of socket addresses
-#[derive(Debug, Clone, Serialize, TdfDeserialize, TdfSerialize, TdfTyped)]
+#[derive(Debug, Default, Clone, TdfDeserialize, TdfSerialize, TdfTyped, Serialize)]
 #[tdf(group)]
 pub struct IpPairAddress {
     #[tdf(tag = "EXIP")]
@@ -90,6 +97,40 @@ pub struct PairAddress {
     pub maci: u32,
     #[tdf(tag = "PORT")]
     pub port: u16,
+}
+
+impl Default for PairAddress {
+    fn default() -> Self {
+        Self {
+            addr: Ipv4Addr::UNSPECIFIED,
+            port: 0,
+            maci: 0,
+        }
+    }
+}
+
+/// Request to lookup the session details of a user
+#[derive(TdfDeserialize)]
+pub struct LookupRequest {
+    #[tdf(tag = "EXID")]
+    pub player_id: UserId,
+}
+
+/// User lookup response
+pub struct LookupResponse {
+    pub user: Arc<User>,
+    pub extended_data: UserSessionExtendedData,
+}
+
+impl TdfSerialize for LookupResponse {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        // The user session extended data
+        w.tag_ref(b"EDAT", &self.extended_data);
+        w.tag_owned(b"FLGS", UserDataFlags::ONLINE.bits());
+
+        // The lookup user identification
+        w.tag_alt(b"USER", UserIdentification::from_user(&self.user));
+    }
 }
 
 /// Request to update the stored networking information for a session

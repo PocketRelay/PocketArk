@@ -10,6 +10,8 @@ use std::{
 use tokio::sync::{Mutex, OwnedMutexGuard, mpsc};
 use tokio_util::codec::Framed;
 
+use crate::blaze::session::WeakSessionLink;
+
 use super::packet::{Packet, PacketCodec};
 
 /// Future for processing a blaze socket
@@ -43,26 +45,6 @@ impl BlazeTx {
     pub fn notify(&self, packet: Packet) {
         // Acquire the lock position before scheduling the task to ensure correct ordering
         let tx = self.acquire_tx();
-
-        // TODO:
-        // {
-        //     // sent as premsg for all notifys
-        //     //  "CNTX": 1053382590009, session id
-        //     //  "ERRC": 0, error code
-        //     // "MADR": { (group) unknown
-        //     // },
-
-        //     // TODO: Notify context may need to be appended elsewhere instead
-        //     if packet.frame.flags.contains(FrameFlags::FLAG_NOTIFY) {
-        //         let uid = {
-        //             let data = &*self.session.data.lock();
-        //             data.user.id
-        //         };
-
-        //         let msg = NotifyContext { uid, error: 0 };
-        //         packet.pre_msg = Bytes::from(serialize_vec(&msg));
-        //     }
-        // }
 
         tokio::spawn(async move {
             let tx = tx.await;

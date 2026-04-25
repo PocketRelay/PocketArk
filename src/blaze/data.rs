@@ -9,7 +9,7 @@ use crate::{
         models::{
             game_manager::RemoveReason,
             user_sessions::{
-                HardwareFlags, NetworkAddress, NotifyUserAdded, NotifyUserRemoved,
+                HardwareFlags, LookupResponse, NetworkAddress, NotifyUserAdded, NotifyUserRemoved,
                 NotifyUserUpdated, QosNetworkData, UserDataFlags, UserIdentification,
                 UserSessionExtendedData, UserSessionExtendedDataUpdate,
             },
@@ -289,12 +289,12 @@ impl SessionData {
         Some((game_data.game_id, game_ref))
     }
 
-    // pub fn get_lookup_response(&self) -> Option<LookupResponse> {
-    //     self.read().auth.as_ref().map(|data| LookupResponse {
-    //         player: data.player_assoc.user.clone(),
-    //         extended_data: data.ext_data(),
-    //     })
-    // }
+    pub fn get_lookup_response(&self) -> Option<LookupResponse> {
+        self.read().auth.as_ref().map(|data| LookupResponse {
+            user: data.player_assoc.user.clone(),
+            extended_data: data.ext_data(),
+        })
+    }
 
     /// Adds a subscriber to the session
     pub fn add_subscriber(&self, player_id: UserId, subscriber: WeakSessionLink) {
@@ -355,7 +355,7 @@ impl SessionDataAuth {
         };
 
         // Notify the addition of this user data to the subscriber
-        session.tx.notify(Packet::notify(
+        session.notify(Packet::notify(
             user_sessions::COMPONENT,
             user_sessions::USER_ADDED,
             NotifyUserAdded {
@@ -365,7 +365,7 @@ impl SessionDataAuth {
         ));
 
         // Notify the user that they are now subscribed to this user
-        session.tx.notify(Packet::notify(
+        session.notify(Packet::notify(
             user_sessions::COMPONENT,
             user_sessions::USER_UPDATED,
             NotifyUserUpdated {
@@ -407,7 +407,7 @@ impl SessionDataAuth {
                 None => return,
             };
 
-            session.tx.notify(packet.clone())
+            session.notify(packet.clone())
         });
     }
 }
@@ -431,8 +431,10 @@ impl Drop for SessionSubscription {
             None => return,
         };
 
+        let user = session.data.get_player();
+
         // Notify the subscriber they've removed the user subscription
-        session.tx.notify(Packet::notify(
+        session.notify(Packet::notify(
             user_sessions::COMPONENT,
             user_sessions::USER_REMOVED,
             NotifyUserRemoved {

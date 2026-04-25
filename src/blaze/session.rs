@@ -43,7 +43,7 @@ use std::{
     task::{Context, Poll},
 };
 use std::{io, sync::Arc, task::ready};
-use tdf::{TdfSerialize, serialize_vec};
+use tdf::{TdfSerialize, serialize_vec, types::bytes::serialize_bytes};
 use tokio::{
     spawn,
     sync::{RwLock, mpsc},
@@ -59,7 +59,7 @@ pub struct Session {
     pub id: Uuid,
 
     /// Handle for sending packets to this session
-    pub tx: BlazeTx,
+    tx: BlazeTx,
 
     /// Data associated with the session
     pub data: SessionData,
@@ -113,6 +113,19 @@ impl Session {
         });
 
         weak_session
+    }
+
+    pub fn notify(&self, mut packet: Packet) {
+        // if let Some(player) = &current_user
+        //     && packet.frame.flags.contains(FrameFlags::FLAG_NOTIFY)
+        // {
+        //     let uid = player.id;
+        //     let msg = NotifyContext { uid, error: 0 };
+        //     packet.pre_msg = serialize_bytes(&msg);
+        // }
+
+        debug_log_packet_lockless(self.id, None, "Queued Notify", &packet);
+        self.tx.notify(packet);
     }
 }
 
@@ -244,6 +257,8 @@ impl Future for SessionFuture<'_> {
                     // Poll the handler until completion
                     let response = ready!(Pin::new(future).poll(cx));
 
+                    debug_log_packet(this.session, "Send", &response);
+
                     // Send the response to the writer
                     if tx.send(response).is_err() {
                         // Write half has closed, cease reading
@@ -265,15 +280,29 @@ fn debug_log_packet(session: &Session, action: &'static str, packet: &Packet) {
         return;
     }
 
+    let id = session.id;
+    let auth = session.data.get_player();
+    debug_log_packet_lockless(id, auth, action, packet);
+}
+
+/// Logs debugging information about a player
+fn debug_log_packet_lockless(
+    id: Uuid,
+    auth: Option<Arc<User>>,
+    action: &'static str,
+    packet: &Packet,
+) {
+    // Skip if debug logging is disabled
+    if !log_enabled!(log::Level::Debug) {
+        return;
+    }
+
     let key = component_key(packet.frame.component, packet.frame.command);
 
     // // Don't log the packet if its debug ignored
     // if DEBUG_IGNORED_PACKETS.contains(&key) {
     //     return;
     // }
-
-    let id = session.id;
-    let auth = session.data.get_player();
 
     let debug_data = DebugSessionData { action, id, auth };
     let debug_packet = PacketDebug {

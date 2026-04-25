@@ -39,13 +39,11 @@ impl GamePlayer {
         }
     }
 
-    #[allow(unused)]
     pub fn net(&self) -> Option<Arc<NetData>> {
         let session = self.link.upgrade()?;
         session.data.net()
     }
 
-    #[allow(unused)]
     pub fn network_address(&self) -> NetworkAddress {
         match self.net() {
             Some(net) => net.addr.clone(),
@@ -79,7 +77,7 @@ impl GamePlayer {
             None => return,
         };
 
-        session.tx.notify(packet)
+        session.notify(packet)
     }
 
     pub fn encode<S: tdf::TdfSerializer>(&self, game_id: u32, slot: usize, w: &mut S) {
@@ -99,7 +97,7 @@ impl GamePlayer {
             w.tag_ref(b"PATT", &self.attr);
         }
         w.tag_u32(b"PID", self.user.id);
-        w.tag_ref(b"PNET", &self.net.addr);
+        w.tag_ref(b"PNET", &self.network_address());
 
         w.tag_u8(b"PSET", 1);
         w.tag_u8(b"RCRE", 0);

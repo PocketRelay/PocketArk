@@ -1,7 +1,11 @@
 use log::error;
 use sea_orm::DbErr;
 
-use crate::blaze::{packet::Packet, router::IntoPacketResponse};
+use crate::blaze::{
+    models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
+    packet::Packet,
+    router::IntoPacketResponse,
+};
 
 pub type ServerResult<T> = Result<T, BlazeError>;
 
@@ -64,5 +68,17 @@ impl IntoPacketResponse for BlazeError {
     fn into_response(self, req: &Packet) -> Packet {
         // TODO: Error handling properly
         Packet::response_empty(req)
+    }
+}
+
+impl From<UserSessionsError> for BlazeError {
+    fn from(value: UserSessionsError) -> Self {
+        BlazeError(value as u16)
+    }
+}
+
+impl From<GameManagerError> for BlazeError {
+    fn from(value: GameManagerError) -> Self {
+        BlazeError(value as u16)
     }
 }

@@ -3,10 +3,15 @@ use tdf::TdfMap;
 
 use crate::{
     blaze::{
-        models::game_manager::{
-            GameSetupContext, LeaveGameRequest, MatchmakeScenario, MatchmakingResult, PlayerState,
-            ReplayGameRequest, StartMatchmakingScenarioRequest, StartMatchmakingScenarioResponse,
-            UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
+        models::{
+            errors::ServerResult,
+            game_manager::{
+                GameManagerError, GameSetupContext, LeaveGameRequest, MatchmakeScenario,
+                MatchmakingResult, MeshEndpointsConnectedRequest, PlayerNetConnectionStatus,
+                PlayerState, ReplayGameRequest, StartMatchmakingScenarioRequest,
+                StartMatchmakingScenarioResponse, UpdateAttrRequest, UpdateGameAttrRequest,
+                UpdateStateRequest,
+            },
         },
         router::{Blaze, Extension, SessionAuth},
         session::{self, SessionLink},
@@ -182,4 +187,37 @@ pub async fn leave_game(
 
     let game = &mut *game.write();
     game.remove_player(user.id, req.reas);
+}
+
+pub async fn finalize_game_creation(
+    session: SessionLink,
+    SessionAuth(user): SessionAuth,
+    Extension(games): Extension<Arc<Games>>,
+) {
+    // Should make the game be available for joining
+}
+
+pub async fn mesh_endpoints_connected(
+    session: SessionLink,
+    SessionAuth(user): SessionAuth,
+    Extension(games): Extension<Arc<Games>>,
+    Blaze(MeshEndpointsConnectedRequest {
+        game_id,
+        target_group_id,
+        ..
+    }): Blaze<MeshEndpointsConnectedRequest>,
+) -> ServerResult<()> {
+    let game_ref = games
+        .get_by_id(game_id)
+        .ok_or(GameManagerError::InvalidGameId)?;
+
+    let game = &mut *game_ref.write();
+
+    // Ensure the host is the one making the change
+    if game.is_host_player(user.id) {
+        let target_id = target_group_id.id;
+        game.update_mesh(target_id as u32, PlayerNetConnectionStatus::Connected);
+    }
+
+    Ok(())
 }

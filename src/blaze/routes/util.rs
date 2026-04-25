@@ -1,5 +1,7 @@
+use log::debug;
 use tdf::TdfMap;
 
+use crate::blaze::models::user_sessions::{IpPairAddress, NetworkAddress};
 use crate::blaze::router::Blaze;
 use crate::blaze::session::SessionLink;
 use crate::blaze::{models::util::*, router::SessionAuth};
@@ -55,4 +57,50 @@ pub async fn ping(session: SessionLink) -> Blaze<PingResponse> {
         .unwrap_or(Duration::ZERO)
         .as_secs();
     Blaze(PingResponse { time })
+}
+
+pub async fn set_client_metrics(
+    session: SessionLink,
+    Blaze(SetClientMetricsRequest {
+        blaze_flags,
+        device_info,
+        flags,
+        nat_type,
+        status,
+        wan,
+        ..
+    }): Blaze<SetClientMetricsRequest>,
+) {
+    debug!(
+        "Handling UPNP (Device: {device_info}, BlazeFlags: {blaze_flags:?} Flags: {flags:?}, NAT: {nat_type:?}, WAN: {wan}, STATUS: {status:?})"
+    );
+
+    // Don't do anything if Upnp failed
+    if !matches!(status, UpnpStatus::Enabled) {
+        return;
+    }
+
+    // Set external address using Upnp specified
+    if !wan.is_unspecified() && !blaze_flags.contains(UpnpFlags::DOUBLE_NAT) {
+        debug!("Using client Upnp WAN address override: {wan}");
+
+        let network_info = session.data.network_info().unwrap_or_default();
+        let ping_site_latency = network_info.ping_site_latency.clone();
+        let qos = network_info.qos;
+        let mut pair_addr = match &network_info.addr {
+            NetworkAddress::AddressPair(pair) => pair.clone(),
+            // Fallback handle behavior for unset or default address
+            _ => IpPairAddress::default(),
+        };
+
+        // Update WAN address with Upnp address
+        pair_addr.external.addr = wan;
+
+        // Update network info with new details
+        session.data.set_network_info(
+            NetworkAddress::AddressPair(pair_addr),
+            qos,
+            ping_site_latency,
+        );
+    }
 }

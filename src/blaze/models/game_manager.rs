@@ -12,12 +12,27 @@ use crate::{
     config::{Config, TunnelConfig},
     database::entity::users::UserId,
     services::{
-        game::{AttrMap, Game, GameID},
+        game::{AttrMap, Game, GameID, player::GamePlayer},
         tunnel::http_tunnel::TUNNEL_HOST_LOCAL_PORT,
     },
 };
 
 use super::user_sessions::NetworkAddress;
+
+#[derive(Debug, Clone)]
+#[repr(u16)]
+#[allow(unused)]
+pub enum GameManagerError {
+    InvalidGameId = 0x2,
+    GameFull = 0x4,
+    PermissionDenied = 0x1e,
+    PlayerNotFound = 0x65,
+    AlreadyGameMember = 0x67,
+    RemovePlayerFailed = 0x68,
+    JoinPlayerFailed = 0x6c,
+    AlreadyInQueue = 0x70,
+    TeamFull = 0xff,
+}
 
 #[derive(TdfDeserialize)]
 pub struct StartMatchmakingScenarioRequest {
@@ -80,6 +95,29 @@ pub struct UpdateStateRequest {
     pub gid: u32,
     #[tdf(tag = "GSTA")]
     pub state: u8,
+}
+
+/// Request to update the state of a mesh connection between
+/// payers.
+#[derive(TdfDeserialize)]
+pub struct MeshEndpointsConnectedRequest {
+    #[tdf(tag = "FLGS")]
+    pub flags: u32,
+    #[tdf(tag = "GID")]
+    pub game_id: GameID,
+    #[tdf(tag = "QOSI")]
+    pub qos_info: MeshConnectionQosInfo,
+    #[tdf(tag = "TCG")]
+    pub target_group_id: ObjectId,
+}
+
+#[derive(TdfDeserialize, TdfTyped)]
+#[tdf(group)]
+pub struct MeshConnectionQosInfo {
+    #[tdf(tag = "LOSS")]
+    pub packet_loss: f32,
+    #[tdf(tag = "PING")]
+    pub latency_ms: u32,
 }
 
 #[derive(TdfDeserialize, TdfTyped)]
@@ -390,11 +428,19 @@ impl TdfSerialize for GameSetupResponse<'_> {
             // Min player capacity
             w.tag_u8(b"MNCP", 1);
             w.tag_str_empty(b"NPSI");
-            w.tag_ref(b"NQOS", &host.net.qos);
+            w.tag_ref(b"NQOS", &host_net.qos);
 
             // Flag to indicate that this game is not resetable. This applies only to the CLIENT_SERVER_DEDICATED topology.  The game will be prevented from ever going into the RESETABlE state.
             w.tag_bool(b"NRES", false);
             // The topology used by the game. Typically either client-server, full or partial mesh. Game Groups must set this to NETWORK_DISABLED.
+            // w.tag_alt(
+            //     b"NTOP",
+            //     if tunnel {
+            //         GameNetworkTopology::Dedicated
+            //     } else {
+            //         GameNetworkTopology::PeerHosted
+            //     },
+            // );
             w.tag_alt(b"NTOP", GameNetworkTopology::PeerHosted);
             w.tag_str_empty(b"PGID");
             w.tag_blob_empty(b"PGSR");
@@ -520,12 +566,12 @@ pub enum RemoveReason {
     HostEjected = 0xC,
 }
 
-pub struct NotifyPostJoinedGame {
+pub struct NotifyMatchmakingSessionConnectionValidated {
     pub player_id: u32,
     pub game_id: u32,
 }
 
-impl TdfSerialize for NotifyPostJoinedGame {
+impl TdfSerialize for NotifyMatchmakingSessionConnectionValidated {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         // A new set of connection validation results to store for this user session.
         w.group(b"CONV", |w| {
@@ -759,5 +805,24 @@ impl TdfSerialize for AsyncMatchmakingStatus {
         w.tag_owned(b"MSCD", self.user_id);
         w.tag_owned(b"MSID", self.user_id);
         w.tag_owned(b"USID", self.user_id);
+    }
+}
+
+/// Message for a player joining notification
+pub struct PlayerJoining<'a> {
+    /// The ID of the game
+    pub game_id: GameID,
+    /// The slot the player is joining into
+    pub slot: usize,
+    /// The player that is joining
+    pub player: &'a GamePlayer,
+}
+
+impl TdfSerialize for PlayerJoining<'_> {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.tag_u32(b"GID", self.game_id);
+
+        w.tag_group(b"PDAT");
+        self.player.encode(self.game_id, self.slot, w);
     }
 }

@@ -3,8 +3,9 @@ use crate::{
         components::{self, game_manager},
         models::game_manager::{
             AttributesChange, GameSetupContext, GameSetupResponse, JoinComplete, NotifyGameReplay,
-            NotifyGameStateChange, NotifyPostJoinedGame, PlayerAttributesChange,
-            PlayerNetConnectionStatus, PlayerRemoved, PlayerState, PlayerStateChange, RemoveReason,
+            NotifyGameStateChange, NotifyMatchmakingSessionConnectionValidated,
+            PlayerAttributesChange, PlayerJoining, PlayerNetConnectionStatus, PlayerRemoved,
+            PlayerState, PlayerStateChange, RemoveReason,
         },
         packet::Packet,
         session::SessionLink,
@@ -175,6 +176,12 @@ impl Game {
         }
     }
 
+    pub fn is_host_player(&self, user_id: UserId) -> bool {
+        self.players
+            .first()
+            .is_some_and(|host| host.user.id == user_id)
+    }
+
     pub fn set_complete_mission(&mut self, mission_data: CompleteMissionData) {
         self.mission_data = Some(mission_data);
         self.processed_data = None;
@@ -279,6 +286,20 @@ impl Game {
     ) -> usize {
         let slot = self.players.len();
 
+        // Update other players with the client details
+        self.add_user_sub(&player);
+
+        // Notify other players of the joining player
+        self.notify_all(Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::PLAYER_JOINING,
+            PlayerJoining {
+                slot,
+                player: &player,
+                game_id: self.id,
+            },
+        ));
+
         self.players.push(player);
 
         // Obtain the player that was just added
@@ -286,20 +307,6 @@ impl Game {
             .players
             .last()
             .expect("Player was added but is missing from players");
-
-        // NOTIFY PLAYER JOINING
-        // Notify other players of the joined player
-        // self.notify_all(
-        //     Components::GameManager(GameManager::PlayerJoining),
-        //     PlayerJoining {
-        //         slot,
-        //         player,
-        //         game_id: self.id,
-        //     },
-        // );
-
-        // Update other players with the client details
-        self.add_user_sub(player);
 
         player.notify(Packet::notify(
             game_manager::COMPONENT,
@@ -312,9 +319,9 @@ impl Game {
         ));
 
         player.notify(Packet::notify(
-            4,
-            11,
-            NotifyPostJoinedGame {
+            game_manager::COMPONENT,
+            game_manager::MATCHMAKING_SESSION_CONNECTION_VALIDATED,
+            NotifyMatchmakingSessionConnectionValidated {
                 game_id: self.id,
                 player_id: player.user.id,
             },
@@ -323,7 +330,6 @@ impl Game {
         slot
     }
 
-    #[allow(unused)]
     pub fn update_mesh(&mut self, target_id: UserId, status: PlayerNetConnectionStatus) {
         // We only care about a connected state
         if !matches!(status, PlayerNetConnectionStatus::Connected) {

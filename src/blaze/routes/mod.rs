@@ -44,6 +44,11 @@ pub fn router() -> BlazeRouterBuilder {
         components::util::FETCH_CLIENT_CONFIG,
         util::fetch_client_config,
     );
+    router.route(
+        components::util::COMPONENT,
+        components::util::SET_CLIENT_METRICS,
+        util::set_client_metrics,
+    );
 
     router.route(
         components::user_sessions::COMPONENT,
@@ -54,6 +59,11 @@ pub fn router() -> BlazeRouterBuilder {
         components::user_sessions::COMPONENT,
         components::user_sessions::UPDATE_HARDWARE_FLAGS,
         user_sessions::update_hardware_flags,
+    );
+    router.route(
+        components::user_sessions::COMPONENT,
+        components::user_sessions::LOOKUP_USER,
+        user_sessions::lookup_user,
     );
 
     router.route(
@@ -91,6 +101,16 @@ pub fn router() -> BlazeRouterBuilder {
         components::game_manager::COMPONENT,
         components::game_manager::LEAVE_GAME_BY_GROUP,
         game_manager::leave_game,
+    );
+    router.route(
+        components::game_manager::COMPONENT,
+        components::game_manager::FINALIZE_GAME_CREATION,
+        game_manager::finalize_game_creation,
+    );
+    router.route(
+        components::game_manager::COMPONENT,
+        components::game_manager::MESH_ENDPOINTS_CONNECTED,
+        game_manager::mesh_endpoints_connected,
     );
 
     router.route(0, 0, move || ready(()));
