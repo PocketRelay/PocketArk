@@ -2,10 +2,11 @@ use crate::{
     blaze::{
         components::{self, game_manager},
         models::game_manager::{
-            AttributesChange, GameSetupContext, GameSetupResponse, JoinComplete, NotifyGameReplay,
-            NotifyGameStateChange, NotifyMatchmakingSessionConnectionValidated,
-            PlayerAttributesChange, PlayerJoining, PlayerNetConnectionStatus, PlayerRemoved,
-            PlayerState, PlayerStateChange, RemoveReason,
+            AdminListChange, AdminListOperation, AttributesChange, GameSetupContext,
+            GameSetupResponse, JoinComplete, NotifyGameReplay, NotifyGameStateChange,
+            NotifyMatchmakingSessionConnectionValidated, PlayerAttributesChange, PlayerJoining,
+            PlayerNetConnectionStatus, PlayerRemoved, PlayerState, PlayerStateChange, RemoveReason,
+            SettingChange,
         },
         packet::Packet,
         session::SessionLink,
@@ -123,7 +124,7 @@ impl Game {
         Self {
             id,
             state: 1,
-            settings: 262144,
+            settings: 262429,
             attributes,
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
@@ -132,6 +133,21 @@ impl Game {
             games_store,
             tunnel_service,
         }
+    }
+
+    pub fn set_settings(&mut self, settings: u32) {
+        self.settings = settings;
+
+        debug!("Updated game setting (Value: {:?})", &settings);
+
+        self.notify_all(Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::GAME_SETTINGS_CHANGE,
+            SettingChange {
+                id: self.id,
+                settings,
+            },
+        ));
     }
 
     pub fn set_attributes(&mut self, attributes: AttrMap) {
@@ -429,6 +445,35 @@ impl Game {
         }
 
         GameJoinableState::Joinable
+    }
+
+    pub fn add_admin_player(&mut self, target_id: UserId) {
+        // Add the player to the admin list
+        self.modify_admin_list(target_id, AdminListOperation::Add);
+    }
+
+    /// Modifies the pseudo admin list this list doesn't actually exist in
+    /// our implementation but we still need to tell the clients these
+    /// changes.
+    ///
+    /// `target`    The player to target for the admin list
+    /// `operation` Whether to add or remove the player from the admin list
+    fn modify_admin_list(&self, target: UserId, operation: AdminListOperation) {
+        let host = match self.players.first() {
+            Some(value) => value,
+            None => return,
+        };
+
+        self.notify_all(Packet::notify(
+            game_manager::COMPONENT,
+            game_manager::ADMIN_LIST_CHANGE,
+            AdminListChange {
+                game_id: self.id,
+                player_id: target,
+                operation,
+                host_id: host.user.id,
+            },
+        ));
     }
 
     /// Writes the provided packet to all connected sessions.

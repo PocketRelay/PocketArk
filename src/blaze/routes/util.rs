@@ -72,7 +72,7 @@ pub async fn set_client_metrics(
     }): Blaze<SetClientMetricsRequest>,
 ) {
     debug!(
-        "Handling UPNP (Device: {device_info}, BlazeFlags: {blaze_flags:?} Flags: {flags:?}, NAT: {nat_type:?}, WAN: {wan}, STATUS: {status:?})"
+        "Handling UPNP (Device: {device_info}, BlazeFlags: {blaze_flags:?} Flags: {flags:?}, NAT: {nat_type:?}, WAN: {wan:?}, STATUS: {status:?})"
     );
 
     // Don't do anything if Upnp failed
@@ -81,7 +81,10 @@ pub async fn set_client_metrics(
     }
 
     // Set external address using Upnp specified
-    if !wan.is_unspecified() && !blaze_flags.contains(UpnpFlags::DOUBLE_NAT) {
+    if let Some(wan) = wan
+        && !wan.is_unspecified()
+        && !blaze_flags.contains(UpnpFlags::DOUBLE_NAT)
+    {
         debug!("Using client Upnp WAN address override: {wan}");
 
         let network_info = session.data.network_info().unwrap_or_default();

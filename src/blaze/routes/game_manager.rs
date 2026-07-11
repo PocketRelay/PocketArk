@@ -6,11 +6,11 @@ use crate::{
         models::{
             errors::ServerResult,
             game_manager::{
-                GameManagerError, GameSetupContext, LeaveGameRequest, MatchmakeScenario,
-                MatchmakingResult, MeshEndpointsConnectedRequest, PlayerNetConnectionStatus,
-                PlayerState, ReplayGameRequest, StartMatchmakingScenarioRequest,
-                StartMatchmakingScenarioResponse, UpdateAttrRequest, UpdateGameAttrRequest,
-                UpdateStateRequest,
+                AddAdminPlayerRequest, GameManagerError, GameSetupContext, LeaveGameRequest,
+                MatchmakeScenario, MatchmakingResult, MeshEndpointsConnectedRequest,
+                PlayerNetConnectionStatus, PlayerState, ReplayGameRequest, SetSettingRequest,
+                StartMatchmakingScenarioRequest, StartMatchmakingScenarioResponse,
+                UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
             },
         },
         router::{Blaze, Extension, SessionAuth},
@@ -218,6 +218,38 @@ pub async fn mesh_endpoints_connected(
         let target_id = target_group_id.id;
         game.update_mesh(target_id as u32, PlayerNetConnectionStatus::Connected);
     }
+
+    Ok(())
+}
+
+pub async fn add_admin_player(
+    SessionAuth(player): SessionAuth,
+    Extension(games): Extension<Arc<Games>>,
+    Blaze(AddAdminPlayerRequest { game_id, player_id }): Blaze<AddAdminPlayerRequest>,
+) -> ServerResult<()> {
+    let link = games
+        .get_by_id(game_id)
+        .ok_or(GameManagerError::InvalidGameId)?;
+
+    let game = &mut *link.write();
+
+    // Ensure the host is the one making the change
+    if game.is_host_player(player.id) {
+        game.add_admin_player(player_id);
+    }
+
+    Ok(())
+}
+
+pub async fn set_setting(
+    Extension(games): Extension<Arc<Games>>,
+    Blaze(SetSettingRequest { game_id, setting }): Blaze<SetSettingRequest>,
+) -> ServerResult<()> {
+    let game_ref = games
+        .get_by_id(game_id)
+        .ok_or(GameManagerError::InvalidGameId)?;
+
+    game_ref.write().set_settings(setting);
 
     Ok(())
 }

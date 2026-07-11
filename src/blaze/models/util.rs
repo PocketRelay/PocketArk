@@ -182,34 +182,57 @@ pub enum UpnpStatus {
 }
 
 /// Contains UPnP data such as status flags, device info, etc.
-#[derive(TdfDeserialize)]
+// #[derive(TdfDeserialize)]
 pub struct SetClientMetricsRequest {
     /// pnp Blaze status flags.
-    #[tdf(tag = "UBFL", into = u16)]
+    // #[tdf(tag = "UBFL", into = u16)]
     pub blaze_flags: UpnpFlags,
 
     /// Upnp device info.
-    #[tdf(tag = "UDEV")]
+    // #[tdf(tag = "UDEV")]
     pub device_info: String,
 
     /// Upnp status flags.
-    #[tdf(tag = "UFLG")]
+    // #[tdf(tag = "UFLG")]
     pub flags: u16,
 
     /// Upnp last result code.
-    #[tdf(tag = "ULRC")]
+    // #[tdf(tag = "ULRC")]
     #[allow(unused)]
     pub last_result_code: i32,
 
     /// Upnp metrics report NAT type.
-    #[tdf(tag = "UNAT")]
+    // #[tdf(tag = "UNAT")]
     pub nat_type: u16,
 
     /// Upnp status.
-    #[tdf(tag = "USTA")]
+    // #[tdf(tag = "USTA")]
     pub status: UpnpStatus,
 
     /// WAN IP address
-    #[tdf(tag = "UWAN", into = u32)]
-    pub wan: Ipv4Addr,
+    // #[tdf(tag = "UWAN", into = u32)]
+    pub wan: Option<Ipv4Addr>,
+}
+
+impl tdf::TdfDeserialize<'_> for SetClientMetricsRequest {
+    fn deserialize(r: &mut tdf::TdfDeserializer<'_>) -> tdf::DecodeResult<Self> {
+        let blaze_flags = <UpnpFlags as From<u16>>::from(r.tag::<u16>(&[85u8, 66u8, 70u8, 76u8])?);
+        let device_info = r.tag::<String>(&[85u8, 68u8, 69u8, 86u8])?;
+        let flags = r.tag::<u16>(&[85u8, 70u8, 76u8, 71u8])?;
+        let last_result_code = r.tag::<i32>(&[85u8, 76u8, 82u8, 67u8])?;
+        let nat_type = r.tag::<u16>(&[85u8, 78u8, 65u8, 84u8])?;
+        let status = r.tag::<UpnpStatus>(&[85u8, 83u8, 84u8, 65u8])?;
+        let wan = r
+            .try_tag::<u32>(&[85u8, 87u8, 65u8, 78u8])?
+            .map(Ipv4Addr::from);
+        Ok(Self {
+            blaze_flags,
+            device_info,
+            flags,
+            last_result_code,
+            nat_type,
+            status,
+            wan,
+        })
+    }
 }

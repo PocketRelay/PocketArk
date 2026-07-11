@@ -711,6 +711,27 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 w.tag_zero(b"GNUM");
             });
 
+            // TODO: GASM
+            // "GASM": {
+            //   "gameDifficultyRule": {
+            //     "NAME": "gameDifficultyRule",
+            //     "VALU": ["4"],
+            //   },
+            //   "gameEnemyTypeRule": {
+            //     "NAME": "gameEnemyTypeRule",
+            //     "VALU": ["3"],
+            //   },
+            //   "gameLevelNameRule": {
+            //     "NAME": "gameLevelNameRule",
+            //     "VALU": ["13"],
+            //   },
+            //   "gameMissionSlotRule": {
+            //     "NAME": "gameMissionSlotRule",
+            //     "VALU": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+            //   }
+            // },
+            w.group(b"GASM", |w| {});
+
             // Geo location rule status
             w.group(b"GEOS", |w| {
                 // Max distance
@@ -738,8 +759,21 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 w.tag_zero(b"VVAL");
             });
 
+            // Unknown
+            w.group(b"PLCN", |w| {
+                w.tag_u8(b"PMAX", 1);
+                w.tag_u8(b"PMIN", 1);
+            });
+
+            w.group(b"PLUT", |w| {
+                w.tag_u8(b"PMAX", 0);
+                w.tag_u8(b"PMIN", 0);
+            });
+
             // Ping site rule status
-            w.group(b"PSRS", |_| {});
+            w.group(b"PSRS", |w| {
+                w.tag_list_slice(b"VALU", &["bio-dub"]);
+            });
 
             // Rank rule status
             w.group(b"RRDA", |w| {
@@ -748,9 +782,18 @@ impl TdfSerialize for AsyncMatchmakingStatus {
             });
 
             // Unknown
-            w.group(b"PLCN", |w| {
-                w.tag_u8(b"PMAX", 1);
-                w.tag_u8(b"PMIN", 1);
+            w.group(b"TBRS", |w| {
+                w.tag_zero(b"SDIF");
+            });
+
+            // Unknown
+            w.group(b"TCPS", |w| {
+                w.tag_str_empty(b"NAME");
+            });
+
+            // Unknown
+            w.group(b"TMSS", |w| {
+                w.tag_zero(b"PCNT");
             });
 
             // Unknown
@@ -783,23 +826,10 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 w.tag_zero(b"TMIN");
             });
 
-            // Unknown
-            w.group(b"TBRS", |w| {
-                w.tag_zero(b"SDIF");
-            });
-
-            // Unknown
-            w.group(b"TCPS", |w| {
-                w.tag_str_empty(b"NAME");
-            });
-
-            // Unknown
-            w.group(b"TMSS", |w| {
-                w.tag_zero(b"PCNT");
-            });
-
             // Virtual game rule status
-            w.group(b"VGRS", |w| w.tag_zero(b"VVAL"));
+            w.group(b"VGRS", |w| {
+                w.tag_u8(b"VVAL", 3);
+            });
         });
 
         w.tag_owned(b"MSCD", self.user_id);
@@ -825,4 +855,52 @@ impl TdfSerialize for PlayerJoining<'_> {
         w.tag_group(b"PDAT");
         self.player.encode(self.game_id, self.slot, w);
     }
+}
+
+#[derive(TdfSerialize)]
+pub struct AdminListChange {
+    #[tdf(tag = "ALST")]
+    pub player_id: UserId,
+    #[tdf(tag = "GID")]
+    pub game_id: GameID,
+    #[tdf(tag = "OPER")]
+    pub operation: AdminListOperation,
+    #[tdf(tag = "UID")]
+    pub host_id: UserId,
+}
+
+/// Different operations that can be performed on
+/// the admin list
+#[derive(Debug, Clone, Copy, TdfSerialize, TdfTyped)]
+#[repr(u8)]
+pub enum AdminListOperation {
+    Add = 0,
+    Remove = 1,
+}
+
+#[derive(TdfDeserialize)]
+pub struct AddAdminPlayerRequest {
+    #[tdf(tag = "GID")]
+    pub game_id: GameID,
+    #[tdf(tag = "PID")]
+    pub player_id: UserId,
+}
+
+#[derive(TdfDeserialize)]
+pub struct SetSettingRequest {
+    #[tdf(tag = "GID")]
+    pub game_id: GameID,
+    #[tdf(tag = "GSET", into = u32)]
+    pub setting: u32,
+}
+
+/// Message for a game setting changing
+#[derive(TdfSerialize)]
+pub struct SettingChange {
+    /// The game setting
+    #[tdf(tag = "ATTR", into = u32)]
+    pub settings: u32,
+    /// The ID of the game
+    #[tdf(tag = "GID")]
+    pub id: GameID,
 }

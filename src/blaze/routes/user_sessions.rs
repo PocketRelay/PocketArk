@@ -20,7 +20,7 @@ pub async fn update_network_info(
     Blaze(UpdateNetworkRequest { info }): Blaze<UpdateNetworkRequest>,
 ) {
     let NetworkInfo {
-        address,
+        mut address,
         ping_site_latency,
         qos,
     } = info;
@@ -31,6 +31,14 @@ pub async fn update_network_info(
     } else {
         Vec::new()
     };
+
+    match &mut address {
+        crate::blaze::models::user_sessions::NetworkAddress::AddressPair(ip_pair_address) => {
+            ip_pair_address.external = ip_pair_address.internal.clone();
+        }
+        crate::blaze::models::user_sessions::NetworkAddress::Unset => todo!(),
+        crate::blaze::models::user_sessions::NetworkAddress::Default => todo!(),
+    }
 
     session
         .data

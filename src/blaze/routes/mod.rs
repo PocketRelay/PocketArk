@@ -112,6 +112,16 @@ pub fn router() -> BlazeRouterBuilder {
         components::game_manager::MESH_ENDPOINTS_CONNECTED,
         game_manager::mesh_endpoints_connected,
     );
+    router.route(
+        components::game_manager::COMPONENT,
+        components::game_manager::ADD_ADMIN_PLAYER,
+        game_manager::add_admin_player,
+    );
+    router.route(
+        components::game_manager::COMPONENT,
+        components::game_manager::SET_GAME_SETTINGS,
+        game_manager::set_setting,
+    );
 
     router.route(0, 0, move || ready(()));
 

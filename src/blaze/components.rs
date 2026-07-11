@@ -30,8 +30,12 @@ pub mod game_manager {
     pub const CANCEL_MATCHMAKING_SCENARIO: u16 = 17;
     pub const REPLAY_GAME: u16 = 19;
     pub const LEAVE_GAME_BY_GROUP: u16 = 22;
+    pub const ADD_ADMIN_PLAYER: u16 = 106; // 0x6A
+    pub const SET_GAME_SETTINGS: u16 = 4; // 0x4
+    pub const UNKNOWN_AB: u16 = 171; // 0xab
 
     // Notifications
+    pub const MATCHMAKING_SESSION_CONNECTION_VALIDATED: u16 = 11;
     pub const MATCHMAKING_ASYNC_STATUS: u16 = 12;
     pub const GAME_SETUP: u16 = 20;
     pub const PLAYER_JOINING: u16 = 0x15;
@@ -42,15 +46,16 @@ pub mod game_manager {
 
     pub const GAME_ATTR_UPDATE: u16 = 80;
     pub const PLAYER_ATTR_UPDATE: u16 = 90;
-    pub const GAME_STATE_CHANGE: u16 = 100;
+    pub const GAME_STATE_CHANGE: u16 = 100; // 0x64
+    pub const GAME_SETTINGS_CHANGE: u16 = 110; // 0x6e
 
     // TODO: Order these
     pub const GAME_PLAYER_STATE_CHANGE: u16 = 0x74;
     pub const PLAYER_JOIN_COMPLETED: u16 = 0x1E;
 
-    pub const GAME_TYPE: ObjectType = ObjectType::new(COMPONENT, 1);
+    pub const ADMIN_LIST_CHANGE: u16 = 202; // 0xCA
 
-    pub const MATCHMAKING_SESSION_CONNECTION_VALIDATED: u16 = 11;
+    pub const GAME_TYPE: ObjectType = ObjectType::new(COMPONENT, 1);
 }
 
 pub mod util {
