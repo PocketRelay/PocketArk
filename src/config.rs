@@ -68,7 +68,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             host: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
-            port: 80,
+            port: 8080,
             reverse_proxy: false,
             logging: LevelFilter::Info,
             tunnel: Default::default(),

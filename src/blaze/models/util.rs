@@ -1,11 +1,15 @@
-use std::net::Ipv4Addr;
+use std::{borrow::Cow, net::Ipv4Addr};
 
-use crate::{database::entity::users::UserId, utils::constants::LOCAL_HTTP_PORT};
+use crate::{
+    blaze::models::constants::{
+        BLAZE_VERSION, BYTEVAULT_HOSTNAME, LOCALE_NZ, REGISTRATION_SOURCE, RIVER_HOST,
+        TELEMETRY_ADDRS, TELEMETRY_DISA, TELEMETRY_KEY, TICKER_KEY,
+    },
+    database::entity::users::UserId,
+    utils::constants::LOCAL_HTTP_PORT,
+};
 use bitflags::bitflags;
 use tdf::prelude::*;
-
-/// Alias used for ping sites
-pub const PING_SITE_ALIAS: &str = "bio-dub";
 
 pub struct PreAuthResponse;
 
@@ -32,8 +36,7 @@ impl TdfSerialize for PreAuthResponse {
                     ("arubaHostname", &host_target),
                     ("associationListSkipInitialSet", "1"),
                     ("autoReconnectEnabled", "0"),
-                    // TODO: Replace bytevault with the local name
-                    ("bytevaultHostname", "localhost"),
+                    ("bytevaultHostname", BYTEVAULT_HOSTNAME),
                     ("bytevaultPort", port),
                     ("bytevaultSecure", "true"),
                     ("cachedUserRefreshInterval", "1s"),
@@ -46,9 +49,8 @@ impl TdfSerialize for PreAuthResponse {
                     ("nucleusPortal", "https://signin.ea.com"),
                     ("nucleusProxy", "https://gateway.ea.com"),
                     ("pingPeriod", "20s"),
-                    // TODO: Replace with local telemtry server
                     ("riverEnv", "prod"),
-                    ("riverHost", "https://localhost:42230"),
+                    ("riverHost", RIVER_HOST),
                     ("riverPort", port),
                     ("userManagerMaxCachedUsers", "0"),
                     ("voipHeadsetUpdateRate", "1000"),
@@ -99,8 +101,8 @@ impl TdfSerialize for PreAuthResponse {
             w.tag_u32(b"TIME", 5000000);
         });
 
-        w.tag_str(b"RSRC", "310335");
-        w.tag_str(b"SVER", "Blaze 15.1.1.4.5 (CL# 1764921)\n");
+        w.tag_str(b"RSRC", REGISTRATION_SOURCE);
+        w.tag_str(b"SVER", BLAZE_VERSION);
     }
 }
 
@@ -172,20 +174,22 @@ pub struct PostAuthResponse {
 
 impl TdfSerialize for PostAuthResponse {
     fn serialize<S: TdfSerializer>(&self, w: &mut S) {
-        // TODO: Update creds with localhost for using client handler
         w.group(b"TELE", |w| {
-            w.tag_str(b"ADRS", "https://localhost:42230");
+            w.tag_str(b"ADRS", TELEMETRY_ADDRS);
             w.tag_zero(b"ANON");
-            w.tag_str(b"DISA", "AD,AF,AG,AI,AL,AM,AN,AO,AQ,AR,AS,AW,AX,AZ,BA,BB,BD,BF,BH,BI,BJ,BM,BN,BO,BR,BS,BT,BV,BW,BY,BZ,CC,CD,CF,CG,CI,CK,CL,CM,CN,CO,CR,CU,CV,CX,DJ,DM,DO,DZ,EC,EG,EH,ER,ET,FJ,FK,FM,FO,GA,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GS,GT,GU,GW,GY,HM,HN,HT,ID,IL,IM,IN,IO,IQ,IR,IS,JE,JM,JO,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LY,MA,MC,MD,ME,MG,MH,ML,MM,MN,MO,MP,MQ,MR,MS,MU,MV,MW,MY,MZ,NA,NC,NE,NF,NG,NI,NP,NR,NU,OM,PA,PE,PF,PG,PH,PK,PM,PN,PS,PW,PY,QA,RE,RS,RW,SA,SB,SC,SD,SG,SH,SJ,SL,SM,SN,SO,SR,ST,SV,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TT,TV,TZ,UA,UG,UM,UY,UZ,VA,VC,VE,VG,VN,VU,WF,WS,YE,YT,ZM,ZW,ZZ");
+            w.tag_str(b"DISA", TELEMETRY_DISA);
             w.tag_zero(b"EDCT");
             w.tag_str(b"FILT", "-UION/****");
-            w.tag_u32(b"LOC", 1701727834);
+            w.tag_u32(b"LOC", LOCALE_NZ);
             w.tag_zero(b"MINR");
             w.tag_str(b"NOOK", "US,CA,MX,NZ");
             w.tag_u16(b"PORT", LOCAL_HTTP_PORT);
             w.tag_u16(b"SDLY", 15000);
             w.tag_str(b"SESS", "4QiqktOCVpD");
-            w.tag_str(b"SKEY", "^�¦��Δ�ۍ��ڍ���騊�웱�䕋ƌ������������֦̉���ʉ��ؗ��͛�̙�����¦����ı�������ɣ�˲��Ҁ�");
+
+            let key: Cow<str> = String::from_utf8_lossy(TELEMETRY_KEY);
+
+            w.tag_str(b"SKEY", &key);
             w.tag_u16(b"SPCT", 75);
             w.tag_str(b"STIM", "Default");
             w.tag_str(b"SVNM", "telemetry-3-common");
@@ -194,10 +198,7 @@ impl TdfSerialize for PostAuthResponse {
             // TODO: Replace tick server
             w.tag_str(b"ADRS", "10.23.15.2");
             w.tag_u16(b"PORT", 8999);
-            w.tag_str(
-                b"SKEY",
-                "978651371,10.23.15.2:8999,masseffect-4-pc,10,50,50,50,50,0,12",
-            );
+            w.tag_str(b"SKEY", TICKER_KEY);
         });
         w.group(b"UROP", |w| {
             w.tag_u8(b"TMOP", 1);

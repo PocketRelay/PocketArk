@@ -697,65 +697,98 @@ pub struct AsyncMatchmakingStatus {
     pub user_id: UserId,
 }
 
+#[derive(TdfSerialize, TdfTyped)]
+#[tdf(group)]
+struct GameAttributeRuleStatus {
+    #[tdf(tag = "NAME")]
+    name: String,
+    #[tdf(tag = "VALU")]
+    value: Vec<String>,
+}
+
+bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    pub struct EvaluateStatus: u16 {
+        const PLAYER_COUNT_SUFFICIENT = 0x1;
+        const ACCEPTABLE_HOST_FOUND = 0x2;
+        const TEAM_SIZES_SUFFICIENT = 0x4;
+    }
+}
+
+impl From<u16> for EvaluateStatus {
+    fn from(value: u16) -> Self {
+        Self::from_bits_retain(value)
+    }
+}
+
+impl From<EvaluateStatus> for u16 {
+    fn from(value: EvaluateStatus) -> Self {
+        value.bits()
+    }
+}
+
+#[derive(TdfSerialize, TdfTyped)]
+#[tdf(group)]
+struct CreateGameStatus {
+    #[tdf(tag = "EVST", into = u16)]
+    evaluate_state: EvaluateStatus,
+    #[tdf(tag = "MMSN")]
+    number_of_matchmaking_session: u16,
+    #[tdf(tag = "NOMP")]
+    number_of_matched_players: u16,
+}
+
+#[derive(TdfSerialize, TdfTyped)]
+#[tdf(group)]
+struct FindGameStatus {
+    #[tdf(tag = "GNUM")]
+    number_of_games: u16,
+}
+
 impl TdfSerialize for AsyncMatchmakingStatus {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.tag_list_start(b"ASIL", TdfType::Group, 1);
         w.group_body(|w| {
-            // Create game status
-            w.group(b"CGS", |w| {
-                // Evaluate status
-                // PlayerCountSufficient = 1,
-                // AcceptableHostFound = 2,
-                // TeamSizesSufficient = 4
-                w.tag_u8(b"EVST", 1 | 2 | 4 /* 7 */);
-                // Number of matchmaking sessions
-                w.tag_u8(b"MMSN", 1);
-                // Number of matched players
-                w.tag_u8(b"NOMP", 0);
-            });
+            w.tag_ref(
+                b"CGS",
+                &CreateGameStatus {
+                    evaluate_state: EvaluateStatus::PLAYER_COUNT_SUFFICIENT
+                        | EvaluateStatus::ACCEPTABLE_HOST_FOUND
+                        | EvaluateStatus::TEAM_SIZES_SUFFICIENT,
+                    number_of_matchmaking_session: 1,
+                    number_of_matched_players: 0,
+                },
+            );
 
-            // Find game status
-            w.group(b"FGS", |w| {
-                // Number of games
-                w.tag_zero(b"GNUM");
-            });
-
-            #[derive(TdfSerialize, TdfTyped)]
-            #[tdf(group)]
-            struct Group {
-                #[tdf(tag = "NAME")]
-                name: String,
-                #[tdf(tag = "VALU")]
-                value: Vec<String>,
-            }
+            w.tag_ref(b"FGS", &FindGameStatus { number_of_games: 0 });
 
             w.tag_map_tuples(
                 b"GASM",
                 &[
                     (
                         "gameDifficultyRule".to_string(),
-                        Group {
+                        GameAttributeRuleStatus {
                             name: "gameDifficultyRule".to_string(),
                             value: vec!["4".to_string()],
                         },
                     ),
                     (
                         "gameEnemyTypeRule".to_string(),
-                        Group {
+                        GameAttributeRuleStatus {
                             name: "gameEnemyTypeRule".to_string(),
                             value: vec!["3".to_string()],
                         },
                     ),
                     (
                         "gameLevelNameRule".to_string(),
-                        Group {
+                        GameAttributeRuleStatus {
                             name: "gameLevelNameRule".to_string(),
                             value: vec!["13".to_string()],
                         },
                     ),
                     (
                         "gameMissionSlotRule".to_string(),
-                        Group {
+                        GameAttributeRuleStatus {
                             name: "gameMissionSlotRule".to_string(),
                             value: vec![
                                 "0".to_string(),

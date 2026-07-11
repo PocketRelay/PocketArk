@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use tdf::{ObjectId, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
 
-use crate::{blaze::components::user_sessions::PLAYER_SESSION_TYPE, database::entity::User};
+use crate::{
+    blaze::{components::user_sessions::PLAYER_SESSION_TYPE, models::constants::LOCALE_NZ},
+    database::entity::User,
+};
 
 #[derive(Debug, TdfDeserialize)]
 pub struct AuthRequest {
@@ -17,7 +20,7 @@ pub struct AuthNotify {
 impl TdfSerialize for AuthNotify {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.tag_zero(b"7CON");
-        w.tag_u32(b"ALOC", 1701727834); // location
+        w.tag_u32(b"ALOC", LOCALE_NZ);
         w.tag_u32(b"BUID", self.user.id);
 
         w.tag_alt(

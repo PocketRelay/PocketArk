@@ -2,6 +2,7 @@ use crate::{
     blaze::{
         components::{self, game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
         data::NetData,
+        models::constants::PING_SITE_ALIAS,
     },
     database::entity::{User, users::UserId},
 };
@@ -12,8 +13,6 @@ use std::{
     sync::Arc,
 };
 use tdf::prelude::*;
-
-use super::util::PING_SITE_ALIAS;
 
 #[derive(Debug, Clone)]
 #[repr(u16)]
