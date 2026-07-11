@@ -9,19 +9,19 @@ authors = ["Jacobtread <jacobtread@gmail.com>"]
 
 [dependencies]
 # HTTP framework and related dependencies
-axum = { version = "^0.8.7", features = ["tracing", "tower-log"] }
-hyper = { version = "^1.8.1", features = ["full"] }
-tower = "^0.5.2"
-tower-http = { version = "^0.6.7", features = ["full"] }
+axum = { version = "^0.8.9", features = ["tracing", "tower-log"] }
+hyper = { version = "^1.10.1", features = ["full"] }
+tower = "^0.5.3"
+tower-http = { version = "^0.7.0", features = ["full"] }
 hyper-util = { version = "0.1.18", features = ["tokio"] }
 
 # Async runtime and utilities
 tokio = { version = "^1", features = ["full"] }
 tokio-util = { version = "0.7.17", features = ["full"] }
-futures = "^0.3.31"
+futures = "^0.3.32"
 
 # Logging
-log = { version = "^0.4.28", features = ["serde"] }
+log = { version = "^0.4.33", features = ["serde"] }
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 
 # Serialization
@@ -72,7 +72,7 @@ parking_lot = "0.12.5"
 num_enum = "0.7.5"
 
 # String enums
-strum = { version = "0.27.2", features = ["derive"] }
+strum = { version = "0.28.0", features = ["derive"] }
 
 # Validation
 validator = { version = "0.20.0", features = ["derive"] }
@@ -91,7 +91,7 @@ features = ["console_appender", "file_appender"]
 
 # SeaORM
 [dependencies.sea-orm]
-version = "^1.1.19"
+version = "^1.1.20"
 default-features = false
 features = [
     "runtime-tokio-rustls",
@@ -104,12 +104,11 @@ features = [
 
 # SeaORM Migration
 [dependencies.sea-orm-migration]
-version = "^1.1.19"
+version = "^1.1.20"
 default-features = false
 features = ["runtime-tokio-rustls", "sqlx-sqlite"]
 
 # HTTP Client
 [dependencies.reqwest]
-version = "0.12"
-default-features = false
-features = ["json", "rustls-tls"]
+version = "0.13.4"
+features = ["json"]
