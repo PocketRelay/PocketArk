@@ -219,6 +219,7 @@ impl RuleSet {
                 }
 
                 (Rule::GameSize, MatchRuleValue::Value(value)) => {
+                    #[allow(clippy::collapsible_match)]
                     if value != "matchAny" && value != &game_size.to_string() {
                         return false;
                     }

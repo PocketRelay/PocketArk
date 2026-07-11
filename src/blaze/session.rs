@@ -153,7 +153,7 @@ impl Debug for DebugSessionData {
         writeln!(f, "Session ({}): {}", self.id, self.action)?;
 
         if let Some(auth) = &self.auth {
-            writeln!(f, "Auth ({}): (Name: {})", auth.id, &auth.username)?;
+            writeln!(f, "Auth ({}): (Name: {})", auth.id, auth.username)?;
         }
 
         Ok(())

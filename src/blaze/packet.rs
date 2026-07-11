@@ -282,9 +282,9 @@ impl<'a> Debug for PacketDebug<'a> {
         writeln!(f, "Command: {:#06x}", header.command)?;
 
         writeln!(f, "Flags: {:?}", header.flags)?;
-        writeln!(f, "Seq: {}", &header.seq)?;
-        writeln!(f, "Notif: {}", &header.notify)?;
-        writeln!(f, "Unused: {}", &header.unused)?;
+        writeln!(f, "Seq: {}", header.seq)?;
+        writeln!(f, "Notif: {}", header.notify)?;
+        writeln!(f, "Unused: {}", header.unused)?;
 
         // Skip remaining if the message shouldn't contain its content
         if self.minified {

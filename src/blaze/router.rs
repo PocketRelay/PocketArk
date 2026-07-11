@@ -244,13 +244,7 @@ impl FromPacketRequest for GamePlayer {
         Self: 'a,
     {
         let user = req.state.data.get_player().expect("missing user");
-        let net = req.state.data.net().expect("missing user");
-
-        Box::pin(ready(Ok(GamePlayer::new(
-            user,
-            Arc::downgrade(&req.state),
-            net,
-        ))))
+        Box::pin(ready(Ok(GamePlayer::new(user, Arc::downgrade(&req.state)))))
     }
 }
 

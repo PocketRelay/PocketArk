@@ -20,7 +20,7 @@ pub async fn authenticate(
     Extension(sessions): Extension<Arc<Sessions>>,
     JsonDump(req): JsonDump<AuthRequest>,
 ) -> HttpResult<AuthResponse> {
-    debug!("Authenticate: {:?}", &req);
+    debug!("Authenticate: {:?}", req);
 
     let token = sessions.create_token(user.id);
 

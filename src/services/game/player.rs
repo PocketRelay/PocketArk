@@ -17,7 +17,6 @@ use crate::{
 pub struct GamePlayer {
     pub user: Arc<User>,
     pub link: WeakSessionLink,
-    pub net: Arc<NetData>,
     pub state: PlayerState,
     pub attr: AttrMap,
 }
@@ -29,11 +28,10 @@ impl Drop for GamePlayer {
 }
 
 impl GamePlayer {
-    pub fn new(user: Arc<User>, link: WeakSessionLink, net: Arc<NetData>) -> Self {
+    pub fn new(user: Arc<User>, link: WeakSessionLink) -> Self {
         Self {
             user,
             link,
-            net,
             state: PlayerState::ActiveConnecting,
             attr: AttrMap::default(),
         }

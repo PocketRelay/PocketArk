@@ -139,7 +139,7 @@ impl MissionBackgroundTask {
         if !missed_offsets.is_empty() {
             debug!(
                 "Creating missed strike team missions for offsets: {:?}",
-                &missed_offsets
+                missed_offsets
             );
 
             for offset in missed_offsets {
@@ -149,7 +149,7 @@ impl MissionBackgroundTask {
 
         debug!(
             "Creating strike team mission at ({}): {}",
-            next_offset, &next_date
+            next_offset, next_date
         );
 
         // Wait until its time to create the offset
