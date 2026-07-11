@@ -28,7 +28,7 @@ pub mod game_manager {
     pub const FINALIZE_GAME_CREATION: u16 = 15;
     pub const START_MATCHMAKING_SCENARIO: u16 = 16; // 0x0010
     pub const CANCEL_MATCHMAKING_SCENARIO: u16 = 17; // 0x0011
-    pub const REPLAY_GAME: u16 = 19;
+    pub const REPLAY_GAME: u16 = 19; // 0x0013
     pub const LEAVE_GAME_BY_GROUP: u16 = 22;
     pub const ADD_ADMIN_PLAYER: u16 = 106; // 0x6A
     pub const SET_GAME_SETTINGS: u16 = 4; // 0x4
@@ -50,6 +50,8 @@ pub mod game_manager {
     pub const PLAYER_ATTR_UPDATE: u16 = 90; // 0x005a
     pub const GAME_STATE_CHANGE: u16 = 100; // 0x0064
     pub const GAME_SETTINGS_CHANGE: u16 = 110; // 0x006e
+
+    pub const GAME_REPORTING_ID_CHANGE: u16 = 113; // 0x0071
 
     pub const GAME_PLAYER_STATE_CHANGE: u16 = 116; // 0x0074
 

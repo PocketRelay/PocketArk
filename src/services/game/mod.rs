@@ -400,8 +400,8 @@ impl Game {
 
     pub fn notify_game_replay(&self) {
         self.notify_all(Packet::notify(
-            4,
-            113,
+            game_manager::COMPONENT,
+            game_manager::GAME_REPORTING_ID_CHANGE,
             NotifyGameReplay {
                 game_id: self.id,
                 grid: self.id,
