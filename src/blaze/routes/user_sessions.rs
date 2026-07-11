@@ -32,13 +32,13 @@ pub async fn update_network_info(
         Vec::new()
     };
 
-    match &mut address {
-        crate::blaze::models::user_sessions::NetworkAddress::AddressPair(ip_pair_address) => {
-            ip_pair_address.external = ip_pair_address.internal.clone();
-        }
-        crate::blaze::models::user_sessions::NetworkAddress::Unset => todo!(),
-        crate::blaze::models::user_sessions::NetworkAddress::Default => todo!(),
-    }
+    // match &mut address {
+    //     crate::blaze::models::user_sessions::NetworkAddress::AddressPair(ip_pair_address) => {
+    //         ip_pair_address.external = ip_pair_address.internal.clone();
+    //     }
+    //     crate::blaze::models::user_sessions::NetworkAddress::Unset => todo!(),
+    //     crate::blaze::models::user_sessions::NetworkAddress::Default => todo!(),
+    // }
 
     session
         .data

@@ -2,8 +2,8 @@ use crate::{
     blaze::{
         components::{self, game_manager},
         models::game_manager::{
-            AdminListChange, AdminListOperation, AttributesChange, GameSetupContext,
-            GameSetupResponse, JoinComplete, NotifyGameReplay, NotifyGameStateChange,
+            AdminListChange, AdminListOperation, AttributesChange, GameSettings, GameSetupContext,
+            GameSetupResponse, GameState, JoinComplete, NotifyGameReplay, NotifyGameStateChange,
             NotifyMatchmakingSessionConnectionValidated, PlayerAttributesChange, PlayerJoining,
             PlayerNetConnectionStatus, PlayerRemoved, PlayerState, PlayerStateChange, RemoveReason,
             SettingChange,
@@ -78,9 +78,9 @@ pub struct Game {
     /// Unique ID for this game
     pub id: GameID,
     /// The current game state
-    pub state: u8,
+    pub state: GameState,
     /// The current game setting
-    pub settings: u32,
+    pub settings: GameSettings,
     /// The game attributes
     pub attributes: AttrMap,
     /// The list of players in this game
@@ -123,8 +123,14 @@ impl Game {
     ) -> Game {
         Self {
             id,
-            state: 1,
-            settings: 262429,
+            state: GameState::Initializing,
+            settings: GameSettings::OPEN_TO_BROWSING
+                | GameSettings::OPEN_TO_MATCHMAKING
+                | GameSettings::OPEN_TO_INVITES
+                | GameSettings::OPEN_TO_JOIN_BY_PLAYER
+                | GameSettings::HOST_MIGRATABLE
+                | GameSettings::JOIN_IN_PROGRESS_SUPPORTED
+                | GameSettings::DYNAMIC_REPUTATION_REQUIREMENT,
             attributes,
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
@@ -135,10 +141,10 @@ impl Game {
         }
     }
 
-    pub fn set_settings(&mut self, settings: u32) {
+    pub fn set_settings(&mut self, settings: GameSettings) {
         self.settings = settings;
 
-        debug!("Updated game setting (Value: {:?})", &settings);
+        debug!("Updated game setting (Value: {settings:?})");
 
         self.notify_all(Packet::notify(
             game_manager::COMPONENT,
@@ -220,10 +226,10 @@ impl Game {
         self.processed_data = Some(data);
     }
 
-    pub fn set_state(&mut self, state: u8) {
+    pub fn set_state(&mut self, state: GameState) {
         self.state = state;
 
-        debug!("Updated game state (Value: {:?})", &state);
+        debug!("Updated game state (Value: {state:?})");
 
         self.notify_all(Packet::notify(
             game_manager::COMPONENT,

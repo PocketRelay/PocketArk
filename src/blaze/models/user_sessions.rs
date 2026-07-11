@@ -255,7 +255,7 @@ impl TdfSerialize for UserSessionExtendedData {
             // Internet Service Provider
             w.tag_str(b"ISP", "Example ISP");
             // Ping server latency list
-            w.tag_list_slice(b"PSLM", &[0xfff0fff]);
+            w.tag_list_slice(b"PSLM", &self.net.ping_site_latency);
 
             // Quality of service data
             w.tag_ref(b"QDAT", &self.net.qos);

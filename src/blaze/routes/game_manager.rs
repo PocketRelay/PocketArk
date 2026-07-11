@@ -6,11 +6,12 @@ use crate::{
         models::{
             errors::ServerResult,
             game_manager::{
-                AddAdminPlayerRequest, GameManagerError, GameSetupContext, LeaveGameRequest,
-                MatchmakeScenario, MatchmakingResult, MeshEndpointsConnectedRequest,
-                PlayerNetConnectionStatus, PlayerState, ReplayGameRequest, SetSettingRequest,
-                StartMatchmakingScenarioRequest, StartMatchmakingScenarioResponse,
-                UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
+                AddAdminPlayerRequest, GameManagerError, GameSetupContext, GameState,
+                LeaveGameRequest, MatchmakeScenario, MatchmakingResult,
+                MeshEndpointsConnectedRequest, PlayerNetConnectionStatus, PlayerState,
+                ReplayGameRequest, SetSettingRequest, StartMatchmakingScenarioRequest,
+                StartMatchmakingScenarioResponse, UpdateAttrRequest, UpdateGameAttrRequest,
+                UpdateStateRequest,
             },
         },
         router::{Blaze, Extension, SessionAuth},
@@ -39,7 +40,7 @@ pub async fn start_matchmaking_scenario(
 ) -> Blaze<StartMatchmakingScenarioResponse> {
     let user_id = player.user.id;
 
-    let attributes: TdfMap<String, String> = req
+    let mut attributes: TdfMap<String, String> = req
         .attributes
         .into_iter()
         .filter_map(|(key, value)| {
@@ -80,6 +81,19 @@ pub async fn start_matchmaking_scenario(
         MatchmakeScenario::CreatePublicGame => {
             // Player is the host player (They are connected by default)
             player.state = PlayerState::ActiveConnected;
+
+            attributes.insert("isInLobby".to_string(), "true".to_string());
+            attributes.insert("lockState".to_string(), "0".to_string());
+            attributes.insert("mode".to_string(), "contact_multiplayer".to_string());
+            if let Some(difficulty) = attributes.get("difficulty") {
+                attributes.insert("difficultyUI".to_string(), difficulty.clone());
+            }
+            if let Some(ty) = attributes.get("enemytype") {
+                attributes.insert("enemytypeUI".to_string(), ty.clone());
+            }
+            if let Some(level) = attributes.get("level") {
+                attributes.insert("levelUI".to_string(), level.clone());
+            }
 
             let game_id = games.next_id();
             let game = Game::new(game_id, attributes, games.clone(), tunnel_service.clone());
@@ -173,7 +187,7 @@ pub async fn replay_game(
     let game = games.get_by_id(req.gid).expect("Unknown game");
 
     let game = &mut *game.write();
-    game.set_state(130);
+    game.set_state(GameState::PreGame);
     game.notify_game_replay();
 }
 

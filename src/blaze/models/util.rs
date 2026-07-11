@@ -73,16 +73,28 @@ impl TdfSerialize for PreAuthResponse {
 
             w.tag_u8(b"LNP", 10);
 
-            {
-                w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);
-                w.group_body(|w| {
-                    PING_SITE_ALIAS.serialize(w);
-                    // TODO: Replace this host and port with the local QOS server when complete
-                    w.tag_str(b"PSA", "localhost");
-                    w.tag_u16(b"PSP", LOCAL_HTTP_PORT);
-                    w.tag_str(b"SNA", "prod-sjc");
-                });
-            }
+            let official_ping_sites = official_ping_sites();
+            // w.tag_map_tuples(b"LTPS", &official_ping_sites);
+            w.tag_map_tuples(
+                b"LTPS",
+                &[(
+                    "bio-dub".to_string(),
+                    PingSiteAlias {
+                        alias: "localhost".to_string(),
+                        port: LOCAL_HTTP_PORT,
+                    },
+                )],
+            );
+
+            // {
+            //     w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);
+            //     w.group_body(|w| {
+            //         PING_SITE_ALIAS.serialize(w);
+            //         // TODO: Replace this host and port with the local QOS server when complete
+            //         w.tag_str(b"PSA", "localhost");
+            //         w.tag_u16(b"PSP", LOCAL_HTTP_PORT);
+            //     });
+            // }
 
             w.tag_u32(b"TIME", 5000000);
         });
@@ -90,6 +102,62 @@ impl TdfSerialize for PreAuthResponse {
         w.tag_str(b"RSRC", "310335");
         w.tag_str(b"SVER", "Blaze 15.1.1.4.5 (CL# 1764921)\n");
     }
+}
+
+#[derive(TdfSerialize, TdfTyped)]
+#[tdf(group)]
+pub struct PingSiteAlias {
+    #[tdf(tag = "PSA")]
+    alias: String,
+    #[tdf(tag = "PSP")]
+    port: u16,
+}
+
+fn official_ping_sites() -> [(String, PingSiteAlias); 6] {
+    [
+        (
+            "bio-dub".to_string(),
+            PingSiteAlias {
+                alias: "qos-prod-bio-dub-common-common.gos.ea.com".to_string(),
+                port: 17504,
+            },
+        ),
+        (
+            "bio-iad".to_string(),
+            PingSiteAlias {
+                alias: "qos-prod-bio-iad-common-common.gos.ea.com".to_string(),
+                port: 17504,
+            },
+        ),
+        (
+            "bio-sjc".to_string(),
+            PingSiteAlias {
+                alias: "qos-prod-bio-sjc-common-common.gos.ea.com".to_string(),
+                port: 17504,
+            },
+        ),
+        (
+            "bio-syd".to_string(),
+            PingSiteAlias {
+                alias: "qos-prod-bio-syd-common-common.gos.ea.com".to_string(),
+                port: 17504,
+            },
+        ),
+        (
+            "m3d-brz".to_string(),
+            PingSiteAlias {
+                alias: "qos-prod-m3d-brz-common-common.gos.ea.com".to_string(),
+                port: 17504,
+            },
+        ),
+        (
+            "m3d-nrt".to_string(),
+            PingSiteAlias {
+                alias: "qos-prod-m3d-nrt-common-common.gos.ea.com".to_string(),
+                port: 17504,
+            },
+        ),
+    ]
 }
 
 #[derive(TdfSerialize)]

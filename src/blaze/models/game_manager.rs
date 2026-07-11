@@ -1,5 +1,6 @@
 use std::{net::Ipv4Addr, str::FromStr};
 
+use bitflags::bitflags;
 use serde::Serialize;
 use tdf::{
     ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfGeneric, TdfMap, TdfSerialize, TdfType,
@@ -94,7 +95,7 @@ pub struct UpdateStateRequest {
     #[tdf(tag = "GID")]
     pub gid: u32,
     #[tdf(tag = "GSTA")]
-    pub state: u8,
+    pub state: GameState,
 }
 
 /// Request to update the state of a mesh connection between
@@ -379,7 +380,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_zero(b"GMRG");
             w.tag_str_empty(b"GNAM");
             w.tag_u64(b"GPVH", 3788120962);
-            w.tag_owned(b"GSET", game.settings);
+            w.tag_owned(b"GSET", game.settings.bits());
             w.tag_owned(b"GSID", game.id);
             w.tag_ref(b"GSTA", &game.state);
 
@@ -424,7 +425,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
             }
 
             // Max player capacity
-            w.tag_u8(b"MCAP", 1); // should be 4?
+            w.tag_u8(b"MCAP", 4);
             // Min player capacity
             w.tag_u8(b"MNCP", 1);
             w.tag_str_empty(b"NPSI");
@@ -446,12 +447,16 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_blob_empty(b"PGSR");
 
             // The platform speicific host (ie. xbox presence session holder).
-            w.group(b"PHST", |w| {
-                w.tag_u32(b"CONG", host.user.id);
-                w.tag_u32(b"CSID", 0);
-                w.tag_u32(b"HPID", host.user.id);
-                w.tag_zero(b"HSLT");
-            });
+            w.tag_ref(
+                b"PHST",
+                &HostInfo {
+                    player_id: host.user.id,
+                    connection_group_id: host.user.id,
+                    user_session_id: host.user.id,
+                    connection_slot_id: 1,
+                    slot_id: 1,
+                },
+            );
 
             // Presence mode used for 1st party display. May be set to private.
             w.tag_alt(b"PRES", PresenceMode::Standard);
@@ -460,7 +465,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_u8(b"PRTO", 0);
 
             // Ping site alias
-            w.tag_str(b"PSAS", "bio-syd");
+            w.tag_str(b"PSAS", "bio-dub");
 
             // Is pseudo game
             w.tag_bool(b"PSEU", false);
@@ -473,7 +478,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
                 w.tag_map_start(b"CRIT", TdfType::String, TdfType::Group, 1);
                 write_empty_str(w);
                 w.group_body(|w| {
-                    w.tag_u8(b"RCAP", 1);
+                    w.tag_u8(b"RCAP", 4);
                 });
             });
 
@@ -481,22 +486,25 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_str_empty(b"SCID");
 
             // 32 bit number shared between clients (Should this be randomized?)
-            w.tag_u32(b"SEED", 131492528);
+            w.tag_u32(b"SEED", 2096547478);
             w.tag_str_empty(b"STMN");
 
             // The topology host for the game (everyone connects to this person).
-            w.group(b"THST", |w| {
-                w.tag_u32(b"CONG", host.user.id);
-                w.tag_u8(b"CSID", 0x0);
-                w.tag_u32(b"HPID", host.user.id);
-                w.tag_u32(b"HSES", host.user.id);
-                w.tag_u8(b"HSLT", 0x0);
-            });
+            w.tag_ref(
+                b"THST",
+                &HostInfo {
+                    player_id: host.user.id,
+                    connection_group_id: host.user.id,
+                    user_session_id: host.user.id,
+                    connection_slot_id: 1,
+                    slot_id: 1,
+                },
+            );
 
             // Team ID vector
             w.tag_list_slice(b"TIDS", &[65534]);
-            w.tag_str(b"UUID", "32d89cf8-6a83-4282-b0a0-5b7a8449de2e");
-            w.tag_alt(b"VOIP", VoipTopology::Disabled);
+            w.tag_str(b"UUID", "add98ceb-1ea3-40ad-9c9d-8c855fedf6ef");
+            w.tag_alt(b"VOIP", VoipTopology::PeerToPeer);
             w.tag_str(b"VSTR", GAME_PROTOCOL_VERSION);
         });
 
@@ -524,6 +532,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
 
         // Game setup reason
         w.tag_ref(b"REAS", &self.context);
+        w.tag_u32(b"TELM", 20000000);
     }
 }
 
@@ -606,7 +615,7 @@ pub struct NotifyGameStateChange {
     #[tdf(tag = "GID")]
     pub game_id: GameID,
     #[tdf(tag = "GSTA")]
-    pub state: u8,
+    pub state: GameState,
 }
 
 #[derive(TdfSerialize)]
@@ -711,26 +720,59 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 w.tag_zero(b"GNUM");
             });
 
-            // TODO: GASM
-            // "GASM": {
-            //   "gameDifficultyRule": {
-            //     "NAME": "gameDifficultyRule",
-            //     "VALU": ["4"],
-            //   },
-            //   "gameEnemyTypeRule": {
-            //     "NAME": "gameEnemyTypeRule",
-            //     "VALU": ["3"],
-            //   },
-            //   "gameLevelNameRule": {
-            //     "NAME": "gameLevelNameRule",
-            //     "VALU": ["13"],
-            //   },
-            //   "gameMissionSlotRule": {
-            //     "NAME": "gameMissionSlotRule",
-            //     "VALU": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-            //   }
-            // },
-            w.group(b"GASM", |w| {});
+            #[derive(TdfSerialize, TdfTyped)]
+            #[tdf(group)]
+            struct Group {
+                #[tdf(tag = "NAME")]
+                name: String,
+                #[tdf(tag = "VALU")]
+                value: Vec<String>,
+            }
+
+            w.tag_map_tuples(
+                b"GASM",
+                &[
+                    (
+                        "gameDifficultyRule".to_string(),
+                        Group {
+                            name: "gameDifficultyRule".to_string(),
+                            value: vec!["4".to_string()],
+                        },
+                    ),
+                    (
+                        "gameEnemyTypeRule".to_string(),
+                        Group {
+                            name: "gameEnemyTypeRule".to_string(),
+                            value: vec!["3".to_string()],
+                        },
+                    ),
+                    (
+                        "gameLevelNameRule".to_string(),
+                        Group {
+                            name: "gameLevelNameRule".to_string(),
+                            value: vec!["13".to_string()],
+                        },
+                    ),
+                    (
+                        "gameMissionSlotRule".to_string(),
+                        Group {
+                            name: "gameMissionSlotRule".to_string(),
+                            value: vec![
+                                "0".to_string(),
+                                "1".to_string(),
+                                "2".to_string(),
+                                "3".to_string(),
+                                "4".to_string(),
+                                "5".to_string(),
+                                "6".to_string(),
+                                "7".to_string(),
+                                "8".to_string(),
+                                "9".to_string(),
+                            ],
+                        },
+                    ),
+                ],
+            );
 
             // Geo location rule status
             w.group(b"GEOS", |w| {
@@ -745,7 +787,7 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 // HOSTS_BALANCED = 1,
                 // HOSTS_UNBALANCED = 2,
 
-                w.tag_u8(b"BVAL", 1);
+                w.tag_u8(b"BVAL", 2);
             });
 
             // Host viability rule status
@@ -756,13 +798,13 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 // CONNECTION_FEASIBLE = 2,
                 // CONNECTION_UNLIKELY = 3,
 
-                w.tag_zero(b"VVAL");
+                w.tag_u8(b"VVAL", 1);
             });
 
             // Unknown
             w.group(b"PLCN", |w| {
-                w.tag_u8(b"PMAX", 1);
-                w.tag_u8(b"PMIN", 1);
+                w.tag_u8(b"PMAX", 4);
+                w.tag_u8(b"PMIN", 4);
             });
 
             w.group(b"PLUT", |w| {
@@ -798,8 +840,8 @@ impl TdfSerialize for AsyncMatchmakingStatus {
 
             // Unknown
             w.group(b"TOTS", |w| {
-                w.tag_u8(b"PMAX", 4);
-                w.tag_u8(b"PMIN", 4);
+                w.tag_u8(b"PMAX", 0);
+                w.tag_u8(b"PMIN", 0);
             });
 
             // Unknown
@@ -816,14 +858,6 @@ impl TdfSerialize for AsyncMatchmakingStatus {
                 w.tag_zero(b"MUED");
                 w.tag_str_empty(b"NAME");
                 w.tag_zero(b"SDIF");
-            });
-
-            // Team size rule status
-            w.group(b"TSRS", |w| {
-                // Max team size accepted
-                w.tag_zero(b"TMAX");
-                // Min team size accepted
-                w.tag_zero(b"TMIN");
             });
 
             // Virtual game rule status
@@ -891,7 +925,7 @@ pub struct SetSettingRequest {
     #[tdf(tag = "GID")]
     pub game_id: GameID,
     #[tdf(tag = "GSET", into = u32)]
-    pub setting: u32,
+    pub setting: GameSettings,
 }
 
 /// Message for a game setting changing
@@ -899,8 +933,100 @@ pub struct SetSettingRequest {
 pub struct SettingChange {
     /// The game setting
     #[tdf(tag = "ATTR", into = u32)]
-    pub settings: u32,
+    pub settings: GameSettings,
     /// The ID of the game
     #[tdf(tag = "GID")]
-    pub id: GameID,
+    pub id: u32,
+}
+
+bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    pub struct GameSettings: u32 {
+        const NONE = 0;
+        const OPEN_TO_BROWSING = 1;
+        const OPEN_TO_MATCHMAKING = 2;
+        const OPEN_TO_INVITES = 4;
+        const OPEN_TO_JOIN_BY_PLAYER = 8;
+        const HOST_MIGRATABLE = 0x10;
+        const RANKED = 0x20;
+        const ADMIN_ONLY_INVITES = 0x40;
+        const ENFORCE_SINGLE_GROUP_JOIN = 0x80;
+        const JOIN_IN_PROGRESS_SUPPORTED = 0x100;
+        const ADMIN_INVITE_ONLY_IGNORE_ENTRY_CHECKS = 0x200;
+        const IGNORE_ENTRY_CRITERIA_WITH_INVITE = 0x400;
+        const ENABLE_PERSISTED_GAME_ID = 0x800;
+        const ALLOW_SAME_TEAM_ID = 0x1000;
+        const VIRTUALIZED = 0x2000;
+        const SEND_ORPHANED_GAME_REPORT_EVENT = 0x4000;
+        const ALLOW_ANY_REPUTATION = 0x8000;
+        const LOCKED_AS_BUSY = 0x10000;
+        const DISCONNECT_RESERVATION = 0x20000;
+        const DYNAMIC_REPUTATION_REQUIREMENT = 0x40000;
+        const FRIENDS_BYPASS_CLOSED_TO_JOIN_BY_PLAYER = 0x80000;
+        const ALLOW_MEMBER_GAME_ATTRIBUTE_EDIT = 0x100000;
+        const AUTO_DEMOTE_RESERVED_PLAYERS = 0x200000;
+        const UPDATE_QUEUE_CAPACITY_ON_RESET = 0x400000;
+        const SPECTATOR_BYPASS_CLOSED_TO_JOIN = 0x800000;
+    }
+}
+
+impl From<GameSettings> for u32 {
+    fn from(value: GameSettings) -> Self {
+        value.bits()
+    }
+}
+
+impl From<u32> for GameSettings {
+    fn from(value: u32) -> Self {
+        GameSettings::from_bits_retain(value)
+    }
+}
+
+/// Different states the game can be in
+#[derive(
+    Default, Debug, Serialize, Clone, Copy, PartialEq, Eq, TdfSerialize, TdfDeserialize, TdfTyped,
+)]
+#[repr(u8)]
+pub enum GameState {
+    /// Data structure just created
+    NewState = 0x0,
+    /// Closed to joins/matchmaking
+    #[tdf(default)]
+    #[default]
+    Initializing = 0x1,
+    /// Game will need topology host assigned when player joins.
+    InactiveVirtual = 0x2,
+    /// Game created via matchmaking is waiting for connections to be established and validated.
+    ConnectionVerification = 0x3,
+    /// Pre game state, obey joinMode flags
+    PreGame = 0x82,
+    /// Game available, obey joinMode flag
+    InGame = 0x83,
+    /// After game is done,closed to joins/matchmaking
+    PostGame = 0x4,
+    /// Game migration state, closed to joins/matchmaking
+    Migrating = 0x5,
+    /// Game destruction state, closed to joins/matchmaking
+    Destructing = 0x6,
+    /// Game resettable state, closed to joins/matchmaking, but available to be reset
+    Resettable = 0x7,
+    /// Unresponsive, closed to joins/matchmaking
+    Unresponsive = 0x9,
+    /// Initialized state, intended for the use of game group
+    GameGroupInitialized = 0x10,
+}
+
+#[derive(TdfSerialize, TdfTyped)]
+#[tdf(group)]
+pub struct HostInfo {
+    #[tdf(tag = "CONG")]
+    connection_group_id: u32,
+    #[tdf(tag = "CSID")]
+    connection_slot_id: u32,
+    #[tdf(tag = "HPID")]
+    player_id: UserId,
+    #[tdf(tag = "HSES")]
+    user_session_id: UserId,
+    #[tdf(tag = "HSLT")]
+    slot_id: u8,
 }

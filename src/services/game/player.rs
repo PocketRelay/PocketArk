@@ -83,7 +83,7 @@ impl GamePlayer {
     pub fn encode<S: tdf::TdfSerializer>(&self, game_id: u32, slot: usize, w: &mut S) {
         w.tag_blob_empty(b"BLOB");
         w.tag_owned(b"CONG", self.user.id);
-        w.tag_u8(b"CSID", 0);
+        w.tag_usize(b"CSID", slot);
         w.tag_u8(b"DSUI", 0);
         w.tag_blob_empty(b"EXBL");
         w.tag_owned(b"EXID", self.user.id);
