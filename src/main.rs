@@ -18,6 +18,7 @@ use tokio::signal;
 use utils::signing::SigningKey;
 
 use crate::config::{TunnelConfig, VERSION, load_config};
+use crate::definitions::packs::Packs;
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
@@ -57,6 +58,7 @@ async fn main() {
     _ = Badges::get();
     _ = MatchModifiers::get();
     _ = StrikeTeams::get();
+    _ = Packs::get();
 
     let (db, signing_key) = join!(crate::database::init(), SigningKey::global());
 

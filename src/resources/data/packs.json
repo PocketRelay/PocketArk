@@ -1,0 +1,1326 @@
+{
+  "5e7cf499-4f72-47d8-b87b-04162ef4e406": {
+    "name": "5e7cf499-4f72-47d8-b87b-04162ef4e406",
+    "description": "APEX ELITE PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "a26534c9-636c-4022-8d7e-3f76af5fde02": {
+    "name": "a26534c9-636c-4022-8d7e-3f76af5fde02",
+    "description": "EXPERIENCE ENHANCER II",
+    "contents_description": "Pack containing one 'EXPERIENCE ENHANCER II'",
+    "collections": [
+      {
+        "filter": "Name=4f46229e-51cd-4ece-9a21-731133348088",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "17f90be7-8d74-4593-a85f-0b4cdb9f57ba": {
+    "name": "17f90be7-8d74-4593-a85f-0b4cdb9f57ba",
+    "description": "APEX CHALLENGE PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "317d54fd-0596-44ea-84ee-30b5fec1ab1d": {
+    "name": "317d54fd-0596-44ea-84ee-30b5fec1ab1d",
+    "description": "SUPER DELUXE EDITION PACK - 15/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "6fcbb0d5-b4ed-406d-8056-029ce7a91fd0": {
+    "name": "6fcbb0d5-b4ed-406d-8056-029ce7a91fd0",
+    "description": "ADVANCED COMMUNITY PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "523226d2-8a17-4081-9c22-71c890d1b4ab": {
+    "name": "523226d2-8a17-4081-9c22-71c890d1b4ab",
+    "description": "LOYALTY PACK (DA:I)",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "fcc1fbf1-fa53-445b-b2e9-561702795627": {
+    "name": "fcc1fbf1-fa53-445b-b2e9-561702795627",
+    "description": "SUPPORT PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "737be245-d4ae-410b-9bf8-3db805eb79b7": {
+    "name": "737be245-d4ae-410b-9bf8-3db805eb79b7",
+    "description": "NAMEPLATE: TECH MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: TECH MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=6dbd41ae-c394-4502-984b-228075eada9f",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "206115c9-c953-4ce2-aab0-6804660f6cc1": {
+    "name": "206115c9-c953-4ce2-aab0-6804660f6cc1",
+    "description": "NAMEPLATE: REMNANT MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: REMNANT MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=9f571cb9-3846-41a0-a0c9-abc7dfac2772",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "ff6affa2-226b-4c8b-8013-7e7e94335e88": {
+    "name": "ff6affa2-226b-4c8b-8013-7e7e94335e88",
+    "description": "COBRA RPG",
+    "contents_description": "Pack containing one 'COBRA RPG'",
+    "collections": [
+      {
+        "filter": "Name=eaefec2a-d892-498b-a175-e5d2048ae39a",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "5c7b9f32-4fef-430c-a72d-0e7409b84adc": {
+    "name": "5c7b9f32-4fef-430c-a72d-0e7409b84adc",
+    "description": "NAMEPLATE: APEX RATING - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: APEX RATING - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=80c863cc-d53f-4335-92bd-71d6cec3b08b",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e78760b4-2c64-45be-9906-e3183c64a424": {
+    "name": "e78760b4-2c64-45be-9906-e3183c64a424",
+    "description": "SUPER DELUXE EDITION PACK - 9/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "b6fe6a9f-de70-463a-bcc5-a1b146067470": {
+    "name": "b6fe6a9f-de70-463a-bcc5-a1b146067470",
+    "description": "Expert Pack",
+    "contents_description": "Contains 5 random items or characters, including at least 1 Rare, with a small chance for an Ultra-Rare",
+    "collections": [
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=[0,1])",
+        "stack_size": 1,
+        "amount": 4
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=[1,2])",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "44da78e5-8ceb-4684-983e-794329d4a631": {
+    "name": "44da78e5-8ceb-4684-983e-794329d4a631",
+    "description": "Random Weapon Mod Uncommon",
+    "contents_description": "Contains 1 Random Uncommon Weapon Mod",
+    "collections": [
+      {
+        "filter": "(Category=[2,14] && Rarity=1)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "d7e1823e-aa41-47fe-9602-13b6f31153f6": {
+    "name": "d7e1823e-aa41-47fe-9602-13b6f31153f6",
+    "description": "NAMEPLATE: COMBAT MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: COMBAT MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=34a56ba9-1e06-4b27-8fb5-ca8122c6ac72",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "aea28dd4-b5be-4994-80ec-825e2b024d4d": {
+    "name": "aea28dd4-b5be-4994-80ec-825e2b024d4d",
+    "description": "Random Weapon Rare",
+    "contents_description": "Contains 1 Random Rare Weapon",
+    "collections": [
+      {
+        "filter": "(Category=[1,13] && Rarity=2)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "414b173e-2dcf-4587-8cdd-43c5bc872c5c": {
+    "name": "414b173e-2dcf-4587-8cdd-43c5bc872c5c",
+    "description": "NAMEPLATE: PISTOL MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: PISTOL MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=5fda99e2-93aa-4e62-a198-c1a4381d9b97",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "5baa0a3d-86e3-45cc-8ab1-d26591c46a3c": {
+    "name": "5baa0a3d-86e3-45cc-8ab1-d26591c46a3c",
+    "description": "SUPER DELUXE EDITION PACK - 10/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "ad9c5a2f-63b0-4638-935c-1733f083de38": {
+    "name": "ad9c5a2f-63b0-4638-935c-1733f083de38",
+    "description": "NAMEPLATE: APEX RATING - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: APEX RATING - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=227809cc-1fdd-433a-83ea-0662778e36dd",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "be469a8c-71d0-47f2-a13f-80c94beec052": {
+    "name": "be469a8c-71d0-47f2-a13f-80c94beec052",
+    "description": "NAMEPLATE: PISTOL MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: PISTOL MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=23511ee2-1a01-4d4d-94ef-618a3c199b2b",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "c1a96446-ae8e-47f5-8770-caeb69f862bd": {
+    "name": "c1a96446-ae8e-47f5-8770-caeb69f862bd",
+    "description": "SUPER DELUXE EDITION PACK - 17/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "cbe39480-8473-4aa4-8a06-ce1524a5af2e": {
+    "name": "cbe39480-8473-4aa4-8a06-ce1524a5af2e",
+    "description": "SUPER DELUXE EDITION PACK - 14/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "fa6aab20-ae9a-4778-829b-978f075de939": {
+    "name": "fa6aab20-ae9a-4778-829b-978f075de939",
+    "description": "NAMEPLATE: SHOTGUN MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: SHOTGUN MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=4fa9a564-dfbd-4c28-8ba5-6e9e3e48d950",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "6d05ac99-3e2e-4f48-9b84-04c8d9be8420": {
+    "name": "6d05ac99-3e2e-4f48-9b84-04c8d9be8420",
+    "description": "NAMEPLATE: MAP MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: MAP MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=8a3fbe71-eced-4d03-8cdc-f8ba3888b53c",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "23b6647a-0b54-43a8-85fb-0a382522bf97": {
+    "name": "23b6647a-0b54-43a8-85fb-0a382522bf97",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "b0fce148-f9d8-4098-b767-0e3e523f6e0d": {
+    "name": "b0fce148-f9d8-4098-b767-0e3e523f6e0d",
+    "description": "SUPER DELUXE EDITION PACK - 19/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "6b1179d1-0a7b-496c-83e2-f66de8b57736": {
+    "name": "6b1179d1-0a7b-496c-83e2-f66de8b57736",
+    "description": "NAMEPLATE: BIOTIC MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: BIOTIC MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=70f12a9a-a979-4d62-bda1-5f161e8f133a",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "80304bc9-e704-4b5d-9193-e35f8de7b871": {
+    "name": "80304bc9-e704-4b5d-9193-e35f8de7b871",
+    "description": "SUPER DELUXE EDITION PACK - 2/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "03d7ec5a-d729-4fb3-91d2-2db11f8dfa40": {
+    "name": "03d7ec5a-d729-4fb3-91d2-2db11f8dfa40",
+    "description": "SUPER DELUXE EDITION PACK - 11/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "f1473ab2-55c1-4b22-a8d2-344dba5b4e09": {
+    "name": "f1473ab2-55c1-4b22-a8d2-344dba5b4e09",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "694577c3-0d92-4e85-ad41-de54a4c91154": {
+    "name": "694577c3-0d92-4e85-ad41-de54a4c91154",
+    "description": "[BUG] I am a banner!",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "06a249fd-324d-4a9e-9f46-7cb7e620652d": {
+    "name": "06a249fd-324d-4a9e-9f46-7cb7e620652d",
+    "description": "SUPER DELUXE EDITION PACK - 7/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "3a7a1d97-ddb7-4954-85e8-b280c2b9b2dc": {
+    "name": "3a7a1d97-ddb7-4954-85e8-b280c2b9b2dc",
+    "description": "EXPERIENCE ENHANCER III",
+    "contents_description": "Pack containing one 'EXPERIENCE ENHANCER III'",
+    "collections": [
+      {
+        "filter": "Name=83d69f5b-3f97-4d41-ad76-99ea37a35ba8",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "efcc43cf-5877-4ef4-a52b-c35a88a154d2": {
+    "name": "efcc43cf-5877-4ef4-a52b-c35a88a154d2",
+    "description": "SUPER DELUXE EDITION PACK - 3/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "a883a017-1b11-41ea-b98a-127b25dd3032": {
+    "name": "a883a017-1b11-41ea-b98a-127b25dd3032",
+    "description": "CELEBRATORY PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "d21b1767-cb37-4bfa-ad30-12a9d2240775": {
+    "name": "d21b1767-cb37-4bfa-ad30-12a9d2240775",
+    "description": "SUPER DELUXE EDITION PACK - 13/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "e1c4ff7d-63e5-4e82-ae89-a078b954edce": {
+    "name": "e1c4ff7d-63e5-4e82-ae89-a078b954edce",
+    "description": "NAMEPLATE: KETT MASTERY- SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: KETT MASTERY- SILVER'",
+    "collections": [
+      {
+        "filter": "Name=1d832caf-8ed5-4329-b33d-06d0ad9463f4",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "1e6627c8-f8ee-4c70-86b2-0c2dd4c65ff4": {
+    "name": "1e6627c8-f8ee-4c70-86b2-0c2dd4c65ff4",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "0d9a69e0-cad5-4242-8052-9f0c2ded0236": {
+    "name": "0d9a69e0-cad5-4242-8052-9f0c2ded0236",
+    "description": "SUPPORT PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "77459eda-2eab-4aae-b8f0-d26964f269eb": {
+    "name": "77459eda-2eab-4aae-b8f0-d26964f269eb",
+    "description": "EA ACCESS PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "0b7386e1-3e9b-415e-b246-45d3674367f4": {
+    "name": "0b7386e1-3e9b-415e-b246-45d3674367f4",
+    "description": "NAMEPLATE: ASSAULT RIFLE MASTERY- BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: ASSAULT RIFLE MASTERY- BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=bcec3018-405b-4c52-86b5-d4aedacccbd7",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "88a7e312-1591-4ac5-bdd8-6be1a6f02c9f": {
+    "name": "88a7e312-1591-4ac5-bdd8-6be1a6f02c9f",
+    "description": "NAMEPLATE: SHOTGUN MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: SHOTGUN MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=bed37817-170d-4144-9434-3ccd58c7ec8f",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "ccb3f225-e808-4057-99b8-48a33c966be1": {
+    "name": "ccb3f225-e808-4057-99b8-48a33c966be1",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "0d31bf4b-3ab2-4d09-8028-335bb2f28ad8": {
+    "name": "0d31bf4b-3ab2-4d09-8028-335bb2f28ad8",
+    "description": "NAMEPLATE: ASSAULT RIFLE MASTERY- SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: ASSAULT RIFLE MASTERY- SILVER'",
+    "collections": [
+      {
+        "filter": "Name=fdd1d812-64e1-40e9-ad89-3b7f90641fab",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e28207db-3b14-4ba7-9dc6-d0826d76b78d": {
+    "name": "e28207db-3b14-4ba7-9dc6-d0826d76b78d",
+    "description": "TECH TEST SIGN-UP - BRONZE",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "e9bfb771-5244-4f33-b318-dd49d79c7edf": {
+    "name": "e9bfb771-5244-4f33-b318-dd49d79c7edf",
+    "description": "Random Weapon Ultra Rare",
+    "contents_description": "Contains 1 Random Ultra Rare Weapon",
+    "collections": [
+      {
+        "filter": "(Category=[1,13] && Rarity=3)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "53a5fc5e-3ba9-476f-a537-555bac6014f3": {
+    "name": "53a5fc5e-3ba9-476f-a537-555bac6014f3",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "9dba3f79-7c9f-4526-96f0-7eaec177eccf": {
+    "name": "9dba3f79-7c9f-4526-96f0-7eaec177eccf",
+    "description": "ANDROMEDA INITIATIVE PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "f8a12dd0-dd4d-4151-91dc-7e019005a22c": {
+    "name": "f8a12dd0-dd4d-4151-91dc-7e019005a22c",
+    "description": "NAMEPLATE: KETT MASTERY- BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: KETT MASTERY- BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=26a31baf-8fef-4e8f-b704-29e9f335df0e",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "29c47d42-5830-435b-943f-bf6cf04145e1": {
+    "name": "29c47d42-5830-435b-943f-bf6cf04145e1",
+    "description": "Arsenal Pack",
+    "contents_description": "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for weapons.",
+    "collections": [
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0],(Category=[1,13]^32) && (!Rarity=[2,3]))",
+        "stack_size": 1,
+        "amount": 3
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0],(Category=[1,13]^32) && Rarity=[2,3])",
+        "stack_size": 1,
+        "amount": 2
+      }
+    ]
+  },
+  "34a78027-ac6e-4bc6-856e-4b8cee5859be": {
+    "name": "34a78027-ac6e-4bc6-856e-4b8cee5859be",
+    "description": "FIRST AID PACK",
+    "contents_description": "Pack containing one 'FIRST AID PACK'",
+    "collections": [
+      {
+        "filter": "Name=4d790010-1a79-4bd0-a79b-d52cac068a3a",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "2d9e2f93-2c72-491e-bdb9-46f20d0d9339": {
+    "name": "2d9e2f93-2c72-491e-bdb9-46f20d0d9339",
+    "description": "NAMEPLATE: OUTLAW MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: OUTLAW MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=713b03ba-cead-4cd7-8239-0ce38dbc32fb",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "c5b3d9e6-7932-4579-ba8a-fd469ed43fda": {
+    "name": "c5b3d9e6-7932-4579-ba8a-fd469ed43fda",
+    "description": "Supply Pack",
+    "contents_description": "Includes the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as a Random Booster.",
+    "collections": [
+      {
+        "filter": "Name=eaefec2a-d892-498b-a175-e5d2048ae39a",
+        "stack_size": 1,
+        "amount": 1
+      },
+      {
+        "filter": "Name=af39be6b-0542-4997-b524-227aa41ae2eb",
+        "stack_size": 1,
+        "amount": 1
+      },
+      {
+        "filter": "Name=2cc0d932-8e9d-48a6-a6e8-a5665b77e835",
+        "stack_size": 1,
+        "amount": 1
+      },
+      {
+        "filter": "Name=4d790010-1a79-4bd0-a79b-d52cac068a3a",
+        "stack_size": 1,
+        "amount": 1
+      },
+      {
+        "filter": "Category=3",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6": {
+    "name": "eddfd7b7-3476-4ad7-9302-5cfe77ee4ea6",
+    "description": "Ammo Priming Pack",
+    "contents_description": "Contains 2 of each Uncommon ammo booster, plus 2 additional boosters, at least 1 of which is Rare or better.",
+    "collections": [
+      {
+        "filter": "((Category=3 && Attribute=consumableType,Ammo) && Rarity=1)",
+        "stack_size": 2,
+        "amount": null
+      },
+      {
+        "filter": "Category=3",
+        "stack_size": 1,
+        "amount": 1
+      },
+      {
+        "filter": "(Category=3 && Rarity=[2,3])",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "ab939baf-3cc0-46a8-8983-5c8e92754a25": {
+    "name": "ab939baf-3cc0-46a8-8983-5c8e92754a25",
+    "description": "BONUS REWARD PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "51e008c4-018c-477e-b99a-e8b44a86483b": {
+    "name": "51e008c4-018c-477e-b99a-e8b44a86483b",
+    "description": "SUPER DELUXE EDITION PACK - 1/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "67416130-bd36-4cf4-94df-e276f7642472": {
+    "name": "67416130-bd36-4cf4-94df-e276f7642472",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "7c4118cd-53fa-4c15-951c-6c250549db1d": {
+    "name": "7c4118cd-53fa-4c15-951c-6c250549db1d",
+    "description": "ORIGIN ACCESS PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "8a072bab-e849-475d-b552-e18704b150c4": {
+    "name": "8a072bab-e849-475d-b552-e18704b150c4",
+    "description": "APEX HQ PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "784e1293-4480-4abd-965e-2c6584f550c8": {
+    "name": "784e1293-4480-4abd-965e-2c6584f550c8",
+    "description": "REVIVE PACK",
+    "contents_description": "Pack containing one 'REVIVE PACK'",
+    "collections": [
+      {
+        "filter": "Name=af39be6b-0542-4997-b524-227aa41ae2eb",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e3e56e89-b995-475f-8e75-84bf27dc8297": {
+    "name": "e3e56e89-b995-475f-8e75-84bf27dc8297",
+    "description": "Jumbo Premium Pack",
+    "contents_description": "Contains 25 random items or characters, including at least 10 that are Rare, with 5 improved chances for an Ultra-Rare.",
+    "collections": [
+      {
+        "filter": "Category=[1,2,3,4,5,13,14,0]",
+        "stack_size": 1,
+        "amount": 10
+      },
+      {
+        "filter": "Category=[1,2,3,4,5,13,14,0],(Rarity=3^8)",
+        "stack_size": 1,
+        "amount": 5
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=2)",
+        "stack_size": 1,
+        "amount": 10
+      }
+    ]
+  },
+  "ef8d85dc-74c5-4554-86c2-4e2f5c7e0fb8": {
+    "name": "ef8d85dc-74c5-4554-86c2-4e2f5c7e0fb8",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "208aa537-19d0-4bea-9ac9-f11713cd85e8": {
+    "name": "208aa537-19d0-4bea-9ac9-f11713cd85e8",
+    "description": "NAMEPLATE: APEX MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: APEX MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=dd241aa0-26ba-4165-8332-69ba6259a8d3",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "ce59f903-f3a1-4ec3-90a3-1e82c5f47b85": {
+    "name": "ce59f903-f3a1-4ec3-90a3-1e82c5f47b85",
+    "description": "NAMEPLATE: OUTLAW MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: OUTLAW MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=c2dd50c5-d650-4a75-bd49-f476a4e9d18e",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "3ff3ff1b-d2f1-4912-9612-9c50cf7138e2": {
+    "name": "3ff3ff1b-d2f1-4912-9612-9c50cf7138e2",
+    "description": "SUPER DELUXE EDITION PACK - 4/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "aa7b57df-d0a7-4275-8623-38575565fe15": {
+    "name": "aa7b57df-d0a7-4275-8623-38575565fe15",
+    "description": "PRE-ORDER BOOSTER PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "bed2b13e-1cca-4981-b81f-985c051565a4": {
+    "name": "bed2b13e-1cca-4981-b81f-985c051565a4",
+    "description": "SUPER DELUXE EDITION PACK - 12/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "20a2212b-ac19-436f-93c9-143463a813e9": {
+    "name": "20a2212b-ac19-436f-93c9-143463a813e9",
+    "description": "Random Weapon Uncommon",
+    "contents_description": "Contains 1 Random Uncommon Weapon",
+    "collections": [
+      {
+        "filter": "(Category=[1,13] && Rarity=1)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e71d0c00-44f2-4087-a7f7-7a138fbee0e9": {
+    "name": "e71d0c00-44f2-4087-a7f7-7a138fbee0e9",
+    "description": "Random Character Uncommon",
+    "contents_description": "Contains 1 Random Uncommon Character",
+    "collections": [
+      {
+        "filter": "(Category=0 && Rarity=1)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "16cdf51b-443a-48e2-ad07-413a3f4370e7": {
+    "name": "16cdf51b-443a-48e2-ad07-413a3f4370e7",
+    "description": "AMMO PACK",
+    "contents_description": "Pack containing one 'AMMO PACK'",
+    "collections": [
+      {
+        "filter": "Name=2cc0d932-8e9d-48a6-a6e8-a5665b77e835",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "47088308-e623-494e-a436-cccfd7f4150f": {
+    "name": "47088308-e623-494e-a436-cccfd7f4150f",
+    "description": "LOYALTY PACK (ME3)",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "6e67e5e2-89c7-44cc-89fb-432e8e99734a": {
+    "name": "6e67e5e2-89c7-44cc-89fb-432e8e99734a",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "cc15e17f-1b06-4413-9c6c-544d01b50f2a": {
+    "name": "cc15e17f-1b06-4413-9c6c-544d01b50f2a",
+    "description": "DELUXE EDITION PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "65e537a8-0a56-4ded-8d48-41e68d9d82cb": {
+    "name": "65e537a8-0a56-4ded-8d48-41e68d9d82cb",
+    "description": "NAMEPLATE: KETT MASTERY- GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: KETT MASTERY- GOLD'",
+    "collections": [
+      {
+        "filter": "Name=4d9c88f4-22d6-4096-8d5a-3e6629adf34f",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e3f10da1-312a-4ba4-ad33-0c503e6c2a8f": {
+    "name": "e3f10da1-312a-4ba4-ad33-0c503e6c2a8f",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "db74221c-1e7e-41af-9a20-cb8176d5d00b": {
+    "name": "db74221c-1e7e-41af-9a20-cb8176d5d00b",
+    "description": "SUPER DELUXE EDITION PACK - 16/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "a1e73511-3672-40b0-9a9f-8c24faa8b831": {
+    "name": "a1e73511-3672-40b0-9a9f-8c24faa8b831",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "203ce2dc-962f-44c8-a513-76ee2286d0b7": {
+    "name": "203ce2dc-962f-44c8-a513-76ee2286d0b7",
+    "description": "APEX COMMENDATION PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "f8aecee2-3add-4b73-a520-961ef9932ea2": {
+    "name": "f8aecee2-3add-4b73-a520-961ef9932ea2",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "7ad4c7ea-2b31-412a-b688-c2d56619dcc3": {
+    "name": "7ad4c7ea-2b31-412a-b688-c2d56619dcc3",
+    "description": "NAMEPLATE: APEX MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: APEX MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=dec5e82a-0151-4802-b9eb-064e1849cba1",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "74f437e4-fd7d-4f6a-a441-66e6c64bb3c5": {
+    "name": "74f437e4-fd7d-4f6a-a441-66e6c64bb3c5",
+    "description": "NAMEPLATE: APEX RATING - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: APEX RATING - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=07a2c3ed-269a-46a4-ab81-5aaa3ff586d8",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "a6248be2-1647-4e9b-9e1e-b8b69ecf809d": {
+    "name": "a6248be2-1647-4e9b-9e1e-b8b69ecf809d",
+    "description": "NAMEPLATE: REMNANT MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: REMNANT MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=561289b5-9efa-4d6f-acf4-ce8c2ff26792",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "c9334ea7-9249-46a7-93af-b0622af5370e": {
+    "name": "c9334ea7-9249-46a7-93af-b0622af5370e",
+    "description": "NAMEPLATE: APEX MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: APEX MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=ec666f35-cc51-4569-87ca-3c17ff25efe4",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "66e5a516-443c-4062-953c-d34ffec0e4c5": {
+    "name": "66e5a516-443c-4062-953c-d34ffec0e4c5",
+    "description": "SUPER DELUXE EDITION PACK - 6/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "22a72362-620c-4c86-bf83-83848336a6fb": {
+    "name": "22a72362-620c-4c86-bf83-83848336a6fb",
+    "description": "SUPER DELUXE EDITION PACK - 5/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "23f98283-f960-46d6-85f9-4bf85d60e2cd": {
+    "name": "23f98283-f960-46d6-85f9-4bf85d60e2cd",
+    "description": "SUPER DELUXE EDITION PACK - 20/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "ba606bb6-08b0-4002-b45e-ab0d07c4126d": {
+    "name": "ba606bb6-08b0-4002-b45e-ab0d07c4126d",
+    "description": "NAMEPLATE: MAP MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: MAP MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=129c6111-fdb8-4907-a820-8f9665de6d80",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "8fd74763-e397-45ab-a27a-ac8f08e062e1": {
+    "name": "8fd74763-e397-45ab-a27a-ac8f08e062e1",
+    "description": "NAMEPLATE: TECH MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: TECH MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=beefc0ed-d91c-463e-bc2c-ade1c9927ab5",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "8344cd62-2aed-468d-b155-6ae01f1f2405": {
+    "name": "8344cd62-2aed-468d-b155-6ae01f1f2405",
+    "description": "Premium Pack",
+    "contents_description": "Contains 5 random items or characters, including at least 2 that are Rare, with a higher chance for at least 1 Ultra-Rare",
+    "collections": [
+      {
+        "filter": "Category=[1,2,3,4,5,13,14,0],(Rarity=3^8)",
+        "stack_size": 1,
+        "amount": 3
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=2)",
+        "stack_size": 1,
+        "amount": 2
+      }
+    ]
+  },
+  "5aebef08-b14c-40df-95fe-59fc78274ad5": {
+    "name": "5aebef08-b14c-40df-95fe-59fc78274ad5",
+    "description": "CELEBRATORY PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "cba5b757-cf67-40e1-a500-66dad3840088": {
+    "name": "cba5b757-cf67-40e1-a500-66dad3840088",
+    "description": "STARTER PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "d9e0d08d-5ffc-4e33-9509-40776591eb68": {
+    "name": "d9e0d08d-5ffc-4e33-9509-40776591eb68",
+    "description": "NAMEPLATE: SNIPER RIFLE MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: SNIPER RIFLE MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=6282e95d-5b15-482d-96bc-060e34126177",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "c869e5a6-cb6c-4580-a162-d5ac3f72b737": {
+    "name": "c869e5a6-cb6c-4580-a162-d5ac3f72b737",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "bc012022-2d42-48d1-88fa-2d905d83d4fd": {
+    "name": "bc012022-2d42-48d1-88fa-2d905d83d4fd",
+    "description": "CHARACTER RESPEC",
+    "contents_description": "Pack containing one 'CHARACTER RESPEC'",
+    "collections": [
+      {
+        "filter": "Name=52a2e172-2ae6-49f4-9914-bf3094f3a363",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "7f2a365a-9f08-412f-8490-ce55fd34aad6": {
+    "name": "7f2a365a-9f08-412f-8490-ce55fd34aad6",
+    "description": "LOGITECH WEAPON PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "3dbc20f9-4258-44c8-aace-f89444f48346": {
+    "name": "3dbc20f9-4258-44c8-aace-f89444f48346",
+    "description": "NAMEPLATE: MAP MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: MAP MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=59cbef6f-323b-47c2-93e1-a41bdef50d14",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "6d830d65-13de-4c70-8fb9-d076c569b4f0": {
+    "name": "6d830d65-13de-4c70-8fb9-d076c569b4f0",
+    "description": "NAMEPLATE: TECH MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: TECH MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=153c87ec-0b2f-4cc1-9a84-4ad646d1418f",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "890b2aa6-191f-4162-ae79-a78d23e3c505": {
+    "name": "890b2aa6-191f-4162-ae79-a78d23e3c505",
+    "description": "Random Weapon Mod Common",
+    "contents_description": "Contains 1 Random Common Weapon Mod",
+    "collections": [
+      {
+        "filter": "(Category=[2,14] && Rarity=0)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "dad9ad62-1f36-4e38-9634-2eda92a83096": {
+    "name": "dad9ad62-1f36-4e38-9634-2eda92a83096",
+    "description": "Random Character Ultra Rare",
+    "contents_description": "Contains 1 Random Ultra Rare Character",
+    "collections": [
+      {
+        "filter": "(Category=0 && Rarity=3)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "c6d431eb-325f-4765-ab8f-e48d7b58aa36": {
+    "name": "c6d431eb-325f-4765-ab8f-e48d7b58aa36",
+    "description": "Basic Pack",
+    "contents_description": "Contains 5 random items or characters, with a small chance that 1 will be Uncommon",
+    "collections": [
+      {
+        "filter": "(Rarity=0 && Category=[1,2,3,4,5,13,14,0])",
+        "stack_size": 1,
+        "amount": 4
+      },
+      {
+        "filter": "(Rarity=[0,1] && Category=[1,2,3,4,5,13,14,0])",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "974a8c8e-08bc-4fdb-bede-43337c255df8": {
+    "name": "974a8c8e-08bc-4fdb-bede-43337c255df8",
+    "description": "Advanced Pack",
+    "contents_description": "Contains 5 random items or characters, including at least 1 Uncommon, with a small chance for a Rare",
+    "collections": [
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=0)",
+        "stack_size": 1,
+        "amount": 4
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=[1,2])",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "19a680d4-5149-420a-aebe-03b9beb1ab83": {
+    "name": "19a680d4-5149-420a-aebe-03b9beb1ab83",
+    "description": "NAMEPLATE: ASSAULT RIFLE MASTERY- GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: ASSAULT RIFLE MASTERY- GOLD'",
+    "collections": [
+      {
+        "filter": "Name=1fa00e66-177d-4afb-831c-ca90fcf09e91",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e57690fe-4b17-4b11-b1de-a1fd4b0b4a55": {
+    "name": "e57690fe-4b17-4b11-b1de-a1fd4b0b4a55",
+    "description": "DELUXE EDITION PACK #2",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "5d3d4ce8-9cf0-4ff6-9860-9e8554c10577": {
+    "name": "5d3d4ce8-9cf0-4ff6-9860-9e8554c10577",
+    "description": "NAMEPLATE: COMBAT MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: COMBAT MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=429c1c96-1aa6-4b9a-a109-754d4f1ce3ab",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "37101bb8-e5c0-44d7-bcd9-bf49ceecc1de": {
+    "name": "37101bb8-e5c0-44d7-bcd9-bf49ceecc1de",
+    "description": "TUTORIAL PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "731b16c9-3a97-4166-a2f7-e79c8b45128a": {
+    "name": "731b16c9-3a97-4166-a2f7-e79c8b45128a",
+    "description": "Reserves Pack",
+    "contents_description": "Contains 5 random items or characters, including at least 2 that are Rare or better, with a higher chance for characters.",
+    "collections": [
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0],(Category=0^32) && (!Rarity=[2,3]))",
+        "stack_size": 1,
+        "amount": 3
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0],(Category=0^32) && Rarity=[2,3])",
+        "stack_size": 1,
+        "amount": 2
+      }
+    ]
+  },
+  "daf74c9a-8c2b-4de4-931f-dce265a88c1c": {
+    "name": "daf74c9a-8c2b-4de4-931f-dce265a88c1c",
+    "description": "NAMEPLATE: OUTLAW MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: OUTLAW MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=9223bffe-ce83-48bf-8eb5-ed9e7345bdaa",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "e9d39579-0f21-4d35-952f-cd418b6c4b57": {
+    "name": "e9d39579-0f21-4d35-952f-cd418b6c4b57",
+    "description": "NAMEPLATE: BIOTIC MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: BIOTIC MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=9288bbdb-c045-439c-8771-651b83c294cc",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "361895d8-49b0-4d0c-b359-60e7c343f194": {
+    "name": "361895d8-49b0-4d0c-b359-60e7c343f194",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "975f87f5-0242-4c73-9e0f-6e4033b22ee9": {
+    "name": "975f87f5-0242-4c73-9e0f-6e4033b22ee9",
+    "description": "Technical Mods Pack",
+    "contents_description": "Contains 5 random consumables or weapon mods, including at least 1 Uncommon, with a small chance for a Rare.",
+    "collections": [
+      {
+        "filter": "(Category=[4,2,14] && Rarity=0)",
+        "stack_size": 1,
+        "amount": 4
+      },
+      {
+        "filter": "(Category=[4,2,14] && Rarity=[1,2])",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "73564b68-8e80-48b1-881c-2e2085787509": {
+    "name": "73564b68-8e80-48b1-881c-2e2085787509",
+    "description": "NAMEPLATE: PISTOL MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: PISTOL MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=3164389f-46aa-4f10-b5cb-4c5839a00f57",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "eb4fe1a6-c942-43f9-91f5-7b981ccbbb55": {
+    "name": "eb4fe1a6-c942-43f9-91f5-7b981ccbbb55",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "8b9263f0-a660-48b3-8a83-f11cfb4da11b": {
+    "name": "8b9263f0-a660-48b3-8a83-f11cfb4da11b",
+    "description": "NAMEPLATE: BIOTIC MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: BIOTIC MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=c072a185-7173-4a4b-87ce-c76e2ac9cead",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "b104645c-ff63-4081-a3c2-669718d7e570": {
+    "name": "b104645c-ff63-4081-a3c2-669718d7e570",
+    "description": "Random Weapon Mod Rare",
+    "contents_description": "Contains 1 Random Rare Weapon Mod",
+    "collections": [
+      {
+        "filter": "(Category=[2,14] && Rarity=2)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "33cb8ec3-efce-4744-a858-db5e60e11424": {
+    "name": "33cb8ec3-efce-4744-a858-db5e60e11424",
+    "description": "BONUS BOOSTER PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "55d1d22f-0ee7-41bf-939a-0aa372bb2e72": {
+    "name": "55d1d22f-0ee7-41bf-939a-0aa372bb2e72",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "e4e12a1d-6f0a-4191-a740-26e715e42abe": {
+    "name": "e4e12a1d-6f0a-4191-a740-26e715e42abe",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "80a9babf-3088-4ce9-a986-804f6ce9660c": {
+    "name": "80a9babf-3088-4ce9-a986-804f6ce9660c",
+    "description": "APEX PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "123b3fa1-565e-456f-b08d-aa131b0c5cf1": {
+    "name": "123b3fa1-565e-456f-b08d-aa131b0c5cf1",
+    "description": "NAMEPLATE: REMNANT MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: REMNANT MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=4006a2e7-c0b5-4d02-b542-1c14ea05e9a4",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "8425ccb0-37f4-4d5e-915c-0806602f2593": {
+    "name": "8425ccb0-37f4-4d5e-915c-0806602f2593",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "609be685-d3c3-43a6-b0a1-484701c19172": {
+    "name": "609be685-d3c3-43a6-b0a1-484701c19172",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "774be722-7814-4c72-9d6f-08e5bf98aa47": {
+    "name": "774be722-7814-4c72-9d6f-08e5bf98aa47",
+    "description": "SUPER DELUXE EDITION PACK - 18/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "aa7b4129-1e67-421a-a3e9-27813bd1105a": {
+    "name": "aa7b4129-1e67-421a-a3e9-27813bd1105a",
+    "description": "NAMEPLATE: SHOTGUN MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: SHOTGUN MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=771029a8-e7ed-46a5-af30-e87ee73350f1",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "43eed42a-643a-4ddc-b0b7-51e6ed5ccbf8": {
+    "name": "43eed42a-643a-4ddc-b0b7-51e6ed5ccbf8",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "c9d603e7-9e20-4d72-a672-81c1a188a320": {
+    "name": "c9d603e7-9e20-4d72-a672-81c1a188a320",
+    "description": "AESTHETIC",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "0b2986da-3d0d-45fd-b0b7-2adfca9d2994": {
+    "name": "0b2986da-3d0d-45fd-b0b7-2adfca9d2994",
+    "description": "MEA DEVELOPER - GOLD",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "c4b1ebe3-e0b0-42fb-a51c-c6c2d688ac71": {
+    "name": "c4b1ebe3-e0b0-42fb-a51c-c6c2d688ac71",
+    "description": "APEX REINFORCEMENT PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "53c8b4d7-18bf-4fc3-97cd-2a8366140b0a": {
+    "name": "53c8b4d7-18bf-4fc3-97cd-2a8366140b0a",
+    "description": "Random Character Rare",
+    "contents_description": "Contains 1 Random Rare Character",
+    "collections": [
+      {
+        "filter": "(Category=0 && Rarity=2)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "66e865bb-b694-4f2a-86e3-caf58442780d": {
+    "name": "66e865bb-b694-4f2a-86e3-caf58442780d",
+    "description": "NAMEPLATE: SNIPER RIFLE MASTERY - BRONZE",
+    "contents_description": "Pack containing one 'NAMEPLATE: SNIPER RIFLE MASTERY - BRONZE'",
+    "collections": [
+      {
+        "filter": "Name=2e0c84a8-0495-469e-a059-b71759cadf0a",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "cf9cd252-e1f2-4574-973d-d66cd81558d3": {
+    "name": "cf9cd252-e1f2-4574-973d-d66cd81558d3",
+    "description": "Bonus Reward Pack",
+    "contents_description": "Contains 5 random items or characters, including at least 1 Uncommon, with a small chance for a Rare",
+    "collections": [
+      {
+        "filter": "Category=[1,2,3,4,5,13,14,0]",
+        "stack_size": 1,
+        "amount": 4
+      },
+      {
+        "filter": "(Category=[1,2,3,4,5,13,14,0] && Rarity=1)",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "3b2c8ed8-df9a-4659-aeda-786e06cc7dd9": {
+    "name": "3b2c8ed8-df9a-4659-aeda-786e06cc7dd9",
+    "description": "APEX POINTS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "eed5b4df-736d-4b4c-b683-96c19dc5088d": {
+    "name": "eed5b4df-736d-4b4c-b683-96c19dc5088d",
+    "description": "MP DLC PACK - COLLECTION ITEMS",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "e4f4d32a-90c3-4f5c-9362-3bb5933706c7": {
+    "name": "e4f4d32a-90c3-4f5c-9362-3bb5933706c7",
+    "description": "Jumbo Supply Pack",
+    "contents_description": "Includes 5 each of the Cobra RPG, First Aid Pack, Ammo Pack, and Revive Pack, as well as 5 Random Boosters.",
+    "collections": [
+      {
+        "filter": "Name=eaefec2a-d892-498b-a175-e5d2048ae39a",
+        "stack_size": 5,
+        "amount": 1
+      },
+      {
+        "filter": "Name=af39be6b-0542-4997-b524-227aa41ae2eb",
+        "stack_size": 5,
+        "amount": 1
+      },
+      {
+        "filter": "Name=2cc0d932-8e9d-48a6-a6e8-a5665b77e835",
+        "stack_size": 5,
+        "amount": 1
+      },
+      {
+        "filter": "Name=4d790010-1a79-4bd0-a79b-d52cac068a3a",
+        "stack_size": 5,
+        "amount": 1
+      },
+      {
+        "filter": "Category=3",
+        "stack_size": 1,
+        "amount": 5
+      }
+    ]
+  },
+  "384e4424-0421-4793-b713-13d68616505e": {
+    "name": "384e4424-0421-4793-b713-13d68616505e",
+    "description": "SUPER DELUXE EDITION PACK - 8/20",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "d8b62c9a-31f2-4e7e-82fe-43b9e72cbc7f": {
+    "name": "d8b62c9a-31f2-4e7e-82fe-43b9e72cbc7f",
+    "description": "TOTINO'S BOOSTER PACK",
+    "contents_description": "Unknown contents, to be implemented",
+    "collections": []
+  },
+  "c537155c-efbd-49c2-a15c-2fcd088dfeb2": {
+    "name": "c537155c-efbd-49c2-a15c-2fcd088dfeb2",
+    "description": "NAMEPLATE: COMBAT MASTERY - GOLD",
+    "contents_description": "Pack containing one 'NAMEPLATE: COMBAT MASTERY - GOLD'",
+    "collections": [
+      {
+        "filter": "Name=f958a50a-f9d4-477c-b071-d278fe6fa581",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  },
+  "254dad07-4f5b-4ce0-9d78-6be17855f082": {
+    "name": "254dad07-4f5b-4ce0-9d78-6be17855f082",
+    "description": "NAMEPLATE: SNIPER RIFLE MASTERY - SILVER",
+    "contents_description": "Pack containing one 'NAMEPLATE: SNIPER RIFLE MASTERY - SILVER'",
+    "collections": [
+      {
+        "filter": "Name=9945b0d6-2515-4329-a718-cfe1fb26b2d0",
+        "stack_size": 1,
+        "amount": 1
+      }
+    ]
+  }
+}

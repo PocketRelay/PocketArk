@@ -29,6 +29,11 @@ pub enum Token {
 
     /// Weight specifying token has begun
     Weight,
+
+    /// List open
+    ListOpen,
+    /// List close
+    ListClose,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -111,6 +116,14 @@ impl<'a> Tokenizer<'a> {
                     self.end_value();
                     self.tokens.push(Token::Operator(OperatorToken::Not));
                 }
+                '[' => {
+                    self.end_value();
+                    self.tokens.push(Token::ListOpen);
+                }
+                ']' => {
+                    self.end_value();
+                    self.tokens.push(Token::ListClose);
+                }
                 '(' => {
                     self.end_value();
                     self.tokens.push(Token::ParenOpen);
@@ -162,6 +175,8 @@ pub enum FilterParseError {
     OperationMissingLeft,
     #[error("operation is missing right hand side")]
     OperationMissingRight,
+    #[error("list of filter values was empty")]
+    EmptyList,
 }
 
 pub fn parse_filter(value: &str) -> Result<Filter, FilterParseError> {
@@ -172,6 +187,40 @@ pub fn parse_filter(value: &str) -> Result<Filter, FilterParseError> {
 struct Parser<'a> {
     tokens: &'a [Token],
     index: usize,
+}
+
+enum ValueSet<'a> {
+    /// Singular value match
+    Value(&'a str),
+    /// Match for any of the values in the set
+    Values(Vec<&'a str>),
+}
+
+impl<'a> ValueSet<'a> {
+    /// Parses the values set using  the filter parse function, combines the
+    /// results using the OR filter operation
+    pub fn parse_as_filter<F>(&self, parse_filter: F) -> Result<Filter, FilterParseError>
+    where
+        F: Fn(&'a str) -> Result<Filter, FilterParseError>,
+    {
+        match self {
+            ValueSet::Value(value) => parse_filter(value),
+            ValueSet::Values(values) => {
+                let mut filter: Option<Filter> = None;
+
+                for value in values {
+                    let new_filter = parse_filter(value)?;
+                    if let Some(current_filter) = filter {
+                        filter = Some(current_filter.or(new_filter));
+                    } else {
+                        filter = Some(new_filter);
+                    }
+                }
+
+                filter.ok_or(FilterParseError::EmptyList)
+            }
+        }
+    }
 }
 
 impl<'a> Parser<'a> {
@@ -196,40 +245,57 @@ impl<'a> Parser<'a> {
         self.index + 1 < self.tokens.len()
     }
 
+    fn collect_value_token(&mut self) -> Result<ValueSet<'_>, FilterParseError> {
+        match self.next_token().ok_or(FilterParseError::ExpectedValue)? {
+            Token::Value(value) => return Ok(ValueSet::Value(value)),
+            Token::ListOpen => {} // Continue to list parsing
+            _ => return Err(FilterParseError::UnexpectedToken),
+        }
+
+        let mut values = Vec::new();
+
+        while let Some(token) = self.next_token() {
+            match token {
+                Token::Value(value) => {
+                    values.push(value.as_str());
+                    continue;
+                }
+                Token::Operator(OperatorToken::Comma) => continue,
+                Token::ListClose => return Ok(ValueSet::Values(values)),
+                _ => return Err(FilterParseError::UnexpectedToken),
+            }
+        }
+
+        // Reached the end without closing the list
+        Err(FilterParseError::UnexpectedEndOfInput)
+    }
+
     fn parse_value_token(&mut self, value: &str) -> Result<Filter, FilterParseError> {
         match value.trim() {
             "Category" => {
-                let value = self
-                    .next_token()
-                    .ok_or(FilterParseError::ExpectedValue)?
-                    .as_value()
-                    .ok_or(FilterParseError::UnexpectedToken)?;
-
-                let category =
-                    Category::from_str(value).map_err(FilterParseError::InvalidCategory)?;
-
-                Ok(Filter::Category(category))
+                let value_set = self.collect_value_token()?;
+                value_set.parse_as_filter(|value| {
+                    Category::from_str(value)
+                        .map(Filter::Category)
+                        .map_err(FilterParseError::InvalidCategory)
+                })
             }
             "Rarity" => {
-                let value = self
-                    .next_token()
-                    .ok_or(FilterParseError::ExpectedValue)?
-                    .as_value()
-                    .ok_or(FilterParseError::UnexpectedToken)?;
-                let rarity = ItemRarity::from_str(value)
-                    .map_err(|_| FilterParseError::InvalidRarity(value.to_string()))?;
+                let value_set = self.collect_value_token()?;
 
-                Ok(Filter::Rarity(rarity))
+                value_set.parse_as_filter(|value| {
+                    ItemRarity::from_str(value)
+                        .map(Filter::Rarity)
+                        .map_err(|_| FilterParseError::InvalidRarity(value.to_string()))
+                })
             }
             "Name" => {
-                let value = self
-                    .next_token()
-                    .ok_or(FilterParseError::ExpectedValue)?
-                    .as_value()
-                    .ok_or(FilterParseError::UnexpectedToken)?;
-
-                let name: ItemName = value.parse().map_err(FilterParseError::InvalidItemName)?;
-                Ok(Filter::Named(name))
+                let value_set = self.collect_value_token()?;
+                value_set.parse_as_filter(|value| {
+                    ItemName::from_str(value)
+                        .map(Filter::Named)
+                        .map_err(FilterParseError::InvalidItemName)
+                })
             }
             "Attribute" => {
                 let key = self
@@ -245,13 +311,8 @@ impl<'a> Parser<'a> {
                     return Err(FilterParseError::ExpectedComma);
                 }
 
-                let value = self
-                    .next_token()
-                    .ok_or(FilterParseError::ExpectedValue)?
-                    .as_value()
-                    .ok_or(FilterParseError::UnexpectedToken)?;
-
-                Ok(Filter::attribute(key, value))
+                let value_set = self.collect_value_token()?;
+                value_set.parse_as_filter(|value| Ok(Filter::attribute(key, value)))
             }
             _ => Err(FilterParseError::UnexpectedFilterKey(value.to_string())),
         }
@@ -300,6 +361,11 @@ impl<'a> Parser<'a> {
                     // Do not consume the closing parenthesis token
                     self.back();
                     break;
+                }
+
+                // Should never see list tokens at the top level
+                Token::ListClose | Token::ListOpen => {
+                    return Err(FilterParseError::UnexpectedToken);
                 }
 
                 Token::Weight => {
@@ -380,6 +446,21 @@ mod test {
     #[test]
     fn test_complex_expression() {
         let expression = "!(Category=2||Category=14) && (Rarity=0)";
+        let value = parse_filter(expression).unwrap();
+
+        assert_eq!(
+            value,
+            Filter::categories([
+                Category::Base(BaseCategory::WeaponMods),
+                Category::Base(BaseCategory::WeaponModsEnhanced)
+            ])
+            .not()
+            .and(Filter::rarities([ItemRarity::Common]))
+        );
+    }
+    #[test]
+    fn test_list_expression() {
+        let expression = "!(Category=[2,14]) && (Rarity=0)";
         let value = parse_filter(expression).unwrap();
 
         assert_eq!(
