@@ -1,5 +1,9 @@
 use crate::definitions::{
-    items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity},
+    items::{
+        ItemDefinition, ItemName,
+        category::{BaseCategory, Category},
+        rarity::ItemRarity,
+    },
     packs::parser::{FilterParseError, parse_filter},
 };
 use serde::{Deserialize, Serialize};

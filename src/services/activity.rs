@@ -12,7 +12,10 @@ use crate::{
     definitions::{
         characters::acquire_item_character,
         classes::Classes,
-        items::{BaseCategory, Category, ItemDefinition, ItemName, Items},
+        items::{
+            ItemDefinition, ItemName, Items,
+            category::{BaseCategory, Category},
+        },
         level_tables::LevelTables,
         packs::{GenerateError, ItemReward, Packs, RewardCollection},
         store_catalogs::{StoreArticleName, StoreCatalogs},

@@ -3,7 +3,11 @@
 //! parser for that format
 
 use crate::definitions::{
-    items::{Category, CategoryError, ItemName, ItemRarity},
+    items::{
+        ItemName,
+        category::{Category, CategoryError},
+        rarity::ItemRarity,
+    },
     packs::Filter,
 };
 use std::{
@@ -439,7 +443,10 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod test {
     use crate::definitions::{
-        items::{BaseCategory, Category, ItemRarity},
+        items::{
+            category::{BaseCategory, Category},
+            rarity::ItemRarity,
+        },
         packs::{Filter, parser::parse_filter},
     };
 

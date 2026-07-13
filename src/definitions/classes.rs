@@ -12,7 +12,7 @@
 
 use crate::definitions::{
     i18n::{I18nDescription, I18nName},
-    items::{InventoryNamespace, ItemLink, ItemName},
+    items::{InventoryNamespace, ItemName, link::ItemLink},
     level_tables::LevelTableName,
     shared::CustomAttributes,
     skills::SkillTree,

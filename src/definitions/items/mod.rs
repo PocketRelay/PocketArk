@@ -1,3 +1,4 @@
+use super::shared::CustomAttributes;
 use crate::{
     database::entity::{InventoryItem, User, inventory_items::ItemId},
     definitions::{
@@ -8,26 +9,25 @@ use crate::{
     },
 };
 use anyhow::{Context, anyhow};
+use category::{BaseCategory, Category};
 use log::debug;
-use num_enum::{TryFromPrimitive, TryFromPrimitiveError};
+use rarity::ItemRarity;
 use sea_orm::ConnectionTrait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use serde_with::{DeserializeAs, DisplayFromStr, serde_as, skip_serializing_none};
-use std::{
-    collections::HashMap,
-    fmt::{Display, Write},
-    num::ParseIntError,
-    str::FromStr,
-    sync::OnceLock,
-};
-use thiserror::Error;
+use serde_with::{serde_as, skip_serializing_none};
+use std::{collections::HashMap, sync::OnceLock};
 use uuid::{Uuid, uuid};
 
-use super::shared::CustomAttributes;
+pub mod category;
+pub mod link;
+pub mod rarity;
+
+/// Type of the name for items, names are [Uuid]s with some exceptions (Thanks EA)
+pub type ItemName = Uuid;
 
 /// Item definitions (628)
-const INVENTORY_DEFINITIONS: &str = include_str!("../resources/data/inventoryDefinitions.json");
+const INVENTORY_DEFINITIONS: &str = include_str!("../../resources/data/inventoryDefinitions.json");
 
 /// Adds the collection of default items and characters to the
 /// provided user
@@ -79,13 +79,6 @@ where
 
     Ok(())
 }
-
-/// Type of the name for items, names are [Uuid]s with some exceptions (Thanks EA)
-pub type ItemName = Uuid;
-
-/// Link to an item, contains the item category and [ItemName]
-#[derive(Debug)]
-pub struct ItemLink(pub BaseCategory, pub ItemName);
 
 /// Collection of [ItemDefinition]s with a lookup index based
 /// on the [ItemName]s
@@ -184,18 +177,15 @@ pub struct ItemDefinition {
     pub custom_attributes: CustomAttributes,
 
     /// Category the item falls under
-    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub category: Category,
 
     /// Specifies other categories of items that can be attached to this
     /// item. Usually only used to specify weapon mod types on weapons.
     ///
     /// Other items leave an empty list
-    #[serde_as(as = "Vec<serde_with::DisplayFromStr>")]
     pub attachable_categories: Vec<Category>,
 
     /// Rarity of the item
-    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
     pub rarity: Option<ItemRarity>,
 
     /// The maximum allowed capacity for this item within a players inventory
@@ -350,333 +340,6 @@ pub enum InventoryNamespace {
     /// Blank namespace
     #[serde(rename = "")]
     None,
-}
-
-/// Item rarity
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, TryFromPrimitive)]
-#[repr(u8)]
-pub enum ItemRarity {
-    Common = 0,
-    Uncommon = 1,
-    Rare = 2,
-    UltraRare = 3,
-    /// Appears on some weapon mods, possibly hidden mods?
-    Max = 4,
-}
-
-impl ItemRarity {
-    /// Provides the weight to use for this rarity value
-    /// (Lower rarity has a higher weight)
-    pub const fn weight(&self) -> u32 {
-        match self {
-            ItemRarity::Common => 32,
-            ItemRarity::Uncommon => 24,
-            ItemRarity::Rare => 16,
-            ItemRarity::UltraRare => 8,
-            ItemRarity::Max => 1,
-        }
-    }
-}
-
-/// Represents an item category
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum Category {
-    /// Base category portion
-    Base(BaseCategory),
-    /// Sub category
-    Sub(SubCategory),
-}
-
-impl<'de> Deserialize<'de> for Category {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        DisplayFromStr::deserialize_as(deserializer)
-    }
-}
-
-impl Serialize for Category {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-impl Category {
-    /// Retrieves the base category of this category
-    pub fn base(&self) -> BaseCategory {
-        match self {
-            Self::Base(base) => *base,
-            Self::Sub(sub) => sub.0,
-        }
-    }
-
-    /// Checks if this category has a matching base category
-    pub fn base_eq(&self, other: &BaseCategory) -> bool {
-        match self {
-            Self::Base(base) => base.eq(other),
-            Self::Sub(sub) => sub.0.eq(other),
-        }
-    }
-
-    /// Checks if this category is apart of another category.
-    ///
-    /// If both sides are [Category::Sub] then a full equality check is done
-    /// otherwise only the [BaseCategory] portion is checked
-    pub fn is_within(&self, other: &Category) -> bool {
-        match (self, other) {
-            // Both sides are matching types (Full equality)
-            (Self::Base(left), Self::Base(right)) => left.eq(right),
-            (Self::Sub(left), Self::Sub(right)) => left.eq(right),
-
-            // One side is base category (Partial equality)
-            (Self::Base(left), Self::Sub(right)) => right.0.eq(left),
-            (Self::Sub(left), Self::Base(right)) => left.0.eq(right),
-        }
-    }
-}
-
-/// Categories of items
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, TryFromPrimitive)]
-#[repr(u8)]
-pub enum BaseCategory {
-    /// Items associated with characters
-    Characters = 0,
-    /// Weapon items
-    Weapons = 1,
-    /// Weapon mods
-    WeaponMods = 2,
-    /// Boosters such as "AMMO CAPACITY MOD I", "ASSAULT RIFLE RAIL AMP", "CRYO AMMO"
-    Boosters = 3,
-    // Consumable items such as "AMMO PACK", "COBTRA RPG", "REVIVE PACK"
-    Consumable = 4,
-    /// Equipment such as "ADAPTIVE WAR AMP", and "ASSAULT LOADOUT"
-    Equipment = 5,
-    /// Rewards from challenges
-    ChallengeReward = 7,
-    /// Non droppable rewards for apex points
-    ApexPoints = 8,
-    /// Upgrades for capacity such as "AMMO PACK CAPACITY INCREASE" and
-    /// "CHARACTER RESPEC" items
-    CapacityUpgrade = 9,
-    /// Rewards from strike team missions (Loot boxes)
-    StrikeTeamReward = 11,
-    /// Item loot box packs
-    ItemPack = 12,
-    /// Specialized weapons
-    WeaponsSpecialized = 13,
-    /// Enhanced weapon mod variants
-    WeaponModsEnhanced = 14,
-}
-
-/// Sub category within a [BaseCategory]
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct SubCategory(pub BaseCategory, pub String);
-
-/// Weapon categories
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum WeaponCategory {
-    AssaultRifle,
-    Pistol,
-    Shotgun,
-    SniperRifle,
-}
-
-impl From<WeaponCategory> for String {
-    fn from(value: WeaponCategory) -> Self {
-        value.to_string()
-    }
-}
-
-impl SubCategory {
-    #[inline]
-    fn new<V>(base: BaseCategory, value: V) -> Self
-    where
-        V: Into<String>,
-    {
-        Self(base, value.into())
-    }
-
-    /// Creates a [SubCategory] that can represent any item within a category
-    pub fn all(category: BaseCategory) -> Self {
-        // Empty string denotes any sub category
-        const ALL: &str = "";
-
-        Self::new(category, ALL)
-    }
-}
-
-impl Display for ItemLink {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(&self.0, f)?;
-        f.write_char(':')?;
-        Display::fmt(&self.1, f)
-    }
-}
-
-impl Display for ItemRarity {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Enum is formatted as underlying value
-        Display::fmt(&(*self as u8), f)
-    }
-}
-
-impl Display for Category {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Category::Base(value) => Display::fmt(value, f),
-            Category::Sub(value) => Display::fmt(value, f),
-        }
-    }
-}
-
-impl Display for BaseCategory {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Enum is formatted as underlying value
-        Display::fmt(&(*self as u8), f)
-    }
-}
-
-impl Display for SubCategory {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(&self.0, f)?;
-        f.write_char(':')?;
-        Display::fmt(&self.1, f)
-    }
-}
-
-impl Display for WeaponCategory {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            WeaponCategory::AssaultRifle => "AssaultRifle",
-            WeaponCategory::Pistol => "Pistol",
-            WeaponCategory::Shotgun => "Shotgun",
-            WeaponCategory::SniperRifle => "SniperRifle",
-        })
-    }
-}
-
-/// Errors that can occur when parsing an [ItemLink]
-#[derive(Debug, Error)]
-pub enum ItemLinkError {
-    /// Error parsing the category portion
-    #[error(transparent)]
-    Base(#[from] BaseCategoryError),
-    /// Item name portion of the link is missing
-    #[error("Item link missing item name")]
-    MissingName,
-    /// Error parsing the item name
-    #[error(transparent)]
-    Uuid(#[from] uuid::Error),
-}
-
-impl FromStr for ItemLink {
-    type Err = ItemLinkError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (base, name) = s.split_once(':').ok_or(ItemLinkError::MissingName)?;
-        let base: BaseCategory = base.parse()?;
-        let name: ItemName = name.parse()?;
-
-        Ok(Self(base, name))
-    }
-}
-
-impl<'de> Deserialize<'de> for ItemLink {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        DisplayFromStr::deserialize_as(deserializer)
-    }
-}
-
-impl Serialize for ItemLink {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-/// Errors that can occur when parsing a [Rarity] from string
-#[derive(Debug, Error)]
-pub enum RarityError {
-    /// Error parsing integer value
-    #[error(transparent)]
-    Parse(#[from] ParseIntError),
-    /// Error converting value
-    #[error(transparent)]
-    FromPrimitive(#[from] TryFromPrimitiveError<ItemRarity>),
-}
-
-impl FromStr for ItemRarity {
-    type Err = RarityError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let value: u8 = s.parse()?;
-        let value: ItemRarity = ItemRarity::try_from_primitive(value)?;
-        Ok(value)
-    }
-}
-
-/// Errors that can occur when parsing a [Category]
-#[derive(Debug, Error)]
-pub enum CategoryError {
-    /// Failed to parse the base category portion
-    #[error(transparent)]
-    BaseCategory(#[from] BaseCategoryError),
-    /// Category was empty
-    #[error("Category was empty")]
-    Empty,
-}
-
-impl FromStr for Category {
-    type Err = CategoryError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
-            return Err(CategoryError::Empty);
-        }
-
-        let (base, sub) = s
-            .split_once(':')
-            .map(|(left, right)| (left, Some(right)))
-            .unwrap_or((s, None));
-
-        let base: BaseCategory = base.parse()?;
-
-        Ok(if let Some(sub) = sub {
-            Self::Sub(SubCategory(base, sub.to_string()))
-        } else {
-            Self::Base(base)
-        })
-    }
-}
-
-/// Errors that can occur when parsing a [BaseCategory]
-#[derive(Debug, Error)]
-pub enum BaseCategoryError {
-    /// Failed to parse the primitive value from string
-    #[error(transparent)]
-    Parse(#[from] ParseIntError),
-    /// Failed to convert the primitive value
-    #[error(transparent)]
-    FromPrimitive(#[from] TryFromPrimitiveError<BaseCategory>),
-}
-
-impl FromStr for BaseCategory {
-    type Err = BaseCategoryError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let value: u8 = s.parse()?;
-        let value: BaseCategory = BaseCategory::try_from_primitive(value)?;
-        Ok(value)
-    }
 }
 
 #[cfg(test)]

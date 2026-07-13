@@ -6,7 +6,11 @@
 
 use super::filter::Filter;
 use crate::definitions::{
-    items::{BaseCategory, Category, ItemName, ItemRarity},
+    items::{
+        ItemName,
+        category::{BaseCategory, Category},
+        rarity::ItemRarity,
+    },
     packs::{Pack, PackCollection},
 };
 use std::collections::HashMap;
