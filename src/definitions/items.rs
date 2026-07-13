@@ -159,6 +159,17 @@ impl Items {
         let index = *self.lookup_by_name.get(name)?;
         self.values.get(index)
     }
+
+    pub fn collect_by_name<'a, I: IntoIterator<Item = &'a Uuid>>(
+        &self,
+        iterator: I,
+    ) -> Vec<ItemDefinition> {
+        iterator
+            .into_iter()
+            .filter_map(|item| self.by_name(item))
+            .cloned()
+            .collect()
+    }
 }
 
 #[serde_as]

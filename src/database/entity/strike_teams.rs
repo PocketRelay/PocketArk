@@ -3,7 +3,8 @@ use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
 use crate::definitions::level_tables::ProgressionXp;
 use crate::definitions::strike_teams::{
-    StrikeTeamData, StrikeTeamEquipment, StrikeTeamIcon, StrikeTeamName, StrikeTeamTrait,
+    StrikeTeamData, equipment::StrikeTeamEquipment, icon::StrikeTeamIcon, name::StrikeTeamName,
+    traits::StrikeTeamTrait,
 };
 use sea_orm::ActiveValue::Set;
 use sea_orm::{IntoActiveModel, prelude::*};

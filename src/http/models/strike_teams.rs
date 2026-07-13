@@ -5,7 +5,7 @@ use crate::{
         strike_team_mission::StrikeTeamMissionId, strike_team_mission_progress::UserMissionState,
         strike_teams::StrikeTeamId,
     },
-    definitions::strike_teams::{StrikeTeamName, StrikeTeamTrait},
+    definitions::strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;

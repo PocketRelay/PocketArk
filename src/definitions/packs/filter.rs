@@ -2,19 +2,13 @@ use crate::definitions::{
     items::{BaseCategory, Category, ItemDefinition, ItemName, ItemRarity},
     packs::parser::{FilterParseError, parse_filter},
 };
-use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
-use sea_orm::DbErr;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{DeserializeAs, DisplayFromStr};
 use std::{
-    collections::HashMap,
     fmt::{Display, Write},
     str::FromStr,
-    sync::OnceLock,
 };
-use thiserror::Error;
-use uuid::uuid;
 
 /// Type used for the weight of a filter result
 pub type Weight = u32;

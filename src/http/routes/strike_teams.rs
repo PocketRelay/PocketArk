@@ -5,8 +5,8 @@ use crate::{
         strike_teams::StrikeTeamId,
     },
     definitions::strike_teams::{
-        MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeamEquipment, StrikeTeamSpecialization,
-        StrikeTeams, create_user_strike_team,
+        MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, create_user_strike_team,
+        equipment::StrikeTeamEquipment, specialization::StrikeTeamSpecialization,
     },
     http::{
         middleware::user::Auth,
@@ -114,13 +114,15 @@ pub async fn get_mission_config() -> RawJson {
 pub async fn get_specializations() -> Json<ListWithCount<StrikeTeamSpecialization>> {
     let strike_teams = StrikeTeams::get();
 
-    Json(ListWithCount::new(&strike_teams.specializations))
+    Json(ListWithCount::new(
+        &strike_teams.specializations.specializations,
+    ))
 }
 
 /// GET /striketeams/equipment
 pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
     let strike_teams = StrikeTeams::get();
-    Json(ListWithCount::new(&strike_teams.equipment))
+    Json(ListWithCount::new(&strike_teams.equipment.equipment))
 }
 
 /// POST /striketeams/:id/equipment/:name?currency=MissionCurrency
@@ -142,6 +144,7 @@ pub async fn purchase_equipment(
     }
 
     let equipment = strike_teams
+        .equipment
         .equipment
         .iter()
         .find(|equip| equip.name.eq(&name))

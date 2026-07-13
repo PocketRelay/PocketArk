@@ -12,7 +12,9 @@ use tokio::time::sleep;
 
 use crate::{
     database::entity::StrikeTeamMission,
-    definitions::strike_teams::{MissionDifficulty, StrikeTeamMissionData, random_mission},
+    definitions::strike_teams::mission::{
+        MissionDifficulty, StrikeTeamMissionData, random_mission,
+    },
 };
 
 /// Background task that handles creating missions on the fixed
