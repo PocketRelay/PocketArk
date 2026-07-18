@@ -9,7 +9,7 @@ use crate::{
         equipment::StrikeTeamEquipment, specialization::StrikeTeamSpecialization,
     },
     http::{
-        middleware::user::Auth,
+        middleware::{JsonDump, user::Auth},
         models::{
             CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson, VecWithCount,
             strike_teams::{
@@ -55,7 +55,7 @@ pub async fn get(
         .map(|value| (CurrencyType::Mission, *value))
         .collect();
 
-    Ok(Json(StrikeTeamsResponse {
+    Ok(JsonDump(StrikeTeamsResponse {
         teams: StrikeTeamsList {
             total_count: teams.len(),
             cap: MAX_STRIKE_TEAMS,
@@ -101,7 +101,7 @@ pub async fn get_success_rate(
         })
         .collect();
 
-    Ok(Json(VecWithCount::new(rates)))
+    Ok(JsonDump(VecWithCount::new(rates)))
 }
 
 /// GET /striketeams/missionConfig
@@ -170,7 +170,7 @@ pub async fn purchase_equipment(
         })
         .await?;
 
-    Ok(Json(PurchaseResponse {
+    Ok(JsonDump(PurchaseResponse {
         currency_balance,
         team,
         next_purchase_cost: Some(0),
@@ -224,7 +224,7 @@ pub async fn get_mission(
 
     let finish_time: DateTimeUtc = Utc::now(); /* TODO: Proper finish time */
 
-    Ok(Json(StrikeTeamMissionSpecific {
+    Ok(JsonDump(StrikeTeamMissionSpecific {
         name: mission_id,
         live_mission,
         finish_time,
@@ -281,7 +281,7 @@ pub async fn purchase(
     // Get the cost of the next team
     let next_purchase_cost = STRIKE_TEAM_COSTS.get(strike_teams + 1).copied();
 
-    Ok(Json(PurchaseResponse {
+    Ok(JsonDump(PurchaseResponse {
         currency_balance,
         team,
         next_purchase_cost,

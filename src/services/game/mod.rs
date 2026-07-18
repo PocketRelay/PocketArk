@@ -3,10 +3,10 @@ use crate::{
         components::{self, game_manager},
         models::game_manager::{
             AdminListChange, AdminListOperation, AttributesChange, GameSettings, GameSetupContext,
-            GameSetupResponse, GameState, JoinComplete, NotifyGameReplay, NotifyGameStateChange,
+            GameSetupResponse, GameState, JoinComplete, NotifyGameStateChange,
             NotifyMatchmakingSessionConnectionValidated, PlayerAttributesChange, PlayerJoining,
             PlayerNetConnectionStatus, PlayerRemoved, PlayerState, PlayerStateChange, RemoveReason,
-            SettingChange,
+            ReportingIdChange, SettingChange,
         },
         packet::Packet,
         session::SessionLink,
@@ -94,6 +94,8 @@ pub struct Game {
     pub games_store: Arc<Games>,
     /// Access to the tunneling service
     pub tunnel_service: Arc<TunnelService>,
+
+    pub reporting_id: u64,
 }
 
 /// Different results for checking if a game is
@@ -132,6 +134,7 @@ impl Game {
                 | GameSettings::JOIN_IN_PROGRESS_SUPPORTED
                 | GameSettings::DYNAMIC_REPUTATION_REQUIREMENT,
             attributes,
+            reporting_id: 1,
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
             mission_data: None,
@@ -398,15 +401,23 @@ impl Game {
         ));
     }
 
-    pub fn notify_game_replay(&self) {
+    pub fn set_game_reporting_id(&mut self, reporting_id: u64) {
+        self.reporting_id = reporting_id;
+        debug!("Updated game reporting id (Value: {:?})", &reporting_id);
+
         self.notify_all(Packet::notify(
             game_manager::COMPONENT,
             game_manager::GAME_REPORTING_ID_CHANGE,
-            NotifyGameReplay {
+            ReportingIdChange {
                 game_id: self.id,
-                grid: self.id,
+                grid: reporting_id,
             },
         ));
+    }
+
+    pub fn replay(&mut self) {
+        self.set_state(GameState::PreGame);
+        self.set_game_reporting_id(self.reporting_id + 1);
     }
 
     /// Notifies all the session and the removed session that a

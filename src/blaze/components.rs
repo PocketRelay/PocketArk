@@ -29,7 +29,7 @@ pub mod game_manager {
     pub const START_MATCHMAKING_SCENARIO: u16 = 16; // 0x0010
     pub const CANCEL_MATCHMAKING_SCENARIO: u16 = 17; // 0x0011
     pub const REPLAY_GAME: u16 = 19; // 0x0013
-    pub const LEAVE_GAME_BY_GROUP: u16 = 22;
+    pub const LEAVE_GAME_BY_GROUP: u16 = 22; // 0x0016
     pub const ADD_ADMIN_PLAYER: u16 = 106; // 0x6A
     pub const SET_GAME_SETTINGS: u16 = 4; // 0x4
     pub const REPORT_TELEMETRY: u16 = 171; // 0x00ab
@@ -83,8 +83,8 @@ pub mod user_sessions {
 
     pub const USER_SESSION_EXTENDED_DATA_UPDATE: u16 = 1; // 0x0001
     pub const USER_ADDED: u16 = 2; // 0x0002
-    pub const USER_REMOVED: u16 = 3;
-    pub const USER_UPDATED: u16 = 5;
+    pub const USER_REMOVED: u16 = 3; // 0x0003
+    pub const USER_UPDATED: u16 = 5; //0x0005
     pub const UPDATE_AUTH: u16 = 8; // 0x0008
 
     pub const PLAYER_SESSION_TYPE: ObjectType = ObjectType::new(COMPONENT, 2);

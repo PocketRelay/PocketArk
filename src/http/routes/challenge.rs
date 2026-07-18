@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use crate::{
     database::entity::ChallengeProgress,
     definitions::challenges::Challenges,
     http::{
-        middleware::user::Auth,
+        middleware::{JsonDump, user::Auth},
         models::{HttpResult, challenge::*},
     },
 };
@@ -23,11 +25,11 @@ pub async fn get_challenge_categories() -> Json<ChallengeCategories> {
 pub async fn get_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
-) -> HttpResult<ChallengesResponse> {
+) -> HttpResult<AllChallengesResponse> {
     let challenge_definitions = Challenges::get();
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 
-    let challenges: Vec<ChallengeItem> = challenge_definitions
+    let challenges: Vec<ChallengeAllItem> = challenge_definitions
         .values
         .iter()
         .map(|definition| {
@@ -36,7 +38,7 @@ pub async fn get_challenges(
                 .filter(|value| value.challenge_id == definition.name)
                 .cloned()
                 .collect::<Vec<_>>();
-            ChallengeItem {
+            ChallengeAllItem {
                 definition,
                 progress: if progress.is_empty() {
                     None
@@ -47,7 +49,7 @@ pub async fn get_challenges(
         })
         .collect();
 
-    Ok(Json(ChallengesResponse { challenges }))
+    Ok(JsonDump(AllChallengesResponse { challenges }))
 }
 
 /// GET /challenges/user
@@ -57,30 +59,28 @@ pub async fn get_challenges(
 pub async fn get_user_challenges(
     Extension(db): Extension<DatabaseConnection>,
     Auth(user): Auth,
-) -> HttpResult<ChallengesResponse> {
+) -> HttpResult<UserChallengesResponse> {
     let challenge_definitions = Challenges::get();
 
     let user_progress = ChallengeProgress::all(&db, &user).await?;
 
-    let challenges: Vec<ChallengeItem> = challenge_definitions
+    let mut user_progress_lookup = HashMap::new();
+    for progress in user_progress {
+        user_progress_lookup.insert(progress.challenge_id, progress);
+    }
+
+    let challenges: Vec<UserChallengeItem> = challenge_definitions
         .values
         .iter()
         .filter_map(|definition| {
-            let progress = user_progress
-                .iter()
-                .filter(|value| value.challenge_id == definition.name)
-                .cloned()
-                .collect::<Vec<_>>();
-            if progress.is_empty() {
-                None
-            } else {
-                Some(ChallengeItem {
-                    definition,
-                    progress: Some(progress),
-                })
-            }
+            let progress = user_progress_lookup.get(&definition.name)?.clone();
+
+            Some(UserChallengeItem {
+                definition,
+                progress,
+            })
         })
         .collect();
 
-    Ok(Json(ChallengesResponse { challenges }))
+    Ok(JsonDump(UserChallengesResponse { challenges }))
 }

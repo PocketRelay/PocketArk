@@ -11,7 +11,7 @@ use crate::{
     },
     services::game::{data::process_mission_data, store::Games},
 };
-use axum::{Extension, Json, extract::Path};
+use axum::{Extension, extract::Path};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
@@ -49,7 +49,7 @@ pub async fn current_missions(
 
     debug!("MISSION LIST: {:?}", missions);
 
-    Ok(Json(VecWithCount::new(missions)))
+    Ok(JsonDump(VecWithCount::new(missions)))
 }
 
 /// GET /user/mission/:id
@@ -69,19 +69,30 @@ pub async fn get_mission(
         .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
-    if let Some(mission_data) = game.read().get_processed_data() {
-        return Ok(Json(mission_data));
+    {
+        let game = game.read();
+        if let Some(mission_data) = game.get_processed_data() {
+            debug!("Mission data already processed, returning");
+            return Ok(JsonDump(mission_data));
+        }
     }
 
-    let mission_data = game
-        .read()
-        .get_mission_data()
-        .ok_or(MissionError::MissingMissionData)?;
+    let mission_data = {
+        let game = game.read();
+        game.get_mission_data()
+            .ok_or(MissionError::MissingMissionData)?
+    };
 
     let mission_data = process_mission_data(&db, mission_data).await;
-    game.write().set_processed(mission_data.clone());
 
-    Ok(Json(mission_data))
+    {
+        let mut game = game.write();
+        game.set_processed(mission_data.clone());
+    }
+
+    debug!("Processed mission data: {:?}", mission_data);
+
+    Ok(JsonDump(mission_data))
 }
 
 /// POST /user/mission/:id/start
@@ -105,7 +116,7 @@ pub async fn start_mission(
     let res = StartMissionResponse {
         match_id: mission_id.to_string(),
     };
-    Ok(Json(res))
+    Ok(JsonDump(res))
 }
 
 /// POST /user/mission/:id/finish

@@ -21,7 +21,7 @@ use anyhow::Context;
 use log::debug;
 use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
+use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
 
@@ -156,6 +156,7 @@ pub type CharacterBonus = serde_json::Map<String, serde_json::Value>;
 /// Game mapping for different kinds of character points,
 /// simplified for this implementation to the only kind of
 /// point made use of (Skill points)
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
 pub struct PointMap {
     /// Skill points in the point map

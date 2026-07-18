@@ -619,11 +619,11 @@ pub struct NotifyGameStateChange {
 }
 
 #[derive(TdfSerialize)]
-pub struct NotifyGameReplay {
+pub struct ReportingIdChange {
     #[tdf(tag = "GID")]
     pub game_id: GameID,
     #[tdf(tag = "GRID")]
-    pub grid: GameID,
+    pub grid: u64,
 }
 
 /// Packet for game attribute changes

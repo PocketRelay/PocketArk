@@ -187,8 +187,7 @@ pub async fn replay_game(
     let game = games.get_by_id(req.gid).expect("Unknown game");
 
     let game = &mut *game.write();
-    game.set_state(GameState::PreGame);
-    game.notify_game_replay();
+    game.replay();
 }
 
 pub async fn leave_game(

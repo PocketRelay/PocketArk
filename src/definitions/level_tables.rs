@@ -66,7 +66,6 @@ impl LevelTable {
     /// Computes the new xp and level values from the provided
     /// initial xp, level and the earned xp amount. Uses the
     /// current level table
-    #[allow(unused)]
     pub fn compute_leveling(
         &self,
         mut xp: ProgressionXp,

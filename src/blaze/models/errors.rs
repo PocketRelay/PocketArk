@@ -1,5 +1,6 @@
 use log::error;
 use sea_orm::DbErr;
+use tdf::{TdfSerialize, types::bytes::serialize_bytes};
 
 use crate::blaze::{
     models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
@@ -64,10 +65,24 @@ impl From<DatabaseError> for BlazeError {
     }
 }
 
+struct PreMessage {
+    error_code: u16,
+}
+
+impl TdfSerialize for PreMessage {
+    fn serialize<S: tdf::prelude::TdfSerializer>(&self, w: &mut S) {
+        w.tag_u64(b"CNTX", 0);
+        w.tag_u16(b"ERRC", self.error_code);
+        w.tag_group_empty(b"MADR");
+    }
+}
+
 impl IntoPacketResponse for BlazeError {
     fn into_response(self, req: &Packet) -> Packet {
-        // TODO: Error handling properly
-        Packet::response_empty(req)
+        let mut packet = Packet::response_empty(req);
+        // TODO: handle error codes properly
+        packet.pre_msg = serialize_bytes(&PreMessage { error_code: self.0 });
+        packet
     }
 }
 

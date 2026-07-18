@@ -114,7 +114,7 @@ pub async fn obtain_article(
         })
         .await?;
 
-    Ok(Json(ObtainStoreItemResponse {
+    Ok(JsonDump(ObtainStoreItemResponse {
         items: result.items_earned.clone(),
         definitions: result.item_definitions.clone(),
         generated_activity_result: result,
@@ -141,5 +141,5 @@ pub async fn get_currencies(
 ) -> HttpResult<UserCurrenciesResponse> {
     let currencies = Currency::all(&db, &user).await?;
 
-    Ok(Json(UserCurrenciesResponse { list: currencies }))
+    Ok(JsonDump(UserCurrenciesResponse { list: currencies }))
 }

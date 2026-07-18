@@ -16,6 +16,8 @@ use axum::{
 use sea_orm::{DbErr, TransactionError};
 use serde::Serialize;
 
+use crate::http::middleware::JsonDump;
+
 /// Errors that can be encountered when working with currency
 #[derive(Debug, Error)]
 pub enum CurrencyError {
@@ -38,7 +40,7 @@ impl HttpError for CurrencyError {
 }
 
 /// Type alias for dynamic error handling and JSON responses
-pub type HttpResult<T> = Result<Json<T>, DynHttpError>;
+pub type HttpResult<T> = Result<JsonDump<T>, DynHttpError>;
 
 /// Wrapper for dynamic error handling using [HttpError] types
 pub struct DynHttpError {

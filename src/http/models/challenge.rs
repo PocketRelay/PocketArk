@@ -9,15 +9,30 @@ pub struct ChallengeCategories {
 }
 
 #[derive(Debug, Serialize)]
-pub struct ChallengesResponse {
-    pub challenges: Vec<ChallengeItem>,
+pub struct UserChallengesResponse {
+    pub challenges: Vec<UserChallengeItem>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AllChallengesResponse {
+    pub challenges: Vec<ChallengeAllItem>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ChallengeItem {
+pub struct ChallengeAllItem {
     #[serde(flatten)]
     pub definition: &'static ChallengeDefinition,
     pub progress: Option<Vec<ChallengeProgress>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserChallengeItem {
+    #[serde(flatten)]
+    pub definition: &'static ChallengeDefinition,
+    #[serde(flatten)]
+    pub progress: ChallengeProgress,
 }

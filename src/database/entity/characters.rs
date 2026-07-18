@@ -240,7 +240,11 @@ impl Serialize for Model {
         state.serialize_field("playStats", &self.play_stats)?;
         // Inventory namespace always appears to be "default"
         state.serialize_field("inventoryNamespace", "default")?;
-        state.serialize_field("lastUsed", &self.last_used)?;
+
+        if self.last_used.is_some() {
+            state.serialize_field("lastUsed", &self.last_used)?;
+        }
+
         state.serialize_field("promotable", &self.promotable)?;
         state.end()
     }

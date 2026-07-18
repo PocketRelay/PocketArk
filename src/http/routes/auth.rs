@@ -10,7 +10,7 @@ use crate::{
     },
     services::sessions::Sessions,
 };
-use axum::{Extension, Json};
+use axum::Extension;
 use chrono::Utc;
 use log::debug;
 
@@ -24,7 +24,7 @@ pub async fn authenticate(
 
     let token = sessions.create_token(user.id);
 
-    Ok(Json(AuthResponse {
+    Ok(JsonDump(AuthResponse {
         session_id: token,
         user: AuthUser {
             roles: &[

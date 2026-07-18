@@ -124,7 +124,7 @@ impl PlayerDataBuilder {
     }
 
     pub fn add_reward_currency(&mut self, name: &str, currency: CurrencyType, value: u32) {
-        // Append currencies to total currrency
+        // Append currencies to total currency
 
         if let Some(existing) = self.total_currency.get_mut(&currency) {
             *existing += value
@@ -138,7 +138,6 @@ impl PlayerDataBuilder {
             .find(|value| value.name.eq(name))
         {
             // Update currency within reward
-
             if let Some(existing) = existing.currencies.get_mut(&currency) {
                 *existing = existing.saturating_add(value);
             } else {

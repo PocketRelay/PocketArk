@@ -34,7 +34,7 @@ pub async fn get_characters(
     let list = user.find_related(characters::Entity).all(&db).await?;
     let shared_data = SharedData::get(&db, &user).await?;
 
-    Ok(Json(CharactersResponse { list, shared_data }))
+    Ok(JsonDump(CharactersResponse { list, shared_data }))
 }
 
 /// GET /character/:id
@@ -54,7 +54,7 @@ pub async fn get_character(
 
     let shared_data = SharedData::get(&db, &user).await?;
 
-    Ok(Json(CharacterResponse {
+    Ok(JsonDump(CharacterResponse {
         character,
         shared_data,
     }))
@@ -99,7 +99,7 @@ pub async fn get_character_equip(
         .await?
         .ok_or(CharactersError::NotFound)?;
 
-    Ok(Json(CharacterEquipmentList {
+    Ok(JsonDump(CharacterEquipmentList {
         list: character.equipments.0,
     }))
 }
@@ -200,7 +200,7 @@ pub async fn get_character_equip_history(
         .await?
         .ok_or(CharactersError::NotFound)?;
 
-    Ok(Json(CharacterEquipmentList {
+    Ok(JsonDump(CharacterEquipmentList {
         list: character.equipments.0,
     }))
 }
@@ -250,7 +250,7 @@ pub async fn update_skill_tree(
         ActiveValue::Set(character.skill_trees.take().expect("Skill tree missing"));
     let character = character.update(&db).await?;
 
-    Ok(Json(character))
+    Ok(JsonDump(character))
 }
 
 /// GET /character/classes
@@ -277,7 +277,7 @@ pub async fn get_classes(
     let skill_definitions = Skills::get();
     let skill_definitions: &'static [SkillDefinition] = &skill_definitions.values;
 
-    Ok(Json(CharacterClasses {
+    Ok(JsonDump(CharacterClasses {
         list,
         skill_definitions,
     }))
@@ -308,7 +308,7 @@ pub async fn character_unlocked(
     // TODO: Should actually handle creating definitions for an unlocked character if they
     // are not already created
 
-    Ok(Json(UnlockedCharacters {
+    Ok(JsonDump(UnlockedCharacters {
         active_character_id: shared_data.active_character_id,
         list: vec![],
     }))

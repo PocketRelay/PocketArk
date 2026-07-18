@@ -1,10 +1,13 @@
 //! JSON extractor that dumps invalid JSON messages to the logs
 
-use axum::extract::{FromRequest, Request};
+use axum::{
+    extract::{FromRequest, Request},
+    response::IntoResponse,
+};
 use bytes::Bytes;
 use hyper::StatusCode;
 use log::{debug, error};
-use serde::de::DeserializeOwned;
+use serde::{Serialize, de::DeserializeOwned};
 
 /// [axum::Json] extractor alternative for use in debug mode that dumps
 /// incoming payloads to the debug log
@@ -38,5 +41,18 @@ where
         };
 
         Ok(JsonDump(value))
+    }
+}
+
+impl<T> IntoResponse for JsonDump<T>
+where
+    T: Serialize,
+{
+    fn into_response(self) -> axum::response::Response {
+        if let Ok(value) = serde_json::to_string(&self.0) {
+            debug!("Responding with JSON: {}", value);
+        }
+
+        axum::Json(self.0).into_response()
     }
 }

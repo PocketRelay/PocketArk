@@ -56,7 +56,7 @@ pub async fn get_inventory(
         None
     };
 
-    Ok(Json(InventoryResponse { items, definitions }))
+    Ok(JsonDump(InventoryResponse { items, definitions }))
 }
 
 /// GET /inventory/definitions
@@ -172,5 +172,5 @@ pub async fn consume_inventory(
         })
         .await?;
 
-    Ok(Json(result))
+    Ok(JsonDump(result))
 }

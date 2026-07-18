@@ -9,8 +9,8 @@ use crate::{
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
         middleware::{
-            association::Association, ip_address::IpAddress, json_validated::JsonValidated,
-            upgrade::Upgrade, user::Auth,
+            JsonDump, association::Association, ip_address::IpAddress,
+            json_validated::JsonValidated, upgrade::Upgrade, user::Auth,
         },
         models::{
             DynHttpError, HttpResult,
@@ -75,7 +75,7 @@ pub async fn login(
 
     let token = sessions.create_token(user.id);
 
-    Ok(Json(TokenResponse { token }))
+    Ok(JsonDump(TokenResponse { token }))
 }
 
 /// POST /ark/client/create
@@ -133,7 +133,7 @@ pub async fn create(
 
     let token = sessions.create_token(user.id);
 
-    Ok(Json(TokenResponse { token }))
+    Ok(JsonDump(TokenResponse { token }))
 }
 
 /// GET /api/server/upgrade
