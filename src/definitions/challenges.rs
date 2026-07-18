@@ -151,6 +151,11 @@ pub struct ChallengeCounter {
     pub activities: Vec<ActivityDescriptor>,
     /// Usage unknown
     pub aggregate: Option<bool>,
+
+    #[serde(flatten)]
+    pub i18n_title: I18nTitle,
+    #[serde(flatten)]
+    pub i18n_description: Option<I18nDescription>,
 }
 
 impl ChallengeCounter {
