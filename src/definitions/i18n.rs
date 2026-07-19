@@ -133,6 +133,13 @@ impl I18nName {
             loc_name: None,
         }
     }
+
+    pub fn raw(i18n_name: impl Into<ImStr>) -> Self {
+        Self {
+            i18n_name: I18nKey::Raw(i18n_name.into()),
+            loc_name: None,
+        }
+    }
 }
 
 impl Debug for I18nName {
@@ -185,6 +192,13 @@ impl I18nTitle {
             loc_title: None,
         }
     }
+
+    pub fn raw(i18n_title: impl Into<ImStr>) -> Self {
+        Self {
+            i18n_title: I18nKey::Raw(i18n_title.into()),
+            loc_title: None,
+        }
+    }
 }
 
 impl Debug for I18nTitle {
@@ -233,6 +247,13 @@ impl I18nDescription {
     pub const fn new(i18n_description: u32) -> Self {
         Self {
             i18n_description: I18nKey::Lookup(i18n_description),
+            loc_description: None,
+        }
+    }
+
+    pub fn raw(i18n_description: impl Into<ImStr>) -> Self {
+        Self {
+            i18n_description: I18nKey::Raw(i18n_description.into()),
             loc_description: None,
         }
     }

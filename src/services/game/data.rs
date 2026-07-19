@@ -10,11 +10,13 @@ use crate::{
     database::entity::{
         ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
         challenge_progress::CounterUpdateType, currency::CurrencyType,
+        shared_data::SharedProgression,
     },
     definitions::{
         badges::{BadgeLevelName, Badges},
         challenges::{ChallengeCounter, ChallengeDefinition, Challenges, CurrencyReward},
         classes::Classes,
+        i18n::{I18nDescription, I18nName},
         level_tables::LevelTables,
         match_modifiers::MatchModifiers,
     },
@@ -83,6 +85,7 @@ impl PlayerDataBuilder {
     pub fn append_prestige_before(&mut self, shared_data: &SharedData) {
         Self::append_prestige(&mut self.prestige_progression.before, shared_data)
     }
+
     pub fn append_prestige_after(&mut self, shared_data: &SharedData) {
         Self::append_prestige(&mut self.prestige_progression.after, shared_data)
     }
@@ -285,26 +288,43 @@ pub async fn process_player_data(
     let (new_xp, level) =
         level_table.compute_leveling(character.xp, character.level, data_builder.xp_earned);
 
+    let prestige_level_table = level_tables
+        .by_name(&class.prestige_level_name)
+        .expect("Missing prestige level table");
+
     debug!("Compute prestige");
+
+    // Insert the initial prestige data if we don't have any
+    // (Needs to happen *before* append_prestige_before to ensure it shows up in the "before" state)
+    if !shared_data
+        .shared_progression
+        .0
+        .iter()
+        .any(|value| value.name.eq(&class.prestige_level_name))
+    {
+        shared_data.shared_progression.0.push(SharedProgression {
+            i18n_name: I18nName::raw(""),
+            i18n_description: I18nDescription::raw(""),
+            level: 0,
+            name: class.prestige_level_name,
+            xp: prestige_level_table.initial_progression(),
+        });
+        shared_data = shared_data.save_progression(db).await?;
+    }
 
     // Insert the before change
     data_builder.append_prestige_before(&shared_data);
 
     // Character prestige leveling
     {
-        let level_table = level_tables
-            .by_name(&class.prestige_level_name)
-            .expect("Missing prestige level table");
-
-        let prestige_value = shared_data
-            .shared_progression
-            .0
+        let shared_progression = &mut shared_data.shared_progression.0;
+        let prestige_value = shared_progression
             .iter_mut()
             .find(|value| value.name.eq(&class.prestige_level_name));
 
         // Update the prestige value in-place
         if let Some(prestige_value) = prestige_value {
-            let (new_xp, level) = level_table.compute_leveling(
+            let (new_xp, level) = prestige_level_table.compute_leveling(
                 prestige_value.xp,
                 prestige_value.level,
                 data_builder.xp_earned,
@@ -315,8 +335,6 @@ pub async fn process_player_data(
 
             // Save the changed progression
             shared_data = shared_data.save_progression(db).await?;
-        } else {
-            // TODO: Handle appending new shared progression
         }
     }
 

@@ -1,3 +1,4 @@
+#![recursion_limit = "256"]
 use axum::Extension;
 use definitions::i18n::I18n;
 use definitions::strike_teams::StrikeTeams;

@@ -96,6 +96,16 @@ impl LevelTable {
         (xp, level)
     }
 
+    /// Obtain the initial [ProgressionXp] state
+    pub fn initial_progression(&self) -> ProgressionXp {
+        let next = self.get_xp_requirement(1).unwrap_or_default();
+        ProgressionXp {
+            current: 0,
+            last: 0,
+            next,
+        }
+    }
+
     /// Gets the XP that is required to reach the provided `level` if the
     /// table contains an entry for it
     pub fn get_xp_requirement(&self, level: u32) -> Option<u32> {
