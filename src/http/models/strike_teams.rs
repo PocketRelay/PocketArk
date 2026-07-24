@@ -5,7 +5,10 @@ use crate::{
         strike_team_mission::StrikeTeamMissionId, strike_team_mission_progress::UserMissionState,
         strike_teams::StrikeTeamId,
     },
-    definitions::strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
+    definitions::{
+        i18n::Localized,
+        strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
+    },
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;
@@ -91,6 +94,13 @@ pub struct StrikeTeamWithMission {
     pub mission: Option<StrikeTeamActiveMission>,
 }
 
+impl Localized for StrikeTeamWithMission {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+        self.team.localize(i18n);
+        self.mission.localize(i18n);
+    }
+}
+
 #[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -101,6 +111,12 @@ pub struct StrikeTeamActiveMission {
     pub finish_time: Option<DateTimeUtc>,
     pub successful: bool,
     pub earn_negative_trait: bool,
+}
+
+impl Localized for StrikeTeamActiveMission {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+        self.live_mission.localize(i18n);
+    }
 }
 
 #[serde_as]
@@ -123,6 +139,12 @@ pub struct StrikeTeamMissionWithState {
     pub user_mission_state: UserMissionState,
     pub seen: bool,
     pub completed: bool,
+}
+
+impl Localized for StrikeTeamMissionWithState {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+        self.mission.localize(i18n);
+    }
 }
 
 #[serde_as]

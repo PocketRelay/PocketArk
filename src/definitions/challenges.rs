@@ -1,7 +1,7 @@
 use crate::{
     database::entity::currency::CurrencyType,
     definitions::{
-        i18n::{I18nDescription, I18nKey, I18nTitle},
+        i18n::{I18n, I18nDescription, I18nKey, I18nTitle, Localized},
         items::ItemName,
         shared::CustomAttributes,
     },
@@ -34,9 +34,10 @@ impl Challenges {
 
     fn load() -> anyhow::Result<Self> {
         debug!("Loading challenges");
-        let values: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
+        let mut values: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
             .context("Failed to load challenge definitions")?;
         debug!("Loaded {} challenge definition(s)", values.len());
+        values.localize(I18n::get());
         Ok(Self { values })
     }
 
@@ -124,6 +125,14 @@ impl ChallengeDefinition {
     }
 }
 
+impl Localized for ChallengeDefinition {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_title.localize(i18n);
+        self.i18n_description.localize(i18n);
+        self.counters.localize(i18n);
+    }
+}
+
 /// Definition for a counter that can be used to track challenge
 /// progression
 ///
@@ -156,6 +165,13 @@ pub struct ChallengeCounter {
     pub i18n_title: I18nTitle,
     #[serde(flatten)]
     pub i18n_description: Option<I18nDescription>,
+}
+
+impl Localized for ChallengeCounter {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_title.localize(i18n);
+        self.i18n_description.localize(i18n);
+    }
 }
 
 impl ChallengeCounter {

@@ -1,6 +1,7 @@
 use crate::{
     database::DbResult,
     definitions::{
+        i18n::Localized,
         shared::CustomAttributes,
         strike_teams::mission::{
             MissionDescriptor, StrikeTeamMissionData, mission_type::MissionType,
@@ -56,6 +57,15 @@ pub struct Model {
     pub end_seconds: i64,
     /// The time in seconds the mission will take to complete (Strike teams)
     pub sp_length_seconds: u16,
+}
+
+impl Localized for Model {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+        self.descriptor.localize(i18n);
+        self.mission_type.localize(i18n);
+        self.tags.0.localize(i18n);
+        self.rewards.localize(i18n);
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -1,5 +1,6 @@
 use crate::{
     database::entity::{StrikeTeamMission, strike_team_mission_progress::UserMissionState},
+    definitions::i18n::{I18n, Localized},
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -29,7 +30,7 @@ pub async fn current_missions(
     let current_time = Utc::now().timestamp();
     let missions = StrikeTeamMission::visible_missions(&db, &user, current_time).await?;
 
-    let missions: Vec<StrikeTeamMissionWithState> = missions
+    let mut missions: Vec<StrikeTeamMissionWithState> = missions
         .into_iter()
         .map(|(mission, progress)| match progress {
             Some(value) => StrikeTeamMissionWithState {
@@ -47,7 +48,9 @@ pub async fn current_missions(
         })
         .collect();
 
-    debug!("MISSION LIST: {:?}", missions);
+    missions.localize(I18n::get());
+
+    // debug!("MISSION LIST: {:?}", missions);
 
     Ok(JsonDump(VecWithCount::new(missions)))
 }

@@ -4,14 +4,17 @@ use crate::{
         strike_team_mission::StrikeTeamMissionId, strike_team_mission_progress::UserMissionState,
         strike_teams::StrikeTeamId,
     },
-    definitions::strike_teams::{
-        MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, create_user_strike_team,
-        equipment::StrikeTeamEquipment, specialization::StrikeTeamSpecialization,
+    definitions::{
+        i18n::{I18n, Localized},
+        strike_teams::{
+            MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, create_user_strike_team,
+            equipment::StrikeTeamEquipment, specialization::StrikeTeamSpecialization,
+        },
     },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
-            CurrencyError, DynHttpError, HttpResult, ListWithCount, RawJson, VecWithCount,
+            CurrencyError, DynHttpError, HttpResult, RawJson, VecWithCount,
             strike_teams::{
                 PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamMissionSpecific,
                 StrikeTeamMissionWithState, StrikeTeamSuccessRate, StrikeTeamWithMission,
@@ -40,13 +43,15 @@ pub async fn get(
     let strike_teams: Vec<StrikeTeam> = StrikeTeam::get_by_user(&db, &user).await?;
 
     // TODO: Load current missions
-    let teams: Vec<StrikeTeamWithMission> = strike_teams
+    let mut teams: Vec<StrikeTeamWithMission> = strike_teams
         .into_iter()
         .map(|team| StrikeTeamWithMission {
             mission: None,
             team,
         })
         .collect();
+
+    teams.localize(I18n::get());
 
     // Create a map of the next costs
     let next_purchase_costs: HashMap<CurrencyType, u32> = STRIKE_TEAM_COSTS
@@ -111,18 +116,19 @@ pub async fn get_mission_config() -> RawJson {
 }
 
 /// GET /striketeams/specializations
-pub async fn get_specializations() -> Json<ListWithCount<StrikeTeamSpecialization>> {
+pub async fn get_specializations() -> Json<VecWithCount<StrikeTeamSpecialization>> {
     let strike_teams = StrikeTeams::get();
-
-    Json(ListWithCount::new(
-        &strike_teams.specializations.specializations,
-    ))
+    let mut specializations = strike_teams.specializations.specializations.clone();
+    specializations.localize(I18n::get());
+    Json(VecWithCount::new(specializations))
 }
 
 /// GET /striketeams/equipment
-pub async fn get_equipment() -> Json<ListWithCount<StrikeTeamEquipment>> {
+pub async fn get_equipment() -> Json<VecWithCount<StrikeTeamEquipment>> {
     let strike_teams = StrikeTeams::get();
-    Json(ListWithCount::new(&strike_teams.equipment.equipment))
+    let mut equipment = strike_teams.equipment.equipment.clone();
+    equipment.localize(I18n::get());
+    Json(VecWithCount::new(equipment))
 }
 
 /// POST /striketeams/:id/equipment/:name?currency=MissionCurrency
@@ -207,7 +213,7 @@ pub async fn get_mission(
         .ok_or(StrikeTeamError::UnknownTeam)?;
     let progress = StrikeTeamMissionProgress::get_by_team(&db, &strike_team).await?;
 
-    let live_mission = match progress {
+    let mut live_mission = match progress {
         Some(value) => StrikeTeamMissionWithState {
             mission,
             user_mission_state: value.user_mission_state,
@@ -221,6 +227,8 @@ pub async fn get_mission(
             completed: false,
         },
     };
+
+    live_mission.localize(I18n::get());
 
     let finish_time: DateTimeUtc = Utc::now(); /* TODO: Proper finish time */
 
@@ -263,7 +271,7 @@ pub async fn purchase(
         .get(strike_teams)
         .ok_or(StrikeTeamError::MaxTeams)?;
 
-    let (team, currency_balance): (StrikeTeam, Currency) = db
+    let (mut team, currency_balance): (StrikeTeam, Currency) = db
         .transaction(|db| {
             Box::pin(async move {
                 // Spend the cost of the strike team
@@ -277,6 +285,8 @@ pub async fn purchase(
             })
         })
         .await?;
+
+    team.localize(I18n::get());
 
     // Get the cost of the next team
     let next_purchase_cost = STRIKE_TEAM_COSTS.get(strike_teams + 1).copied();

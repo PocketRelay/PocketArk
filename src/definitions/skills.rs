@@ -6,7 +6,10 @@ use super::{
     i18n::{I18nDescription, I18nName},
     shared::CustomAttributes,
 };
-use crate::utils::ImStr;
+use crate::{
+    definitions::i18n::{I18n, Localized},
+    utils::ImStr,
+};
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::debug;
@@ -42,10 +45,11 @@ impl Skills {
 
     /// Creates and loads the skill definitions from [LEVEL_TABLE_DEFINITIONS]
     fn load() -> anyhow::Result<Self> {
-        let values: Vec<SkillDefinition> =
+        let mut values: Vec<SkillDefinition> =
             serde_json::from_str(SKILL_DEFINITIONS).context("Failed to parse skill definitions")?;
 
         debug!("Loaded {} skill definition(s)", values.len());
+        values.localize(I18n::get());
 
         Ok(Self { values })
     }
@@ -80,6 +84,14 @@ pub struct SkillDefinition {
     pub i18n_description: I18nDescription,
 }
 
+impl Localized for SkillDefinition {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_name.localize(i18n);
+        self.i18n_description.localize(i18n);
+        self.tiers.localize(i18n);
+    }
+}
+
 /// Tier of a [Skill]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -93,6 +105,12 @@ pub struct SkillDefinitionTier {
     pub unlock_conditions: Vec<UnlockCondition>,
     /// Skills this tier includes
     pub skills: Vec<Skill>,
+}
+
+impl Localized for SkillDefinitionTier {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.skills.localize(i18n);
+    }
 }
 
 /// Unlock condition requirements
@@ -132,6 +150,13 @@ pub struct Skill {
     /// Localized skill description
     #[serde(flatten)]
     pub i18n_description: Option<I18nDescription>,
+}
+
+impl Localized for Skill {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_name.localize(i18n);
+        self.i18n_description.localize(i18n);
+    }
 }
 
 /// Defines a level of a skill

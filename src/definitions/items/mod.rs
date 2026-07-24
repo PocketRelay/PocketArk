@@ -4,7 +4,7 @@ use crate::{
     definitions::{
         characters::acquire_item_character,
         classes::Classes,
-        i18n::{I18nDescription, I18nName, Localized},
+        i18n::{I18n, I18nDescription, I18nName, Localized},
         level_tables::LevelTables,
     },
 };
@@ -100,8 +100,10 @@ impl Items {
     }
 
     fn load() -> anyhow::Result<Self> {
-        let values: Vec<ItemDefinition> = serde_json::from_str(INVENTORY_DEFINITIONS)
+        let mut values: Vec<ItemDefinition> = serde_json::from_str(INVENTORY_DEFINITIONS)
             .context("Failed to load inventory definitions")?;
+
+        values.localize(I18n::get());
 
         debug!("Loaded {} item definition(s)", values.len());
 

@@ -7,6 +7,7 @@ use crate::{
     database::entity::{currency::CurrencyType, strike_team_mission::MissionAccessibility},
     definitions::{
         challenges::CurrencyReward,
+        i18n::Localized,
         items::{ItemDefinition, ItemName, Items},
         strike_teams::mission::MissionDifficulty,
     },
@@ -31,6 +32,12 @@ pub struct MissionRewards {
     /// Definitions of the items that should be earned
     #[serde(default)]
     pub item_definitions: Vec<ItemDefinition>,
+}
+
+impl Localized for MissionRewards {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+        self.item_definitions.localize(i18n);
+    }
 }
 
 impl MissionRewards {

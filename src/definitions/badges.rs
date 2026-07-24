@@ -38,9 +38,9 @@ impl Badges {
     }
 
     fn load() -> anyhow::Result<Self> {
-        let values: Vec<Badge> = serde_json::from_str(BADGE_DEFINITIONS)
+        let mut values: Vec<Badge> = serde_json::from_str(BADGE_DEFINITIONS)
             .context("Failed to load match badge definitions")?;
-
+        values.localize(I18n::get());
         debug!("Loaded {} badge definition(s)", values.len(),);
 
         Ok(Self { values })

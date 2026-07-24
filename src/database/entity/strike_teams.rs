@@ -1,6 +1,7 @@
 use super::users::UserId;
 use super::{SeaJson, StrikeTeamMissionProgress, User};
 use crate::database::DbResult;
+use crate::definitions::i18n::Localized;
 use crate::definitions::level_tables::ProgressionXp;
 use crate::definitions::strike_teams::{
     StrikeTeamData, equipment::StrikeTeamEquipment, icon::StrikeTeamIcon, name::StrikeTeamName,
@@ -45,6 +46,14 @@ pub struct Model {
     pub negative_traits: SeaJson<Vec<StrikeTeamTrait>>,
     /// Unknown usage
     pub out_of_date: bool,
+}
+
+impl Localized for Model {
+    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+        self.equipment.localize(i18n);
+        self.positive_traits.0.localize(i18n);
+        self.negative_traits.0.localize(i18n);
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

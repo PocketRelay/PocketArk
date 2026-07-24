@@ -89,6 +89,17 @@ where
     }
 }
 
+impl<T> Localized for Option<T>
+where
+    T: Localized,
+{
+    fn localize(&mut self, i18n: &I18n) {
+        if let Some(value) = self.as_mut() {
+            value.localize(i18n);
+        }
+    }
+}
+
 impl<T> Localized for &mut [T]
 where
     T: Localized,
