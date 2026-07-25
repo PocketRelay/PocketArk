@@ -1,14 +1,20 @@
 use std::collections::HashMap;
 
 use crate::{
-    database::entity::ChallengeProgress,
+    database::entity::{
+        ChallengeProgress,
+        challenge_progress::{
+            ChallengeProgressCounter, ChallengeProgressCounterWithDefinition, ChallengeState,
+        },
+    },
     definitions::challenges::Challenges,
     http::{
-        middleware::{JsonDump, user::Auth},
+        middleware::user::Auth,
         models::{HttpResult, challenge::*},
     },
 };
 use axum::{Extension, Json};
+use chrono::Utc;
 use sea_orm::DatabaseConnection;
 
 /// GET /challenges/categories
@@ -49,7 +55,7 @@ pub async fn get_challenges(
         })
         .collect();
 
-    Ok(JsonDump(AllChallengesResponse { challenges }))
+    Ok(Json(AllChallengesResponse { challenges }))
 }
 
 /// GET /challenges/user
@@ -72,15 +78,64 @@ pub async fn get_user_challenges(
     let challenges: Vec<UserChallengeItem> = challenge_definitions
         .values
         .iter()
-        .filter_map(|definition| {
-            let progress = user_progress_lookup.get(&definition.name)?.clone();
+        .map(|definition| {
+            let progress = match user_progress_lookup.get(&definition.name).cloned() {
+                Some(value) => value,
+                // Default states
+                None => {
+                    let counters = definition
+                        .counters
+                        .iter()
+                        .map(|counter| ChallengeProgressCounterWithDefinition {
+                            definition: counter.clone(),
+                            counter: ChallengeProgressCounter::new(counter.name.clone()),
+                        })
+                        .collect();
 
-            Some(UserChallengeItem {
+                    return UserChallengeItem {
+                        definition,
+                        counters,
+                        state: ChallengeState::NotStarted,
+                        times_completed: 0,
+                        last_completed: None,
+                        first_completed: None,
+                        last_changed: Utc::now(),
+                        rewarded: false,
+                    };
+                }
+            };
+
+            let counters = definition
+                .counters
+                .iter()
+                .map(|counter| {
+                    let progress = progress
+                        .counters
+                        .0
+                        .iter()
+                        .find(|counter_progress| counter_progress.name == counter.name)
+                        .cloned()
+                        .unwrap_or_else(|| ChallengeProgressCounter::new(counter.name.clone()));
+
+                    ChallengeProgressCounterWithDefinition {
+                        definition: counter.clone(),
+                        counter: progress,
+                    }
+                })
+                .collect();
+
+            UserChallengeItem {
                 definition,
-                progress,
-            })
+                counters,
+                state: progress.state,
+                times_completed: progress.times_completed,
+                last_completed: progress.last_completed,
+                first_completed: progress.first_completed,
+                last_changed: progress.last_changed,
+                rewarded: progress.rewarded,
+            }
         })
         .collect();
 
-    Ok(JsonDump(UserChallengesResponse { challenges }))
+    Ok(Json(UserChallengesResponse { challenges }))
 }

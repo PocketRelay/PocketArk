@@ -15,10 +15,10 @@ use std::{
 use tdf::prelude::*;
 
 #[derive(Debug, Clone)]
-#[repr(u16)]
+#[repr(u32)]
 #[allow(unused)]
 pub enum UserSessionsError {
-    UserNotFound = 0xb,
+    UserNotFound = 96258,
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, TdfSerialize, TdfDeserialize, TdfTyped)]

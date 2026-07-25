@@ -4,14 +4,14 @@ use tdf::{TdfSerialize, types::bytes::serialize_bytes};
 
 use crate::blaze::{
     models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
-    packet::Packet,
+    packet::{FrameFlags, Packet},
     router::IntoPacketResponse,
 };
 
 pub type ServerResult<T> = Result<T, BlazeError>;
 
 #[derive(Debug, Clone)]
-#[repr(u16)]
+#[repr(u32)]
 #[allow(unused)]
 pub enum GlobalError {
     Cancelled = 0x4009,
@@ -26,12 +26,12 @@ pub enum GlobalError {
 }
 
 #[derive(Debug, Clone)]
-#[repr(u16)]
+#[repr(u32)]
 #[allow(unused)]
 pub enum DatabaseError {
     Timeout = 0x406c,
     InitFailure = 0x406d,
-    TranscationNotComplete = 0x406e,
+    TransactionNotComplete = 0x406e,
     Disconnected = 0x406b,
     NoConnectionAvailable = 0x4068,
     DuplicateEntry = 0x4069,
@@ -39,7 +39,7 @@ pub enum DatabaseError {
 }
 
 /// Response type for some blaze error code
-pub struct BlazeError(u16);
+pub struct BlazeError(u32);
 
 impl From<DbErr> for BlazeError {
     fn from(value: DbErr) -> Self {
@@ -55,24 +55,24 @@ impl From<DbErr> for BlazeError {
 
 impl From<GlobalError> for BlazeError {
     fn from(value: GlobalError) -> Self {
-        BlazeError(value as u16)
+        BlazeError(value as u32)
     }
 }
 
 impl From<DatabaseError> for BlazeError {
     fn from(value: DatabaseError) -> Self {
-        BlazeError(value as u16)
+        BlazeError(value as u32)
     }
 }
 
 struct PreMessage {
-    error_code: u16,
+    error_code: u32,
 }
 
 impl TdfSerialize for PreMessage {
     fn serialize<S: tdf::prelude::TdfSerializer>(&self, w: &mut S) {
         w.tag_u64(b"CNTX", 0);
-        w.tag_u16(b"ERRC", self.error_code);
+        w.tag_u32(b"ERRC", self.error_code);
         w.tag_group_empty(b"MADR");
     }
 }
@@ -80,6 +80,7 @@ impl TdfSerialize for PreMessage {
 impl IntoPacketResponse for BlazeError {
     fn into_response(self, req: &Packet) -> Packet {
         let mut packet = Packet::response_empty(req);
+        packet.frame.flags |= FrameFlags::FLAG_NOTIFY;
         // TODO: handle error codes properly
         packet.pre_msg = serialize_bytes(&PreMessage { error_code: self.0 });
         packet
@@ -88,12 +89,12 @@ impl IntoPacketResponse for BlazeError {
 
 impl From<UserSessionsError> for BlazeError {
     fn from(value: UserSessionsError) -> Self {
-        BlazeError(value as u16)
+        BlazeError(value as u32)
     }
 }
 
 impl From<GameManagerError> for BlazeError {
     fn from(value: GameManagerError) -> Self {
-        BlazeError(value as u16)
+        BlazeError(value as u32)
     }
 }

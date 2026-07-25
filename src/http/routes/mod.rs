@@ -143,7 +143,7 @@ pub fn router() -> Router {
                 .route("/seen", put(inventory::update_inventory_seen))
                 .route("/consume", post(inventory::consume_inventory)),
         )
-        .route("//em/v3/{*path}", any(ok))
+        .route("//em/v3/{*path}", any(bad_req))
         .route("/presence/session", put(presence::update_session))
         .route("/pinEvents", post(telemetry::pin_events))
         .nest(
@@ -179,4 +179,8 @@ pub fn router() -> Router {
 
 async fn ok() -> Response {
     StatusCode::OK.into_response()
+}
+
+async fn bad_req() -> Response {
+    StatusCode::BAD_REQUEST.into_response()
 }

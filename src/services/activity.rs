@@ -596,7 +596,7 @@ impl ActivityEvent {
 }
 
 /// Describes an activity that can be used to track progress
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityDescriptor {
     /// Name of the [ActivityEvent] this descriptor is for
@@ -604,7 +604,7 @@ pub struct ActivityDescriptor {
     pub activity_name: ActivityName,
     /// Filtering based on the [ActivityEvent::attributes] for
     /// whether the activity is applicable
-    pub filter: HashMap<AttributeName, ActivityFilter>,
+    pub filter: HashMap<String, ActivityFilter>,
     /// The key into [ActivityEvent::attributes] that should be
     /// used for tracking activity progress
     #[serde(rename = "incrementProgressBy")]
@@ -612,7 +612,7 @@ pub struct ActivityDescriptor {
 }
 
 /// Enum for different ways an activity can be filtered against
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum ActivityFilter {
     /// Direct value comparison
@@ -643,7 +643,7 @@ impl ActivityDescriptor {
 }
 
 /// Represents the result produced from processing an [ActivityEvent]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ActivityResult {
     /// The previous character XP
     pub previous_xp: u32,

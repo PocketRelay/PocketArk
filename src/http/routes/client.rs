@@ -75,7 +75,7 @@ pub async fn login(
 
     let token = sessions.create_token(user.id);
 
-    Ok(JsonDump(TokenResponse { token }))
+    Ok(Json(TokenResponse { token }))
 }
 
 /// POST /ark/client/create
@@ -133,7 +133,7 @@ pub async fn create(
 
     let token = sessions.create_token(user.id);
 
-    Ok(JsonDump(TokenResponse { token }))
+    Ok(Json(TokenResponse { token }))
 }
 
 /// GET /api/server/upgrade

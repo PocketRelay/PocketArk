@@ -1,4 +1,11 @@
-use crate::{database::entity::ChallengeProgress, definitions::challenges::ChallengeDefinition};
+use crate::{
+    database::entity::{
+        ChallengeProgress,
+        challenge_progress::{ChallengeProgressCounterWithDefinition, ChallengeState},
+    },
+    definitions::challenges::ChallengeDefinition,
+};
+use sea_orm::prelude::DateTimeUtc;
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;
@@ -33,6 +40,11 @@ pub struct ChallengeAllItem {
 pub struct UserChallengeItem {
     #[serde(flatten)]
     pub definition: &'static ChallengeDefinition,
-    #[serde(flatten)]
-    pub progress: ChallengeProgress,
+    pub counters: Vec<ChallengeProgressCounterWithDefinition>,
+    pub state: ChallengeState,
+    pub times_completed: u32,
+    pub last_completed: Option<DateTimeUtc>,
+    pub first_completed: Option<DateTimeUtc>,
+    pub last_changed: DateTimeUtc,
+    pub rewarded: bool,
 }

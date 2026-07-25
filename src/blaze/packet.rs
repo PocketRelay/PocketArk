@@ -281,7 +281,7 @@ impl<'a> Debug for PacketDebug<'a> {
         writeln!(f, "Component: {:#06x}", header.component)?;
         writeln!(f, "Command: {:#06x}", header.command)?;
 
-        writeln!(f, "Flags: {:?}", header.flags)?;
+        writeln!(f, "Flags: {:?} ({})", header.flags, header.flags.bits())?;
         writeln!(f, "Seq: {}", header.seq)?;
         writeln!(f, "Notif: {}", header.notify)?;
         writeln!(f, "Unused: {}", header.unused)?;

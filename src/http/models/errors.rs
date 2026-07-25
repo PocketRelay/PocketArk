@@ -40,7 +40,7 @@ impl HttpError for CurrencyError {
 }
 
 /// Type alias for dynamic error handling and JSON responses
-pub type HttpResult<T> = Result<JsonDump<T>, DynHttpError>;
+pub type HttpResult<T> = Result<Json<T>, DynHttpError>;
 
 /// Wrapper for dynamic error handling using [HttpError] types
 pub struct DynHttpError {

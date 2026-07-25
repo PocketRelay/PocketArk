@@ -1,7 +1,10 @@
 use super::{SeaJson, User, users::UserId};
 use crate::{
     database::DbResult,
-    definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
+    definitions::{
+        challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
+        i18n::Localized,
+    },
     services::game::data::ChallengeProgressChange,
     utils::ImStr,
 };
@@ -63,12 +66,32 @@ pub struct ChallengeProgressCounter {
     pub total_count: u32,
     /// The current counter progress
     pub current_count: u32,
-    /// The required count for this challenge to be complete
-    pub target_count: u32,
     /// The number of times this counter has been reset
     pub reset_count: u32,
     /// The last time this counter was changed
     pub last_changed: DateTimeUtc,
+}
+
+impl ChallengeProgressCounter {
+    pub fn new(name: ChallengeCounterName) -> Self {
+        Self {
+            name,
+            times_completed: 0,
+            total_count: 0,
+            current_count: 0,
+            reset_count: 0,
+            last_changed: Utc::now(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChallengeProgressCounterWithDefinition {
+    #[serde(flatten)]
+    pub definition: ChallengeCounter,
+    #[serde(flatten)]
+    pub counter: ChallengeProgressCounter,
 }
 
 impl ChallengeProgressCounter {
@@ -94,8 +117,8 @@ impl ChallengeProgressCounter {
                 // Increase the times completed
                 self.times_completed += 1;
             }
-        } else if self.current_count > self.target_count {
-            self.current_count = self.target_count;
+        } else if self.current_count > counter_definition.target_count {
+            self.current_count = counter_definition.target_count;
             self.times_completed = 1;
         }
     }
@@ -112,6 +135,8 @@ pub enum ChallengeState {
     InProgress = 0,
     #[serde(rename = "COMPLETED")]
     Completed = 1,
+    #[serde(rename = "NOT_STARTED")]
+    NotStarted = 2,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -125,6 +150,20 @@ pub enum Relation {
 }
 
 impl Model {
+    pub fn new_default(definition: ChallengeDefinition) -> Self {
+        Self {
+            user_id: todo!(),
+            challenge_id: todo!(),
+            counters: todo!(),
+            state: todo!(),
+            times_completed: todo!(),
+            last_completed: todo!(),
+            first_completed: todo!(),
+            last_changed: todo!(),
+            rewarded: todo!(),
+        }
+    }
+
     /// Obtains all the challenge progress (and associated counters) that
     /// belong to the provided `user`
     pub fn all<'db, C>(db: &'db C, user: &User) -> impl Future<Output = DbResult<Vec<Self>>> + 'db
@@ -215,15 +254,7 @@ impl Model {
             // Create a new counter
             update_type = CounterUpdateType::Created;
 
-            counters.push(ChallengeProgressCounter {
-                name: change.counter.name.clone(),
-                times_completed: 0,
-                total_count: 0,
-                current_count: 0,
-                target_count: 0,
-                reset_count: 0,
-                last_changed: now,
-            });
+            counters.push(ChallengeProgressCounter::new(change.counter.name.clone()));
 
             counters
                 .last_mut()

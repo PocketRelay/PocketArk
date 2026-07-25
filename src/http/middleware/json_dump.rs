@@ -43,16 +43,3 @@ where
         Ok(JsonDump(value))
     }
 }
-
-impl<T> IntoResponse for JsonDump<T>
-where
-    T: Serialize,
-{
-    fn into_response(self) -> axum::response::Response {
-        if let Ok(value) = serde_json::to_string(&self.0) {
-            debug!("Responding with JSON: {}", value);
-        }
-
-        axum::Json(self.0).into_response()
-    }
-}

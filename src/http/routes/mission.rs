@@ -12,7 +12,7 @@ use crate::{
     },
     services::game::{data::process_mission_data, store::Games},
 };
-use axum::{Extension, extract::Path};
+use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
@@ -52,7 +52,7 @@ pub async fn current_missions(
 
     // debug!("MISSION LIST: {:?}", missions);
 
-    Ok(JsonDump(VecWithCount::new(missions)))
+    Ok(Json(VecWithCount::new(missions)))
 }
 
 /// GET /user/mission/:id
@@ -76,7 +76,7 @@ pub async fn get_mission(
         let game = game.read();
         if let Some(mission_data) = game.get_processed_data() {
             debug!("Mission data already processed, returning");
-            return Ok(JsonDump(mission_data));
+            return Ok(Json(mission_data));
         }
     }
 
@@ -95,7 +95,7 @@ pub async fn get_mission(
 
     debug!("Processed mission data: {:?}", mission_data);
 
-    Ok(JsonDump(mission_data))
+    Ok(Json(mission_data))
 }
 
 /// POST /user/mission/:id/start
@@ -119,7 +119,7 @@ pub async fn start_mission(
     let res = StartMissionResponse {
         match_id: mission_id.to_string(),
     };
-    Ok(JsonDump(res))
+    Ok(Json(res))
 }
 
 /// POST /user/mission/:id/finish

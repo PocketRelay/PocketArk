@@ -21,7 +21,7 @@ use crate::{
 use super::user_sessions::NetworkAddress;
 
 #[derive(Debug, Clone)]
-#[repr(u16)]
+#[repr(u32)]
 #[allow(unused)]
 pub enum GameManagerError {
     InvalidGameId = 0x2,

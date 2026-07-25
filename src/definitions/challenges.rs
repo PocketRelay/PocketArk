@@ -139,7 +139,7 @@ impl Localized for ChallengeDefinition {
 /// Contains "i18nTitle" and "i18nDescription" fields however these
 /// are both blank and unused
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeCounter {
     /// Name of the counter
