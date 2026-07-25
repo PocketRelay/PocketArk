@@ -177,27 +177,40 @@ impl Game {
     }
 
     pub fn set_player_attributes(&mut self, user_id: UserId, attributes: AttrMap) {
-        let packet = Packet::notify(
-            game_manager::COMPONENT,
-            game_manager::PLAYER_ATTR_UPDATE,
-            PlayerAttributesChange {
-                game_id: self.id,
-                user_id,
-                attributes: &attributes,
-            },
-        );
-
         debug!("Updated player attributes");
-
-        self.notify_all(packet);
 
         let player = self
             .players
             .iter_mut()
             .find(|player| player.user.id == user_id);
 
+        let mut updated_attributes = AttrMap::new();
+
         if let Some(player) = player {
-            player.attr.insert_presorted(attributes.into_inner());
+            for (key, value) in attributes {
+                let existing_value = player.attr.insert(key.clone(), value.clone());
+
+                let updated = existing_value
+                    .as_ref()
+                    .is_none_or(|existing_value| value.ne(existing_value));
+
+                if updated {
+                    updated_attributes.insert(key, value);
+                }
+            }
+        }
+
+        if !updated_attributes.is_empty() {
+            let packet = Packet::notify(
+                game_manager::COMPONENT,
+                game_manager::PLAYER_ATTR_UPDATE,
+                PlayerAttributesChange {
+                    game_id: self.id,
+                    user_id,
+                    attributes: &updated_attributes,
+                },
+            );
+            self.notify_all(packet);
         }
     }
 
@@ -417,7 +430,8 @@ impl Game {
 
     pub fn replay(&mut self) {
         self.set_state(GameState::PreGame);
-        self.set_game_reporting_id(self.reporting_id + 1);
+        // self.set_game_reporting_id(self.reporting_id + 1);
+        self.set_game_reporting_id(66697794);
     }
 
     /// Notifies all the session and the removed session that a

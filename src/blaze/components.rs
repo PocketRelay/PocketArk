@@ -23,7 +23,7 @@ pub mod game_manager {
     pub const COMPONENT: u16 = 4; // 0x0004
 
     pub const UPDATE_GAME_STATE: u16 = 3;
-    pub const UPDATE_GAME_ATTR: u16 = 7;
+    pub const UPDATE_GAME_ATTR: u16 = 7; // 0x0007
     pub const UPDATE_PLAYER_ATTR: u16 = 8; // 0x0008
     pub const FINALIZE_GAME_CREATION: u16 = 15;
     pub const START_MATCHMAKING_SCENARIO: u16 = 16; // 0x0010
