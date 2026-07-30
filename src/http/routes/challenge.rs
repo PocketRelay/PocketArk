@@ -41,7 +41,7 @@ pub async fn get_challenges(
         .map(|definition| {
             let progress = user_progress
                 .iter()
-                .filter(|value| value.challenge_id == definition.name)
+                .filter(|value| value.challenge_id == definition.base.name)
                 .cloned()
                 .collect::<Vec<_>>();
             ChallengeAllItem {
@@ -79,7 +79,7 @@ pub async fn get_user_challenges(
         .values
         .iter()
         .map(|definition| {
-            let progress = match user_progress_lookup.get(&definition.name).cloned() {
+            let progress = match user_progress_lookup.get(&definition.base.name).cloned() {
                 Some(value) => value,
                 // Default states
                 None => {
@@ -93,7 +93,7 @@ pub async fn get_user_challenges(
                         .collect();
 
                     return UserChallengeItem {
-                        definition,
+                        definition: &definition.base,
                         counters,
                         state: ChallengeState::NotStarted,
                         times_completed: 0,
@@ -125,7 +125,7 @@ pub async fn get_user_challenges(
                 .collect();
 
             UserChallengeItem {
-                definition,
+                definition: &definition.base,
                 counters,
                 state: progress.state,
                 times_completed: progress.times_completed,

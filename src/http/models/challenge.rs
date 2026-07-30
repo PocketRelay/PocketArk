@@ -3,7 +3,7 @@ use crate::{
         ChallengeProgress,
         challenge_progress::{ChallengeProgressCounterWithDefinition, ChallengeState},
     },
-    definitions::challenges::ChallengeDefinition,
+    definitions::challenges::{ChallengeDefinition, ChallengeDefinitionBase},
 };
 use sea_orm::prelude::DateTimeUtc;
 use serde::Serialize;
@@ -39,7 +39,7 @@ pub struct ChallengeAllItem {
 #[serde(rename_all = "camelCase")]
 pub struct UserChallengeItem {
     #[serde(flatten)]
-    pub definition: &'static ChallengeDefinition,
+    pub definition: &'static ChallengeDefinitionBase,
     pub counters: Vec<ChallengeProgressCounterWithDefinition>,
     pub state: ChallengeState,
     pub times_completed: u32,

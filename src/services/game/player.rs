@@ -67,6 +67,12 @@ impl GamePlayer {
         }
     }
 
+    pub fn try_publish_update(&self) {
+        if let Some(link) = self.link.upgrade() {
+            link.data.publish_update();
+        }
+    }
+
     #[inline]
     pub fn notify(&self, packet: Packet) {
         let session = match self.link.upgrade() {

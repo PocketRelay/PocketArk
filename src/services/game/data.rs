@@ -96,7 +96,7 @@ impl PlayerDataBuilder {
             .iter_mut()
             // Check if theres already a matching progress update
             .find(|value| {
-                value.definition.name == update.definition.name
+                value.definition.base.name == update.definition.base.name
                     && value.counter.name == update.counter.name
             });
 
@@ -270,6 +270,7 @@ pub async fn process_player_data(
     data_builder.add_reward_xp("base", data_builder.score);
 
     // TODO: "other_badge_rewards"
+    data_builder.add_reward_xp("other_badge_rewards", 0);
 
     debug!("Compute modifiers");
     // Compute modifier amounts
@@ -340,6 +341,11 @@ pub async fn process_player_data(
 
     // Insert after change
     data_builder.append_prestige_after(&shared_data);
+
+    data_builder.add_reward_currency("enemytype", CurrencyType::Grind, 0);
+    data_builder.add_reward_currency("level_multiplier", CurrencyType::Grind, 0);
+    data_builder.add_reward_currency("difficulty_multiplier", CurrencyType::Grind, 0);
+    data_builder.add_reward_currency("enemytype_multiplier", CurrencyType::Grind, 0);
 
     debug!("Process challenges");
 

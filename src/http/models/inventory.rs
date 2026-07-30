@@ -60,6 +60,7 @@ pub struct InventoryResponse {
 
 /// Response containing all the item definitions
 #[derive(Debug, Serialize)]
+#[serde(default, rename_all = "camelCase")]
 pub struct ItemDefinitionsResponse {
     pub total_count: usize,
     pub list: &'static [ItemDefinition],

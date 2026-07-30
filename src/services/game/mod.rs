@@ -432,6 +432,10 @@ impl Game {
         self.set_state(GameState::PreGame);
         // self.set_game_reporting_id(self.reporting_id + 1);
         self.set_game_reporting_id(66697794);
+
+        for player in &self.players {
+            player.try_publish_update();
+        }
     }
 
     /// Notifies all the session and the removed session that a

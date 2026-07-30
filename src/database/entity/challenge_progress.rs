@@ -109,7 +109,7 @@ impl ChallengeProgressCounter {
         definition: &ChallengeDefinition,
         counter_definition: &ChallengeCounter,
     ) {
-        if definition.can_repeat {
+        if definition.base.can_repeat {
             // Handle repeating the task multiple times
             while self.current_count >= counter_definition.target_count {
                 // Remove the completed amount
@@ -150,20 +150,6 @@ pub enum Relation {
 }
 
 impl Model {
-    pub fn new_default(definition: ChallengeDefinition) -> Self {
-        Self {
-            user_id: todo!(),
-            challenge_id: todo!(),
-            counters: todo!(),
-            state: todo!(),
-            times_completed: todo!(),
-            last_completed: todo!(),
-            first_completed: todo!(),
-            last_changed: todo!(),
-            rewarded: todo!(),
-        }
-    }
-
     /// Obtains all the challenge progress (and associated counters) that
     /// belong to the provided `user`
     pub fn all<'db, C>(db: &'db C, user: &User) -> impl Future<Output = DbResult<Vec<Self>>> + 'db
@@ -236,7 +222,7 @@ impl Model {
         let now = Utc::now();
 
         // Load the challenge
-        let mut challenge = Self::get_or_create(db, user, change.definition.name).await?;
+        let mut challenge = Self::get_or_create(db, user, change.definition.base.name).await?;
 
         // Take all the counters from the original list
         let mut counters = challenge.counters.0.split_off(0);

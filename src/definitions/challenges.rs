@@ -55,11 +55,10 @@ impl Challenges {
 /// Type alias for a [Uuid] representing the name of a [ChallengeDefinition]
 pub type ChallengeName = Uuid;
 
-/// Defines a challenge
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ChallengeDefinition {
+pub struct ChallengeDefinitionBase {
     /// Unique name for the challenge (UUID)
     pub name: ChallengeName,
     /// Unused by the game and always left empty
@@ -88,10 +87,6 @@ pub struct ChallengeDefinition {
     /// TODO: This needs to be handled
     pub point_value: Option<u32>,
 
-    /// Counters are stored as an array *however* from all of the challenges defined in
-    /// the based game they *always* only have one counter.
-    pub counters: Vec<ChallengeCounter>,
-
     /// Extra custom attributes. Mostly related to textures, conditional hiding, and display order
     pub custom_attributes: CustomAttributes,
 
@@ -108,6 +103,26 @@ pub struct ChallengeDefinition {
 
     /// Unknown usage. Possibly for shared player-base wide challenges..?
     pub community: bool,
+}
+
+impl Localized for ChallengeDefinitionBase {
+    fn localize(&mut self, i18n: &super::i18n::I18n) {
+        self.i18n_title.localize(i18n);
+        self.i18n_description.localize(i18n);
+    }
+}
+
+/// Defines a challenge
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChallengeDefinition {
+    /// Base challenge definition
+    #[serde(flatten)]
+    pub base: ChallengeDefinitionBase,
+    /// Counters are stored as an array *however* from all of the challenges defined in
+    /// the based game they *always* only have one counter.
+    pub counters: Vec<ChallengeCounter>,
 }
 
 impl ChallengeDefinition {
@@ -127,8 +142,7 @@ impl ChallengeDefinition {
 
 impl Localized for ChallengeDefinition {
     fn localize(&mut self, i18n: &super::i18n::I18n) {
-        self.i18n_title.localize(i18n);
-        self.i18n_description.localize(i18n);
+        self.base.localize(i18n);
         self.counters.localize(i18n);
     }
 }

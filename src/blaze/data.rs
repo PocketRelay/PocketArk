@@ -306,6 +306,10 @@ impl SessionData {
         self.write_silent(|data| data.remove_subscriber(player_id));
     }
 
+    pub fn publish_update(&self) {
+        self.write_silent(|data| data.publish_update());
+    }
+
     pub fn net(&self) -> Option<Arc<NetData>> {
         let ext = self.read();
         let auth = ext.auth.as_ref()?;
@@ -389,7 +393,7 @@ impl SessionDataAuth {
 
     /// Publishes changes of the session data to all the
     /// subscribed session links
-    fn publish_update(&self) {
+    pub fn publish_update(&self) {
         let packet = Packet::notify(
             user_sessions::COMPONENT,
             user_sessions::USER_SESSION_EXTENDED_DATA_UPDATE,
