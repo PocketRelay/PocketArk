@@ -1,4 +1,4 @@
-use super::{SeaJson, User, characters::CharacterId};
+use super::{SeaJson, User};
 use crate::{
     database::DbResult,
     definitions::{
@@ -20,7 +20,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub user_id: u32,
     // ID of the currently active character for the user
-    pub active_character_id: Option<CharacterId>,
+    pub active_character_id: Option<Uuid>,
     // Shared statistics about the user
     pub shared_stats: SharedStats,
     // Shared equipment configuration
@@ -115,7 +115,7 @@ impl Model {
     pub fn set_active_character<C>(
         self,
         db: &C,
-        character_id: CharacterId,
+        character_id: Uuid,
     ) -> impl Future<Output = DbResult<Self>> + '_
     where
         C: ConnectionTrait + Send,

@@ -213,7 +213,7 @@ pub enum GameSetupContext {
     Matchmaking {
         #[tdf(tag = "FIT")]
         fit_score: u16,
-        #[tdf(tag = "FIT")]
+        #[tdf(tag = "GENT")]
         fit_score_2: u16,
         #[tdf(tag = "MAXF")]
         max_fit_score: u16,
@@ -363,7 +363,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
 
             // External Session identification.
             w.group(b"ESID", |w| {
-                w.group(b"PS\x20", |w| {
+                w.group(b"PS4", |w| {
                     w.tag_str_empty(b"NPSI");
                 });
                 w.group(b"XONE", |w| {
@@ -453,8 +453,8 @@ impl TdfSerialize for GameSetupResponse<'_> {
                     player_id: host.user.id,
                     connection_group_id: host.user.id,
                     user_session_id: host.user.id,
-                    connection_slot_id: 1,
-                    slot_id: 1,
+                    connection_slot_id: 0,
+                    slot_id: 0,
                 },
             );
 
@@ -496,8 +496,8 @@ impl TdfSerialize for GameSetupResponse<'_> {
                     player_id: host.user.id,
                     connection_group_id: host.user.id,
                     user_session_id: host.user.id,
-                    connection_slot_id: 1,
-                    slot_id: 1,
+                    connection_slot_id: 0,
+                    slot_id: 0,
                 },
             );
 

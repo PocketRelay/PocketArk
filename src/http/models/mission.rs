@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{InventoryItem, characters::CharacterId, currency::CurrencyType},
+    database::entity::{InventoryItem, currency::CurrencyType},
     definitions::{badges::BadgeLevelName, challenges::CurrencyReward},
     services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
@@ -108,9 +108,12 @@ pub struct MissionDetails {
     pub enemy_type: String,
     pub difficulty: String,
     pub map: String,
-    pub start: DateTime<Utc>,
-    pub end: DateTime<Utc>,
-    pub processed: DateTime<Utc>,
+    // pub start: DateTime<Utc>,
+    // pub end: DateTime<Utc>,
+    // pub processed: DateTime<Utc>,
+    pub start: String,
+    pub end: String,
+    pub processed: String,
     pub player_infos: Vec<MissionPlayerInfo>,
     pub modifiers: Vec<MissionModifier>,
 }
@@ -128,11 +131,10 @@ pub struct MissionPlayerInfo {
     pub pid: u32,
     pub persona_id: u32,
     pub persona_display_name: String,
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub character_id: CharacterId,
+    pub character_id: Uuid,
     pub character_class: Uuid,
     pub modifiers: Vec<Value>,
-    pub session_id: Uuid,
+    pub session_id: String,
     pub wave_participation: u8,
     pub present_at_end: bool,
 }

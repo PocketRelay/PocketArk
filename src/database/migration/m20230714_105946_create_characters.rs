@@ -13,13 +13,20 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(Characters::Table)
                     .if_not_exists()
-                    // Unqiue ID for this character
+                    // Unique internal ID for this character
                     .col(
                         ColumnDef::new(Characters::Id)
                             .unsigned()
                             .not_null()
                             .primary_key()
                             .auto_increment(),
+                    )
+                    // Unique public ID for this character
+                    .col(
+                        ColumnDef::new(Characters::CharacterId)
+                            .uuid()
+                            .not_null()
+                            .unique_key(),
                     )
                     // ID of the user this character belongs to
                     .col(ColumnDef::new(Characters::UserId).unsigned().not_null())
@@ -105,6 +112,7 @@ impl MigrationTrait for Migration {
 enum Characters {
     Table,
     Id,
+    CharacterId,
     UserId,
     ClassName,
     Level,

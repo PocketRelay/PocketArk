@@ -82,6 +82,7 @@ pocket-relay-udp-tunnel = "0.0.0"
 
 # Library for obtaining the local IP address of the device
 local-ip-address = "0.6"
+http-body-util = "0.1.4"
 
 # Logging backend
 [dependencies.log4rs]

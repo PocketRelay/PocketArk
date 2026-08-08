@@ -1,10 +1,7 @@
 use super::{SeaJson, User, users::UserId};
 use crate::{
     database::DbResult,
-    definitions::{
-        challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
-        i18n::Localized,
-    },
+    definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
     services::game::data::ChallengeProgressChange,
     utils::ImStr,
 };

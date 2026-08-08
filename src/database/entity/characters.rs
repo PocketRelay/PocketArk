@@ -33,6 +33,8 @@ pub struct Model {
     /// Unique ID of the character
     #[sea_orm(primary_key)]
     pub id: CharacterId,
+    #[sea_orm(unique)]
+    pub character_id: Uuid,
     /// ID of the user that owns this character
     pub user_id: u32,
     /// Name of the class definition this character belongs to
@@ -65,6 +67,41 @@ pub struct Model {
     pub last_used: Option<DateTimeUtc>,
     /// Whether this character is promotable
     pub promotable: bool,
+}
+
+impl Serialize for Model {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state: <S as Serializer>::SerializeStruct =
+            Serializer::serialize_struct(serializer, "Character", 19)?;
+        state.serialize_field("characterId", &self.character_id.to_string())?;
+        state.serialize_field("sku", &Sku)?;
+        state.serialize_field("characterClassName", &self.class_name)?;
+        state.serialize_field("name", &self.class_name)?;
+        state.serialize_field("level", &self.level)?;
+        state.serialize_field("xp", &self.xp)?;
+        state.serialize_field("promotion", &self.promotion)?;
+        state.serialize_field("points", &self.points)?;
+        state.serialize_field("pointsSpent", &self.points_spent)?;
+        state.serialize_field("pointsGranted", &self.points_granted)?;
+        state.serialize_field("skillTrees", &self.skill_trees)?;
+        state.serialize_field("attributes", &self.attributes)?;
+        state.serialize_field("bonus", &self.bonus)?;
+        state.serialize_field("equipments", &self.equipments)?;
+        state.serialize_field("customization", &self.customization)?;
+        state.serialize_field("playStats", &self.play_stats)?;
+        // Inventory namespace always appears to be "default"
+        state.serialize_field("inventoryNamespace", "default")?;
+
+        if self.last_used.is_some() {
+            state.serialize_field("lastUsed", &self.last_used)?;
+        }
+
+        state.serialize_field("promotable", &self.promotable)?;
+        state.end()
+    }
 }
 
 /// TODO: Ensure this structure is complete
@@ -145,6 +182,7 @@ impl Model {
     {
         ActiveModel {
             id: NotSet,
+            character_id: Set(Uuid::new_v4()),
             user_id: Set(user.id),
             class_name: Set(class_name),
             level: Set(level),
@@ -171,12 +209,27 @@ impl Model {
     pub fn find_by_id_user<'db, C>(
         db: &'db C,
         user: &User,
-        id: CharacterId,
+        id: Uuid,
     ) -> impl Future<Output = DbResult<Option<Self>>> + 'db
     where
         C: ConnectionTrait + Send,
     {
-        user.find_related(Entity).filter(Column::Id.eq(id)).one(db)
+        user.find_related(Entity)
+            .filter(Column::CharacterId.eq(id))
+            .one(db)
+    }
+
+    pub fn find_by_user_by_id<'db, C>(
+        db: &'db C,
+        user: &User,
+        id: Uuid,
+    ) -> impl Future<Output = DbResult<Option<Self>>> + 'db
+    where
+        C: ConnectionTrait + Send,
+    {
+        user.find_related(Entity)
+            .filter(Column::CharacterId.eq(id))
+            .one(db)
     }
 
     pub fn find_by_user_by_def<'db, C>(
@@ -211,41 +264,5 @@ impl Model {
             .into_iter()
             .map(|(_, class_name)| class_name)
             .collect())
-    }
-}
-
-/// Serialization implementation
-impl Serialize for Model {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state: <S as Serializer>::SerializeStruct =
-            Serializer::serialize_struct(serializer, "Character", 19)?;
-        state.serialize_field("characterId", &self.id.to_string())?;
-        state.serialize_field("sku", &Sku)?;
-        state.serialize_field("characterClassName", &self.class_name)?;
-        state.serialize_field("name", &self.class_name)?;
-        state.serialize_field("level", &self.level)?;
-        state.serialize_field("xp", &self.xp)?;
-        state.serialize_field("promotion", &self.promotion)?;
-        state.serialize_field("points", &self.points)?;
-        state.serialize_field("pointsSpent", &self.points_spent)?;
-        state.serialize_field("pointsGranted", &self.points_granted)?;
-        state.serialize_field("skillTrees", &self.skill_trees)?;
-        state.serialize_field("attributes", &self.attributes)?;
-        state.serialize_field("bonus", &self.bonus)?;
-        state.serialize_field("equipments", &self.equipments)?;
-        state.serialize_field("customization", &self.customization)?;
-        state.serialize_field("playStats", &self.play_stats)?;
-        // Inventory namespace always appears to be "default"
-        state.serialize_field("inventoryNamespace", "default")?;
-
-        if self.last_used.is_some() {
-            state.serialize_field("lastUsed", &self.last_used)?;
-        }
-
-        state.serialize_field("promotable", &self.promotable)?;
-        state.end()
     }
 }

@@ -3,9 +3,12 @@ use super::{
     entity::{InventoryItem, User, currency::CurrencyType},
 };
 use crate::{
-    database::entity::{Character, Currency, SharedData, users::CreateUser},
+    database::entity::{
+        Character, Currency, SharedData, shared_data::SharedProgression, users::CreateUser,
+    },
     definitions::{
         classes::{Classes, PointMap},
+        i18n::{I18nDescription, I18nName},
         items::Items,
         level_tables::{LevelTables, ProgressionXp},
     },
@@ -46,8 +49,12 @@ pub async fn seed() {
     )
     .await
     .unwrap();
-    SharedData::create_default(&db, &user).await.unwrap();
+
+    let mut shared_data = SharedData::create_default(&db, &user).await.unwrap();
     // StrikeTeam::create_default(&db, &user).await.unwrap();
+
+    // Insert the initial prestige data if we don't have any
+    // (Needs to happen *before* append_prestige_before to ensure it shows up in the "before" state)
 
     // All all the items
     for definition in item_definitions.all() {
@@ -97,5 +104,25 @@ pub async fn seed() {
         )
         .await
         .unwrap();
+
+        let prestige_level_table = level_tables
+            .by_name(&class.prestige_level_name)
+            .expect("Missing prestige level table");
+
+        if !shared_data
+            .shared_progression
+            .0
+            .iter()
+            .any(|value| value.name == class.prestige_level_name)
+        {
+            shared_data.shared_progression.0.push(SharedProgression {
+                i18n_name: I18nName::raw(""),
+                i18n_description: I18nDescription::raw(""),
+                level: 0,
+                name: class.prestige_level_name,
+                xp: prestige_level_table.initial_progression(),
+            });
+            shared_data = shared_data.save_progression(&db).await.unwrap();
+        }
     }
 }

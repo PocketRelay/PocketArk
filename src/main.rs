@@ -1,17 +1,24 @@
 #![recursion_limit = "256"]
-use axum::Extension;
+use axum::body::Body;
+use axum::extract::Request;
+use axum::middleware::Next;
+use axum::response::{IntoResponse, Response};
+use axum::{Extension, middleware};
+use bytes::Bytes;
 use definitions::i18n::I18n;
 use definitions::strike_teams::StrikeTeams;
 use definitions::{
     badges::Badges, challenges::Challenges, classes::Classes, items::Items,
     level_tables::LevelTables, match_modifiers::MatchModifiers,
 };
+use hyper::StatusCode;
 use log::error;
 use log::info;
 use services::mission::MissionBackgroundTask;
 use services::sessions::Sessions;
 use tokio::net::TcpListener;
 
+use http_body_util::BodyExt;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::join;
@@ -119,6 +126,7 @@ async fn main() {
         .layer(Extension(tunnel_service))
         .layer(Extension(sessions))
         .layer(Extension(config))
+        .layer(middleware::from_fn(print_request_response))
         .into_make_service_with_connect_info::<SocketAddr>();
 
     info!("Starting server on {addr} (v{VERSION})");
@@ -140,4 +148,43 @@ async fn main() {
     {
         error!("Error within HTTP server {err:?}");
     }
+}
+
+async fn print_request_response(
+    req: Request,
+    next: Next,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let (parts, body) = req.into_parts();
+    let bytes = buffer_and_print("request", body).await?;
+    let req = Request::from_parts(parts, Body::from(bytes));
+
+    let res = next.run(req).await;
+
+    let (parts, body) = res.into_parts();
+    let bytes = buffer_and_print("response", body).await?;
+    let res = Response::from_parts(parts, Body::from(bytes));
+
+    Ok(res)
+}
+
+async fn buffer_and_print<B>(direction: &str, body: B) -> Result<Bytes, (StatusCode, String)>
+where
+    B: axum::body::HttpBody<Data = Bytes>,
+    B::Error: std::fmt::Display,
+{
+    let bytes = match body.collect().await {
+        Ok(collected) => collected.to_bytes(),
+        Err(err) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                format!("failed to read {direction} body: {err}"),
+            ));
+        }
+    };
+
+    if let Ok(body) = std::str::from_utf8(&bytes) {
+        log::debug!("{direction} body = {body}");
+    }
+
+    Ok(bytes)
 }

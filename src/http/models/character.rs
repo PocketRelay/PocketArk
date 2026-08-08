@@ -1,6 +1,6 @@
 use super::HttpError;
 use crate::{
-    database::entity::{Character, SharedData, characters::CharacterId},
+    database::entity::{Character, SharedData},
     definitions::{
         classes::{CharacterEquipment, Class, CustomizationEntry},
         level_tables::LevelTable,
@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashMap;
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Debug, Error)]
 pub enum CharactersError {
@@ -89,8 +90,7 @@ pub struct ClassWithState {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UnlockedCharacters {
-    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
-    pub active_character_id: Option<CharacterId>,
+    pub active_character_id: Option<Uuid>,
     pub list: Vec<Character>,
 }
 

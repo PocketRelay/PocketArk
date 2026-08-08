@@ -25,7 +25,7 @@ pub async fn authenticate(
     let token = sessions.create_token(user.id);
 
     Ok(Json(AuthResponse {
-        session_id: token,
+        session_id: user.id.to_string(),
         user: AuthUser {
             roles: &[
                 "GameSettings.Anonymous",

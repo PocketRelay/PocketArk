@@ -20,7 +20,7 @@ use chrono::Utc;
 use futures::Future;
 use sea_orm::{
     ActiveValue::{NotSet, Set},
-    IntoActiveModel, UpdateResult,
+    IntoActiveModel,
     entity::prelude::*,
     sea_query::{Expr, OnConflict},
 };
@@ -38,10 +38,10 @@ pub type ItemId = u32;
 #[sea_orm(table_name = "inventory_items")]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
-    #[serde(rename = "itemId")]
+    #[serde(skip)]
     #[sea_orm(primary_key)]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub id: ItemId,
+    pub item_id: Uuid,
     #[serde(skip)]
     pub user_id: UserId,
     pub definition_name: ItemName,
@@ -90,6 +90,7 @@ impl Model {
         // Upsert the inventory item
         Entity::insert(ActiveModel {
             id: NotSet,
+            item_id: Set(Uuid::new_v4()),
             user_id: Set(user.id),
             definition_name: Set(definition_name),
             stack_size: Set(stack_size),
@@ -153,19 +154,20 @@ impl Model {
         Ok(())
     }
 
-    pub fn update_seen<'db, C>(
-        db: &'db C,
-        user: &User,
-        list: Vec<ItemId>,
-    ) -> impl Future<Output = DbResult<UpdateResult>> + Send + 'db
+    pub async fn update_seen<C>(db: &C, user: &User, list: Vec<Uuid>) -> DbResult<()>
     where
         C: ConnectionTrait + Send,
     {
-        // Updates all the matching items seen state
-        Entity::update_many()
-            .col_expr(Column::Seen, Expr::value(true))
-            .filter(Column::Id.is_in(list).and(Column::UserId.eq(user.id)))
-            .exec(db)
+        for item in list {
+            // Updates all the matching items seen state
+            Entity::update_many()
+                .col_expr(Column::Seen, Expr::value(true))
+                .filter(Column::ItemId.eq(item).and(Column::UserId.eq(user.id)))
+                .exec(db)
+                .await?;
+        }
+
+        Ok(())
     }
 
     pub fn get_all_items<'db, C>(
@@ -178,30 +180,32 @@ impl Model {
         user.find_related(Entity).all(db)
     }
 
-    #[allow(unused)]
-    pub fn get_items<'db, C>(
-        db: &'db C,
-        user: &User,
-        ids: Vec<ItemId>,
-    ) -> impl Future<Output = DbResult<Vec<InventoryItem>>> + Send + 'db
-    where
-        C: ConnectionTrait + Send,
-    {
-        user.find_related(Entity)
-            .filter(Column::Id.is_in(ids))
-            .all(db)
-    }
+    // #[allow(unused)]
+    // pub fn get_items<'db, C>(
+    //     db: &'db C,
+    //     user: &User,
+    //     ids: Vec<ItemId>,
+    // ) -> impl Future<Output = DbResult<Vec<InventoryItem>>> + Send + 'db
+    // where
+    //     C: ConnectionTrait + Send,
+    // {
+    //     user.find_related(Entity)
+    //         .filter(Column::Id.is_in(ids))
+    //         .all(db)
+    // }
 
     /// Finds an item from the users collection of items with a matching `id`
     pub fn get<'db, C>(
         db: &'db C,
         user: &User,
-        id: ItemId,
+        id: Uuid,
     ) -> impl Future<Output = DbResult<Option<InventoryItem>>> + Send + 'db
     where
         C: ConnectionTrait + Send,
     {
-        user.find_related(Entity).filter(Column::Id.eq(id)).one(db)
+        user.find_related(Entity)
+            .filter(Column::ItemId.eq(id))
+            .one(db)
     }
 
     /// Finds a item with a matching definition `name` within the users

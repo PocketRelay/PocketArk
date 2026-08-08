@@ -22,6 +22,12 @@ impl MigrationTrait for Migration {
                             .primary_key()
                             .auto_increment(),
                     )
+                    .col(
+                        ColumnDef::new(InventoryItems::ItemId)
+                            .uuid()
+                            .not_null()
+                            .unique_key(),
+                    )
                     // ID of the user this item belongs to
                     .col(ColumnDef::new(InventoryItems::UserId).unsigned().not_null())
                     // Name of the definition this item instance belongs to (Unqiue on a per user basis)
@@ -123,6 +129,7 @@ impl MigrationTrait for Migration {
 enum InventoryItems {
     Table,
     Id,
+    ItemId,
     UserId,
     DefinitionName,
     StackSize,

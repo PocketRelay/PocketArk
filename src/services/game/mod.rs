@@ -431,7 +431,7 @@ impl Game {
     pub fn replay(&mut self) {
         self.set_state(GameState::PreGame);
         // self.set_game_reporting_id(self.reporting_id + 1);
-        self.set_game_reporting_id(66697794);
+        self.set_game_reporting_id(1);
 
         for player in &self.players {
             player.try_publish_update();

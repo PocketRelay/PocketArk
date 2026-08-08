@@ -1,6 +1,6 @@
 use super::shared::CustomAttributes;
 use crate::{
-    database::entity::{InventoryItem, User, inventory_items::ItemId},
+    database::entity::{InventoryItem, User},
     definitions::{
         characters::acquire_item_character,
         classes::Classes,
@@ -324,7 +324,7 @@ pub struct ItemEvents {
 #[allow(unused)]
 pub struct ItemChanged {
     /// ID of the item
-    pub item_id: ItemId,
+    pub item_id: Uuid,
     /// The previous stack size of the item
     pub prev_stack_size: u32,
     /// The new stack size of the item

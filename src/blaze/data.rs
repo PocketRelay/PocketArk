@@ -10,8 +10,8 @@ use crate::{
             game_manager::RemoveReason,
             user_sessions::{
                 HardwareFlags, LookupResponse, NetworkAddress, NotifyUserAdded, NotifyUserRemoved,
-                NotifyUserUpdated, QosNetworkData, UserDataFlags, UserIdentification,
-                UserSessionExtendedData, UserSessionExtendedDataUpdate,
+                NotifyUserUpdated, OwnedUserIdentification, QosNetworkData, UserDataFlags,
+                UserIdentification, UserSessionExtendedData, UserSessionExtendedDataUpdate,
             },
         },
         packet::Packet,
@@ -291,7 +291,10 @@ impl SessionData {
 
     pub fn get_lookup_response(&self) -> Option<LookupResponse> {
         self.read().auth.as_ref().map(|data| LookupResponse {
-            user: data.player_assoc.user.clone(),
+            user: OwnedUserIdentification {
+                id: data.player_assoc.user.id as u64,
+                name: data.player_assoc.user.username.clone(),
+            },
             extended_data: data.ext_data(),
         })
     }
@@ -343,7 +346,7 @@ impl SessionDataAuth {
         UserSessionExtendedData {
             net: self.net.clone(),
             game: self.game.as_ref().map(|game| game.game_id),
-            user_id: self.player_assoc.user.id,
+            user_id: self.player_assoc.user.id as u64,
         }
     }
 

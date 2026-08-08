@@ -94,6 +94,10 @@ pub async fn get_mission(
     }
 
     debug!("Processed mission data: {:?}", mission_data);
+    debug!(
+        "Processed mission data OUTPUT: {}",
+        serde_json::to_string(&mission_data).unwrap()
+    );
 
     Ok(Json(mission_data))
 }

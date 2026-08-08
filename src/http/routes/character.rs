@@ -3,7 +3,7 @@ use std::mem::swap;
 use crate::{
     database::entity::{
         Character, SeaJson, SharedData,
-        characters::{self, CharacterId},
+        characters::{self},
     },
     definitions::{
         classes::{ClassName, Classes, CustomizationMap},
@@ -21,10 +21,8 @@ use crate::{
 use axum::{Extension, Json, extract::Path};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, IntoActiveModel, ModelTrait,
-    QueryFilter,
-};
+use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, IntoActiveModel, ModelTrait};
+use uuid::Uuid;
 
 /// GET /characters
 pub async fn get_characters(
@@ -41,14 +39,11 @@ pub async fn get_characters(
 ///
 /// Gets the definition and details for the character of the provided ID
 pub async fn get_character(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<CharacterResponse> {
-    let character = user
-        .find_related(characters::Entity)
-        .filter(characters::Column::Id.eq(character_id))
-        .one(&db)
+    let character = Character::find_by_user_by_id(&db, &user, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -64,7 +59,7 @@ pub async fn get_character(
 ///
 /// Sets the currently active character
 pub async fn set_active(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> Result<StatusCode, DynHttpError> {
@@ -86,16 +81,13 @@ pub async fn set_active(
 ///
 /// Gets the current equipment of the provided character
 pub async fn get_character_equip(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<CharacterEquipmentList> {
     debug!("Requested character equip: {}", character_id);
 
-    let character = user
-        .find_related(characters::Entity)
-        .filter(characters::Column::Id.eq(character_id))
-        .one(&db)
+    let character = Character::find_by_user_by_id(&db, &user, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -109,17 +101,14 @@ pub async fn get_character_equip(
 /// Updates the equipment for the provided character using
 /// the provided equipment list
 pub async fn update_character_equip(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<CharacterEquipmentList>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Update character equipment: {} - {:?}", character_id, req);
 
-    let character = user
-        .find_related(characters::Entity)
-        .filter(characters::Column::Id.eq(character_id))
-        .one(&db)
+    let character = Character::find_by_user_by_id(&db, &user, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -148,7 +137,7 @@ pub async fn update_shared_equip(
 ///
 /// Updates the customization settings for a character
 pub async fn update_character_customization(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<UpdateCustomizationRequest>,
@@ -158,10 +147,7 @@ pub async fn update_character_customization(
         character_id, req
     );
 
-    let mut character = user
-        .find_related(characters::Entity)
-        .filter(characters::Column::Id.eq(character_id))
-        .one(&db)
+    let mut character = Character::find_by_user_by_id(&db, &user, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -185,7 +171,7 @@ pub async fn update_character_customization(
 /// Obtains the history of the characters previous
 /// equipment
 pub async fn get_character_equip_history(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
 ) -> HttpResult<CharacterEquipmentList> {
@@ -193,10 +179,7 @@ pub async fn get_character_equip_history(
 
     debug!("Requested character equip history: {}", character_id);
 
-    let character = user
-        .find_related(characters::Entity)
-        .filter(characters::Column::Id.eq(character_id))
-        .one(&db)
+    let character = Character::find_by_user_by_id(&db, &user, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -207,17 +190,14 @@ pub async fn get_character_equip_history(
 
 /// PUT /character/:id/skillTrees
 pub async fn update_skill_tree(
-    Path(character_id): Path<CharacterId>,
+    Path(character_id): Path<Uuid>,
     Auth(user): Auth,
     Extension(db): Extension<DatabaseConnection>,
     JsonDump(req): JsonDump<UpdateSkillTreesRequest>,
 ) -> HttpResult<Character> {
     debug!("Req update skill tree: {} {:?}", character_id, req);
 
-    let mut character = user
-        .find_related(characters::Entity)
-        .filter(characters::Column::Id.eq(character_id))
-        .one(&db)
+    let mut character = Character::find_by_user_by_id(&db, &user, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 

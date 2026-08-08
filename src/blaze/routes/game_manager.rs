@@ -27,7 +27,7 @@ use crate::{
         tunnel::TunnelService,
     },
 };
-use std::sync::Arc;
+use std::{sync::Arc, thread::sleep, time::Duration};
 
 pub async fn start_matchmaking_scenario(
     session: SessionLink,
@@ -165,9 +165,12 @@ pub async fn update_player_attr(
     Extension(games): Extension<Arc<Games>>,
 ) {
     let game = games.get_by_id(req.gid).expect("Unknown game");
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let game = &mut *game.write();
-    game.set_player_attributes(req.pid, req.attr);
+        let game = &mut *game.write();
+        game.set_player_attributes(req.pid, req.attr);
+    });
 }
 
 pub async fn update_game_state(
@@ -184,10 +187,13 @@ pub async fn replay_game(
     Blaze(req): Blaze<ReplayGameRequest>,
     Extension(games): Extension<Arc<Games>>,
 ) {
-    let game = games.get_by_id(req.gid).expect("Unknown game");
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let game = &mut *game.write();
-    game.replay();
+        let game = games.get_by_id(req.gid).expect("Unknown game");
+        let game = &mut *game.write();
+        game.replay();
+    });
 }
 
 pub async fn leave_game(

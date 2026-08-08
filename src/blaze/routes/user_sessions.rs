@@ -2,16 +2,19 @@ use std::sync::Arc;
 
 use crate::{
     blaze::{
+        data::NetData,
         models::{
             errors::ServerResult,
             user_sessions::{
-                LookupRequest, LookupResponse, NetworkInfo, UpdateHardwareFlags,
-                UpdateNetworkRequest, UserSessionsError,
+                LookupRequest, LookupResponse, NetworkInfo, OwnedUserIdentification,
+                UpdateHardwareFlags, UpdateNetworkRequest, UserSessionExtendedData,
+                UserSessionsError,
             },
         },
         router::{Blaze, Extension},
         session::SessionLink,
     },
+    database::entity::User,
     services::sessions::Sessions,
 };
 
@@ -54,16 +57,37 @@ pub async fn lookup_user(
     Blaze(req): Blaze<LookupRequest>,
     Extension(sessions): Extension<Arc<Sessions>>,
 ) -> ServerResult<Blaze<LookupResponse>> {
-    // Lookup the session
-    let session = sessions
-        .lookup_session(req.player_id)
-        .ok_or(UserSessionsError::UserNotFound)?;
+    if let Some(session) = sessions.lookup_session(req.player_id as u32) {
+        let response = session
+            .data
+            .get_lookup_response()
+            .ok_or(UserSessionsError::UserNotFound)?;
+        return Ok(Blaze(response));
+    }
 
-    // Get the lookup response from the session
-    let response = session
-        .data
-        .get_lookup_response()
-        .ok_or(UserSessionsError::UserNotFound)?;
+    // // Lookup the session
+    // let session = sessions
+    //     .lookup_session(req.player_id)
+    //     .ok_or(UserSessionsError::UserNotFound)?;
 
-    Ok(Blaze(response))
+    // // Get the lookup response from the session
+    // let response = session
+    //     .data
+    //     .get_lookup_response()
+    //     .ok_or(UserSessionsError::UserNotFound)?;
+
+    // Ok(Blaze(response))
+    Ok(Blaze(LookupResponse {
+        user: OwnedUserIdentification {
+            id: req.player_id,
+            name: "test2".to_string(),
+        },
+        extended_data: UserSessionExtendedData {
+            game: None,
+            net: Arc::new(NetData {
+                ..Default::default()
+            }),
+            user_id: req.player_id,
+        },
+    }))
 }

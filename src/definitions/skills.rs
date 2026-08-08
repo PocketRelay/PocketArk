@@ -214,13 +214,13 @@ pub struct SkillTree {
     pub tree: Vec<SkillTreeTier>,
     /// Optional timestamp for when the tree was created
     #[serde(default = "default_timestamp")]
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: String,
     /// UNknown usage
     pub obsolete: bool,
 }
 
-fn default_timestamp() -> DateTime<Utc> {
-    Utc::now()
+fn default_timestamp() -> String {
+    "2017-03-11T14:46:23.956+0000".to_string()
 }
 
 /// Represents a tier of a skill tree definition

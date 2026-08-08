@@ -21,11 +21,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     // ID of the currently active character for the user
-                    .col(
-                        ColumnDef::new(SharedData::ActiveCharacterId)
-                            .unsigned()
-                            .null(),
-                    )
+                    .col(ColumnDef::new(SharedData::ActiveCharacterId).uuid().null())
                     // Shared statistis about the user
                     .col(ColumnDef::new(SharedData::SharedStats).json().not_null())
                     // Shared equipment configuration

@@ -1,10 +1,23 @@
 [
     {
-        "i18nName": "53337",
-        "i18nDescription": "217862",
+        "name": "afd9d5db-bde3-3135-7864-4f73b78d1150",
         "levelName": "581c75e4-f0cf-abc5-5890-64c9b50603a3",
         "prestigeLevelName": "64797bfa-f62f-48fb-a8b1-34fced9a8394",
+        "itemLink": "0:00deb555-5cb5-4473-ac9a-22e9d1ac2328",
         "points": {},
+        "attributes": {},
+        "bonus": {},
+        "customAttributes": {
+            "Base_Max_Health": "475",
+            "Base_Max_Shields": "250",
+            "kitID": "25",
+            "i18n_ClassRaceName": "84288",
+            "CustomSkinEnabled": true,
+            "PortraitIconPath": "Game/UI/MultiPlayer/Character/Character_Protraits/Offense/MP_Off_Asari_Duelist",
+            "kitSize": "2",
+            "displayOrder": "400",
+            "loc_ClassRaceName": "ASARI"
+        },
         "skillTrees": [
             {
                 "name": "4973b03d-6686-bc14-e54a-4a6a3e717fdf",
@@ -232,20 +245,6 @@
                 "obsolete": false
             }
         ],
-        "attributes": {},
-        "bonus": {},
-        "customAttributes": {
-            "Base_Max_Health": "475",
-            "Base_Max_Shields": "250",
-            "kitID": "25",
-            "i18n_ClassRaceName": "84288",
-            "CustomSkinEnabled": true,
-            "PortraitIconPath": "Game/UI/MultiPlayer/Character/Character_Protraits/Offense/MP_Off_Asari_Duelist",
-            "kitSize": "2",
-            "displayOrder": "400",
-            "loc_ClassRaceName": "ASARI"
-        },
-        "unlocked": false,
         "defaultEquipments": [
             {
                 "slot": "weaponSlot1",
@@ -300,14 +299,15 @@
                 "paramId": "2"
             }
         },
-        "name": "afd9d5db-bde3-3135-7864-4f73b78d1150",
         "inventoryNamespace": "default",
         "autogenerateInventoryNamespace": false,
         "initialActiveCandidate": false,
-        "itemLink": "0:00deb555-5cb5-4473-ac9a-22e9d1ac2328",
         "defaultNamespace": "default",
+        "i18nName": "53337",
         "locName": "ASARI DUELIST",
-        "locDescription": "Biotic warrior with a sword, high mobility, and both damage and defense powers. "
+        "i18nDescription": "217862",
+        "locDescription": "Biotic warrior with a sword, high mobility, and both damage and defense powers. ",
+        "unlocked": false
     },
     {
         "i18nName": "53327",
@@ -7495,7 +7495,7 @@
             "displayOrder": "760",
             "loc_ClassRaceName": "SALARIAN"
         },
-        "unlocked": false,
+        "unlocked": true,
         "defaultEquipments": [
             {
                 "slot": "weaponSlot1",
@@ -9355,7 +9355,7 @@
             "displayOrder": "350",
             "loc_ClassRaceName": "ANGARA"
         },
-        "unlocked": false,
+        "unlocked": true,
         "defaultEquipments": [
             {
                 "slot": "weaponSlot1",

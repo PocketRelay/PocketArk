@@ -43,8 +43,8 @@ pub struct UserChallengeItem {
     pub counters: Vec<ChallengeProgressCounterWithDefinition>,
     pub state: ChallengeState,
     pub times_completed: u32,
-    pub last_completed: Option<DateTimeUtc>,
-    pub first_completed: Option<DateTimeUtc>,
-    pub last_changed: DateTimeUtc,
+    pub last_completed: Option<String>,
+    pub first_completed: Option<String>,
+    pub last_changed: String,
     pub rewarded: bool,
 }

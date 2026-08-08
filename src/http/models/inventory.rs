@@ -1,12 +1,13 @@
 use super::HttpError;
 use crate::{
-    database::entity::{InventoryItem, inventory_items::ItemId},
+    database::entity::InventoryItem,
     definitions::items::{InventoryNamespace, ItemDefinition},
 };
 use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Debug, Error)]
 pub enum InventoryError {
@@ -71,8 +72,7 @@ pub struct ItemDefinitionsResponse {
 #[derive(Debug, Deserialize)]
 pub struct InventorySeenRequest {
     /// The list of item IDs to mark as seen
-    #[serde_as(as = "Vec<serde_with::DisplayFromStr>")]
-    pub list: Vec<ItemId>,
+    pub list: Vec<Uuid>,
 }
 
 /// Item consume request body
@@ -92,7 +92,6 @@ pub struct ConsumeRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ConsumeTarget {
     /// ID of the item to consume
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub item_id: ItemId,
+    pub item_id: Uuid,
     // pub target_id: String, *unused*
 }

@@ -9,8 +9,9 @@ use std::{
 };
 use tokio::sync::{Mutex, OwnedMutexGuard, mpsc};
 use tokio_util::codec::Framed;
+use uuid::Uuid;
 
-use crate::blaze::session::WeakSessionLink;
+use crate::blaze::session::{WeakSessionLink, debug_log_packet_lockless};
 
 use super::packet::{Packet, PacketCodec};
 
@@ -48,6 +49,7 @@ impl BlazeTx {
 
         tokio::spawn(async move {
             let tx = tx.await;
+            debug_log_packet_lockless(Uuid::new_v4(), None, "Notifing", &packet);
             let _ = tx.send(packet);
         });
     }

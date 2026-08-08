@@ -123,6 +123,9 @@ impl Session {
         //     let msg = NotifyContext { uid, error: 0 };
         //     packet.pre_msg = serialize_bytes(&msg);
         // }
+        //
+        let msg = NotifyContext { uid: 1, error: 0 };
+        packet.pre_msg = serialize_bytes(&msg);
 
         debug_log_packet_lockless(self.id, None, "Queued Notify", &packet);
         self.tx.notify(packet);
@@ -137,7 +140,7 @@ pub struct NotifyContext {
 impl TdfSerialize for NotifyContext {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.tag_owned(b"CNTX", self.uid);
-        w.tag_owned(b"CNTX", self.error);
+        w.tag_owned(b"ERRC", self.error);
         w.tag_group_empty(b"MADR");
     }
 }
@@ -286,7 +289,7 @@ fn debug_log_packet(session: &Session, action: &'static str, packet: &Packet) {
 }
 
 /// Logs debugging information about a player
-fn debug_log_packet_lockless(
+pub fn debug_log_packet_lockless(
     id: Uuid,
     auth: Option<Arc<User>>,
     action: &'static str,

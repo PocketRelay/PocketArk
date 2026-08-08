@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{InventoryItem, User, inventory_items::ItemId},
+    database::entity::{InventoryItem, User},
     definitions::items::{InventoryNamespace, ItemDefinition, Items},
     http::{
         middleware::{JsonDump, user::Auth},
@@ -17,6 +17,7 @@ use axum::{Extension, Json, extract::Query};
 use hyper::StatusCode;
 use log::debug;
 use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
+use uuid::Uuid;
 
 /// GET /inventory
 ///
@@ -93,7 +94,7 @@ pub async fn update_inventory_seen(
 async fn consume_item<C>(
     db: &C,
     user: &User,
-    item: ItemId,
+    item: Uuid,
     count: u32,
     item_definitions: &'static Items,
 ) -> Result<&'static ItemDefinition, DynHttpError>

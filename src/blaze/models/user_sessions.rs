@@ -112,12 +112,12 @@ impl Default for PairAddress {
 #[derive(TdfDeserialize)]
 pub struct LookupRequest {
     #[tdf(tag = "EXID")]
-    pub player_id: UserId,
+    pub player_id: u64,
 }
 
 /// User lookup response
 pub struct LookupResponse {
-    pub user: Arc<User>,
+    pub user: OwnedUserIdentification,
     pub extended_data: UserSessionExtendedData,
 }
 
@@ -128,7 +128,7 @@ impl TdfSerialize for LookupResponse {
         w.tag_owned(b"FLGS", UserDataFlags::ONLINE.bits());
 
         // The lookup user identification
-        w.tag_alt(b"USER", UserIdentification::from_user(&self.user));
+        w.tag_ref(b"USER", &self.user);
     }
 }
 
@@ -220,7 +220,7 @@ pub struct UserSessionExtendedData {
     /// ID of the game the player is in (if present)
     pub game: Option<u32>,
 
-    pub user_id: UserId,
+    pub user_id: u64,
 }
 
 impl TdfSerialize for UserSessionExtendedData {
@@ -311,6 +311,44 @@ impl TdfSerialize for UserIdentification<'_> {
             w.tag_owned(b"ID", self.id);
             // Account name
             w.tag_str(b"NAME", self.name);
+            // Namespace?
+            w.tag_str(b"NASP", "cem_ea_id");
+            w.tag_owned(b"ORIG", self.id);
+            w.tag_owned(b"PIDI", self.id);
+        });
+    }
+}
+#[derive(TdfTyped)]
+#[tdf(group)]
+pub struct OwnedUserIdentification {
+    pub id: u64,
+    pub name: String,
+}
+
+impl OwnedUserIdentification {
+    pub fn from_user(user: &User) -> Self {
+        Self {
+            id: user.id as u64,
+            name: user.username.to_string(),
+        }
+    }
+}
+
+impl TdfSerialize for OwnedUserIdentification {
+    fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
+        w.group_body(|w| {
+            // Account ID
+            w.tag_owned(b"AID", self.id);
+            // Account locale
+            w.tag_owned(b"ALOC", 0x64654445u32);
+            // External blob
+            w.tag_blob_empty(b"EXBB");
+            // External ID
+            w.tag_owned(b"EXID", self.id);
+            // Blaze ID
+            w.tag_owned(b"ID", self.id);
+            // Account name
+            w.tag_str(b"NAME", &self.name);
             // Namespace?
             w.tag_str(b"NASP", "cem_ea_id");
             w.tag_owned(b"ORIG", self.id);

@@ -199,7 +199,7 @@ pub async fn process_mission_data(
                 player_infos.push(info);
             }
             Err(err) => {
-                log::error!("Error while processing player: {}", err);
+                log::error!("Error while processing player: {} {:?}", err, value);
             }
         }
     }
@@ -214,9 +214,12 @@ pub async fn process_mission_data(
         enemy_type,
         difficulty,
         map: level,
-        start: now,
-        end: now,
-        processed: now,
+        // start: now,
+        // end: now,
+        // processed: now,
+        start: "2026-07-11T11:36:01.614+0000".to_string(),
+        end: "2026-07-11T11:36:57.096+0000".to_string(),
+        processed: "2026-07-11T11:36:57.230+0000".to_string(),
         player_infos,
         modifiers: mission_data.modifiers,
     }
@@ -405,7 +408,7 @@ pub async fn process_player_data(
         .collect();
 
     let result = PlayerInfoResult {
-        challenges_updated,
+        challenges_updated: Default::default(),
         items_earned: data_builder.items_earned,
         xp_earned: data_builder.xp_earned,
         previous_xp: previous_xp.current,
@@ -431,10 +434,10 @@ pub async fn process_player_data(
         pid: user.id,
         persona_id: user.id,
         persona_display_name: user.username,
-        character_id: character.id,
+        character_id: character.character_id,
         character_class: character.class_name,
         modifiers: vec![],
-        session_id: Uuid::new_v4(),
+        session_id: user.id.to_string(),
         wave_participation: data.waves_in_match,
         present_at_end: data.present_at_end,
     })

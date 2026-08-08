@@ -31,11 +31,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -75,11 +71,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -139,11 +131,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -549,11 +537,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -603,11 +587,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -667,11 +647,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -1135,11 +1111,7 @@
                                 "loc_baseStatDescription": "Duration of recharge time in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -1180,11 +1152,7 @@
                                 "loc_statReferenceName": "Power Recharge Penalty"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -1225,11 +1193,7 @@
                                 "loc_statReferenceName": "Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -1524,11 +1488,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -1568,11 +1528,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -1632,11 +1588,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -2023,11 +1975,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -2067,11 +2015,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -2131,11 +2075,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -2607,11 +2547,7 @@
                                 "loc_baseStatDescription": "Duration of recharge time in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -2653,11 +2589,7 @@
                                 "loc_statReferenceDescription": "Duration of the buff in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -2698,11 +2630,7 @@
                                 "loc_statReferenceDescription": "Duration of the buff in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -3096,11 +3024,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -3141,11 +3065,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -3184,11 +3104,7 @@
                                 "loc_statReferenceName": "Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -3585,11 +3501,7 @@
                                 "loc_baseStatDescription": "Duration of recharge time in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -3629,11 +3541,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -3674,11 +3582,7 @@
                                 "loc_statReferenceDescription": "The amount of damage that Backlash can absorb before being destroyed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4022,11 +3926,7 @@
                                 "loc_baseStatName": "Regeneration Delay Reduction"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4066,11 +3966,7 @@
                                 "loc_statReferenceName": "Power Cell Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4109,11 +4005,7 @@
                                 "loc_statReferenceName": "Duration"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4420,11 +4312,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4484,11 +4372,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4527,11 +4411,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4908,11 +4788,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -4972,11 +4848,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -5015,11 +4887,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -5408,11 +5276,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -5472,11 +5336,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -5515,11 +5375,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -5908,11 +5764,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -5972,11 +5824,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -6015,11 +5863,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -6413,11 +6257,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -6458,11 +6298,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -6521,11 +6357,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -6948,11 +6780,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -6993,11 +6821,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -7056,11 +6880,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -7489,11 +7309,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -7534,11 +7350,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -7597,11 +7409,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -8038,11 +7846,7 @@
                                 "loc_statReferenceName": "Power Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -8082,11 +7886,7 @@
                                 "loc_statReferenceName": "to all Power Effect Durations"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -8116,11 +7916,7 @@
                             "isDetonator": false,
                             "primerType": "Electric"
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -8510,11 +8306,7 @@
                                 "loc_statReferenceName": "Damage Resistance While Ascended"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -8566,11 +8358,7 @@
                                 "loc_statReferenceName": "Power Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -8611,11 +8399,7 @@
                                 "loc_statReferenceDescription": "Number of electric charges the Kineticist must accumulate before activating biotic ascension."
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9009,11 +8793,7 @@
                                 "loc_baseStatName": "Shields Restored"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9053,11 +8833,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9106,11 +8882,7 @@
                                 "loc_statReferenceName": "Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9492,11 +9264,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9535,11 +9303,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9598,11 +9362,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -9994,11 +9754,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10038,11 +9794,7 @@
                                 "loc_statReferenceName": "Direct Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10081,11 +9833,7 @@
                                 "loc_statReferenceName": "Direct Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10441,11 +10189,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10485,11 +10229,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10528,11 +10268,7 @@
                                 "loc_statReferenceName": "Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10903,11 +10639,7 @@
                                 "loc_baseStatName": "Stun Duration (seconds)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -10975,11 +10707,7 @@
                                 "loc_statReferenceName": "Tech Construct Health"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -11018,11 +10746,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -11462,11 +11186,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -11507,11 +11227,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -11561,11 +11277,7 @@
                                 "loc_statReferenceName": "Shields Restored"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -11992,11 +11704,7 @@
                                 "loc_baseStatDescription": "Duration of recharge time in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12036,11 +11744,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12079,11 +11783,7 @@
                                 "loc_statReferenceName": "All Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12423,11 +12123,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12468,11 +12164,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12511,11 +12203,7 @@
                                 "loc_statReferenceName": "Damage Resistance"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12923,11 +12611,7 @@
                                 "loc_baseStatName": "Power Cell (Grenade) Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -12967,11 +12651,7 @@
                                 "loc_statReferenceName": "Power Cell (Grenade) Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13010,11 +12690,7 @@
                                 "loc_statReferenceName": "Direct Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13376,11 +13052,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13420,11 +13092,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13463,11 +13131,7 @@
                                 "loc_statReferenceName": "All Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13797,11 +13461,7 @@
                                 "loc_baseStatName": "Spread Radius (m)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13841,11 +13501,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -13886,11 +13542,7 @@
                                 "loc_statReferenceDescription": "Duration of recharge time in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -14269,11 +13921,7 @@
                                 "loc_baseStatName": "Kills Required"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -14323,11 +13971,7 @@
                                 "loc_statReferenceName": "Weapon Weight Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -14386,11 +14030,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -14886,11 +14526,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -14930,11 +14566,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -14983,11 +14615,7 @@
                                 "loc_statReferenceName": "Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -15316,11 +14944,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -15360,11 +14984,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -15424,11 +15044,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -15833,11 +15449,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -15877,11 +15489,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -15941,11 +15549,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -16386,11 +15990,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -16430,11 +16030,7 @@
                                 "loc_statReferenceName": "Damage Radius"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -16483,11 +16079,7 @@
                                 "loc_statReferenceName": "Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -16808,11 +16400,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -16852,11 +16440,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -16906,11 +16490,7 @@
                                 "loc_statReferenceName": "Power Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -17274,11 +16854,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -17318,11 +16894,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -17372,11 +16944,7 @@
                                 "loc_statReferenceName": "Power Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -17741,11 +17309,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -17785,11 +17349,7 @@
                                 "loc_statReferenceName": "Weapon Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -17839,11 +17399,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -18216,11 +17772,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -18270,11 +17822,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -18314,11 +17862,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -18673,11 +18217,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -18727,11 +18267,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -18782,11 +18318,7 @@
                                 "loc_statReferenceName": "Tech Construct Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -19141,11 +18673,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -19195,11 +18723,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -19239,11 +18763,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -19608,11 +19128,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -19662,11 +19178,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -19706,11 +19218,7 @@
                                 "loc_statReferenceName": "Power Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20116,11 +19624,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20160,11 +19664,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20203,11 +19703,7 @@
                                 "loc_statReferenceName": "All Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20527,11 +20023,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20571,11 +20063,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20614,11 +20102,7 @@
                                 "loc_statReferenceName": "Duration"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20948,11 +20432,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -20992,11 +20472,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21035,11 +20511,7 @@
                                 "loc_statReferenceName": "Duration"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21397,11 +20869,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21441,11 +20909,7 @@
                                 "loc_statReferenceName": "Enhanced Vision Range"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21484,11 +20948,7 @@
                                 "loc_statReferenceName": "Penetration Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21845,11 +21305,7 @@
                                 "loc_baseStatName": "Time Before Bonus Falloff (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21921,11 +21377,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -21982,11 +21434,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -22422,11 +21870,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -22468,11 +21912,7 @@
                                 "loc_statReferenceDescription": "Duration of the buff in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -22513,11 +21953,7 @@
                                 "loc_statReferenceDescription": "Duration of the buff in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -22945,11 +22381,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -22991,11 +22423,7 @@
                                 "loc_statReferenceDescription": "Duration of the buff in seconds"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23046,11 +22474,7 @@
                                 "loc_statReferenceName": "Shields per Second"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23402,11 +22826,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23446,11 +22866,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23499,11 +22915,7 @@
                                 "loc_statReferenceName": "Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23837,11 +23249,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23881,11 +23289,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -23924,11 +23328,7 @@
                                 "loc_statReferenceName": "Damage per Second"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -24268,11 +23668,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -24312,11 +23708,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -24355,11 +23747,7 @@
                                 "loc_statReferenceName": "Area Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -24719,11 +24107,7 @@
                                 "loc_baseStatName": "Melee Damage Bonus"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -24763,11 +24147,7 @@
                                 "loc_statReferenceName": "Power Cell Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -24808,11 +24188,7 @@
                                 "loc_statReferenceDescription": "Duration of Tactical Cloak after it is activated"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -25174,11 +24550,7 @@
                                 "loc_baseStatName": "Power Cell (Grenade) Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -25218,11 +24590,7 @@
                                 "loc_statReferenceName": "Power Cell (Grenade) Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -25261,11 +24629,7 @@
                                 "loc_statReferenceName": "Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -25618,11 +24982,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -25681,11 +25041,7 @@
                                 "loc_statReferenceShortDescription": "Increases the maximum shields for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -25724,11 +25080,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -26113,11 +25465,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -26187,11 +25535,7 @@
                                 "loc_statReferenceName": "Tech Construct Health"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -26230,11 +25574,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -26628,11 +25968,7 @@
                                 "loc_statReferenceShortDescription": "Improves the health and shield regeneration delay for all characters"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -26702,11 +26038,7 @@
                                 "loc_statReferenceName": "Power Restoration & Defense"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -26745,11 +26077,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -27140,11 +26468,7 @@
                                 "loc_baseStatName": "Melee Damage Bonus"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -27184,11 +26508,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -27229,11 +26549,7 @@
                                 "loc_statReferenceDescription": "Duration of Tactical Cloak after it is activated"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -27552,11 +26868,7 @@
                                 "loc_statReferenceName": "Damage Resistance"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -27596,11 +26908,7 @@
                                 "loc_statReferenceName": "Melee Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -27639,11 +26947,7 @@
                                 "loc_statReferenceName": "Damage Resistance"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28025,11 +27329,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28069,11 +27369,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28122,11 +27418,7 @@
                                 "loc_statReferenceName": "All Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28468,11 +27760,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28512,11 +27800,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28565,11 +27849,7 @@
                                 "loc_statReferenceName": "All Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28931,11 +28211,7 @@
                                 "loc_baseStatName": "Power Cell Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -28975,11 +28251,7 @@
                                 "loc_statReferenceName": "Power Cell Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29028,11 +28300,7 @@
                                 "loc_statReferenceName": "Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29412,11 +28680,7 @@
                                 "loc_statReferenceName": "Clip Size Bonus"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29456,11 +28720,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29500,11 +28760,7 @@
                                 "loc_statReferenceName": "Gun Damage Bonus"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29898,11 +29154,7 @@
                                 "loc_baseStatName": "Recharge Time (s)"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29942,11 +29194,7 @@
                                 "loc_statReferenceName": "Recharge Speed"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -29985,11 +29233,7 @@
                                 "loc_statReferenceName": "All Damage"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -30321,11 +29565,7 @@
                                 "loc_statReferenceName": "Shrapnel Damage vs. Armor"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -30365,11 +29605,7 @@
                                 "loc_statReferenceName": "Power Cell Capacity"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
@@ -30419,11 +29655,7 @@
                                 "loc_statReferenceName": "Area Force"
                             }
                         },
-                        "unlockConditions": [
-                            {
-                                "conditions": {}
-                            }
-                        ],
+                        "unlockConditions": [{ "conditions": {} }],
                         "levels": [
                             {
                                 "level": 1,
