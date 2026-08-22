@@ -87,7 +87,7 @@ pub struct Game {
     pub players: Vec<GamePlayer>,
 
     pub modifiers: Vec<MissionModifier>,
-    pub mission_data: Option<CompleteMissionData>,
+
     pub processed_data: Option<MissionDetails>,
 
     /// Services access
@@ -137,7 +137,6 @@ impl Game {
             reporting_id: 1,
             players: Vec::with_capacity(4),
             modifiers: Vec::new(),
-            mission_data: None,
             processed_data: None,
             games_store,
             tunnel_service,
@@ -220,18 +219,8 @@ impl Game {
             .is_some_and(|host| host.user.id == user_id)
     }
 
-    pub fn set_complete_mission(&mut self, mission_data: CompleteMissionData) {
-        self.mission_data = Some(mission_data);
-        self.processed_data = None;
-    }
-
     pub fn set_modifiers(&mut self, modifiers: Vec<MissionModifier>) {
         self.modifiers = modifiers;
-    }
-
-    /// Get the mission data for processing
-    pub fn get_mission_data(&self) -> Option<CompleteMissionData> {
-        self.mission_data.clone()
     }
 
     pub fn get_processed_data(&self) -> Option<MissionDetails> {

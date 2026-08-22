@@ -66,7 +66,7 @@ pub struct MissionTag {
     pub i18n_name: I18nName,
     /// Localized description of the tag (Appears unused)
     #[serde(flatten)]
-    pub i18n_desc: I18nDesc,
+    pub i18n_desc: Option<I18nDesc>,
 }
 
 impl Localized for MissionTag {

@@ -143,7 +143,7 @@ pub fn router() -> Router {
                 .route("/seen", put(inventory::update_inventory_seen))
                 .route("/consume", post(inventory::consume_inventory)),
         )
-        .route("//em/v3/{*path}", any(ok))
+        .route("/em/v3/{*path}", any(ok))
         .route("/presence/session", put(presence::update_session))
         .route("/pinEvents", post(telemetry::pin_events))
         .nest(

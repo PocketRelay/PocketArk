@@ -76,17 +76,17 @@ impl TdfSerialize for PreAuthResponse {
             w.tag_u8(b"LNP", 10);
 
             let official_ping_sites = official_ping_sites();
-            // w.tag_map_tuples(b"LTPS", &official_ping_sites);
-            w.tag_map_tuples(
-                b"LTPS",
-                &[(
-                    "bio-dub".to_string(),
-                    PingSiteAlias {
-                        alias: "localhost".to_string(),
-                        port: LOCAL_HTTP_PORT,
-                    },
-                )],
-            );
+            w.tag_map_tuples(b"LTPS", &official_ping_sites);
+            // w.tag_map_tuples(
+            //     b"LTPS",
+            //     &[(
+            //         "bio-dub".to_string(),
+            //         PingSiteAlias {
+            //             alias: "localhost".to_string(),
+            //             port: LOCAL_HTTP_PORT,
+            //         },
+            //     )],
+            // );
 
             // {
             //     w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);

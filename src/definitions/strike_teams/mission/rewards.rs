@@ -22,7 +22,7 @@ pub struct MissionRewards {
     /// Unique ID for the rewards collection
     pub name: MissionRewardsId,
     /// Currency rewards from the mission
-    pub currency_reward: CurrencyReward,
+    pub currency_reward: Option<CurrencyReward>,
     /// Multiplayer items earned from the mission
     #[serde_as(as = "serde_with::Map<_, _>")]
     pub mp_item_rewards: Vec<(ItemName, u32)>,
@@ -31,7 +31,7 @@ pub struct MissionRewards {
     pub sp_item_rewards: Vec<(ItemName, u32)>,
     /// Definitions of the items that should be earned
     #[serde(default)]
-    pub item_definitions: Vec<ItemDefinition>,
+    pub item_definitions: Option<Vec<ItemDefinition>>,
 }
 
 impl Localized for MissionRewards {
@@ -62,10 +62,30 @@ impl MissionRewards {
 
         Self {
             name: Uuid::new_v4(),
-            currency_reward,
+            currency_reward: Some(currency_reward),
             mp_item_rewards,
             sp_item_rewards,
-            item_definitions,
+            item_definitions: Some(item_definitions),
+        }
+    }
+
+    /// Construct new mission rewards
+    pub fn empty() -> Self {
+        let currency_reward = CurrencyReward {
+            name: CurrencyType::Mission,
+            value: 5,
+        };
+
+        let mp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
+        let sp_item_rewards: Vec<(ItemName, u32)> = Vec::new();
+        let item_definitions = Vec::new();
+
+        Self {
+            name: uuid::uuid!("8d8c4dc3-d44c-4bd1-840b-9344c60f5bf6"),
+            currency_reward: Some(currency_reward),
+            mp_item_rewards,
+            sp_item_rewards,
+            item_definitions: Some(item_definitions),
         }
     }
 }

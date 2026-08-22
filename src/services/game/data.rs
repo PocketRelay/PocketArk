@@ -408,7 +408,7 @@ pub async fn process_player_data(
         .collect();
 
     let result = PlayerInfoResult {
-        challenges_updated: Default::default(),
+        challenges_updated,
         items_earned: data_builder.items_earned,
         xp_earned: data_builder.xp_earned,
         previous_xp: previous_xp.current,

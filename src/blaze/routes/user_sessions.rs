@@ -1,5 +1,8 @@
 use std::sync::Arc;
 
+use bytes::Bytes;
+use tdf::types::bytes::serialize_bytes;
+
 use crate::{
     blaze::{
         data::NetData,
@@ -11,8 +14,9 @@ use crate::{
                 UserSessionsError,
             },
         },
-        router::{Blaze, Extension},
-        session::SessionLink,
+        packet::Packet,
+        router::{Blaze, BlazeWithHeader, Extension},
+        session::{NotifyContext, SessionLink},
     },
     database::entity::User,
     services::sessions::Sessions,
@@ -54,15 +58,28 @@ pub async fn update_hardware_flags(session: SessionLink, Blaze(req): Blaze<Updat
 
 /// Attempts to lookup another authenticated session details
 pub async fn lookup_user(
-    Blaze(req): Blaze<LookupRequest>,
+    BlazeWithHeader { req, header }: BlazeWithHeader<LookupRequest>,
     Extension(sessions): Extension<Arc<Sessions>>,
-) -> ServerResult<Blaze<LookupResponse>> {
+) -> ServerResult<Packet> {
+    if req.player_id == 1000311330111 {
+        let pre_msg = NotifyContext {
+            uid: 0,
+            error: 96258,
+        };
+        let packet = Packet::new(header.response(), serialize_bytes(&pre_msg), Bytes::new());
+        return Ok(packet);
+    }
+
     if let Some(session) = sessions.lookup_session(req.player_id as u32) {
         let response = session
             .data
             .get_lookup_response()
             .ok_or(UserSessionsError::UserNotFound)?;
-        return Ok(Blaze(response));
+        return Ok(Packet::new(
+            header.response(),
+            Bytes::new(),
+            serialize_bytes(&response),
+        ));
     }
 
     // // Lookup the session
@@ -77,7 +94,7 @@ pub async fn lookup_user(
     //     .ok_or(UserSessionsError::UserNotFound)?;
 
     // Ok(Blaze(response))
-    Ok(Blaze(LookupResponse {
+    let response = LookupResponse {
         user: OwnedUserIdentification {
             id: req.player_id,
             name: "test2".to_string(),
@@ -89,5 +106,11 @@ pub async fn lookup_user(
             }),
             user_id: req.player_id,
         },
-    }))
+    };
+
+    Ok(Packet::new(
+        header.response(),
+        Bytes::new(),
+        serialize_bytes(&response),
+    ))
 }

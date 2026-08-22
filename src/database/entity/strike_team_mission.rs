@@ -30,9 +30,12 @@ pub type StrikeTeamMissionId = u32;
 pub struct Model {
     /// Unique ID of the strike team mission
     #[sea_orm(primary_key)]
-    #[serde(rename = "name")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
+    #[serde(skip)]
     pub id: StrikeTeamMissionId,
+    /// Internal game name UUID, the game hates us if we try using a string version of our regular ID
+    /// and will deadlock the game
+    #[sea_orm(unique)]
+    pub name: Uuid,
     /// The mission descriptor details
     pub descriptor: MissionDescriptor,
     /// The mission type details
@@ -185,6 +188,7 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         ActiveModel {
+            name: Set(Uuid::new_v4()),
             descriptor: Set(data.descriptor),
             mission_type: Set(data.mission_type),
             tags: Set(SeaJson(data.tags)),
@@ -209,6 +213,7 @@ impl Model {
         C: ConnectionTrait + Send,
     {
         Entity::insert_many(data.into_iter().map(|data| ActiveModel {
+            name: Set(Uuid::new_v4()),
             descriptor: Set(data.descriptor),
             mission_type: Set(data.mission_type),
             tags: Set(SeaJson(data.tags)),

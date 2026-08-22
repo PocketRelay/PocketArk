@@ -1,0 +1,82 @@
+{
+    "name": "136e4fe3-afb4-364e-bd98-d23535d49140",
+    "descriptor": {
+        "name": "c82d0897-22d8-49c2-aae0-4878640d7c61",
+        "i18nName": "160746",
+        "locName": "TUTORIAL MISSION",
+        "i18nDesc": "215329",
+        "locDesc": "Learn the basics of Multiplayer Missions",
+        "customAttributes": {}
+    },
+    "missionType": {
+        "name": "042a14d5-da99-4b7d-ad24-03a641253667",
+        "descriptor": {
+            "name": "c82d0897-22d8-49c2-aae0-4878640d7c61",
+            "i18nName": "160746",
+            "locName": "TUTORIAL MISSION",
+            "i18nDesc": "215329",
+            "locDesc": "Learn the basics of Multiplayer Missions",
+            "customAttributes": {}
+        },
+        "giveCurrency": false,
+        "giveXp": true
+    },
+    "accessibility": "Multi_Player",
+    "userMissionState": "COMPLETED",
+    "waves": [
+        {
+            "name": "78e4c84e-3482-4922-b004-9daced6750d9",
+            "waveType": "WaveType_Objective",
+            "customAttributes": {
+                "sObjectiveOverride_Wave1": "R MEMPObjectiveTag_Complexity 17",
+                "iWaveType_Wave1": "4"
+            }
+        },
+        {
+            "name": "54c223a7-440d-4f42-90ca-e02ddac3e7f3",
+            "waveType": "WaveType_Objective",
+            "customAttributes": {
+                "sObjectiveOverride_Wave2": "R MEMPObjectiveTag_Complexity 19",
+                "i_OVE_Bronze_Wave02_CreatureNumActive1": "2",
+                "i_OVE_Bronze_Wave02_CreatureNumActive2": "-1",
+                "i_OVE_Bronze_Wave02_CreatureNumActive3": "-1",
+                "i_OVE_Bronze_Wave02_CreatureIndex2": "-1",
+                "i_OVE_Bronze_Wave02_CreatureIndex3": "-1",
+                "i_OVE_Bronze_Wave02_Cooldown1": "2",
+                "iWaveType_Wave2": "4"
+            }
+        },
+        {
+            "name": "cb1dec26-417f-4deb-9e1b-c6e8cc28f05d",
+            "waveType": "WaveType_Objective",
+            "customAttributes": {
+                "sObjectiveOverride_Wave3": "R MEMPObjectiveTag_Complexity 21",
+                "i_OVE_Bronze_Wave03_CreatureNumActive1": "2",
+                "i_OVE_Bronze_Wave03_CreatureIndex2": "-1",
+                "i_OVE_Bronze_Wave03_CreatureNumActive2": "-1",
+                "i_OVE_Bronze_Wave03_CreatureIndex3": "-1",
+                "i_OVE_Bronze_Wave03_CreatureNumActive3": "-1",
+                "i_OVE_Bronze_Wave03_Cooldown1": "2",
+                "iWaveType_Wave3": "4"
+            }
+        }
+    ],
+    "tags": [],
+    "staticModifiers": [
+        { "name": "difficulty", "value": "bronze" },
+        { "name": "enemyType", "value": "kett" },
+        { "name": "level", "value": "MPBlack" }
+    ],
+    "dynamicModifiers": [],
+    "rewards": {
+        "name": "8d8c4dc3-d44c-4bd1-840b-9344c60f5bf6",
+        "mpItemRewards": {},
+        "spItemRewards": {}
+    },
+    "seen": true,
+    "customAttributes": { "iNumWaves": "3" },
+    "startSeconds": 1484265600,
+    "endSeconds": 0,
+    "spLengthSeconds": 20,
+    "completed": true
+}

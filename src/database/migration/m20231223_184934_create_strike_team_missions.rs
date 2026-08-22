@@ -19,6 +19,12 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
+                    .col(
+                        ColumnDef::new(StrikeTeamMissions::Name)
+                            .uuid()
+                            .not_null()
+                            .unique_key(),
+                    )
                     // The mission descriptor details
                     .col(
                         ColumnDef::new(StrikeTeamMissions::Descriptor)
@@ -99,6 +105,7 @@ impl MigrationTrait for Migration {
 pub enum StrikeTeamMissions {
     Table,
     Id,
+    Name,
     Descriptor,
     MissionType,
     Accessibility,

@@ -50,6 +50,9 @@ pub async fn current_missions(
 
     missions.localize(I18n::get());
 
+    let tutorial_mission: StrikeTeamMissionWithState =
+        serde_json::from_str(include_str!("tutorial_mission.json")).unwrap();
+    missions.push(tutorial_mission);
     // debug!("MISSION LIST: {:?}", missions);
 
     Ok(Json(VecWithCount::new(missions)))
@@ -63,7 +66,6 @@ pub async fn current_missions(
 /// game and rewards etc
 pub async fn get_mission(
     Path(mission_id): Path<u32>,
-    Extension(db): Extension<DatabaseConnection>,
     Extension(games): Extension<Arc<Games>>,
 ) -> HttpResult<MissionDetails> {
     debug!("Requested mission details: {}", mission_id);
@@ -72,32 +74,11 @@ pub async fn get_mission(
         .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
-    {
-        let game = game.read();
-        if let Some(mission_data) = game.get_processed_data() {
-            debug!("Mission data already processed, returning");
-            return Ok(Json(mission_data));
-        }
-    }
+    let game = game.read();
 
-    let mission_data = {
-        let game = game.read();
-        game.get_mission_data()
-            .ok_or(MissionError::MissingMissionData)?
-    };
-
-    let mission_data = process_mission_data(&db, mission_data).await;
-
-    {
-        let mut game = game.write();
-        game.set_processed(mission_data.clone());
-    }
-
-    debug!("Processed mission data: {:?}", mission_data);
-    debug!(
-        "Processed mission data OUTPUT: {}",
-        serde_json::to_string(&mission_data).unwrap()
-    );
+    let mission_data = game
+        .get_processed_data()
+        .ok_or(MissionError::MissingMissionData)?;
 
     Ok(Json(mission_data))
 }
@@ -131,6 +112,7 @@ pub async fn start_mission(
 /// Submits the details of a mission that has been finished
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
+    Extension(db): Extension<DatabaseConnection>,
     Extension(games): Extension<Arc<Games>>,
     JsonDump(req): JsonDump<CompleteMissionData>,
 ) -> Result<StatusCode, DynHttpError> {
@@ -140,9 +122,14 @@ pub async fn finish_mission(
         .get_by_id(mission_id)
         .ok_or(MissionError::UnknownGame)?;
 
-    {
-        game.write().set_complete_mission(req);
-    }
+    let complete_data = req;
+    let mission_data = process_mission_data(&db, complete_data).await;
+    debug!(
+        "Processed mission data OUTPUT: {}",
+        serde_json::to_string(&mission_data).unwrap()
+    );
+    let game = &mut *game.write();
+    game.set_processed(mission_data);
 
     Ok(StatusCode::NO_CONTENT)
 }

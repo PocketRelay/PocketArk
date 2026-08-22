@@ -130,7 +130,7 @@ pub struct StrikeTeamMissionSpecific {
     pub finish_time: DateTimeUtc,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamMissionWithState {
     #[serde(flatten)]
