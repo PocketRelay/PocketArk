@@ -180,19 +180,7 @@ impl Model {
         user.find_related(Entity).all(db)
     }
 
-    // #[allow(unused)]
-    // pub fn get_items<'db, C>(
-    //     db: &'db C,
-    //     user: &User,
-    //     ids: Vec<ItemId>,
-    // ) -> impl Future<Output = DbResult<Vec<InventoryItem>>> + Send + 'db
-    // where
-    //     C: ConnectionTrait + Send,
-    // {
-    //     user.find_related(Entity)
-    //         .filter(Column::Id.is_in(ids))
-    //         .all(db)
-    // }
+
 
     /// Finds an item from the users collection of items with a matching `id`
     pub fn get<'db, C>(

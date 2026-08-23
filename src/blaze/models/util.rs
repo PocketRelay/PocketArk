@@ -88,16 +88,6 @@ impl TdfSerialize for PreAuthResponse {
             //     )],
             // );
 
-            // {
-            //     w.tag_map_start(b"LTPS", TdfType::String, TdfType::Group, 1);
-            //     w.group_body(|w| {
-            //         PING_SITE_ALIAS.serialize(w);
-            //         // TODO: Replace this host and port with the local QOS server when complete
-            //         w.tag_str(b"PSA", "localhost");
-            //         w.tag_u16(b"PSP", LOCAL_HTTP_PORT);
-            //     });
-            // }
-
             w.tag_u32(b"TIME", 5000000);
         });
 

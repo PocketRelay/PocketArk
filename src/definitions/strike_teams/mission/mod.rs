@@ -228,11 +228,10 @@ where
     let dynamic_modifiers: Vec<MissionModifier> = MissionModifier::dynamic_modifiers(rng)?;
 
     // Create the mission rewards
-    // let rewards = mission
-    //     .rewards
-    //     .clone()
-    //     .unwrap_or_else(|| MissionRewards::new(difficulty, mission.accessibility));
-    let rewards = MissionRewards::empty();
+    let rewards = mission
+        .rewards
+        .clone()
+        .unwrap_or_else(|| MissionRewards::new(difficulty, mission.accessibility));
     let custom_attributes = CustomAttributes::default();
 
     // Get the custom wave definitions or empty list
