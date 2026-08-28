@@ -1,8 +1,8 @@
 use super::{SeaJson, User, users::UserId};
 use crate::{
     database::DbResult,
-    definitions::challenges::{ChallengeCounter, ChallengeDefinition, ChallengeName},
-    services::game::data::ChallengeProgressChange,
+    definitions::challenges::{ChallengeCounter, ChallengeName},
+    services::challenges::AppliedChallengeProgressUpdate,
     utils::ImStr,
 };
 use chrono::Utc;
@@ -91,36 +91,6 @@ pub struct ChallengeProgressCounterWithDefinition {
     pub counter: ChallengeProgressCounter,
 }
 
-impl ChallengeProgressCounter {
-    /// Adds progress to this counter
-    pub fn add_progress(&mut self, progress: u32) {
-        // Add the progress
-        self.total_count = self.total_count.saturating_add(progress);
-        self.current_count = self.current_count.saturating_add(progress);
-    }
-
-    /// Processes the counter state ensuring that the times completed
-    /// and current count are adjusted
-    pub fn process(
-        &mut self,
-        definition: &ChallengeDefinition,
-        counter_definition: &ChallengeCounter,
-    ) {
-        if definition.base.can_repeat {
-            // Handle repeating the task multiple times
-            while self.current_count >= counter_definition.target_count {
-                // Remove the completed amount
-                self.current_count -= counter_definition.target_count;
-                // Increase the times completed
-                self.times_completed += 1;
-            }
-        } else if self.current_count > counter_definition.target_count {
-            self.current_count = counter_definition.target_count;
-            self.times_completed = 1;
-        }
-    }
-}
-
 /// Enum for the different known challenge states
 #[derive(
     Debug, EnumIter, DeriveActiveEnum, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash,
@@ -206,76 +176,20 @@ impl Model {
             .ok_or(DbErr::RecordNotInserted)
     }
 
-    pub async fn update<C>(
-        db: &C,
-        user: &User,
-        change: &ChallengeProgressChange,
-    ) -> DbResult<(Self, ChallengeProgressCounter, CounterUpdateType)>
+    pub async fn update<C>(self, db: &C, change: AppliedChallengeProgressUpdate) -> DbResult<Self>
     where
         C: ConnectionTrait + Send,
     {
-        // TODO: How are challenges reset?
-
-        let now = Utc::now();
-
-        // Load the challenge
-        let mut challenge = Self::get_or_create(db, user, change.definition.base.name).await?;
-
-        // Take all the counters from the original list
-        let mut counters = challenge.counters.0.split_off(0);
-
-        let update_type: CounterUpdateType;
-
-        // Find the counter if it already exists
-        let counter = if let Some(existing) = counters
-            .iter_mut()
-            .find(|counter| counter.name == change.counter.name)
-        {
-            update_type = CounterUpdateType::Changed;
-            existing
-        } else {
-            // Create a new counter
-            update_type = CounterUpdateType::Created;
-
-            counters.push(ChallengeProgressCounter::new(change.counter.name.clone()));
-
-            counters
-                .last_mut()
-                .expect("Counter was just inserted but is missing")
-        };
-
-        let prev_completion_times = counter.times_completed;
-
-        // Add and update the progression
-        counter.add_progress(change.progress);
-        counter.process(change.definition, change.counter);
-        counter.last_changed = now;
-
-        // Take a copy of the counter for re-use
-        let counter = counter.clone();
-
-        // First completion
-        let first_completion = prev_completion_times == 0 && counter.times_completed > 0;
-        // Challenge counter was completed
-        let completed = prev_completion_times != counter.times_completed;
-
         // Update the stored challenge progress
-        let mut model = challenge.into_active_model();
-        model.last_changed = Set(now);
-        model.times_completed = Set(counter.times_completed);
-        model.counters = Set(SeaJson(counters));
-
-        if first_completion {
-            model.first_completed = Set(Some(now));
-        }
-
-        if completed {
-            model.last_completed = Set(Some(now));
-            model.state = Set(ChallengeState::Completed);
-        }
-
+        let mut model = self.into_active_model();
+        model.last_changed = Set(change.last_changed);
+        model.times_completed = Set(change.times_completed);
+        model.counters = Set(SeaJson(change.counters));
+        model.first_completed = Set(change.first_completed);
+        model.last_completed = Set(change.last_completed);
+        model.state = Set(change.state);
         let model = model.update(db).await?;
-        Ok((model, counter, update_type))
+        Ok(model)
     }
 }
 

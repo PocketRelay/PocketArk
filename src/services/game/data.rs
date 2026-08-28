@@ -24,9 +24,12 @@ use crate::{
         CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
         PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
-    services::activity::{
-        ActivityEvent, ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated,
-        PrestigeData, PrestigeProgression,
+    services::{
+        activity::{
+            ActivityEvent, ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated,
+            PrestigeData, PrestigeProgression,
+        },
+        challenges::apply_challenge_progress_change,
     },
     utils::models::Sku,
 };
@@ -358,7 +361,10 @@ pub async fn process_player_data(
 
     // Save challenge changes
     for (index, change) in data_builder.challenges_updates.iter().enumerate() {
-        let (model, counter, change_type) = ChallengeProgress::update(db, &user, change).await?;
+        let challenge_name = change.definition.base.name;
+        let challenge = ChallengeProgress::get_or_create(db, &user, challenge_name).await?;
+        let (update, change_type, counter) = apply_challenge_progress_change(&challenge, change);
+        let model = challenge.update(db, update).await?;
 
         let status_change = match change_type {
             CounterUpdateType::Changed => ChallengeStatusChange::Changed,
