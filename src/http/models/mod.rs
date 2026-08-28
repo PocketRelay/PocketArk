@@ -21,15 +21,6 @@ pub use errors::*;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ListWithCount<V>
-where
-    V: Debug + Sized + Serialize + 'static,
-{
-    pub total_count: usize,
-    pub list: &'static [V],
-}
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct VecWithCount<V>
 where
     V: Debug + Sized + Serialize + 'static,
@@ -43,18 +34,6 @@ where
     V: Debug + Sized + Serialize + 'static,
 {
     pub fn new(list: Vec<V>) -> Self {
-        Self {
-            total_count: list.len(),
-            list,
-        }
-    }
-}
-
-impl<V> ListWithCount<V>
-where
-    V: Debug + Sized + Serialize + 'static,
-{
-    pub fn new(list: &'static [V]) -> Self {
         Self {
             total_count: list.len(),
             list,

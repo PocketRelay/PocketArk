@@ -9,8 +9,8 @@ use crate::{
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
         middleware::{
-            JsonDump, association::Association, ip_address::IpAddress,
-            json_validated::JsonValidated, upgrade::Upgrade, user::Auth,
+            association::Association, ip_address::IpAddress, json_validated::JsonValidated,
+            upgrade::Upgrade, user::Auth,
         },
         models::{
             DynHttpError, HttpResult,

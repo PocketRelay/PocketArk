@@ -16,8 +16,6 @@ use axum::{
 use sea_orm::{DbErr, TransactionError};
 use serde::Serialize;
 
-use crate::http::middleware::JsonDump;
-
 /// Errors that can be encountered when working with currency
 #[derive(Debug, Error)]
 pub enum CurrencyError {
@@ -161,8 +159,8 @@ where
 }
 
 /// Allow conversion from [TransactionError] where the contained error type is
-/// convertable to [DynHttpError], since the [TransactionError::Connection] variant
-/// is always convertable
+/// convertible to [DynHttpError], since the [TransactionError::Connection] variant
+/// is always convertible
 impl<E> From<TransactionError<E>> for DynHttpError
 where
     E: Into<DynHttpError> + Error,

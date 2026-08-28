@@ -5,7 +5,6 @@ use crate::{
     },
     definitions::challenges::{ChallengeDefinition, ChallengeDefinitionBase},
 };
-use sea_orm::prelude::DateTimeUtc;
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;

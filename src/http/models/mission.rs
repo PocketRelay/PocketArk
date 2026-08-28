@@ -4,7 +4,6 @@ use crate::{
     services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
 };
-use chrono::{DateTime, Utc};
 use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

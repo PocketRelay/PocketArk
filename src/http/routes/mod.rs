@@ -180,7 +180,3 @@ pub fn router() -> Router {
 async fn ok() -> Response {
     StatusCode::OK.into_response()
 }
-
-async fn bad_req() -> Response {
-    StatusCode::BAD_REQUEST.into_response()
-}

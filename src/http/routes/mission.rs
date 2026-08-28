@@ -1,6 +1,9 @@
 use crate::{
     database::entity::{StrikeTeamMission, strike_team_mission_progress::UserMissionState},
-    definitions::i18n::{I18n, Localized},
+    definitions::{
+        i18n::{I18n, Localized},
+        mission::tutorial::get_tutorial_mission,
+    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -50,10 +53,8 @@ pub async fn current_missions(
 
     missions.localize(I18n::get());
 
-    let tutorial_mission: StrikeTeamMissionWithState =
-        serde_json::from_str(include_str!("tutorial_mission.json")).unwrap();
+    let tutorial_mission: StrikeTeamMissionWithState = get_tutorial_mission();
     missions.push(tutorial_mission);
-    // debug!("MISSION LIST: {:?}", missions);
 
     Ok(Json(VecWithCount::new(missions)))
 }
