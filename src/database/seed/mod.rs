@@ -38,7 +38,7 @@ pub async fn seed() {
     // InventoryItem::create_default(&db, &user, &items, &characters)
     //     .await
     //     .unwrap();
-    Currency::set_many(
+    Currency::add_many(
         &db,
         &user,
         [

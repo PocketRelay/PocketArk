@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS "seen_articles" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER NOT NULL,
+    "article_id" TEXT NOT NULL,
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE
+);

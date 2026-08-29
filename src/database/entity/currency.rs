@@ -52,7 +52,6 @@ impl ActiveModelBehavior for ActiveModel {}
 impl Model {
     /// The maximum safe amount of currency to have before the game
     /// wraps it to a negative unusable amount
-    #[allow(unused)]
     pub const MAX_SAFE_CURRENCY: u32 = 100_000_000;
 
     /// Sets the default currency values for the provided `user`
@@ -63,7 +62,7 @@ impl Model {
     where
         C: ConnectionTrait + Send,
     {
-        Self::set_many(
+        Self::add_many(
             db,
             user,
             [
@@ -106,26 +105,6 @@ impl Model {
         .exec(db)
     }
 
-    /// Sets multiple currency balances from an iterator of [CurrencyName] and
-    /// balance pairs.
-    pub fn set_many<'db, C, I>(
-        db: &'db C,
-        user: &User,
-        values: I,
-    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
-    where
-        C: ConnectionTrait + Send,
-        I: IntoIterator<Item = (CurrencyType, u32)>,
-    {
-        Entity::insert_many(values.into_iter().map(|(ty, value)| ActiveModel {
-            user_id: Set(user.id),
-            ty: Set(ty),
-            balance: Set(value),
-        }))
-        .on_conflict(Self::set_balance_conflict())
-        .exec(db)
-    }
-
     /// Updates the currency balance setting it to the provided `amount`
     pub fn update<C>(self, db: &C, amount: u32) -> impl Future<Output = DbResult<Self>> + '_
     where
@@ -161,7 +140,6 @@ impl Model {
 
     /// Conflict strategy for adding the balancing onto
     /// an existing balance
-    #[allow(unused)]
     fn add_balance_conflict() -> OnConflict {
         // Update the value column if a key already exists
         OnConflict::columns([Column::UserId, Column::Ty])
@@ -177,28 +155,7 @@ impl Model {
             .to_owned()
     }
 
-    /// Adds an amount to a specific currency balance
-    #[allow(unused)]
-    pub fn add<'db, C>(
-        db: &'db C,
-        user: &User,
-        ty: CurrencyType,
-        amount: u32,
-    ) -> impl Future<Output = DbResult<InsertResult<ActiveModel>>> + 'db
-    where
-        C: ConnectionTrait + Send,
-    {
-        Entity::insert(ActiveModel {
-            user_id: Set(user.id),
-            ty: Set(ty),
-            balance: Set(amount),
-        })
-        .on_conflict(Self::add_balance_conflict())
-        .exec(db)
-    }
-
     /// Adds an amount to multiple balances
-    #[allow(unused)]
     pub fn add_many<'db, C, I>(
         db: &'db C,
         user: &User,
