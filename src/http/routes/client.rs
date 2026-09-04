@@ -2,9 +2,9 @@
 //! and the PocketArk client
 
 use crate::{
-    VERSION,
     blaze::{data::SessionData, router::BlazeRouter, session::Session},
     config::Config,
+    config::VERSION,
     database::entity::{Currency, SharedData, User, users::CreateUser},
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{

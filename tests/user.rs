@@ -1,4 +1,4 @@
-use pocket_ark_database::{
+use pocket_ark::database_v2::{
     dto::users::{CreateUserDto, NormalizedEmail},
     repositories::users::UserRepository,
 };

@@ -2,9 +2,9 @@ use itertools::Itertools;
 use sqlx::AssertSqlSafe;
 use strum::IntoEnumIterator;
 
-use crate::dto::currency::{CurrencyDto, CurrencyType, CurrencyUpdateDto};
-use crate::dto::users::UserId;
-use crate::{DbExecutor, DbResult};
+use crate::database_v2::dto::currency::{CurrencyDto, CurrencyType, CurrencyUpdateDto};
+use crate::database_v2::dto::users::UserId;
+use crate::database_v2::{DbExecutor, DbResult};
 
 pub struct CurrencyRepository;
 

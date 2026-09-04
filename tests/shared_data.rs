@@ -1,4 +1,4 @@
-use pocket_ark_database::{
+use pocket_ark::database_v2::{
     dto::{
         shared_data::{CreateSharedDataDto, SharedDataDto},
         users::UserDto,

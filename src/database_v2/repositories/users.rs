@@ -1,5 +1,5 @@
-use crate::dto::users::{CreateUserDto, NormalizedEmail, UserDto, UserId};
-use crate::{DbExecutor, DbResult};
+use crate::database_v2::dto::users::{CreateUserDto, NormalizedEmail, UserDto, UserId};
+use crate::database_v2::{DbExecutor, DbResult};
 
 pub struct UserRepository;
 

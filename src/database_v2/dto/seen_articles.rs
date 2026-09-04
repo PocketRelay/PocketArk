@@ -1,7 +1,7 @@
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
-use crate::dto::users::UserId;
+use crate::database_v2::dto::users::UserId;
 
 #[derive(Debug, FromRow)]
 pub struct SeenArticleDto {

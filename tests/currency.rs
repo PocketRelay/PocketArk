@@ -1,5 +1,5 @@
 use crate::helpers::{mock_user, test_database};
-use pocket_ark_database::{
+use pocket_ark::database_v2::{
     dto::{
         currency::{CurrencyType, CurrencyUpdateDto},
         users::UserId,

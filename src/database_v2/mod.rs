@@ -8,7 +8,7 @@ use std::{fs::create_dir_all, path::Path};
 pub use sqlx::SqliteExecutor as DbExecutor;
 use sqlx::{ConnectOptions, SqlitePool, sqlite::SqliteConnectOptions};
 
-use crate::migrations::{apply_migrations, initialize_migrations_table};
+use migrations::{apply_migrations, initialize_migrations_table};
 
 pub type DbErr = sqlx::Error;
 pub type DbResult<T> = Result<T, sqlx::Error>;

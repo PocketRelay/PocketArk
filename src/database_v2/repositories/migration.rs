@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::{DbExecutor, DbResult, dto::migration::CreateMigrationDto};
+use crate::database_v2::{DbExecutor, DbResult, dto::migration::CreateMigrationDto};
 
 /// Repository for accessing the table for applied database migrations
 pub struct MigrationRepository;

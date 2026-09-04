@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use strum::EnumIter;
 
-use crate::dto::users::UserId;
+use crate::database_v2::dto::users::UserId;
 
 #[derive(Debug, FromRow)]
 pub struct CurrencyDto {

@@ -3,12 +3,13 @@ use sqlx::AssertSqlSafe;
 use uuid::Uuid;
 
 use crate::{
-    DbExecutor, DbResult,
-    dto::{
+    database_v2::DbExecutor,
+    database_v2::DbResult,
+    database_v2::dto::{
         inventory_items::{CreateInventoryItemDto, InventoryItemDto, InventoryItemEarnedBy},
         users::UserId,
     },
-    extensions::SqlxBindExt,
+    database_v2::extensions::SqlxBindExt,
 };
 
 pub struct InventoryItemsRepository;

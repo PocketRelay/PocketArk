@@ -1,4 +1,4 @@
-use crate::{
+use crate::database_v2::{
     DbResult, dto::migration::CreateMigrationDto, repositories::migration::MigrationRepository,
 };
 use sqlx::{SqlStr, SqliteExecutor, SqliteTransaction, types::chrono::Utc};

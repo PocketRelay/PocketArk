@@ -1,8 +1,8 @@
 use uuid::Uuid;
 
-use crate::dto::shared_data::{CreateSharedDataDto, SharedDataDto};
-use crate::dto::users::UserId;
-use crate::{DbExecutor, DbResult};
+use crate::database_v2::dto::shared_data::{CreateSharedDataDto, SharedDataDto};
+use crate::database_v2::dto::users::UserId;
+use crate::database_v2::{DbExecutor, DbResult};
 
 pub struct SharedDataRepository;
 
