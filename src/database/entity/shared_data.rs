@@ -125,7 +125,6 @@ impl Model {
         shared_data.update(db)
     }
 
-    #[allow(unused)]
     pub fn save_progression<C>(self, db: &C) -> impl Future<Output = DbResult<Self>> + '_
     where
         C: ConnectionTrait + Send,
