@@ -1,11 +1,22 @@
-use pocket_ark::database_v2::{
-    dto::{
-        shared_data::{CreateSharedDataDto, SharedDataDto},
-        users::UserDto,
+use pocket_ark::{
+    database_v2::{
+        dto::{
+            shared_data::{
+                CharacterSharedEquipment, CreateSharedDataDto, SharedDataDto, SharedProgression,
+                SharedStats,
+            },
+            users::UserDto,
+        },
+        repositories::shared_data::SharedDataRepository,
     },
-    repositories::shared_data::SharedDataRepository,
+    definitions::{
+        classes::{CharacterEquipment, NameOrEmpty},
+        i18n::{I18nDescription, I18nName},
+        level_tables::ProgressionXp,
+    },
 };
 use sqlx::SqlitePool;
+use uuid::Uuid;
 
 use crate::helpers::{mock_user, test_database};
 
@@ -16,9 +27,9 @@ async fn mock_create_shared_data(db: &SqlitePool, user: &UserDto) -> SharedDataD
         db,
         CreateSharedDataDto {
             user_id: user.id,
-            shared_equipment: serde_json::json!({ "equipment": true }),
-            shared_progression: serde_json::json!({ "progression": true }),
-            shared_stats: serde_json::json!({"stats": true }),
+            shared_equipment: Default::default(),
+            shared_progression: Default::default(),
+            shared_stats: Default::default(),
         },
     )
     .await
@@ -48,9 +59,9 @@ async fn test_create_user_shared_data() {
         &db,
         CreateSharedDataDto {
             user_id: user.id,
-            shared_equipment: serde_json::json!({ "equipment": true }),
-            shared_progression: serde_json::json!({ "progression": true }),
-            shared_stats: serde_json::json!({"stats": true }),
+            shared_equipment: Default::default(),
+            shared_progression: Default::default(),
+            shared_stats: Default::default(),
         },
     )
     .await
@@ -59,16 +70,10 @@ async fn test_create_user_shared_data() {
     assert_eq!(shared_data.user_id, user.id);
     assert_eq!(
         shared_data.shared_equipment,
-        serde_json::json!({  "equipment": true })
+        CharacterSharedEquipment::default(),
     );
-    assert_eq!(
-        shared_data.shared_progression,
-        serde_json::json!({  "progression": true })
-    );
-    assert_eq!(
-        shared_data.shared_stats,
-        serde_json::json!({  "stats": true })
-    );
+    assert_eq!(shared_data.shared_progression, Vec::new(),);
+    assert_eq!(shared_data.shared_stats, SharedStats::default(),);
 }
 
 /// Tests that we can retrieve the users shared data
@@ -116,9 +121,16 @@ async fn test_set_user_shared_progression() {
     let shared_data = mock_create_shared_data(&db, &user).await;
     assert_eq!(shared_data.active_character_id, None);
 
-    let new_progression = serde_json::json!({"new_progression": true});
+    let new_progression = SharedProgression {
+        name: Uuid::new_v4(),
+        i18n_name: I18nName::new(0),
+        i18n_description: I18nDescription::new(0),
+        level: 1,
+        xp: ProgressionXp::from((0, 0, 0)),
+    };
+    let new_progression = vec![new_progression];
 
-    SharedDataRepository::set_user_shared_progression(&db, user.id, new_progression.clone())
+    SharedDataRepository::set_user_shared_progression(&db, user.id, &new_progression)
         .await
         .unwrap();
 
@@ -137,7 +149,12 @@ async fn test_set_user_shared_equipment() {
     let shared_data = mock_create_shared_data(&db, &user).await;
     assert_eq!(shared_data.active_character_id, None);
 
-    let new_equipment = serde_json::json!({"new_equipment": true});
+    let mut new_equipment = CharacterSharedEquipment::default();
+    new_equipment.list.push(CharacterEquipment {
+        attachments: Vec::new(),
+        name: NameOrEmpty::Name(Uuid::new_v4()),
+        slot: pocket_ark::definitions::classes::EquipmentSlot::BannerSlot,
+    });
 
     SharedDataRepository::set_user_shared_equipment(&db, user.id, new_equipment.clone())
         .await

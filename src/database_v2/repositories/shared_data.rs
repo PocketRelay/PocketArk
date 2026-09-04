@@ -1,6 +1,8 @@
 use uuid::Uuid;
 
-use crate::database_v2::dto::shared_data::{CreateSharedDataDto, SharedDataDto};
+use crate::database_v2::dto::shared_data::{
+    CharacterSharedEquipment, CreateSharedDataDto, SharedDataDto, SharedProgression,
+};
 use crate::database_v2::dto::users::UserId;
 use crate::database_v2::{DbExecutor, DbResult};
 
@@ -12,6 +14,13 @@ impl SharedDataRepository {
         db: impl DbExecutor<'_>,
         create: CreateSharedDataDto,
     ) -> DbResult<SharedDataDto> {
+        let shared_equipment = serde_json::to_string(&create.shared_equipment)
+            .map_err(|err| sqlx::Error::Encode(err.into()))?;
+        let shared_progression = serde_json::to_string(&create.shared_progression)
+            .map_err(|err| sqlx::Error::Encode(err.into()))?;
+        let shared_stats = serde_json::to_string(&create.shared_stats)
+            .map_err(|err| sqlx::Error::Encode(err.into()))?;
+
         sqlx::query_as(
             r#"
             INSERT INTO "shared_data" (
@@ -26,9 +35,9 @@ impl SharedDataRepository {
             "#,
         )
         .bind(create.user_id)
-        .bind(create.shared_equipment)
-        .bind(create.shared_progression)
-        .bind(create.shared_stats)
+        .bind(shared_equipment)
+        .bind(shared_progression)
+        .bind(shared_stats)
         .fetch_one(db)
         .await
     }
@@ -64,8 +73,11 @@ impl SharedDataRepository {
     pub async fn set_user_shared_progression(
         db: impl DbExecutor<'_>,
         user_id: UserId,
-        shared_progression: serde_json::Value,
+        shared_progression: &[SharedProgression],
     ) -> DbResult<bool> {
+        let shared_progression = serde_json::to_string(shared_progression)
+            .map_err(|err| sqlx::Error::Encode(err.into()))?;
+
         let result =
             sqlx::query(r#"UPDATE "shared_data" SET "shared_progression" = ? WHERE "user_id" = ?"#)
                 .bind(shared_progression)
@@ -80,8 +92,10 @@ impl SharedDataRepository {
     pub async fn set_user_shared_equipment(
         db: impl DbExecutor<'_>,
         user_id: UserId,
-        shared_equipment: serde_json::Value,
+        shared_equipment: CharacterSharedEquipment,
     ) -> DbResult<bool> {
+        let shared_equipment = serde_json::to_string(&shared_equipment)
+            .map_err(|err| sqlx::Error::Encode(err.into()))?;
         let result =
             sqlx::query(r#"UPDATE "shared_data" SET "shared_equipment" = ? WHERE "user_id" = ?"#)
                 .bind(shared_equipment)

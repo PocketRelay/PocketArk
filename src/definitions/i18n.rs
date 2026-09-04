@@ -115,7 +115,7 @@ where
 /// containing the lookup key instead containing something
 /// like: "FREE_1100_APEX_POINTS_ON_ADD"
 #[serde_as]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum I18nKey {
     /// Valid i18n lookup key
@@ -128,7 +128,7 @@ pub enum I18nKey {
 /// name in JSON
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct I18nName {
     /// I18n lookup key
@@ -245,7 +245,7 @@ impl Localized for I18nTitle {
 /// and localized description in JSON
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct I18nDescription {
     /// I18n lookup key

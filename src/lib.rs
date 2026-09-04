@@ -34,15 +34,15 @@ use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
 use crate::utils::logging;
 
 #[allow(unused)]
-mod blaze;
+pub mod blaze;
 
-mod config;
+pub mod config;
 mod database;
 pub mod database_v2;
-mod definitions;
-mod http;
-mod services;
-mod utils;
+pub mod definitions;
+pub mod http;
+pub mod services;
+pub mod utils;
 
 pub async fn run() {
     // Load configuration

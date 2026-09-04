@@ -232,7 +232,7 @@ pub enum EquipmentSlot {
 }
 
 /// Character equipment
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CharacterEquipment {
     /// The slot the equipment is in
     pub slot: EquipmentSlot,
@@ -242,7 +242,7 @@ pub struct CharacterEquipment {
     pub attachments: Vec<AttachmentName>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AttachmentName {
     ItemName(ItemName),
@@ -252,7 +252,7 @@ pub enum AttachmentName {
 /// Can be either an item name or empty string,
 ///
 /// [CharacterEquipment::name] may be an empty string if the slot is cleared
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NameOrEmpty {
     #[serde(rename = "")]
     Empty,
