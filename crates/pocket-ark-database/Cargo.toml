@@ -25,6 +25,7 @@ strum = { version = "0.28.0", features = ["derive"] }
 serde = "1.0.229"
 thiserror = "2.0.20"
 itertools = "0.15.0"
+serde_json = "1.0.151"
 
 [dev-dependencies]
 tokio = { version = "1.53.1", features = ["full"] }

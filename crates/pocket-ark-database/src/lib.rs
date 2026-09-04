@@ -1,4 +1,5 @@
 pub mod dto;
+pub mod extensions;
 pub mod migrations;
 pub mod repositories;
 

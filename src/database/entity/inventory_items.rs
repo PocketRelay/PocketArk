@@ -180,8 +180,6 @@ impl Model {
         user.find_related(Entity).all(db)
     }
 
-
-
     /// Finds an item from the users collection of items with a matching `id`
     pub fn get<'db, C>(
         db: &'db C,
@@ -196,21 +194,6 @@ impl Model {
             .one(db)
     }
 
-    /// Finds a item with a matching definition `name` within the users
-    /// collection of items
-    #[allow(unused)]
-    pub fn get_by_name<'db, C>(
-        db: &'db C,
-        user: &User,
-        name: ItemName,
-    ) -> impl Future<Output = DbResult<Option<InventoryItem>>> + Send + 'db
-    where
-        C: ConnectionTrait + Send,
-    {
-        user.find_related(Entity)
-            .filter(Column::DefinitionName.eq(name))
-            .one(db)
-    }
     /// Finds all items with a definition name in the collection of `names` that
     /// are within the user collection of items
     pub fn all_by_names<'db, C>(
