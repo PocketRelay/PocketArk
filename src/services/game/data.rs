@@ -12,14 +12,10 @@ use crate::{
     database::{
         DbErr, DbTransaction,
         dto::{
-            challenge_progress::{
-                ChallengeProgressDto, ChallengeState, CounterUpdateType, CreateChallengeProgressDto,
-            },
-            character::CharacterDto,
-            currency::{CurrencyDto, CurrencyType, CurrencyUpdateDto},
+            challenge_progress::{ChallengeState, CounterUpdateType, CreateChallengeProgressDto},
+            currency::{CurrencyType, CurrencyUpdateDto},
             inventory_items::InventoryItemDto,
             shared_data::{SharedDataDto, SharedProgression},
-            users::UserDto,
         },
         repositories::{
             challenge_progress::ChallengeProgressRepository, characters::CharactersRepository,
@@ -34,12 +30,9 @@ use crate::{
         level_tables::LevelTables,
         match_modifiers::MatchModifiers,
     },
-    http::models::{
-        character::{CharacterClasses, CharacterResponse},
-        mission::{
-            CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData,
-            MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult, RewardSource,
-        },
+    http::models::mission::{
+        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
+        PlayerInfoBadge, PlayerInfoResult, RewardSource,
     },
     services::{
         activity::{
@@ -63,6 +56,7 @@ pub enum PlayerDataProcessError {
     MissingClass,
 }
 
+#[derive(Default)]
 pub struct PlayerDataBuilder {
     pub score: u32,
     pub xp_earned: u32,
@@ -76,16 +70,7 @@ pub struct PlayerDataBuilder {
 
 impl PlayerDataBuilder {
     pub fn new() -> Self {
-        Self {
-            score: 0,
-            xp_earned: 0,
-            reward_sources: Vec::new(),
-            total_currency: HashMap::new(),
-            prestige_progression: PrestigeProgression::default(),
-            items_earned: Vec::new(),
-            challenges_updates: Vec::new(),
-            badges: Vec::new(),
-        }
+        Self::default()
     }
 
     fn append_prestige(map: &mut HashMap<Uuid, PrestigeData>, shared_data: &SharedDataDto) {
@@ -183,7 +168,7 @@ pub async fn process_mission_data(
     db: &mut DbTransaction<'_>,
     mission_data: CompleteMissionData,
 ) -> MissionDetails {
-    let now = Utc::now();
+    let _now = Utc::now();
 
     let waves = mission_data
         .player_data

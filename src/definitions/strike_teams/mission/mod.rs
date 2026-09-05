@@ -17,7 +17,7 @@ use chrono::Utc;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 use strum::Display;
 use uuid::Uuid;
 
@@ -40,12 +40,16 @@ pub struct MissionDefinitions {
     pub special: Vec<MissionDefinition>,
 }
 
-impl MissionDefinitions {
-    pub fn from_str(s: &str) -> serde_json::Result<Self> {
+impl FromStr for MissionDefinitions {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let this: MissionDefinitions = serde_json::from_str(s)?;
         Ok(this)
     }
+}
 
+impl MissionDefinitions {
     pub fn load() -> serde_json::Result<Self> {
         Self::from_str(STRIKE_TEAM_MISSION_DEFINITIONS)
     }

@@ -3,15 +3,12 @@ use sqlx::prelude::FromRow;
 use strum::EnumIter;
 use uuid::Uuid;
 
-use crate::{
-    database::dto::{strike_teams::StrikeTeamId, users::UserId},
-    definitions::{
-        i18n::Localized,
-        shared::CustomAttributes,
-        strike_teams::mission::{
-            MissionDescriptor, mission_type::MissionType, modifier::MissionModifier,
-            rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
-        },
+use crate::definitions::{
+    i18n::Localized,
+    shared::CustomAttributes,
+    strike_teams::mission::{
+        MissionDescriptor, mission_type::MissionType, modifier::MissionModifier,
+        rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
     },
 };
 

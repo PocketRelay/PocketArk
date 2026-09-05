@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use anyhow::Context;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
@@ -23,11 +25,15 @@ pub struct StrikeTeamTraits {
     pub negative: Box<[StrikeTeamTrait]>,
 }
 
-impl StrikeTeamTraits {
-    pub fn from_str(s: &str) -> serde_json::Result<StrikeTeamTraits> {
+impl FromStr for StrikeTeamTraits {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         serde_json::from_str(s)
     }
+}
 
+impl StrikeTeamTraits {
     pub fn load() -> serde_json::Result<Self> {
         Self::from_str(STRIKE_TEAM_TRAIT_DEFINITIONS)
     }

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 
 use crate::definitions::{
@@ -13,13 +15,17 @@ pub struct StrikeTeamSpecializations {
 }
 
 impl StrikeTeamSpecializations {
-    pub fn from_str(s: &str) -> serde_json::Result<Self> {
-        let specializations: Vec<StrikeTeamSpecialization> = serde_json::from_str(s)?;
-        Ok(Self { specializations })
-    }
-
     pub fn load() -> serde_json::Result<Self> {
         Self::from_str(STRIKE_TEAM_SPECIALIZATION_DEFINITIONS)
+    }
+}
+
+impl FromStr for StrikeTeamSpecializations {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let specializations: Vec<StrikeTeamSpecialization> = serde_json::from_str(s)?;
+        Ok(Self { specializations })
     }
 }
 

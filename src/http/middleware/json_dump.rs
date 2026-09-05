@@ -1,13 +1,10 @@
 //! JSON extractor that dumps invalid JSON messages to the logs
 
-use axum::{
-    extract::{FromRequest, Request},
-    response::IntoResponse,
-};
+use axum::extract::{FromRequest, Request};
 use bytes::Bytes;
 use hyper::StatusCode;
 use log::{debug, error};
-use serde::{Serialize, de::DeserializeOwned};
+use serde::de::DeserializeOwned;
 
 /// [axum::Json] extractor alternative for use in debug mode that dumps
 /// incoming payloads to the debug log

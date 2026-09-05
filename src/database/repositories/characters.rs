@@ -14,7 +14,6 @@ use crate::{
         level_tables::ProgressionXp,
         skills::SkillTree,
     },
-    http::models::character::CharacterEquipmentList,
 };
 
 pub struct CharactersRepository;

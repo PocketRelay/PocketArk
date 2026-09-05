@@ -13,7 +13,7 @@ use crate::{
     },
     config::Config,
     database::dto::users::UserId,
-    http::models::mission::{CompleteMissionData, MissionDetails, MissionModifier},
+    http::models::mission::{MissionDetails, MissionModifier},
     services::{
         game::{player::GamePlayer, rules::RuleSet, store::Games},
         tunnel::TunnelService,
@@ -405,7 +405,7 @@ impl Game {
 
     pub fn set_game_reporting_id(&mut self, reporting_id: u64) {
         self.reporting_id = reporting_id;
-        debug!("Updated game reporting id (Value: {:?})", &reporting_id);
+        debug!("Updated game reporting id (Value: {:?})", reporting_id);
 
         self.notify_all(Packet::notify(
             game_manager::COMPONENT,

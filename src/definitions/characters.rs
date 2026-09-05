@@ -4,7 +4,7 @@ use crate::database::DbTransaction;
 use crate::{
     database::{
         dto::{
-            character::{CharacterDto, CreateCharacterDto, PlayStats},
+            character::{CreateCharacterDto, PlayStats},
             users::UserDto,
         },
         repositories::characters::CharactersRepository,
@@ -16,7 +16,6 @@ use crate::{
     },
 };
 use anyhow::{Context, anyhow};
-use sqlx::SqliteExecutor;
 use uuid::Uuid;
 
 /// Handles the initialization of a character after an item for

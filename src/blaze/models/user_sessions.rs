@@ -264,7 +264,7 @@ impl TdfSerialize for UserSessionExtendedData {
             // User info attributes
             w.tag_owned(b"UATT", 0u8);
 
-            let session_id = ObjectId::new(PLAYER_SESSION_TYPE, self.user_id as u64);
+            let session_id = ObjectId::new(PLAYER_SESSION_TYPE, self.user_id);
 
             if let Some(game) = self.game {
                 // Blaze object ID list

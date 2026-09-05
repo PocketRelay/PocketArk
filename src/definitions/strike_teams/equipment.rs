@@ -7,7 +7,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 const STRIKE_TEAM_EQUIPMENT_DEFINITIONS: &str =
     include_str!("../../resources/data/strikeTeamEquipment.json");
@@ -17,13 +17,16 @@ pub struct StrikeTeamEquipmentList {
 }
 
 impl StrikeTeamEquipmentList {
-    pub fn from_str(s: &str) -> serde_json::Result<Self> {
-        let equipment: Vec<StrikeTeamEquipment> = serde_json::from_str(s)?;
-        Ok(Self { equipment })
-    }
-
     pub fn load() -> serde_json::Result<Self> {
         Self::from_str(STRIKE_TEAM_EQUIPMENT_DEFINITIONS)
+    }
+}
+
+impl FromStr for StrikeTeamEquipmentList {
+    type Err = serde_json::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let equipment: Vec<StrikeTeamEquipment> = serde_json::from_str(s)?;
+        Ok(Self { equipment })
     }
 }
 

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use anyhow::Context;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
@@ -19,11 +21,15 @@ pub struct MissionTags {
     pub mission: Vec<MissionTag>,
 }
 
-impl MissionTags {
-    pub fn from_str(s: &str) -> serde_json::Result<MissionTags> {
+impl FromStr for MissionTags {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         serde_json::from_str(s)
     }
+}
 
+impl MissionTags {
     pub fn load() -> serde_json::Result<Self> {
         Self::from_str(STRIKE_TEAM_TAG_DEFINITIONS)
     }
