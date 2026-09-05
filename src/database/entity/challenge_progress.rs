@@ -93,7 +93,17 @@ pub struct ChallengeProgressCounterWithDefinition {
 
 /// Enum for the different known challenge states
 #[derive(
-    Debug, EnumIter, DeriveActiveEnum, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash,
+    Debug,
+    Default,
+    EnumIter,
+    DeriveActiveEnum,
+    Serialize,
+    Deserialize,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
 )]
 #[sea_orm(rs_type = "u8", db_type = "Integer")]
 #[repr(u8)]
@@ -103,6 +113,7 @@ pub enum ChallengeState {
     #[serde(rename = "COMPLETED")]
     Completed = 1,
     #[serde(rename = "NOT_STARTED")]
+    #[default]
     NotStarted = 2,
 }
 
@@ -144,20 +155,15 @@ impl Model {
             .one(db)
     }
 
-    pub async fn get_or_create<C>(db: &C, user: &User, challenge: ChallengeName) -> DbResult<Self>
+    pub async fn create<C>(db: &C, user: &User, challenge_id: ChallengeName) -> DbResult<Self>
     where
         C: ConnectionTrait + Send,
     {
-        // Find an existing model
-        if let Some(existing) = Self::get(db, user, challenge).await? {
-            return Ok(existing);
-        }
-
         let now = Utc::now();
         // Create new model
         Entity::insert(ActiveModel {
             user_id: Set(user.id),
-            challenge_id: Set(challenge),
+            challenge_id: Set(challenge_id),
             state: Set(ChallengeState::InProgress),
             counters: Set(Default::default()),
             times_completed: Set(0),
@@ -171,7 +177,7 @@ impl Model {
         .await?;
 
         // Progress must be loaded manually
-        Self::get(db, user, challenge)
+        Self::get(db, user, challenge_id)
             .await?
             .ok_or(DbErr::RecordNotInserted)
     }

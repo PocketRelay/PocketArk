@@ -1,3 +1,4 @@
+pub mod challenge_progress;
 pub mod character;
 pub mod currency;
 pub mod inventory_items;

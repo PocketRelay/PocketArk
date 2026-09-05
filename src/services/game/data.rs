@@ -361,8 +361,12 @@ pub async fn process_player_data(
 
     // Save challenge changes
     for (index, change) in data_builder.challenges_updates.iter().enumerate() {
-        let challenge_name = change.definition.base.name;
-        let challenge = ChallengeProgress::get_or_create(db, &user, challenge_name).await?;
+        let challenge_id = change.definition.base.name;
+        let challenge = match ChallengeProgress::get(db, &user, challenge_id).await? {
+            Some(value) => value,
+            None => ChallengeProgress::create(db, &user, challenge_id).await?,
+        };
+
         let (update, change_type, counter) = apply_challenge_progress_change(&challenge, change);
         let model = challenge.update(db, update).await?;
 
