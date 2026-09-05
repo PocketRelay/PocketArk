@@ -5,7 +5,7 @@ use crate::definitions::shared::CustomAttributes;
 
 pub type MissionWaveName = Uuid;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionWave {
     /// Unique ID for the wave
@@ -17,7 +17,7 @@ pub struct MissionWave {
 }
 
 /// Types of [MissionWave]s
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WaveType {
     /// Wave has an objective
     #[serde(rename = "WaveType_Objective")]

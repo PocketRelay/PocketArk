@@ -1,3 +1,4 @@
+use serde::Serialize;
 use sqlx::{Database, Encode, Type};
 
 /// Extension helper trait that provides a easy way to bind many
@@ -8,6 +9,10 @@ pub trait SqlxBindExt<'q, DB: Database>: Sized {
     where
         T: 'q + Encode<'q, DB> + Type<DB>,
         I: IntoIterator<Item = T>;
+
+    fn bind_json<'t, T: Serialize>(self, value: T) -> Result<Self, sqlx::Error>
+    where
+        String: 'q + Encode<'q, DB> + Type<DB>;
 }
 
 impl<'q, DB, O> SqlxBindExt<'q, DB> for sqlx::query::QueryAs<'q, DB, O, DB::Arguments>
@@ -24,6 +29,14 @@ where
         }
         self
     }
+
+    fn bind_json<'t, T: Serialize>(self, value: T) -> Result<Self, sqlx::Error>
+    where
+        String: 'q + Encode<'q, DB> + Type<DB>,
+    {
+        let value = serde_json::to_string(&value).map_err(|err| sqlx::Error::Encode(err.into()))?;
+        Ok(self.bind(value))
+    }
 }
 
 impl<'q, DB> SqlxBindExt<'q, DB> for sqlx::query::Query<'q, DB, <DB as Database>::Arguments>
@@ -39,5 +52,13 @@ where
             self = self.bind(value);
         }
         self
+    }
+
+    fn bind_json<'t, T: Serialize>(self, value: T) -> Result<Self, sqlx::Error>
+    where
+        String: 'q + Encode<'q, DB> + Type<DB>,
+    {
+        let value = serde_json::to_string(&value).map_err(|err| sqlx::Error::Encode(err.into()))?;
+        Ok(self.bind(value))
     }
 }

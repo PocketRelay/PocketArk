@@ -6,7 +6,7 @@ use crate::{
     utils::ImStr,
 };
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MissionModifier {
     /// The name of the modifier ("difficulty", "enemyType", "level", etc)
     pub name: ImStr,

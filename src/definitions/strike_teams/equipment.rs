@@ -35,7 +35,7 @@ pub type StrikeTeamEquipmentName = String;
 ///
 /// For reference: https://masseffectandromeda.fandom.com/wiki/Strike_team#Equipment
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamEquipment {
     /// Unique name for the equipment

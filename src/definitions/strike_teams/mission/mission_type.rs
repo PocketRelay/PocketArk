@@ -7,7 +7,7 @@ use crate::definitions::{
     shared::CustomAttributes,
 };
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionType {
     /// The unique ID name for the type
@@ -37,7 +37,7 @@ impl Localized for MissionType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
     pub name: Uuid,

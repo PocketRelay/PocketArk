@@ -3,6 +3,9 @@ pub mod extensions;
 pub mod migrations;
 pub mod repositories;
 
+#[cfg(test)]
+mod seed;
+
 use std::{fs::create_dir_all, path::Path};
 
 pub use sqlx::SqliteExecutor as DbExecutor;

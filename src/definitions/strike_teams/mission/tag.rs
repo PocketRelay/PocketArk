@@ -57,7 +57,7 @@ impl Localized for MissionTags {
 pub type MissionTagName = ImStr;
 
 /// Represents a tag that a mission can have associated with it
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MissionTag {
     /// Name of the mission tag
     pub name: MissionTagName,

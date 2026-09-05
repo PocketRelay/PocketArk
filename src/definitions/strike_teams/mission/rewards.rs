@@ -16,7 +16,7 @@ use crate::{
 pub type MissionRewardsId = Uuid;
 
 #[serde_as]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionRewards {
     /// Unique ID for the rewards collection

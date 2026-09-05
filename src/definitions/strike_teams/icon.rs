@@ -22,7 +22,7 @@ static STRIKE_TEAM_ICON_SETS: &[(&str, &str)] = &[
 /// Icon that the a strike team can use
 ///
 /// For reference: https://masseffectandromeda.fandom.com/wiki/Strike_team#Team_composition
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamIcon {
     /// Name of the icon

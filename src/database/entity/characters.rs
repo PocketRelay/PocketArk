@@ -189,10 +189,7 @@ impl Model {
             xp: Set(xp),
             promotion: Set(0),
             points: Set(points),
-            // 3 of the 5 points are spent by default
-            points_spent: Set(PointMap {
-                skill_points: Some(3),
-            }),
+            points_spent: Set(PointMap::default_spent()),
             points_granted: Set(PointMap::default()),
             skill_trees: Set(SeaJson(skill_trees)),
             attributes: Set(attributes),

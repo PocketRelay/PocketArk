@@ -6,7 +6,7 @@ use serde_with::serde_as;
 
 /// Collection of custom attributes
 #[serde_as]
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(transparent)]
 pub struct CustomAttributes(
     #[serde_as(as = "serde_with::Map<_, _>")] Vec<(String, serde_json::Value)>,

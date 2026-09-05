@@ -17,7 +17,7 @@ use crate::{
 
 #[tokio::test]
 #[ignore]
-pub async fn seed() {
+pub async fn seed_legacy() {
     setup_test_logging();
 
     let db = connect_database().await;

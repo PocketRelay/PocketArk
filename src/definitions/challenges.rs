@@ -218,7 +218,7 @@ pub struct ChallengeReward {
 
 /// Representing a type of currency to be given as a reward
 /// for completing a challenge
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CurrencyReward {
     /// The type of currency
     pub name: CurrencyType,

@@ -145,7 +145,13 @@ pub async fn purchase_equipment(
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
 
-    if team.is_on_mission(&db).await? {
+    // TODO: Current progress = StrikeTeamsRepository::get_active_progress to properly check this
+
+    // TODO: I don't think this on mission check is correct...?
+    let current_progress = StrikeTeamMissionProgress::get_by_team(&db, &team)
+        .await
+        .map(|value| value.is_some())?;
+    if current_progress {
         return Err(StrikeTeamError::TeamOnMission.into());
     }
 

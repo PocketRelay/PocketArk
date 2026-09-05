@@ -137,7 +137,7 @@ pub enum MissionDifficulty {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionDescriptor {
     /// Unique ID for the mission descriptor

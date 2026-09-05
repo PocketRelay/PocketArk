@@ -109,16 +109,6 @@ impl Model {
         Ok(())
     }
 
-    // Checks if the strike team is on a mission
-    pub async fn is_on_mission<C>(&self, db: &C) -> DbResult<bool>
-    where
-        C: ConnectionTrait + Send,
-    {
-        StrikeTeamMissionProgress::get_by_team(db, self)
-            .await
-            .map(|value| value.is_some())
-    }
-
     pub async fn get_by_id<C>(db: &C, user: &User, id: StrikeTeamId) -> DbResult<Option<Self>>
     where
         C: ConnectionTrait + Send,

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS "characters" (
     "customization" TEXT NOT NULL,
     "play_stats" TEXT NOT NULL,
     "last_used" TEXT,
-    "promotable" BOOLEAN NOT NULL,
+    "promotable" BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE
 );
 

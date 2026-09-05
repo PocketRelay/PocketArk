@@ -164,6 +164,15 @@ pub struct PointMap {
     pub skill_points: Option<u32>,
 }
 
+impl PointMap {
+    // The default number of spent points is 3 of the 5 MEA_skill_points
+    pub fn default_spent() -> Self {
+        PointMap {
+            skill_points: Some(3),
+        }
+    }
+}
+
 /// Map of character attributes
 ///
 /// Stored on the server as a [Vec] of tuples because the server never

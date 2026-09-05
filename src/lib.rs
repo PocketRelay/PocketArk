@@ -40,7 +40,7 @@ pub mod config;
 mod database;
 pub mod database_v2;
 pub mod definitions;
-pub mod http;
+pub(crate) mod http;
 pub mod services;
 pub mod utils;
 

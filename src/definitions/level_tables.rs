@@ -163,7 +163,9 @@ impl Serialize for LevelTable {
 }
 
 /// Structure for tracking XP progression of a character or strike team
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(
+    Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult,
+)]
 pub struct ProgressionXp {
     /// The previous XP that was reached (last level)
     pub last: u32,

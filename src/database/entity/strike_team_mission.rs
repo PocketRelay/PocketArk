@@ -77,7 +77,7 @@ pub enum Relation {
     MissionProgress,
 }
 
-/// Enum for the different known currency types
+/// Enum for the different known mission accessibility types
 #[derive(
     Debug, EnumIter, DeriveActiveEnum, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize,
 )]
@@ -179,32 +179,6 @@ impl Model {
             .one(db)
     }
 
-    #[allow(unused)]
-    pub fn create<C>(
-        db: &C,
-        data: StrikeTeamMissionData,
-    ) -> impl Future<Output = DbResult<Self>> + '_
-    where
-        C: ConnectionTrait + Send,
-    {
-        ActiveModel {
-            name: Set(Uuid::new_v4()),
-            descriptor: Set(data.descriptor),
-            mission_type: Set(data.mission_type),
-            tags: Set(SeaJson(data.tags)),
-            accessibility: Set(data.accessibility),
-            static_modifiers: Set(SeaJson(data.static_modifiers)),
-            dynamic_modifiers: Set(SeaJson(data.dynamic_modifiers)),
-            rewards: Set(data.rewards),
-            custom_attributes: Set(data.custom_attributes),
-            waves: Set(SeaJson(data.waves)),
-            start_seconds: Set(data.start_seconds),
-            end_seconds: Set(data.end_seconds),
-            sp_length_seconds: Set(data.sp_length_seconds),
-            ..Default::default()
-        }
-        .insert(db)
-    }
     pub fn create_many<C>(
         db: &C,
         data: Vec<StrikeTeamMissionData>,

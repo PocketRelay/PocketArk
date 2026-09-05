@@ -305,7 +305,7 @@ impl Localized for I18nDescription {
 /// TODO: Maybe use serde_as to alias this from [I18nDescription]
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct I18nDesc {
     /// I18n lookup key

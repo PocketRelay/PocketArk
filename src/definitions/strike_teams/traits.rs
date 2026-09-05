@@ -73,7 +73,7 @@ impl Localized for StrikeTeamTraits {
 /// Represents a trait a strike team can have, can be either
 /// a positive or negative trait
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StrikeTeamTrait {
     /// Same as the `i18nName` field
     pub name: ImStr,
