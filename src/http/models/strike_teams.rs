@@ -1,11 +1,12 @@
 use super::HttpError;
 use crate::{
     database::dto::{
-        currency::CurrencyDto, currency::CurrencyType, strike_team_mission::StrikeTeamMissionDto,
+        currency::CurrencyDto, strike_team_mission::StrikeTeamMissionDto,
         strike_team_mission::StrikeTeamMissionId, strike_team_mission::UserMissionState,
         strike_teams::StrikeTeamDto, strike_teams::StrikeTeamId,
     },
     definitions::{
+        currency::CurrencyType,
         i18n::Localized,
         strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
     },

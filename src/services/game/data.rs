@@ -13,7 +13,7 @@ use crate::{
         DbErr, DbTransaction,
         dto::{
             challenge_progress::{ChallengeState, CounterUpdateType, CreateChallengeProgressDto},
-            currency::{CurrencyType, CurrencyUpdateDto},
+            currency::CurrencyUpdateDto,
             inventory_items::InventoryItemDto,
             shared_data::{SharedDataDto, SharedProgression},
         },
@@ -23,9 +23,11 @@ use crate::{
         },
     },
     definitions::{
+        activity::ActivityEvent,
         badges::{BadgeLevelName, Badges},
         challenges::{ChallengeCounter, ChallengeDefinition, Challenges, CurrencyReward},
         classes::Classes,
+        currency::CurrencyType,
         i18n::{I18nDescription, I18nName},
         level_tables::LevelTables,
         match_modifiers::MatchModifiers,
@@ -36,8 +38,8 @@ use crate::{
     },
     services::{
         activity::{
-            ActivityEvent, ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated,
-            PrestigeData, PrestigeProgression,
+            ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated, PrestigeData,
+            PrestigeProgression,
         },
         challenges::apply_challenge_progress_change,
     },

@@ -2,9 +2,11 @@
 //!
 //! Collections of modules that store definitions for different structures
 
+pub mod activity;
 pub mod badges;
 pub mod challenges;
 pub mod classes;
+pub mod currency;
 pub mod i18n;
 pub mod items;
 pub mod level_tables;

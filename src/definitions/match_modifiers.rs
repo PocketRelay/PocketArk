@@ -1,4 +1,4 @@
-use crate::database::dto::currency::CurrencyType;
+use crate::definitions::currency::CurrencyType;
 
 use super::shared::CustomAttributes;
 use anyhow::Context;
@@ -100,8 +100,8 @@ impl ModifierAmount {
     /// the old value with the modifier
     #[allow(unused)]
     pub fn get_amount(&self, old_value: u32) -> u32 {
-        let adative_value = (old_value as f32 * self.additive_multiplier).trunc() as u32;
-        self.flat_amount + adative_value
+        let additive_value = (old_value as f32 * self.additive_multiplier).trunc() as u32;
+        self.flat_amount + additive_value
     }
 }
 

@@ -1,10 +1,8 @@
 use super::HttpError;
 use crate::{
-    database::dto::{
-        currency::{CurrencyDto, CurrencyType},
-        inventory_items::InventoryItemDto,
-    },
+    database::dto::{currency::CurrencyDto, inventory_items::InventoryItemDto},
     definitions::{
+        currency::CurrencyType,
         items::ItemDefinition,
         store_catalogs::{StoreArticleName, StoreCatalog},
     },

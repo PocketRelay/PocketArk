@@ -1,6 +1,6 @@
 use crate::{
-    database::dto::currency::CurrencyType,
     definitions::{
+        currency::CurrencyType,
         i18n::{I18nDescription, I18nName},
         items::ItemName,
         shared::CustomAttributes,
@@ -121,7 +121,7 @@ pub struct StoreArticle {
     /// Seen state, currently not implemented. Will likely override this
     /// later to always be true.
     ///
-    /// TODO: If per-item limits are added this can probabbly be included in that
+    /// TODO: If per-item limits are added this can probably be included in that
     /// database table for simplicity
     pub seen: bool,
 
@@ -154,7 +154,7 @@ pub struct StoreLimit {
     pub maximum: u32,
     /// The remaining number of items that can be purchased.
     ///
-    /// TODO: This should probabbly be store in the database..?
+    /// TODO: This should probably be store in the database..?
     pub quantity_remaining: u32,
 }
 

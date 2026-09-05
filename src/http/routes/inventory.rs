@@ -5,7 +5,10 @@ use crate::{
         DbPool, DbTransaction, dto::users::UserDto,
         repositories::inventory_items::InventoryItemsRepository,
     },
-    definitions::items::{InventoryNamespace, ItemDefinition, Items},
+    definitions::{
+        activity::{ActivityEvent, ActivityName},
+        items::{InventoryNamespace, ItemDefinition, Items},
+    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -16,7 +19,7 @@ use crate::{
             },
         },
     },
-    services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
+    services::activity::{ActivityResult, ActivityService},
 };
 use axum::{Extension, Json, extract::Query};
 use hyper::StatusCode;

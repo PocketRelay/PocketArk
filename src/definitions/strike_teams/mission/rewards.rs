@@ -3,9 +3,10 @@ use serde_with::serde_as;
 use uuid::{Uuid, uuid};
 
 use crate::{
-    database::dto::{currency::CurrencyType, strike_team_mission::MissionAccessibility},
+    database::dto::strike_team_mission::MissionAccessibility,
     definitions::{
         challenges::CurrencyReward,
+        currency::CurrencyType,
         i18n::Localized,
         items::{ItemDefinition, ItemName, Items},
         strike_teams::mission::MissionDifficulty,

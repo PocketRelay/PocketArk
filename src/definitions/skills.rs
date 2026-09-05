@@ -193,7 +193,7 @@ impl FromStr for PathRef {
 
 /// Defines the cost for unlocking a [SkillLevel]
 ///
-/// This should've probabbly been dynamic however with the strict
+/// This should've probably been dynamic however with the strict
 /// typing this would likely be difficult
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -3,13 +3,14 @@ use std::ops::DerefMut;
 use crate::{
     database::{
         DbPool, DbTransaction,
-        dto::{
-            currency::{CurrencyDto, CurrencyType},
-            users::UserDto,
-        },
+        dto::{currency::CurrencyDto, users::UserDto},
         repositories::currency::CurrencyRepository,
     },
-    definitions::store_catalogs::StoreCatalogs,
+    definitions::{
+        activity::{ActivityEvent, ActivityName},
+        currency::CurrencyType,
+        store_catalogs::StoreCatalogs,
+    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -20,7 +21,7 @@ use crate::{
             },
         },
     },
-    services::activity::{ActivityEvent, ActivityName, ActivityResult, ActivityService},
+    services::activity::{ActivityResult, ActivityService},
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;

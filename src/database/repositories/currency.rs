@@ -2,9 +2,10 @@ use itertools::Itertools;
 use sqlx::AssertSqlSafe;
 use strum::IntoEnumIterator;
 
-use crate::database::dto::currency::{CurrencyDto, CurrencyType, CurrencyUpdateDto};
+use crate::database::dto::currency::{CurrencyDto, CurrencyUpdateDto};
 use crate::database::dto::users::UserId;
 use crate::database::{DbExecutor, DbResult};
+use crate::definitions::currency::CurrencyType;
 
 pub struct CurrencyRepository;
 
@@ -44,7 +45,7 @@ impl CurrencyRepository {
     ) -> DbResult<Option<CurrencyDto>> {
         sqlx::query_as(r#"SELECT * FROM "currency" WHERE "user_id" = ? AND "ty" = ?"#)
             .bind(user_id)
-            .bind(ty)
+            .bind(ty as u8)
             .fetch_optional(db)
             .await
     }
@@ -68,7 +69,7 @@ impl CurrencyRepository {
             "#,
         )
         .bind(user_id)
-        .bind(ty)
+        .bind(ty as u8)
         .bind(value)
         .fetch_one(db)
         .await
@@ -107,7 +108,10 @@ impl CurrencyRepository {
         )));
 
         for update in updates {
-            query = query.bind(user_id).bind(update.ty).bind(update.balance)
+            query = query
+                .bind(user_id)
+                .bind(update.ty as u8)
+                .bind(update.balance)
         }
 
         query.bind(Self::MAX_SAFE_CURRENCY).execute(db).await?;

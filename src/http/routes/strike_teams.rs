@@ -2,7 +2,7 @@ use crate::{
     database::{
         DbPool,
         dto::{
-            currency::{CurrencyDto, CurrencyType},
+            currency::CurrencyDto,
             strike_team_mission::{StrikeTeamMissionDto, StrikeTeamMissionId, UserMissionState},
             strike_teams::{StrikeTeamDto, StrikeTeamId},
         },
@@ -11,6 +11,7 @@ use crate::{
         },
     },
     definitions::{
+        currency::CurrencyType,
         i18n::{I18n, Localized},
         strike_teams::{
             MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, equipment::StrikeTeamEquipment,

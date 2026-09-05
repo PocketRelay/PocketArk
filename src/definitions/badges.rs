@@ -1,10 +1,10 @@
 use crate::{
-    database::dto::currency::CurrencyType,
     definitions::{
+        activity::{ActivityDescriptor, ActivityEvent},
+        currency::CurrencyType,
         i18n::{I18n, I18nDescription, I18nTitle, Localized},
         shared::CustomAttributes,
     },
-    services::activity::{ActivityDescriptor, ActivityEvent},
     utils::ImStr,
 };
 use anyhow::Context;

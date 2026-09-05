@@ -1,7 +1,10 @@
 use crate::{
-    database::dto::{currency::CurrencyType, inventory_items::InventoryItemDto, users::UserId},
-    definitions::{badges::BadgeLevelName, challenges::CurrencyReward},
-    services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
+    database::dto::{inventory_items::InventoryItemDto, users::UserId},
+    definitions::{
+        activity::ActivityEvent, badges::BadgeLevelName, challenges::CurrencyReward,
+        currency::CurrencyType,
+    },
+    services::activity::{ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
 };
 use hyper::StatusCode;

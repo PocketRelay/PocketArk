@@ -19,7 +19,6 @@ use crate::{
     },
     config::Config,
     services::{
-        activity::AttributeError,
         game::{
             self, DEFAULT_FIT, Game, GameAddPlayerExt, GameJoinableState, matchmaking::Matchmaking,
             player::GamePlayer, rules::RuleSet, store::Games,

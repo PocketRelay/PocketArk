@@ -6,7 +6,7 @@ use crate::{
         connect_database,
         dto::{
             character::{CreateCharacterDto, PlayStats},
-            currency::{CurrencyType, CurrencyUpdateDto},
+            currency::CurrencyUpdateDto,
             inventory_items::CreateInventoryItemDto,
             shared_data::SharedProgression,
             users::{CreateUserDto, NormalizedEmail},
@@ -19,6 +19,7 @@ use crate::{
     },
     definitions::{
         classes::{Classes, PointMap},
+        currency::CurrencyType,
         i18n::{I18nDescription, I18nName},
         items::Items,
         level_tables::{LevelTables, ProgressionXp},

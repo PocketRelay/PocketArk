@@ -1,11 +1,9 @@
 use crate::helpers::{mock_user, test_database};
 use pocket_ark::database::{
-    dto::{
-        currency::{CurrencyType, CurrencyUpdateDto},
-        users::UserId,
-    },
+    dto::{currency::CurrencyUpdateDto, users::UserId},
     repositories::currency::CurrencyRepository,
 };
+use pocket_ark::definitions::currency::CurrencyType;
 use sqlx::SqlitePool;
 
 pub mod helpers;
