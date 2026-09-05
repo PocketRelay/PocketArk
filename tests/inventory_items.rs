@@ -1,4 +1,4 @@
-use pocket_ark::database_v2::{
+use pocket_ark::database::{
     dto::{
         inventory_items::{CreateInventoryItemDto, InventoryItemDto, InventoryItemEarnedBy},
         users::UserDto,

@@ -1,6 +1,9 @@
 use super::HttpError;
 use crate::{
-    database::entity::{Currency, InventoryItem, currency::CurrencyType},
+    database::dto::{
+        currency::{CurrencyDto, CurrencyType},
+        inventory_items::InventoryItemDto,
+    },
     definitions::{
         items::ItemDefinition,
         store_catalogs::{StoreArticleName, StoreCatalog},
@@ -36,7 +39,7 @@ pub struct StoreCatalogResponse {
 
 #[derive(Serialize)]
 pub struct UserCurrenciesResponse {
-    pub list: Vec<Currency>,
+    pub list: Vec<CurrencyDto>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -50,7 +53,7 @@ pub struct ObtainStoreItemRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ObtainStoreItemResponse {
     pub generated_activity_result: ActivityResult,
-    pub items: Vec<InventoryItem>,
+    pub items: Vec<InventoryItemDto>,
     pub definitions: Vec<&'static ItemDefinition>,
 }
 

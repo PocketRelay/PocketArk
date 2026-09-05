@@ -5,7 +5,7 @@ use crate::{
         BLAZE_VERSION, BYTEVAULT_HOSTNAME, LOCALE_NZ, REGISTRATION_SOURCE, RIVER_HOST,
         TELEMETRY_ADDRS, TELEMETRY_DISA, TELEMETRY_KEY, TICKER_KEY,
     },
-    database::entity::users::UserId,
+    database::dto::users::UserId,
     utils::constants::LOCAL_HTTP_PORT,
 };
 use bitflags::bitflags;
@@ -192,7 +192,7 @@ impl TdfSerialize for PostAuthResponse {
         });
         w.group(b"UROP", |w| {
             w.tag_u8(b"TMOP", 1);
-            w.tag_u32(b"UID", self.user_id)
+            w.tag_u64(b"UID", self.user_id as u64);
         });
     }
 }

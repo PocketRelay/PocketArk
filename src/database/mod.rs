@@ -1,34 +1,36 @@
-use log::info;
-use migration::{Migrator, MigratorTrait};
-use sea_orm::Database as SeaDatabase;
-use std::{
-    fs::{File, create_dir_all},
-    path::Path,
-};
+pub mod dto;
+pub mod extensions;
+pub mod migrations;
+pub mod repositories;
 
-pub mod entity;
-mod migration;
-/// Testing seeding logic
 #[cfg(test)]
 mod seed;
 
-// Re-exports of database types
-pub use sea_orm::DatabaseConnection;
-pub use sea_orm::DbErr;
+use std::{fs::create_dir_all, path::Path};
 
-/// Database error result type
-pub type DbResult<T> = Result<T, DbErr>;
+pub use sqlx::SqliteExecutor as DbExecutor;
+pub use sqlx::SqliteTransaction as DbTransaction;
+use sqlx::{ConnectOptions, SqlitePool, sqlite::SqliteConnectOptions};
+
+use migrations::{apply_migrations, initialize_migrations_table};
+
+pub type DbPool = SqlitePool;
+pub type DbErr = sqlx::Error;
+pub type DbResult<T> = Result<T, sqlx::Error>;
 
 const DATABASE_PATH: &str = "data/app.db";
-const DATABASE_PATH_URL: &str = "sqlite:data/app.db";
 
-pub async fn init() -> DatabaseConnection {
-    info!("Connected to database..");
-    connect_database().await
+pub async fn init() -> DbPool {
+    match connect_database().await {
+        Ok(value) => value,
+        Err(error) => {
+            log::error!("failed to connect to database: {error}");
+            panic!();
+        }
+    }
 }
 
-/// Connects to the database
-async fn connect_database() -> DatabaseConnection {
+pub async fn connect_database() -> DbResult<SqlitePool> {
     let path = Path::new(&DATABASE_PATH);
 
     // Create path to database file if missing
@@ -38,20 +40,20 @@ async fn connect_database() -> DatabaseConnection {
         create_dir_all(parent).expect("Unable to create parent directory for sqlite database");
     }
 
-    // Create the database if file is missing
-    if !path.exists() {
-        File::create(path).expect("Unable to create sqlite database file");
+    let options = SqliteConnectOptions::new()
+        .filename(path)
+        .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)
+        .create_if_missing(true)
+        .to_url_lossy();
+
+    let pool = SqlitePool::connect(options.as_str()).await?;
+    initialize_migrations_table(&pool).await?;
+
+    {
+        let mut transaction = pool.begin().await?;
+        apply_migrations(&mut transaction).await?;
+        transaction.commit().await?;
     }
 
-    // Connect to database
-    let connection = SeaDatabase::connect(DATABASE_PATH_URL)
-        .await
-        .expect("Unable to create database connection");
-
-    // Run migrations
-    Migrator::up(&connection, None)
-        .await
-        .expect("Unable to run database migrations");
-
-    connection
+    Ok(pool)
 }

@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::currency::CurrencyType,
+    database::dto::currency::CurrencyType,
     definitions::{
         i18n::{I18nDescription, I18nName},
         items::ItemName,
@@ -97,7 +97,7 @@ pub struct StoreArticle {
     #[serde_as(as = "serde_with::Map<_, _>")]
     pub nucleus_entitlement_filter: Vec<(ImStr, serde_json::Value)>,
     /// Lists the price of the article across the different currencies
-    /// that can be used  
+    /// that can be used
     pub prices: Vec<StorePrice>,
     /// Limits on the amount of this article that can be purchased. This is
     /// a vec because the limits can be applied to different scopes

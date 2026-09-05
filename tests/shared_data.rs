@@ -1,5 +1,5 @@
 use pocket_ark::{
-    database_v2::{
+    database::{
         dto::{
             shared_data::{
                 CharacterSharedEquipment, CreateSharedDataDto, SharedDataDto, SharedProgression,
@@ -42,11 +42,10 @@ async fn test_user_initial_shared_data() {
     let db = test_database().await;
     let user = mock_user(&db, "test@test.com", "test").await;
 
+    // Should error initially
     let shared_data = SharedDataRepository::get_by_user(&db, user.id)
         .await
-        .unwrap();
-
-    assert!(shared_data.is_none());
+        .unwrap_err();
 }
 
 /// Tests that initially the user should have no shared data
@@ -84,8 +83,7 @@ async fn test_get_user_shared_data() {
     let shared_data = mock_create_shared_data(&db, &user).await;
     let user_shared_data = SharedDataRepository::get_by_user(&db, user.id)
         .await
-        .unwrap()
-        .expect("user shared data should exist");
+        .unwrap();
     assert_eq!(shared_data, user_shared_data);
 }
 
@@ -105,8 +103,7 @@ async fn test_set_user_active_character() {
 
     let user_shared_data = SharedDataRepository::get_by_user(&db, user.id)
         .await
-        .unwrap()
-        .expect("user shared data should exist");
+        .unwrap();
     assert_eq!(
         user_shared_data.active_character_id,
         Some(new_active_character)
@@ -136,8 +133,7 @@ async fn test_set_user_shared_progression() {
 
     let user_shared_data = SharedDataRepository::get_by_user(&db, user.id)
         .await
-        .unwrap()
-        .expect("user shared data should exist");
+        .unwrap();
     assert_eq!(user_shared_data.shared_progression, new_progression);
 }
 
@@ -162,7 +158,6 @@ async fn test_set_user_shared_equipment() {
 
     let user_shared_data = SharedDataRepository::get_by_user(&db, user.id)
         .await
-        .unwrap()
-        .expect("user shared data should exist");
+        .unwrap();
     assert_eq!(user_shared_data.shared_equipment, new_equipment);
 }

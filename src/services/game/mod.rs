@@ -12,7 +12,7 @@ use crate::{
         session::SessionLink,
     },
     config::Config,
-    database::entity::users::UserId,
+    database::dto::users::UserId,
     http::models::mission::{CompleteMissionData, MissionDetails, MissionModifier},
     services::{
         game::{player::GamePlayer, rules::RuleSet, store::Games},
@@ -258,7 +258,7 @@ impl Game {
         self.games_store.remove_by_id(self.id);
     }
 
-    pub fn remove_player(&mut self, user_id: u32, reason: RemoveReason) {
+    pub fn remove_player(&mut self, user_id: UserId, reason: RemoveReason) {
         // Already empty game handling
         if self.players.is_empty() {
             self.stop();

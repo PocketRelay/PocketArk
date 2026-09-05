@@ -1,6 +1,6 @@
 use super::HttpError;
 use crate::{
-    database::entity::{Character, SharedData},
+    database::dto::{character::CharacterDto, shared_data::SharedDataDto},
     definitions::{
         classes::{CharacterEquipment, Class, CustomizationEntry},
         level_tables::LevelTable,
@@ -31,9 +31,9 @@ impl HttpError for CharactersError {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CharactersResponse {
-    pub list: Vec<Character>,
+    pub list: Vec<CharacterDto>,
     #[serde(flatten)]
-    pub shared_data: SharedData,
+    pub shared_data: SharedDataDto,
 }
 
 /// Request to update customization entries, provides a
@@ -55,9 +55,9 @@ pub struct UpdateSkillTreesRequest {
 #[serde(rename_all = "camelCase")]
 pub struct CharacterResponse {
     #[serde(flatten)]
-    pub character: Character,
+    pub character: CharacterDto,
     #[serde(flatten)]
-    pub shared_data: SharedData,
+    pub shared_data: SharedDataDto,
 }
 
 #[derive(Debug, Serialize)]
@@ -91,7 +91,7 @@ pub struct ClassWithState {
 #[serde(rename_all = "camelCase")]
 pub struct UnlockedCharacters {
     pub active_character_id: Option<Uuid>,
-    pub list: Vec<Character>,
+    pub list: Vec<CharacterDto>,
 }
 
 /// Request to update a customization entry values

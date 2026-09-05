@@ -1,4 +1,3 @@
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use uuid::{Uuid, uuid};
 
@@ -7,7 +6,7 @@ use crate::definitions::{
     shared::CustomAttributes,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionType {
     /// The unique ID name for the type
@@ -37,7 +36,7 @@ impl Localized for MissionType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
     pub name: Uuid,

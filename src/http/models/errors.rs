@@ -13,8 +13,9 @@ use axum::{
     Json,
     response::{IntoResponse, Response},
 };
-use sea_orm::{DbErr, TransactionError};
 use serde::Serialize;
+
+use crate::database::DbErr;
 
 /// Errors that can be encountered when working with currency
 #[derive(Debug, Error)]
@@ -154,21 +155,6 @@ where
     fn from(value: E) -> Self {
         DynHttpError {
             inner: Box::new(value),
-        }
-    }
-}
-
-/// Allow conversion from [TransactionError] where the contained error type is
-/// convertible to [DynHttpError], since the [TransactionError::Connection] variant
-/// is always convertible
-impl<E> From<TransactionError<E>> for DynHttpError
-where
-    E: Into<DynHttpError> + Error,
-{
-    fn from(value: TransactionError<E>) -> Self {
-        match value {
-            TransactionError::Connection(err) => err.into(),
-            TransactionError::Transaction(err) => err.into(),
         }
     }
 }

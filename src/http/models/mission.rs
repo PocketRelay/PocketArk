@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::{InventoryItem, currency::CurrencyType},
+    database::dto::{currency::CurrencyType, inventory_items::InventoryItemDto, users::UserId},
     definitions::{badges::BadgeLevelName, challenges::CurrencyReward},
     services::activity::{ActivityEvent, ChallengeUpdated, PrestigeProgression},
     utils::models::Sku,
@@ -55,7 +55,7 @@ pub struct MissionModifier {
 #[serde(rename_all = "camelCase")]
 pub struct MissionPlayerData {
     pub persona_id: u32,
-    pub nucleus_id: u32,
+    pub nucleus_id: u64,
     pub score: u32,
     pub modifiers: Vec<Value>,
     pub activity_report: MissionActivityReport,
@@ -127,8 +127,8 @@ pub struct MissionPlayerInfo {
     pub badges: Vec<PlayerInfoBadge>,
     pub stats: HashMap<String, Value>,
     pub result: PlayerInfoResult,
-    pub pid: u32,
-    pub persona_id: u32,
+    pub pid: UserId,
+    pub persona_id: UserId,
     pub persona_display_name: String,
     pub character_id: Uuid,
     pub character_class: Uuid,
@@ -157,7 +157,7 @@ pub struct PlayerInfoResult {
     pub previous_xp: u32,
     pub current_xp: u32,
 
-    pub items_earned: Vec<InventoryItem>,
+    pub items_earned: Vec<InventoryItemDto>,
 
     pub previous_level: u32,
     pub level: u32,

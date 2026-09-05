@@ -1,5 +1,14 @@
+use std::ops::DerefMut;
+
 use crate::{
-    database::entity::{Currency, User, currency::CurrencyType},
+    database::{
+        DbPool, DbTransaction,
+        dto::{
+            currency::{CurrencyDto, CurrencyType},
+            users::UserDto,
+        },
+        repositories::currency::CurrencyRepository,
+    },
     definitions::store_catalogs::StoreCatalogs,
     http::{
         middleware::{JsonDump, user::Auth},
@@ -16,7 +25,6 @@ use crate::{
 use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
 
 /// GET /store/catalogs
 ///
@@ -45,17 +53,14 @@ pub async fn update_seen_articles(Json(req): Json<UpdateSeenArticles>) -> Status
 
 /// Attempts to spend the provided `amount` of the specified `currency`
 /// for the provided `user`, returns the new currency after updating
-pub async fn try_spend_currency<C>(
-    db: &C,
-    user: &User,
+pub async fn try_spend_currency(
+    db: &mut DbTransaction<'_>,
+    user: &UserDto,
     currency: CurrencyType,
     amount: u32,
-) -> Result<Currency, DynHttpError>
-where
-    C: ConnectionTrait + Send,
-{
+) -> Result<CurrencyDto, DynHttpError> {
     // Ensure the user owns some of the currency
-    let currency = Currency::get(db, user, currency)
+    let currency = CurrencyRepository::get_by_user_by_type(db.deref_mut(), user.id, currency)
         .await?
         // User doesn't have any of the requested currency
         .ok_or(CurrencyError::InsufficientCurrency)?;
@@ -65,10 +70,12 @@ where
         return Err(CurrencyError::InsufficientCurrency.into());
     }
 
+    // Take the price from the currency balance
     let new_balance = currency.balance - amount;
 
-    // Take the price from the currency balance
-    let currency = currency.update(db, new_balance).await?;
+    let currency =
+        CurrencyRepository::set_currency_value(db.deref_mut(), user.id, currency.ty, new_balance)
+            .await?;
 
     Ok(currency)
 }
@@ -78,7 +85,7 @@ where
 /// User request to purchase an item from the in-game store
 pub async fn obtain_article(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<ObtainStoreItemRequest>,
 ) -> HttpResult<ObtainStoreItemResponse> {
     let catalogs = StoreCatalogs::get();
@@ -94,25 +101,23 @@ pub async fn obtain_article(
         .price_by_currency(req.currency)
         .ok_or(CurrencyError::InvalidCurrency)?;
 
-    let result: ActivityResult = db
-        .transaction(|db| {
-            Box::pin(async move {
-                // Spend the cost of the article
-                _ = try_spend_currency(db, &user, req.currency, price.final_price).await?;
+    let result: ActivityResult = {
+        let mut transaction = db.begin().await?;
+        // Spend the cost of the article
+        _ = try_spend_currency(&mut transaction, &user, req.currency, price.final_price).await?;
 
-                // Create the activity event
-                let event = ActivityEvent::new(ActivityName::ArticlePurchased)
-                    .with_attribute("currencyName", req.currency.to_string())
-                    .with_attribute("articleName", article.name)
-                    .with_attribute("count", 1);
+        // Create the activity event
+        let event = ActivityEvent::new(ActivityName::ArticlePurchased)
+            .with_attribute("currencyName", req.currency.to_string())
+            .with_attribute("articleName", article.name)
+            .with_attribute("count", 1);
 
-                // Process the event
-                ActivityService::process_event(db, &user, event)
-                    .await
-                    .map_err(Into::<DynHttpError>::into)
-            })
-        })
-        .await?;
+        // Process the event
+        let result = ActivityService::process_event(&mut transaction, &user, event).await?;
+        transaction.commit().await?;
+
+        result
+    };
 
     Ok(Json(ObtainStoreItemResponse {
         items: result.items_earned.clone(),
@@ -137,9 +142,9 @@ pub async fn claim_unclaimed() -> Json<ClaimUnclaimedResponse> {
 /// of digital currency within the game
 pub async fn get_currencies(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<UserCurrenciesResponse> {
-    let currencies = Currency::all(&db, &user).await?;
+    let currencies = CurrencyRepository::get_by_user(&db, user.id).await?;
 
     Ok(Json(UserCurrenciesResponse { list: currencies }))
 }

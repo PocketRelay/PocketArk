@@ -6,7 +6,14 @@
 //! and are rotated
 
 use crate::{
-    database::entity::{StrikeTeam, User},
+    database::{
+        DbTransaction,
+        dto::{
+            strike_teams::{CreateStrikeTeamDto, StrikeTeamDto},
+            users::UserDto,
+        },
+        repositories::strike_teams::StrikeTeamsRepository,
+    },
     definitions::{
         level_tables::{LevelTable, LevelTableName, LevelTables, ProgressionXp},
         strike_teams::{
@@ -21,8 +28,7 @@ use crate::{
 };
 use anyhow::Context;
 use rand::{Rng, SeedableRng, rngs::StdRng};
-use sea_orm::ConnectionTrait;
-use std::sync::OnceLock;
+use std::{ops::DerefMut, sync::OnceLock};
 use uuid::uuid;
 
 pub mod equipment;
@@ -91,16 +97,28 @@ pub struct StrikeTeamData {
 }
 
 /// Creates a new strike team for the provided user
-pub async fn create_user_strike_team<C>(db: &C, user: &User) -> anyhow::Result<StrikeTeam>
-where
-    C: ConnectionTrait + Send,
-{
+pub async fn create_user_strike_team(
+    db: &mut DbTransaction<'_>,
+    user: &UserDto,
+) -> anyhow::Result<StrikeTeamDto> {
     // Generate random strike team data
     let mut rng = StdRng::from_entropy();
     let strike_team_data = random_strike_team(&mut rng).context("Failed to create strike team")?;
 
     // Create the strike team
-    let team = StrikeTeam::create(db, user, strike_team_data).await?;
+    let team = StrikeTeamsRepository::create(
+        db.deref_mut(),
+        CreateStrikeTeamDto {
+            user_id: user.id,
+            name: strike_team_data.name,
+            icon: strike_team_data.icon,
+            level: strike_team_data.level,
+            xp: strike_team_data.xp,
+            positive_traits: vec![strike_team_data.positive_trait],
+            negative_traits: Vec::new(),
+        },
+    )
+    .await?;
     Ok(team)
 }
 

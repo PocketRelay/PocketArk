@@ -1,11 +1,10 @@
 use crate::{
-    database::entity::currency::CurrencyType,
+    database::dto::currency::CurrencyType,
     definitions::{
         i18n::{I18n, I18nDescription, I18nName, Localized},
         shared::CustomAttributes,
     },
 };
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
@@ -35,7 +34,7 @@ pub type StrikeTeamEquipmentName = String;
 ///
 /// For reference: https://masseffectandromeda.fandom.com/wiki/Strike_team#Equipment
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamEquipment {
     /// Unique name for the equipment

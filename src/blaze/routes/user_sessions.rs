@@ -18,7 +18,7 @@ use crate::{
         router::{Blaze, BlazeWithHeader, Extension},
         session::{NotifyContext, SessionLink},
     },
-    database::entity::User,
+    database::dto::users::UserDto,
     services::sessions::Sessions,
 };
 
@@ -63,7 +63,7 @@ pub async fn lookup_user(
 ) -> ServerResult<Blaze<LookupResponse>> {
     // Lookup the session
     let session = sessions
-        .lookup_session(req.player_id as u32)
+        .lookup_session(req.player_id as i64)
         .ok_or(UserSessionsError::UserNotFound)?;
 
     // Get the lookup response from the session

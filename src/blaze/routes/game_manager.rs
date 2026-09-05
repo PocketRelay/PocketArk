@@ -226,8 +226,8 @@ pub async fn mesh_endpoints_connected(
 
     // Ensure the host is the one making the change
     if game.is_host_player(user.id) {
-        let target_id = target_group_id.id;
-        game.update_mesh(target_id as u32, PlayerNetConnectionStatus::Connected);
+        let target_id = target_group_id.id as i64;
+        game.update_mesh(target_id, PlayerNetConnectionStatus::Connected);
     }
 
     Ok(())

@@ -1,27 +1,25 @@
-use chrono::Utc;
-use sea_orm::prelude::DateTimeUtc;
+use chrono::{DateTime, Utc};
 
 use crate::{
-    database::entity::{
-        ChallengeProgress,
-        challenge_progress::{ChallengeProgressCounter, ChallengeState, CounterUpdateType},
+    database::dto::challenge_progress::{
+        ChallengeProgressCounter, ChallengeProgressDto, ChallengeState, CounterUpdateType,
     },
     definitions::challenges::{ChallengeCounter, ChallengeDefinition},
     services::game::data::ChallengeProgressChange,
 };
 
 pub struct AppliedChallengeProgressUpdate {
-    pub last_changed: DateTimeUtc,
+    pub last_changed: DateTime<Utc>,
     pub times_completed: u32,
     pub counters: Vec<ChallengeProgressCounter>,
     //
-    pub first_completed: Option<DateTimeUtc>,
-    pub last_completed: Option<DateTimeUtc>,
+    pub first_completed: Option<DateTime<Utc>>,
+    pub last_completed: Option<DateTime<Utc>>,
     pub state: ChallengeState,
 }
 
 pub fn apply_challenge_progress_change(
-    challenge: &ChallengeProgress,
+    challenge: &ChallengeProgressDto,
     change: &ChallengeProgressChange,
 ) -> (
     AppliedChallengeProgressUpdate,
@@ -31,7 +29,7 @@ pub fn apply_challenge_progress_change(
     let now = Utc::now();
 
     // Take all the counters from the original list
-    let mut counters = challenge.counters.0.clone();
+    let mut counters = challenge.counters.clone();
 
     let update_type: CounterUpdateType;
 

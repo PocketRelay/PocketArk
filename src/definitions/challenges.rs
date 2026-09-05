@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::currency::CurrencyType,
+    database::dto::currency::CurrencyType,
     definitions::{
         i18n::{I18n, I18nDescription, I18nKey, I18nTitle, Localized},
         items::ItemName,

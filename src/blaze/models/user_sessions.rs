@@ -4,7 +4,7 @@ use crate::{
         data::NetData,
         models::constants::PING_SITE_ALIAS,
     },
-    database::entity::{User, users::UserId},
+    database::dto::users::{UserDto, UserId},
 };
 use bitflags::bitflags;
 use serde::Serialize;
@@ -283,14 +283,14 @@ impl TdfSerialize for UserSessionExtendedData {
 #[derive(TdfTyped)]
 #[tdf(group)]
 pub struct UserIdentification<'a> {
-    pub id: u32,
+    pub id: u64,
     pub name: &'a str,
 }
 
 impl<'a> UserIdentification<'a> {
-    pub fn from_user(user: &'a User) -> Self {
+    pub fn from_user(user: &'a UserDto) -> Self {
         Self {
-            id: user.id,
+            id: user.id as u64,
             name: &user.username,
         }
     }
@@ -326,7 +326,7 @@ pub struct OwnedUserIdentification {
 }
 
 impl OwnedUserIdentification {
-    pub fn from_user(user: &User) -> Self {
+    pub fn from_user(user: &UserDto) -> Self {
         Self {
             id: user.id as u64,
             name: user.username.to_string(),

@@ -1,5 +1,5 @@
 use crate::{
-    database::entity::strike_team_mission::MissionAccessibility,
+    database::dto::strike_team_mission::MissionAccessibility,
     definitions::{
         i18n::{I18n, I18nDesc, I18nName, Localized},
         shared::CustomAttributes,
@@ -15,7 +15,6 @@ use crate::{
 use anyhow::Context;
 use chrono::Utc;
 use rand::{Rng, seq::SliceRandom};
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
@@ -137,7 +136,7 @@ pub enum MissionDifficulty {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionDescriptor {
     /// Unique ID for the mission descriptor

@@ -1,10 +1,9 @@
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use uuid::{Uuid, uuid};
 
 use crate::{
-    database::entity::{currency::CurrencyType, strike_team_mission::MissionAccessibility},
+    database::dto::{currency::CurrencyType, strike_team_mission::MissionAccessibility},
     definitions::{
         challenges::CurrencyReward,
         i18n::Localized,
@@ -16,7 +15,7 @@ use crate::{
 pub type MissionRewardsId = Uuid;
 
 #[serde_as]
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionRewards {
     /// Unique ID for the rewards collection

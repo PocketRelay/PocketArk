@@ -1,6 +1,6 @@
 use super::HttpError;
 use crate::{
-    database::entity::InventoryItem,
+    database::dto::inventory_items::InventoryItemDto,
     definitions::items::{InventoryNamespace, ItemDefinition},
 };
 use hyper::StatusCode;
@@ -54,7 +54,7 @@ pub struct InventoryRequestQuery {
 #[derive(Debug, Serialize)]
 pub struct InventoryResponse {
     /// List of inventory items
-    pub items: Vec<InventoryItem>,
+    pub items: Vec<InventoryItemDto>,
     /// Definitions for items (only present when asked for in query)
     pub definitions: Option<Vec<&'static ItemDefinition>>,
 }

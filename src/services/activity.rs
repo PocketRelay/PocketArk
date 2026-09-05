@@ -5,9 +5,15 @@
 //! and rewards accordingly
 
 use crate::{
-    database::entity::{
-        Currency, InventoryItem, User,
-        challenge_progress::{ChallengeCounterName, ChallengeId},
+    database::{
+        DbTransaction,
+        dto::{
+            challenge_progress::{ChallengeCounterName, ChallengeId},
+            currency::CurrencyDto,
+            inventory_items::{CreateInventoryItemDto, InventoryItemDto},
+            users::UserDto,
+        },
+        repositories::{currency::CurrencyRepository, inventory_items::InventoryItemsRepository},
     },
     definitions::{
         characters::acquire_item_character,
@@ -21,14 +27,15 @@ use crate::{
         store_catalogs::{StoreArticleName, StoreCatalogs},
     },
 };
+use chrono::Utc;
 use log::debug;
 use rand::{SeedableRng, rngs::StdRng};
-use sea_orm::ConnectionTrait;
 use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use serde_json::Value;
 use std::{
     collections::HashMap,
     fmt::{Debug, Display},
+    ops::DerefMut,
     str::FromStr,
 };
 use thiserror::Error;
@@ -61,32 +68,26 @@ pub enum ItemConsumeError {
 }
 
 impl ActivityService {
-    pub async fn process_event<C>(
-        db: &C,
-        user: &User,
+    pub async fn process_event(
+        db: &mut DbTransaction<'_>,
+        user: &UserDto,
         event: ActivityEvent,
-    ) -> anyhow::Result<ActivityResult>
-    where
-        C: ConnectionTrait + Send,
-    {
+    ) -> anyhow::Result<ActivityResult> {
         let mut result = ActivityResult::default();
 
         Self::process_event_inner(db, user, event, &mut result).await?;
 
         // Update the current user currencies
-        result.currencies = Currency::all(db, user).await?;
+        result.currencies = CurrencyRepository::get_by_user(db.deref_mut(), user.id).await?;
 
         Ok(result)
     }
 
-    pub async fn process_events<C>(
-        db: &C,
-        user: &User,
+    pub async fn process_events(
+        db: &mut DbTransaction<'_>,
+        user: &UserDto,
         events: Vec<ActivityEvent>,
-    ) -> anyhow::Result<ActivityResult>
-    where
-        C: ConnectionTrait + Send,
-    {
+    ) -> anyhow::Result<ActivityResult> {
         let mut result = ActivityResult::default();
 
         for event in events {
@@ -94,7 +95,7 @@ impl ActivityService {
         }
 
         // Update the current user currencies
-        result.currencies = Currency::all(db, user).await?;
+        result.currencies = CurrencyRepository::get_by_user(db.deref_mut(), user.id).await?;
 
         Ok(result)
     }
@@ -103,15 +104,12 @@ impl ActivityService {
     /// onto an existing result set.
     ///
     /// Doesn't update [ActivityResult::currencies]
-    pub async fn process_event_inner<C>(
-        db: &C,
-        user: &User,
+    pub async fn process_event_inner(
+        db: &mut DbTransaction<'_>,
+        user: &UserDto,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> anyhow::Result<()>
-    where
-        C: ConnectionTrait + Send,
-    {
+    ) -> anyhow::Result<()> {
         debug!("Processing Activity: {:?}", event);
 
         match event.name {
@@ -138,15 +136,12 @@ impl ActivityService {
         Ok(())
     }
 
-    pub async fn process_article_purchased<C>(
-        db: &C,
-        user: &User,
+    pub async fn process_article_purchased(
+        db: &mut DbTransaction<'_>,
+        user: &UserDto,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> anyhow::Result<()>
-    where
-        C: ConnectionTrait + Send,
-    {
+    ) -> anyhow::Result<()> {
         let catalogs = StoreCatalogs::get();
         let item_definitions = Items::get();
         let classes = Classes::get();
@@ -171,12 +166,15 @@ impl ActivityService {
         {
             // TODO: Check that the user hasn't already reached the item capacity
 
-            let item = InventoryItem::add_item(
-                db,
-                user,
-                item_definition.name,
-                stack_size,
-                item_definition.capacity,
+            let item = InventoryItemsRepository::add_item(
+                db.deref_mut(),
+                CreateInventoryItemDto {
+                    user_id: user.id,
+                    definition_name: item_definition.name,
+                    stack_size,
+                    capacity: item_definition.capacity,
+                    created_at: Utc::now(),
+                },
             )
             .await?;
 
@@ -194,15 +192,12 @@ impl ActivityService {
 
     /// Handles granting rewards and other changes from consuming
     /// an inventory item
-    pub async fn process_item_consumed<C>(
-        db: &C,
-        user: &User,
+    pub async fn process_item_consumed(
+        db: &mut DbTransaction<'_>,
+        user: &UserDto,
         event: ActivityEvent,
         result: &mut ActivityResult,
-    ) -> anyhow::Result<()>
-    where
-        C: ConnectionTrait + Send,
-    {
+    ) -> anyhow::Result<()> {
         let item_definitions = Items::get();
         let classes = Classes::get();
         let level_tables = LevelTables::get();
@@ -227,8 +222,13 @@ impl ActivityService {
                 let required_names = item_definitions.droppable_required_names();
 
                 // Collect the owned items
-                let owned_items: Vec<InventoryItem> =
-                    InventoryItem::all_by_names(db, user, required_names).await?;
+                let owned_items: Vec<InventoryItemDto> =
+                    InventoryItemsRepository::get_by_user_by_definitions(
+                        db.deref_mut(),
+                        user.id,
+                        &required_names,
+                    )
+                    .await?;
 
                 // Get droppable items
                 let droppable_items = item_definitions.droppable_items(&owned_items);
@@ -257,9 +257,17 @@ impl ActivityService {
                 stack_size,
             } = reward;
 
-            let item =
-                InventoryItem::add_item(db, user, definition.name, stack_size, definition.capacity)
-                    .await?;
+            let item = InventoryItemsRepository::add_item(
+                db.deref_mut(),
+                CreateInventoryItemDto {
+                    user_id: user.id,
+                    definition_name,
+                    stack_size,
+                    capacity: definition.capacity,
+                    created_at: Utc::now(),
+                },
+            )
+            .await?;
 
             result.add_item(item, stack_size, definition);
 
@@ -668,12 +676,12 @@ pub struct ActivityResult {
     /// Unknown field
     pub news_triggered: u32,
     /// The current currency amounts that the player has
-    pub currencies: Vec<Currency>,
+    pub currencies: Vec<CurrencyDto>,
     /// The different currency amounts that were earned
-    pub currency_earned: Vec<Currency>,
+    pub currency_earned: Vec<CurrencyDto>,
 
     /// Items that were earned from the activity
-    pub items_earned: Vec<InventoryItem>,
+    pub items_earned: Vec<InventoryItemDto>,
     /// Definitions for the items from `items_earned`
     pub item_definitions: Vec<&'static ItemDefinition>,
 
@@ -691,7 +699,7 @@ impl ActivityResult {
     /// the provided `stack_size` to ensure its correct
     pub fn add_item(
         &mut self,
-        mut item: InventoryItem,
+        mut item: InventoryItemDto,
         stack_size: u32,
         definition: &'static ItemDefinition,
     ) {

@@ -1,6 +1,6 @@
 use crate::{
-    database::entity::{
-        ChallengeProgress,
+    database::dto::{
+        challenge_progress::ChallengeProgressDto,
         challenge_progress::{ChallengeProgressCounterWithDefinition, ChallengeState},
     },
     definitions::challenges::{ChallengeDefinition, ChallengeDefinitionBase},
@@ -30,7 +30,7 @@ pub struct AllChallengesResponse {
 pub struct ChallengeAllItem {
     #[serde(flatten)]
     pub definition: &'static ChallengeDefinition,
-    pub progress: Option<Vec<ChallengeProgress>>,
+    pub progress: Option<Vec<ChallengeProgressDto>>,
 }
 
 #[skip_serializing_none]

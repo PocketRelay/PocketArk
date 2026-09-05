@@ -4,7 +4,6 @@ use super::shared::CustomAttributes;
 use crate::utils::ImStr;
 use anyhow::Context;
 use log::debug;
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use std::{collections::HashMap, sync::OnceLock};
 use uuid::Uuid;
@@ -163,9 +162,7 @@ impl Serialize for LevelTable {
 }
 
 /// Structure for tracking XP progression of a character or strike team
-#[derive(
-    Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult,
-)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProgressionXp {
     /// The previous XP that was reached (last level)
     pub last: u32,

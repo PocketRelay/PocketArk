@@ -4,11 +4,13 @@
 //! The randomness used for these packs are only guesses and may not
 //! be accurate to the actual game loot tables.
 
-use crate::definitions::items::{ItemDefinition, ItemName};
+use crate::{
+    database::DbErr,
+    definitions::items::{ItemDefinition, ItemName},
+};
 use anyhow::Context;
 use log::debug;
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
-use sea_orm::DbErr;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, sync::OnceLock};
 use thiserror::Error;

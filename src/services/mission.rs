@@ -4,14 +4,17 @@
 use std::{ops::Add, time::Duration};
 
 use anyhow::Context;
-use chrono::{Datelike, Days, TimeZone, Timelike, Utc};
+use chrono::{DateTime, Datelike, Days, TimeZone, Timelike, Utc};
 use log::{debug, error};
 use rand::{SeedableRng, rngs::StdRng};
-use sea_orm::{DatabaseConnection, prelude::DateTimeUtc};
 use tokio::time::sleep;
+use uuid::Uuid;
 
 use crate::{
-    database::entity::StrikeTeamMission,
+    database::{
+        DbPool, dto::strike_team_mission::CreateStrikeTeamMissionDto,
+        repositories::strike_team_mission::StrikeTeamMissionRepository,
+    },
     definitions::strike_teams::mission::{
         MissionDifficulty, StrikeTeamMissionData, random_mission,
     },
@@ -21,14 +24,14 @@ use crate::{
 /// four hourly schedule
 pub struct MissionBackgroundTask {
     /// Database access is required for missions
-    db: DatabaseConnection,
+    db: DbPool,
 }
 
 /// Represents an hour offset for execution
 type HourOffset = u32;
 
 impl MissionBackgroundTask {
-    pub fn new(db: DatabaseConnection) -> Self {
+    pub fn new(db: DbPool) -> Self {
         Self { db }
     }
 
@@ -44,12 +47,13 @@ impl MissionBackgroundTask {
     const TOTAL_DAILY_OFFSETS: u32 = Self::HOURS_IN_DAY / Self::SCHEDULE_HOURLY_INTERVAL;
 
     /// Finds the date time of the last created mission
-    async fn last_mission_time(&self) -> anyhow::Result<Option<DateTimeUtc>> {
-        let start_seconds: i64 = match StrikeTeamMission::newest_mission(&self.db).await {
-            Ok(Some(value)) => value,
-            Ok(None) => return Ok(None),
-            Err(err) => return Err(err.into()),
-        };
+    async fn last_mission_time(&self) -> anyhow::Result<Option<DateTime<Utc>>> {
+        let start_seconds: i64 =
+            match StrikeTeamMissionRepository::get_newest_mission_timestamp(&self.db).await {
+                Ok(Some(value)) => value,
+                Ok(None) => return Ok(None),
+                Err(err) => return Err(err.into()),
+            };
 
         let date_time = Utc
             .timestamp_opt(start_seconds as i64, 0)
@@ -216,7 +220,26 @@ impl MissionBackgroundTask {
             mission_data.push(random_mission(&mut rng, MissionDifficulty::Platinum, true)?);
         }
 
-        StrikeTeamMission::create_many(&self.db, mission_data)
+        let create_mission_data = mission_data
+            .into_iter()
+            .map(|mission_data| CreateStrikeTeamMissionDto {
+                name: Uuid::new_v4(),
+                descriptor: mission_data.descriptor,
+                mission_type: mission_data.mission_type,
+                accessibility: mission_data.accessibility,
+                waves: mission_data.waves,
+                tags: mission_data.tags,
+                static_modifiers: mission_data.static_modifiers,
+                dynamic_modifiers: mission_data.dynamic_modifiers,
+                rewards: mission_data.rewards,
+                custom_attributes: mission_data.custom_attributes,
+                start_seconds: mission_data.start_seconds,
+                end_seconds: mission_data.end_seconds,
+                sp_length_seconds: mission_data.sp_length_seconds,
+            })
+            .collect();
+
+        StrikeTeamMissionRepository::create_many(&self.db, create_mission_data)
             .await
             .context("Failed to create strike team missions")?;
 
@@ -224,7 +247,7 @@ impl MissionBackgroundTask {
     }
 
     /// Sleeps until the provided date time is reached
-    async fn sleep_until(date: DateTimeUtc) -> anyhow::Result<()> {
+    async fn sleep_until(date: DateTime<Utc>) -> anyhow::Result<()> {
         let now = Utc::now();
 
         // Already passed the date
@@ -245,7 +268,7 @@ impl MissionBackgroundTask {
     /// Returns the next offset for the current time, if there is another
     /// offset available for the date
     fn get_next_offset(
-        current_time: &DateTimeUtc,
+        current_time: &DateTime<Utc>,
         last_offset: Option<HourOffset>,
     ) -> Option<HourOffset> {
         let mut next_offset = Self::offset_for_hour(current_time.hour())?;

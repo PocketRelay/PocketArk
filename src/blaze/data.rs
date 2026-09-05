@@ -17,7 +17,7 @@ use crate::{
         packet::Packet,
         session::WeakSessionLink,
     },
-    database::entity::{User, users::UserId},
+    database::dto::users::{UserDto, UserId},
     services::{
         game::{GameID, GameRef, WeakGameRef},
         sessions::{AssociationId, SessionUserAssociation},
@@ -194,7 +194,7 @@ impl SessionData {
     }
 
     /// Starts a session from the provided player association
-    pub fn set_auth(&self, player: SessionUserAssociation) -> Arc<User> {
+    pub fn set_auth(&self, player: SessionUserAssociation) -> Arc<UserDto> {
         self.ext
             .write()
             .auth
@@ -206,7 +206,7 @@ impl SessionData {
     }
 
     /// Gets the currently authenticated player
-    pub fn get_player(&self) -> Option<Arc<User>> {
+    pub fn get_player(&self) -> Option<Arc<UserDto>> {
         self.read()
             .auth
             .as_ref()

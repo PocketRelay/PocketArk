@@ -2,8 +2,7 @@
 //! authenticated sessions on the server
 
 use crate::blaze::session::{SessionLink, WeakSessionLink};
-use crate::database::entity::User;
-use crate::database::entity::users::UserId;
+use crate::database::dto::users::{UserDto, UserId};
 use crate::http::models::HttpError;
 use crate::utils::hashing::IntHashMap;
 use crate::utils::signing::SigningKey;
@@ -98,9 +97,9 @@ impl Sessions {
             .as_secs();
 
         // Create encoded token value
-        let mut data = [0u8; 12];
-        data[..4].copy_from_slice(&user_id.to_be_bytes());
-        data[4..].copy_from_slice(&exp.to_be_bytes());
+        let mut data = [0u8; 16];
+        data[..8].copy_from_slice(&user_id.to_be_bytes());
+        data[8..].copy_from_slice(&exp.to_be_bytes());
         let data = &data;
 
         // Encode the message
@@ -121,8 +120,8 @@ impl Sessions {
             None => return Err(VerifyError::Invalid),
         };
 
-        // Decode the 12 byte token message
-        let mut msg = [0u8; 12];
+        // Decode the 16 byte token message
+        let mut msg = [0u8; 16];
         Base64UrlUnpadded::decode(msg_raw, &mut msg).map_err(|_| VerifyError::Invalid)?;
 
         // Decode 32byte signature (SHA256)
@@ -135,12 +134,12 @@ impl Sessions {
         }
 
         // Extract ID and expiration from the msg bytes
-        let mut id = [0u8; 4];
-        id.copy_from_slice(&msg[..4]);
-        let id = u32::from_be_bytes(id);
+        let mut id = [0u8; 8];
+        id.copy_from_slice(&msg[..8]);
+        let id = u64::from_be_bytes(id) as i64;
 
         let mut exp = [0u8; 8];
-        exp.copy_from_slice(&msg[4..]);
+        exp.copy_from_slice(&msg[8..]);
         let exp = u64::from_be_bytes(exp);
 
         // Ensure the timestamp is not expired
@@ -160,7 +159,7 @@ impl Sessions {
     /// [SessionPlayerAssociation] which will release the
     pub fn add_session(
         self: &Arc<Self>,
-        user: User,
+        user: UserDto,
         link: WeakSessionLink,
     ) -> SessionUserAssociation {
         // Add the session mapping
@@ -205,7 +204,7 @@ impl Sessions {
 /// Upon dropping this the session will remove the association
 pub struct SessionUserAssociation {
     /// User belonging to the session
-    pub user: Arc<User>,
+    pub user: Arc<UserDto>,
 
     // Access to the session service to remove on drop
     sessions: Arc<Sessions>,

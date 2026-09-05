@@ -1,5 +1,6 @@
+use crate::database::dto::currency::CurrencyType;
+
 use super::shared::CustomAttributes;
-use crate::database::entity::currency::CurrencyType;
 use anyhow::Context;
 use log::debug;
 use serde::{Deserialize, Serialize};

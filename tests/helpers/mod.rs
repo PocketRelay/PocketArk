@@ -1,4 +1,4 @@
-use pocket_ark::database_v2::{
+use pocket_ark::database::{
     dto::users::{CreateUserDto, NormalizedEmail, UserDto},
     migrations::{apply_migrations, initialize_migrations_table},
     repositories::users::UserRepository,

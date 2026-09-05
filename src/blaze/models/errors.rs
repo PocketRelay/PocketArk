@@ -1,11 +1,13 @@
 use log::error;
-use sea_orm::DbErr;
 use tdf::{TdfSerialize, types::bytes::serialize_bytes};
 
-use crate::blaze::{
-    models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
-    packet::{FrameFlags, Packet},
-    router::IntoPacketResponse,
+use crate::{
+    blaze::{
+        models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
+        packet::{FrameFlags, Packet},
+        router::IntoPacketResponse,
+    },
+    database::DbErr,
 };
 
 pub type ServerResult<T> = Result<T, BlazeError>;
@@ -44,12 +46,13 @@ pub struct BlazeError(u32);
 impl From<DbErr> for BlazeError {
     fn from(value: DbErr) -> Self {
         error!("Database error: {}", value);
-        match value {
-            DbErr::ConnectionAcquire(_) => DatabaseError::NoConnectionAvailable,
-            DbErr::Conn(_) => DatabaseError::InitFailure,
-            _ => DatabaseError::System,
-        }
-        .into()
+        // match value {
+        //     DbErr::ConnectionAcquire(_) => DatabaseError::NoConnectionAvailable,
+        //     DbErr::Conn(_) => DatabaseError::InitFailure,
+        //     _ => DatabaseError::System,
+        // }
+        // .into()
+        DatabaseError::System.into()
     }
 }
 

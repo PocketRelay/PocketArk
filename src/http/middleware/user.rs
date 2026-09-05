@@ -1,15 +1,18 @@
 use crate::{
-    database::entity::User,
+    database::{
+        DbPool,
+        dto::users::{UserDto, UserId},
+        repositories::users::UserRepository,
+    },
     http::models::{DynHttpError, HttpError},
     services::sessions::{Sessions, VerifyError},
 };
 use axum::extract::FromRequestParts;
 use hyper::StatusCode;
-use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 use thiserror::Error;
 
-pub struct Auth(pub User);
+pub struct Auth(pub UserDto);
 
 /// The HTTP header that contains the authentication token
 const TOKEN_HEADER: &str = "X-Token";
@@ -42,7 +45,7 @@ where
     ) -> Result<Self, Self::Rejection> {
         let db = parts
             .extensions
-            .get::<DatabaseConnection>()
+            .get::<DbPool>()
             .expect("Database connection extension missing")
             .clone();
 
@@ -59,11 +62,11 @@ where
             .and_then(|value| value.to_str().ok())
             .ok_or(AuthError::MissingToken)?;
 
-        let user_id: u32 = sessions
+        let user_id: UserId = sessions
             .verify_token(token)
             .map_err(|_| AuthError::InvalidToken)?;
 
-        let user = User::by_id(&db, user_id)
+        let user = UserRepository::get_by_id(&db, user_id)
             .await?
             .ok_or(VerifyError::Invalid)
             .map_err(|_| AuthError::InvalidToken)?;

@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use crate::{
-    database::entity::{
-        ChallengeProgress,
-        challenge_progress::{
+    database::{
+        DbPool,
+        dto::challenge_progress::{
             ChallengeProgressCounter, ChallengeProgressCounterWithDefinition, ChallengeState,
         },
+        repositories::challenge_progress::ChallengeProgressRepository,
     },
     definitions::challenges::Challenges,
     http::{
@@ -14,7 +15,6 @@ use crate::{
     },
 };
 use axum::{Extension, Json};
-use sea_orm::DatabaseConnection;
 
 /// GET /challenges/categories
 ///
@@ -28,11 +28,11 @@ pub async fn get_challenge_categories() -> Json<ChallengeCategories> {
 ///
 /// Obtains a list of all the challenges that can be completed
 pub async fn get_challenges(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Auth(user): Auth,
 ) -> HttpResult<AllChallengesResponse> {
     let challenge_definitions = Challenges::get();
-    let user_progress = ChallengeProgress::all(&db, &user).await?;
+    let user_progress = ChallengeProgressRepository::get_by_user(&db, user.id).await?;
 
     let challenges: Vec<ChallengeAllItem> = challenge_definitions
         .values
@@ -62,12 +62,12 @@ pub async fn get_challenges(
 /// Obtains a list of all the challenges the user has either
 /// completed or has started.
 pub async fn get_user_challenges(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Auth(user): Auth,
 ) -> HttpResult<UserChallengesResponse> {
     let challenge_definitions = Challenges::get();
 
-    let user_progress = ChallengeProgress::all(&db, &user).await?;
+    let user_progress = ChallengeProgressRepository::get_by_user(&db, user.id).await?;
 
     let mut user_progress_lookup = HashMap::new();
     for progress in user_progress {
@@ -111,7 +111,6 @@ pub async fn get_user_challenges(
                 .map(|counter| {
                     let progress = progress
                         .counters
-                        .0
                         .iter()
                         .find(|counter_progress| counter_progress.name == counter.name)
                         .cloned()

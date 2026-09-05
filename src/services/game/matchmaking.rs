@@ -10,7 +10,7 @@ use crate::{
         packet::Packet,
     },
     config::Config,
-    database::entity::users::UserId,
+    database::dto::users::UserId,
     services::{game::GameID, tunnel::TunnelService},
 };
 

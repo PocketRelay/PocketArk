@@ -1,6 +1,13 @@
 use super::shared::CustomAttributes;
+use crate::database::DbTransaction;
 use crate::{
-    database::entity::{InventoryItem, User},
+    database::{
+        dto::{
+            inventory_items::{CreateInventoryItemDto, InventoryItemDto},
+            users::UserDto,
+        },
+        repositories::inventory_items::InventoryItemsRepository,
+    },
     definitions::{
         characters::acquire_item_character,
         classes::Classes,
@@ -10,12 +17,13 @@ use crate::{
 };
 use anyhow::{Context, anyhow};
 use category::{BaseCategory, Category};
+use chrono::Utc;
 use log::debug;
 use rarity::ItemRarity;
-use sea_orm::ConnectionTrait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{serde_as, skip_serializing_none};
+use std::ops::DerefMut;
 use std::{collections::HashMap, sync::OnceLock};
 use uuid::{Uuid, uuid};
 
@@ -31,10 +39,10 @@ const INVENTORY_DEFINITIONS: &str = include_str!("../../resources/data/inventory
 
 /// Adds the collection of default items and characters to the
 /// provided user
-pub async fn create_default_items<C>(db: &C, user: &User) -> anyhow::Result<()>
-where
-    C: ConnectionTrait + Send,
-{
+pub async fn create_default_items(
+    db: &mut DbTransaction<'_>,
+    user: &UserDto,
+) -> anyhow::Result<()> {
     let item_definitions = Items::get();
     let classes = Classes::get();
     let level_tables = LevelTables::get();
@@ -64,9 +72,18 @@ where
             .by_name(&item)
             .ok_or(anyhow!("Missing default item '{item}'"))?;
 
-        InventoryItem::add_item(db, user, definition.name, 1, definition.capacity)
-            .await
-            .unwrap();
+        InventoryItemsRepository::add_item(
+            db.deref_mut(),
+            CreateInventoryItemDto {
+                user_id: user.id,
+                definition_name: definition.name,
+                stack_size: 1,
+                capacity: definition.capacity,
+                created_at: Utc::now(),
+            },
+        )
+        .await
+        .unwrap();
 
         // Handle character creation if the item is a character item
         if definition
@@ -137,7 +154,7 @@ impl Items {
 
     /// Collect all items that are droppable and have met the conditions
     /// for being dropped
-    pub fn droppable_items(&self, owned_items: &[InventoryItem]) -> Vec<&ItemDefinition> {
+    pub fn droppable_items(&self, owned_items: &[InventoryItemDto]) -> Vec<&ItemDefinition> {
         self.values
             .iter()
             .filter(|item| item.is_droppable() && item.is_conditions_met(self, owned_items))
@@ -272,15 +289,15 @@ impl ItemDefinition {
     /// Get this item from the list of owned items if present
     fn get_owned_item<'owned>(
         &self,
-        owned_items: &'owned [InventoryItem],
-    ) -> Option<&'owned InventoryItem> {
+        owned_items: &'owned [InventoryItemDto],
+    ) -> Option<&'owned InventoryItemDto> {
         owned_items
             .iter()
             .find(|item| item.definition_name == self.name)
     }
 
     /// Checks if the "unlock_definition" of this item definition is met
-    fn is_unlock_definition_met(&self, owned_items: &[InventoryItem]) -> bool {
+    fn is_unlock_definition_met(&self, owned_items: &[InventoryItemDto]) -> bool {
         self.get_owned_item(owned_items)
             // Ensure we also have the required capacity if present
             .is_some_and(|owned_item| {
@@ -291,7 +308,7 @@ impl ItemDefinition {
 
     /// Checks if the item drop conditions are met, recursively checks parent items
     /// to ensure the parent unlock conditions are met
-    pub fn is_conditions_met(&self, defs: &Items, owned_items: &[InventoryItem]) -> bool {
+    pub fn is_conditions_met(&self, defs: &Items, owned_items: &[InventoryItemDto]) -> bool {
         let unlock_def: &ItemDefinition = match self.unlock_definition(defs) {
             Some(value) => value,
             // No unlocking requirement

@@ -3,9 +3,14 @@
 
 use crate::{
     blaze::{data::SessionData, router::BlazeRouter, session::Session},
-    config::Config,
-    config::VERSION,
-    database::entity::{Currency, SharedData, User, users::CreateUser},
+    config::{Config, VERSION},
+    database::{
+        DbPool,
+        dto::users::{CreateUserDto, NormalizedEmail},
+        repositories::{
+            currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
+        },
+    },
     definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
         middleware::{
@@ -33,8 +38,7 @@ use axum::{
 };
 use hyper::{StatusCode, header, http::HeaderValue, upgrade::OnUpgrade};
 use log::{debug, error};
-use sea_orm::{DatabaseConnection, TransactionTrait};
-use std::sync::Arc;
+use std::{ops::DerefMut, sync::Arc};
 use uuid::Uuid;
 
 /// GET /ark/client/details
@@ -59,12 +63,14 @@ pub async fn details(
 ///
 /// Used by the client tool to login to an account on the server
 pub async fn login(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Extension(sessions): Extension<Arc<Sessions>>,
     JsonValidated(LoginUserRequest { email, password }): JsonValidated<LoginUserRequest>,
 ) -> HttpResult<TokenResponse> {
+    let email = NormalizedEmail::new(email);
+
     // Find the user requested
-    let user = User::by_email(&db, &email)
+    let user = UserRepository::get_by_email(&db, &email)
         .await?
         .ok_or(ClientError::AccountNotFound)?;
 
@@ -82,7 +88,7 @@ pub async fn login(
 ///
 /// Used by the client tool to create an account on the server
 pub async fn create(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Extension(sessions): Extension<Arc<Sessions>>,
     JsonValidated(CreateUserRequest {
         email,
@@ -90,46 +96,47 @@ pub async fn create(
         password,
     }): JsonValidated<CreateUserRequest>,
 ) -> HttpResult<TokenResponse> {
+    let email = NormalizedEmail::new(email);
+
     // Ensure the email doesn't exist already
-    if User::email_exists(&db, &email).await? {
+    if UserRepository::is_email_taken(&db, &email).await? {
         return Err(ClientError::EmailTaken.into());
     }
 
     // Ensure the username doesn't exist already
-    if User::username_exists(&db, &username).await? {
+    if UserRepository::is_username_taken(&db, &username).await? {
         return Err(ClientError::UsernameAlreadyTaken.into());
     }
 
     let password = hash_password(&password).context("Failed to hash password")?;
 
-    let create = CreateUser {
+    let create = CreateUserDto {
         email,
         username,
         password,
     };
 
-    let user = db
-        .transaction(|db| {
-            Box::pin(async move {
-                // Create the user account
-                let user = User::create(db, create).await?;
+    let user = {
+        let mut transaction = db.begin().await?;
+        // Create the user account
+        let user = UserRepository::create(transaction.deref_mut(), create).await?;
 
-                // Give the user all the default items
-                create_default_items(db, &user).await?;
+        // Give the user all the default items
+        create_default_items(&mut transaction, &user).await?;
 
-                // Give the user the default currencies
-                Currency::set_default(db, &user).await?;
+        // Give the user the default currencies
+        CurrencyRepository::add_initial_currency(transaction.deref_mut(), user.id).await?;
 
-                // Setup the user shared data
-                SharedData::create_default(db, &user).await?;
+        // Setup the user shared data
+        SharedDataRepository::create_default(transaction.deref_mut(), user.id).await?;
 
-                // Setup the user strike teams
-                create_user_strike_team(db, &user).await?;
+        // Setup the user strike teams
+        create_user_strike_team(&mut transaction, &user).await?;
 
-                Ok::<_, DynHttpError>(user)
-            })
-        })
-        .await?;
+        transaction.commit().await?;
+
+        user
+    };
 
     let token = sessions.create_token(user.id);
 

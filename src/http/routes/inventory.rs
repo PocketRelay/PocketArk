@@ -1,5 +1,10 @@
+use std::ops::DerefMut;
+
 use crate::{
-    database::entity::{InventoryItem, User},
+    database::{
+        DbPool, DbTransaction, dto::users::UserDto,
+        repositories::inventory_items::InventoryItemsRepository,
+    },
     definitions::items::{InventoryNamespace, ItemDefinition, Items},
     http::{
         middleware::{JsonDump, user::Auth},
@@ -16,7 +21,6 @@ use crate::{
 use axum::{Extension, Json, extract::Query};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{ConnectionTrait, DatabaseConnection, TransactionTrait};
 use uuid::Uuid;
 
 /// GET /inventory
@@ -26,9 +30,9 @@ use uuid::Uuid;
 pub async fn get_inventory(
     Query(query): Query<InventoryRequestQuery>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<InventoryResponse> {
-    let mut items = InventoryItem::get_all_items(&db, &user).await?;
+    let mut items = InventoryItemsRepository::get_by_user(&db, user.id).await?;
 
     let item_definitions = Items::get();
 
@@ -78,30 +82,27 @@ pub async fn get_definitions() -> Json<ItemDefinitionsResponse> {
 /// Updates the seen status of a list of inventory item IDs
 pub async fn update_inventory_seen(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<InventorySeenRequest>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Inventory seen change requested: {:?}", req);
 
     // Updates all the matching items seen state
-    InventoryItem::update_seen(&db, &user, req.list).await?;
+    InventoryItemsRepository::mark_items_seen(&db, user.id, &req.list).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
 
 /// Attempts to consume the provided `count` of `item` from the inventory of `user`.
 /// If the user has the item then the item definition will be returned
-async fn consume_item<C>(
-    db: &C,
-    user: &User,
+async fn consume_item(
+    db: &mut DbTransaction<'_>,
+    user: &UserDto,
     item: Uuid,
     count: u32,
     item_definitions: &'static Items,
-) -> Result<&'static ItemDefinition, DynHttpError>
-where
-    C: ConnectionTrait + Send,
-{
-    let item = InventoryItem::get(db, user, item)
+) -> Result<&'static ItemDefinition, DynHttpError> {
+    let item = InventoryItemsRepository::get_by_user_by_item_id(db.deref_mut(), user.id, item)
         .await?
         // User doesn't own the item
         .ok_or(InventoryError::NotOwned)?;
@@ -123,7 +124,13 @@ where
     let new_stack_size = item.stack_size - count;
 
     // Decrease the stack size
-    item.set_stack_size(db, new_stack_size).await?;
+    InventoryItemsRepository::set_item_stack_size(
+        db.deref_mut(),
+        user.id,
+        definition.name,
+        new_stack_size,
+    )
+    .await?;
 
     Ok(definition)
 }
@@ -135,43 +142,46 @@ where
 /// within the game.
 pub async fn consume_inventory(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<ConsumeRequest>,
 ) -> HttpResult<ActivityResult> {
     const CONSUME_COUNT: u32 = 1;
 
     debug!("Consume inventory items: {:?}", req);
 
-    let result: ActivityResult = db
-        .transaction(|db| {
-            Box::pin(async move {
-                let mut events: Vec<ActivityEvent> = Vec::with_capacity(req.items.len());
-                let item_definitions = Items::get();
+    let result: ActivityResult = {
+        let mut transaction = db.begin().await?;
+        let mut events: Vec<ActivityEvent> = Vec::with_capacity(req.items.len());
+        let item_definitions = Items::get();
 
-                // Create the consumption event for each item
-                for target in req.items {
-                    let item_id = target.item_id;
+        // Create the consumption event for each item
+        for target in req.items {
+            let item_id = target.item_id;
 
-                    // Attempt to consume the item
-                    let item_definition =
-                        consume_item(db, &user, item_id, CONSUME_COUNT, item_definitions).await?;
+            // Attempt to consume the item
+            let item_definition = consume_item(
+                &mut transaction,
+                &user,
+                item_id,
+                CONSUME_COUNT,
+                item_definitions,
+            )
+            .await?;
 
-                    // Create the activity event
-                    let event = ActivityEvent::new(ActivityName::ItemConsumed)
-                        .with_attribute("category", item_definition.category.to_string())
-                        .with_attribute("definitionName", item_definition.name)
-                        .with_attribute("count", CONSUME_COUNT);
+            // Create the activity event
+            let event = ActivityEvent::new(ActivityName::ItemConsumed)
+                .with_attribute("category", item_definition.category.to_string())
+                .with_attribute("definitionName", item_definition.name)
+                .with_attribute("count", CONSUME_COUNT);
 
-                    events.push(event);
-                }
+            events.push(event);
+        }
 
-                // Process the event
-                ActivityService::process_events(db, &user, events)
-                    .await
-                    .map_err(Into::<DynHttpError>::into)
-            })
-        })
-        .await?;
+        // Process the event
+        let result = ActivityService::process_events(&mut transaction, &user, events).await?;
+        transaction.commit().await?;
+        result
+    };
 
     Ok(Json(result))
 }

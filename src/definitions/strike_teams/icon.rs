@@ -1,7 +1,6 @@
 use crate::utils::ImStr;
 use anyhow::Context;
 use rand::{Rng, seq::SliceRandom};
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 
 /// Collection of strike team icons and their associated internal
@@ -22,7 +21,7 @@ static STRIKE_TEAM_ICON_SETS: &[(&str, &str)] = &[
 /// Icon that the a strike team can use
 ///
 /// For reference: https://masseffectandromeda.fandom.com/wiki/Strike_team#Team_composition
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamIcon {
     /// Name of the icon

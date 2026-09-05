@@ -18,7 +18,7 @@ use crate::{
         data::SessionData,
         packet::PacketDebug,
     },
-    database::entity::{User, users::UserId},
+    database::dto::users::{UserDto, UserId},
     services::{
         game::{GameID, WeakGameRef},
         sessions::Sessions,
@@ -147,7 +147,7 @@ impl TdfSerialize for NotifyContext {
 
 struct DebugSessionData {
     id: Uuid,
-    auth: Option<Arc<User>>,
+    auth: Option<Arc<UserDto>>,
     action: &'static str,
 }
 
@@ -291,7 +291,7 @@ fn debug_log_packet(session: &Session, action: &'static str, packet: &Packet) {
 /// Logs debugging information about a player
 pub fn debug_log_packet_lockless(
     id: Uuid,
-    auth: Option<Arc<User>>,
+    auth: Option<Arc<UserDto>>,
     action: &'static str,
     packet: &Packet,
 ) {

@@ -10,12 +10,12 @@ use crate::{
         packet::Packet,
         session::WeakSessionLink,
     },
-    database::entity::{User, users::UserId},
+    database::dto::users::{UserDto, UserId},
     services::game::AttrMap,
 };
 
 pub struct GamePlayer {
-    pub user: Arc<User>,
+    pub user: Arc<UserDto>,
     pub link: WeakSessionLink,
     pub state: PlayerState,
     pub attr: AttrMap,
@@ -28,7 +28,7 @@ impl Drop for GamePlayer {
 }
 
 impl GamePlayer {
-    pub fn new(user: Arc<User>, link: WeakSessionLink) -> Self {
+    pub fn new(user: Arc<UserDto>, link: WeakSessionLink) -> Self {
         Self {
             user,
             link,
@@ -100,7 +100,7 @@ impl GamePlayer {
         if !self.attr.is_empty() {
             w.tag_ref(b"PATT", &self.attr);
         }
-        w.tag_u32(b"PID", self.user.id);
+        w.tag_u64(b"PID", self.user.id as u64);
         w.tag_ref(b"PNET", &self.network_address());
 
         w.tag_u8(b"PSET", 1);

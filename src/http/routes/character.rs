@@ -1,9 +1,10 @@
 use std::mem::swap;
 
 use crate::{
-    database::entity::{
-        Character, SeaJson, SharedData,
-        characters::{self},
+    database::{
+        DbPool,
+        dto::{character::CharacterDto, shared_data::CharacterSharedEquipment},
+        repositories::{characters::CharactersRepository, shared_data::SharedDataRepository},
     },
     definitions::{
         classes::{ClassName, Classes, CustomizationMap},
@@ -21,16 +22,15 @@ use crate::{
 use axum::{Extension, Json, extract::Path};
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, IntoActiveModel, ModelTrait};
 use uuid::Uuid;
 
 /// GET /characters
 pub async fn get_characters(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<CharactersResponse> {
-    let list = user.find_related(characters::Entity).all(&db).await?;
-    let shared_data = SharedData::get(&db, &user).await?;
+    let list = CharactersRepository::get_by_user(&db, user.id).await?;
+    let shared_data = SharedDataRepository::get_by_user(&db, user.id).await?;
 
     Ok(Json(CharactersResponse { list, shared_data }))
 }
@@ -41,13 +41,13 @@ pub async fn get_characters(
 pub async fn get_character(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<CharacterResponse> {
-    let character = Character::find_by_user_by_id(&db, &user, character_id)
+    let character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
-    let shared_data = SharedData::get(&db, &user).await?;
+    let shared_data = SharedDataRepository::get_by_user(&db, user.id).await?;
 
     Ok(Json(CharacterResponse {
         character,
@@ -61,18 +61,17 @@ pub async fn get_character(
 pub async fn set_active(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Requested set active character: {}", character_id);
 
     // Ensure the player actually owns the character
-    _ = Character::find_by_id_user(&db, &user, character_id)
+    _ = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound);
 
     // Update the shared data
-    let shared_data = SharedData::get(&db, &user).await?;
-    shared_data.set_active_character(&db, character_id).await?;
+    SharedDataRepository::set_user_active_character(&db, user.id, character_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -83,16 +82,16 @@ pub async fn set_active(
 pub async fn get_character_equip(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<CharacterEquipmentList> {
     debug!("Requested character equip: {}", character_id);
 
-    let character = Character::find_by_user_by_id(&db, &user, character_id)
+    let character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
     Ok(Json(CharacterEquipmentList {
-        list: character.equipments.0,
+        list: character.equipments,
     }))
 }
 
@@ -103,18 +102,16 @@ pub async fn get_character_equip(
 pub async fn update_character_equip(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<CharacterEquipmentList>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Update character equipment: {} - {:?}", character_id, req);
 
-    let character = Character::find_by_user_by_id(&db, &user, character_id)
+    let character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
-    let mut character = character.into_active_model();
-    character.equipments = ActiveValue::Set(SeaJson(req.list));
-    let _ = character.update(&db).await?;
+    CharactersRepository::set_equipments(&db, character.id, req.list).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -124,12 +121,18 @@ pub async fn update_character_equip(
 /// Updates share character equipment
 pub async fn update_shared_equip(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<CharacterEquipmentList>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!("Update shared equipment: {:?}", req);
-    let shared_data = SharedData::get(&db, &user).await?;
-    shared_data.set_shared_equipment(&db, req.list).await?;
+
+    SharedDataRepository::set_user_shared_equipment(
+        &db,
+        user.id,
+        CharacterSharedEquipment { list: req.list },
+    )
+    .await?;
+
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -139,7 +142,7 @@ pub async fn update_shared_equip(
 pub async fn update_character_customization(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<UpdateCustomizationRequest>,
 ) -> Result<StatusCode, DynHttpError> {
     debug!(
@@ -147,7 +150,7 @@ pub async fn update_character_customization(
         character_id, req
     );
 
-    let mut character = Character::find_by_user_by_id(&db, &user, character_id)
+    let mut character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -161,7 +164,8 @@ pub async fn update_character_customization(
         .for_each(|(key, value)| customization.set(key, value.into()));
 
     // Update the stored customization
-    _ = character.update_customization(&db, customization).await?;
+
+    CharactersRepository::set_customization(&db, character.id, customization).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -173,18 +177,18 @@ pub async fn update_character_customization(
 pub async fn get_character_equip_history(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<CharacterEquipmentList> {
     // TODO: Currently just gives current equip maybe save previous list
 
     debug!("Requested character equip history: {}", character_id);
 
-    let character = Character::find_by_user_by_id(&db, &user, character_id)
+    let character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
     Ok(Json(CharacterEquipmentList {
-        list: character.equipments.0,
+        list: character.equipments,
     }))
 }
 
@@ -192,12 +196,12 @@ pub async fn get_character_equip_history(
 pub async fn update_skill_tree(
     Path(character_id): Path<Uuid>,
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<UpdateSkillTreesRequest>,
-) -> HttpResult<Character> {
+) -> HttpResult<CharacterDto> {
     debug!("Req update skill tree: {} {:?}", character_id, req);
 
-    let mut character = Character::find_by_user_by_id(&db, &user, character_id)
+    let mut character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
         .await?
         .ok_or(CharactersError::NotFound)?;
 
@@ -208,7 +212,6 @@ pub async fn update_skill_tree(
     req.skill_trees.into_iter().for_each(|tree| {
         let par = character
             .skill_trees
-            .0
             .iter_mut()
             .find(|value| value.name == tree.name);
         if let Some(par) = par {
@@ -224,11 +227,11 @@ pub async fn update_skill_tree(
     });
 
     // TODO: Update available skill points
+    CharactersRepository::set_skill_trees(&db, character.id, character.skill_trees).await?;
 
-    let mut character = character.into_active_model();
-    character.skill_trees =
-        ActiveValue::Set(character.skill_trees.take().expect("Skill tree missing"));
-    let character = character.update(&db).await?;
+    let character = CharactersRepository::get_by_user_by_id(&db, user.id, character_id)
+        .await?
+        .ok_or(CharactersError::NotFound)?;
 
     Ok(Json(character))
 }
@@ -236,10 +239,11 @@ pub async fn update_skill_tree(
 /// GET /character/classes
 pub async fn get_classes(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<CharacterClasses> {
     // Get the unlocked classes
-    let unlocked_classes: Vec<ClassName> = Character::get_user_classes(&db, &user).await?;
+    let unlocked_classes: Vec<ClassName> =
+        CharactersRepository::get_user_classes(&db, user.id).await?;
 
     let class_definitions = Classes::get();
 
@@ -280,10 +284,10 @@ pub async fn get_level_tables() -> Json<CharacterLevelTables> {
 /// Returns a list of unlocked characters?
 pub async fn character_unlocked(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<UnlockedCharacters> {
     debug!("Unlocked request");
-    let shared_data = SharedData::get(&db, &user).await?;
+    let shared_data = SharedDataRepository::get_by_user(&db, user.id).await?;
 
     // TODO: Should actually handle creating definitions for an unlocked character if they
     // are not already created

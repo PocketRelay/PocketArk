@@ -1,10 +1,21 @@
-use super::{
-    connect_database,
-    entity::{InventoryItem, User, currency::CurrencyType},
-};
+use chrono::Utc;
+use uuid::Uuid;
+
 use crate::{
-    database::entity::{
-        Character, Currency, SharedData, shared_data::SharedProgression, users::CreateUser,
+    database::{
+        connect_database,
+        dto::{
+            character::{CreateCharacterDto, PlayStats},
+            currency::{CurrencyType, CurrencyUpdateDto},
+            inventory_items::CreateInventoryItemDto,
+            shared_data::SharedProgression,
+            users::{CreateUserDto, NormalizedEmail},
+        },
+        repositories::{
+            characters::CharactersRepository, currency::CurrencyRepository,
+            inventory_items::InventoryItemsRepository, shared_data::SharedDataRepository,
+            users::UserRepository,
+        },
     },
     definitions::{
         classes::{Classes, PointMap},
@@ -17,18 +28,18 @@ use crate::{
 
 #[tokio::test]
 #[ignore]
-pub async fn seed_legacy() {
+pub async fn seed() {
     setup_test_logging();
 
-    let db = connect_database().await;
+    let db = connect_database().await.unwrap();
 
-    let create_user = CreateUser {
-        email: "test@test.com".to_string(),
+    let create_user = CreateUserDto {
+        email: NormalizedEmail::new("test@test.com"),
         username: "Test".to_string(),
         password: hash_password("test").unwrap(),
     };
 
-    let user = User::create(&db, create_user).await.unwrap();
+    let user = UserRepository::create(&db, create_user).await.unwrap();
 
     let item_definitions = Items::get();
     let classes = Classes::get();
@@ -38,19 +49,24 @@ pub async fn seed_legacy() {
     // InventoryItem::create_default(&db, &user, &items, &characters)
     //     .await
     //     .unwrap();
-    Currency::add_many(
+    CurrencyRepository::apply_currency_updates(
         &db,
-        &user,
+        user.id,
         [
-            (CurrencyType::Mtx, Currency::MAX_SAFE_CURRENCY),
-            (CurrencyType::Grind, Currency::MAX_SAFE_CURRENCY),
-            (CurrencyType::Mission, Currency::MAX_SAFE_CURRENCY),
-        ],
+            (CurrencyType::Mtx, CurrencyRepository::MAX_SAFE_CURRENCY),
+            (CurrencyType::Grind, CurrencyRepository::MAX_SAFE_CURRENCY),
+            (CurrencyType::Mission, CurrencyRepository::MAX_SAFE_CURRENCY),
+        ]
+        .into_iter()
+        .map(|(ty, balance)| CurrencyUpdateDto { ty, balance })
+        .collect(),
     )
     .await
     .unwrap();
 
-    let mut shared_data = SharedData::create_default(&db, &user).await.unwrap();
+    let mut shared_data = SharedDataRepository::create_default(&db, user.id)
+        .await
+        .unwrap();
     // StrikeTeam::create_default(&db, &user).await.unwrap();
 
     // Insert the initial prestige data if we don't have any
@@ -58,12 +74,15 @@ pub async fn seed_legacy() {
 
     // All all the items
     for definition in item_definitions.all() {
-        let _item = InventoryItem::add_item(
+        let _item = InventoryItemsRepository::add_item(
             &db,
-            &user,
-            definition.name,
-            definition.capacity.unwrap_or(100_000),
-            definition.capacity,
+            CreateInventoryItemDto {
+                user_id: user.id,
+                definition_name: definition.name,
+                stack_size: definition.capacity.unwrap_or(100_000),
+                capacity: definition.capacity,
+                created_at: Utc::now(),
+            },
         )
         .await
         .unwrap();
@@ -89,18 +108,25 @@ pub async fn seed_legacy() {
         let equipment = class.default_equipments.clone();
         let customization = class.default_customization.clone();
 
-        Character::create(
+        CharactersRepository::create(
             &db,
-            &user,
-            class.name,
-            level,
-            xp,
-            points,
-            skill_trees,
-            attributes,
-            bonus,
-            equipment,
-            customization,
+            CreateCharacterDto {
+                character_id: Uuid::new_v4(),
+                user_id: user.id,
+                class_name: class.name,
+                level,
+                xp,
+                promotion: 0,
+                points,
+                points_spent: PointMap::default_spent(),
+                points_granted: PointMap::default(),
+                skill_trees,
+                attributes,
+                bonus,
+                equipments: equipment,
+                customization,
+                play_stats: PlayStats::default(),
+            },
         )
         .await
         .unwrap();
@@ -111,18 +137,24 @@ pub async fn seed_legacy() {
 
         if !shared_data
             .shared_progression
-            .0
             .iter()
             .any(|value| value.name == class.prestige_level_name)
         {
-            shared_data.shared_progression.0.push(SharedProgression {
+            shared_data.shared_progression.push(SharedProgression {
                 i18n_name: I18nName::raw(""),
                 i18n_description: I18nDescription::raw(""),
                 level: 0,
                 name: class.prestige_level_name,
                 xp: prestige_level_table.initial_progression(),
             });
-            shared_data = shared_data.save_progression(&db).await.unwrap();
+
+            SharedDataRepository::set_user_shared_progression(
+                &db,
+                user.id,
+                &shared_data.shared_progression,
+            )
+            .await
+            .unwrap();
         }
     }
 }

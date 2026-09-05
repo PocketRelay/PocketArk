@@ -4,8 +4,7 @@ use pocket_ark::run;
 mod blaze;
 
 mod config;
-mod database;
-pub mod database_v2;
+pub mod database;
 mod definitions;
 mod http;
 mod services;
@@ -13,5 +12,5 @@ mod utils;
 
 #[tokio::main]
 async fn main() {
-    run();
+    run().await;
 }

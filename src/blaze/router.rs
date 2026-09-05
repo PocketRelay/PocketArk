@@ -17,8 +17,8 @@ use tdf::{
 };
 
 use crate::{
-    blaze::models::errors::GlobalError, database::entity::User, services::game::player::GamePlayer,
-    utils::hashing::IntHashMap,
+    blaze::models::errors::GlobalError, database::dto::users::UserDto,
+    services::game::player::GamePlayer, utils::hashing::IntHashMap,
 };
 
 use super::{
@@ -78,6 +78,7 @@ impl PacketRequest {
 type AnyMap = IntHashMap<TypeId, Box<dyn Any + Send + Sync>>;
 type RouteMap = IntHashMap<ComponentKey, Box<dyn ErasedHandler>>;
 
+#[derive(Default)]
 pub struct BlazeRouterBuilder {
     /// Map for looking up a route based on the component key
     routes: RouteMap,
@@ -86,10 +87,7 @@ pub struct BlazeRouterBuilder {
 
 impl BlazeRouterBuilder {
     pub fn new() -> Self {
-        Self {
-            routes: Default::default(),
-            extensions: Default::default(),
-        }
+        Default::default()
     }
 
     pub fn extension<T: Send + Sync + 'static>(mut self, val: T) -> Self {
@@ -189,7 +187,7 @@ pub struct RawBlaze(Bytes);
 
 /// Extracts the session authenticated player if one is present,
 /// responds with [GlobalError::AuthenticationRequired] if there is none
-pub struct SessionAuth(pub Arc<User>);
+pub struct SessionAuth(pub Arc<UserDto>);
 
 pub struct Extension<T>(pub T);
 

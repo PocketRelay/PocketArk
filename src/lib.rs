@@ -37,8 +37,7 @@ use crate::utils::logging;
 pub mod blaze;
 
 pub mod config;
-mod database;
-pub mod database_v2;
+pub mod database;
 pub mod definitions;
 pub(crate) mod http;
 pub mod services;

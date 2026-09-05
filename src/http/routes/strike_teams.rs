@@ -1,8 +1,14 @@
 use crate::{
-    database::entity::{
-        Currency, StrikeTeam, StrikeTeamMission, StrikeTeamMissionProgress, currency::CurrencyType,
-        strike_team_mission::StrikeTeamMissionId, strike_team_mission_progress::UserMissionState,
-        strike_teams::StrikeTeamId,
+    database::{
+        DbPool,
+        dto::{
+            currency::{CurrencyDto, CurrencyType},
+            strike_team_mission::{StrikeTeamMissionDto, StrikeTeamMissionId, UserMissionState},
+            strike_teams::{StrikeTeamDto, StrikeTeamId},
+        },
+        repositories::{
+            strike_team_mission::StrikeTeamMissionRepository, strike_teams::StrikeTeamsRepository,
+        },
     },
     definitions::{
         i18n::{I18n, Localized},
@@ -27,20 +33,19 @@ use axum::{
     Extension, Json,
     extract::{Path, Query},
 };
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use log::debug;
-use sea_orm::{DatabaseConnection, TransactionTrait, prelude::DateTimeUtc};
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::DerefMut};
 use uuid::Uuid;
 
 use super::store::try_spend_currency;
 
 /// GET /striketeams
 pub async fn get(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Auth(user): Auth,
 ) -> HttpResult<StrikeTeamsResponse> {
-    let strike_teams: Vec<StrikeTeam> = StrikeTeam::get_by_user(&db, &user).await?;
+    let strike_teams: Vec<StrikeTeamDto> = StrikeTeamsRepository::get_by_user(&db, user.id).await?;
 
     // TODO: Load current missions
     let mut teams: Vec<StrikeTeamWithMission> = strike_teams
@@ -75,14 +80,16 @@ pub async fn get(
 
 /// GET /striketeams/successRate
 pub async fn get_success_rate(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Auth(user): Auth,
 ) -> HttpResult<VecWithCount<StrikeTeamSuccessRate>> {
     let current_time = Utc::now().timestamp();
-    let strike_teams = StrikeTeam::get_by_user(&db, &user).await?;
-    let missions = StrikeTeamMission::available_missions(&db, &user, current_time).await?;
+    let strike_teams = StrikeTeamsRepository::get_by_user(&db, user.id).await?;
+    let missions =
+        StrikeTeamMissionRepository::get_user_available_missions(&db, user.id, current_time)
+            .await?;
 
-    fn compute_success_rate(_strike_team: &StrikeTeam, _mission: &StrikeTeamMission) -> f32 {
+    fn compute_success_rate(_strike_team: &StrikeTeamDto, _mission: &StrikeTeamMissionDto) -> f32 {
         // Compute actual success rate
         0.91
     }
@@ -92,9 +99,9 @@ pub async fn get_success_rate(
         .map(|team| {
             let mission_success_rate = missions
                 .iter()
-                .map(|(mission, _)| {
-                    let rate = compute_success_rate(&team, mission);
-                    (mission.id, rate)
+                .map(|mission| {
+                    let rate = compute_success_rate(&team, &mission.mission);
+                    (mission.mission.id, rate)
                 })
                 .collect();
 
@@ -136,19 +143,19 @@ pub async fn purchase_equipment(
     Auth(user): Auth,
     Query(query): Query<PurchaseQuery>,
     Path((id, name)): Path<(StrikeTeamId, String)>,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<PurchaseResponse> {
     let strike_teams = StrikeTeams::get();
 
     // Find the strike team the user wants to equip
-    let team = StrikeTeam::get_by_id(&db, &user, id)
+    let team = StrikeTeamsRepository::get_by_id(&db, user.id, id)
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
 
     // TODO: Current progress = StrikeTeamsRepository::get_active_progress to properly check this
 
     // TODO: I don't think this on mission check is correct...?
-    let current_progress = StrikeTeamMissionProgress::get_by_team(&db, &team)
+    let current_progress = StrikeTeamsRepository::get_active_progress(&db, team.id)
         .await
         .map(|value| value.is_some())?;
     if current_progress {
@@ -167,20 +174,24 @@ pub async fn purchase_equipment(
         .get(&query.currency)
         .ok_or(CurrencyError::InvalidCurrency)?;
 
-    let (team, currency_balance): (StrikeTeam, Currency) = db
-        .transaction(|db| {
-            Box::pin(async move {
-                // Spend the cost of the strike team equipment
-                let currency_balance =
-                    try_spend_currency(db, &user, query.currency, equipment_cost).await?;
+    let (team, currency_balance): (StrikeTeamDto, CurrencyDto) = {
+        let mut transaction = db.begin().await?;
+        // Spend the cost of the strike team equipment
+        let currency_balance =
+            try_spend_currency(&mut transaction, &user, query.currency, equipment_cost).await?;
 
-                // Assign the equipment to the team
-                let team = team.set_equipment(db, Some(equipment.clone())).await?;
-
-                Ok::<_, DynHttpError>((team, currency_balance))
-            })
-        })
+        // Assign the equipment to the team
+        let team = StrikeTeamsRepository::set_equipment(
+            transaction.deref_mut(),
+            team.id,
+            Some(equipment.clone()),
+        )
         .await?;
+
+        transaction.commit().await?;
+
+        (team, currency_balance)
+    };
 
     Ok(Json(PurchaseResponse {
         currency_balance,
@@ -207,17 +218,18 @@ pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
 pub async fn get_mission(
     Auth(user): Auth,
     Path((id, mission_id)): Path<(StrikeTeamId, StrikeTeamMissionId)>,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<StrikeTeamMissionSpecific> {
     debug!("Strike team get mission : {} {}", id, mission_id);
 
-    let mission = StrikeTeamMission::by_id(&db, mission_id)
+    let mission = StrikeTeamMissionRepository::get_by_id(&db, mission_id)
         .await?
         .ok_or(StrikeTeamError::UnknownMission)?;
-    let strike_team = StrikeTeam::get_by_id(&db, &user, id)
+    let strike_team = StrikeTeamsRepository::get_by_id(&db, user.id, id)
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
-    let progress = StrikeTeamMissionProgress::get_by_team(&db, &strike_team).await?;
+
+    let progress = StrikeTeamsRepository::get_active_progress(&db, strike_team.id).await?;
 
     let mut live_mission = match progress {
         Some(value) => StrikeTeamMissionWithState {
@@ -236,7 +248,7 @@ pub async fn get_mission(
 
     live_mission.localize(I18n::get());
 
-    let finish_time: DateTimeUtc = Utc::now(); /* TODO: Proper finish time */
+    let finish_time: DateTime<Utc> = Utc::now(); /* TODO: Proper finish time */
 
     Ok(Json(StrikeTeamMissionSpecific {
         name: mission_id,
@@ -252,45 +264,48 @@ pub async fn get_mission(
 pub async fn retire(
     Auth(user): Auth,
     Path(id): Path<StrikeTeamId>,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> Result<(), DynHttpError> {
     debug!("Strike team retire: {}", id);
-    let team = StrikeTeam::get_by_id(&db, &user, id)
+    let _team = StrikeTeamsRepository::get_by_id(&db, user.id, id)
         .await?
         .ok_or(StrikeTeamError::UnknownTeam)?;
 
-    team.delete(&db).await?;
-
+    StrikeTeamsRepository::delete(&db, id).await?;
     Ok(())
 }
 
 /// POST /striketeams/purchase?currency=MissionCurrency
 pub async fn purchase(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<PurchaseResponse> {
     // Get the number of teams they already have
-    let strike_teams = StrikeTeam::get_user_count(&db, &user).await? as usize;
+    let strike_teams = StrikeTeamsRepository::get_by_user_count(&db, user.id).await? as usize;
 
     // Get the cost of a new team
     let strike_team_cost = *STRIKE_TEAM_COSTS
         .get(strike_teams)
         .ok_or(StrikeTeamError::MaxTeams)?;
 
-    let (mut team, currency_balance): (StrikeTeam, Currency) = db
-        .transaction(|db| {
-            Box::pin(async move {
-                // Spend the cost of the strike team
-                let currency_balance =
-                    try_spend_currency(db, &user, CurrencyType::Mission, strike_team_cost).await?;
-
-                // Create the strike team
-                let team = create_user_strike_team(db, &user).await?;
-
-                Ok::<_, DynHttpError>((team, currency_balance))
-            })
-        })
+    let (mut team, currency_balance): (StrikeTeamDto, CurrencyDto) = {
+        let mut transaction = db.begin().await?;
+        // Spend the cost of the strike team
+        let currency_balance = try_spend_currency(
+            &mut transaction,
+            &user,
+            CurrencyType::Mission,
+            strike_team_cost,
+        )
         .await?;
+
+        // Create the strike team
+        let team = create_user_strike_team(&mut transaction, &user).await?;
+
+        transaction.commit().await?;
+
+        (team, currency_balance)
+    };
 
     team.localize(I18n::get());
 

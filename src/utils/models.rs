@@ -1,4 +1,4 @@
-use sea_orm::prelude::DateTimeUtc;
+use chrono::{DateTime, Utc};
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{MapAccess, Visitor},
@@ -60,6 +60,6 @@ impl<'de> Deserialize<'de> for Sku {
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateDuration {
-    pub start: Option<DateTimeUtc>,
-    pub end: Option<DateTimeUtc>,
+    pub start: Option<DateTime<Utc>>,
+    pub end: Option<DateTime<Utc>>,
 }

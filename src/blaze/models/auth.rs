@@ -4,7 +4,7 @@ use tdf::{ObjectId, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
 
 use crate::{
     blaze::{components::user_sessions::PLAYER_SESSION_TYPE, models::constants::LOCALE_NZ},
-    database::entity::User,
+    database::dto::users::UserDto,
 };
 
 #[derive(Debug, TdfDeserialize)]
@@ -14,14 +14,14 @@ pub struct AuthRequest {
 }
 
 pub struct AuthNotify {
-    pub user: Arc<User>,
+    pub user: Arc<UserDto>,
 }
 
 impl TdfSerialize for AuthNotify {
     fn serialize<S: tdf::TdfSerializer>(&self, w: &mut S) {
         w.tag_zero(b"7CON");
         w.tag_u32(b"ALOC", LOCALE_NZ);
-        w.tag_u32(b"BUID", self.user.id);
+        w.tag_u64(b"BUID", self.user.id as u64);
 
         w.tag_alt(
             b"CGID",
@@ -44,7 +44,7 @@ impl TdfSerialize for AuthNotify {
 }
 
 pub struct AuthResponse {
-    pub user: Arc<User>,
+    pub user: Arc<UserDto>,
 }
 
 impl TdfSerialize for AuthResponse {
@@ -52,7 +52,7 @@ impl TdfSerialize for AuthResponse {
         w.tag_zero(b"ANON");
         w.group(b"SESS", |w| {
             w.tag_zero(b"7CON");
-            w.tag_u32(b"BUID", self.user.id);
+            w.tag_u64(b"BUID", self.user.id as u64);
             w.tag_zero(b"FRST");
             w.tag_str(b"KEY", "0");
             w.tag_u32(b"LLOG", 1688871991);
@@ -60,12 +60,12 @@ impl TdfSerialize for AuthResponse {
             w.group(b"PDTL", |w| {
                 w.tag_str(b"DSNM", &self.user.username);
                 w.tag_u32(b"LAST", 0);
-                w.tag_u32(b"PID", self.user.id);
+                w.tag_u64(b"PID", self.user.id as u64);
                 w.tag_u8(b"PLAT", 4);
                 w.tag_u8(b"STAS", 0);
-                w.tag_u32(b"XREF", self.user.id);
+                w.tag_u64(b"XREF", self.user.id as u64);
             });
-            w.tag_u32(b"UID", self.user.id);
+            w.tag_u64(b"UID", self.user.id as u64);
         });
         w.tag_u8(b"SPAM", 0);
         w.tag_u8(b"UNDR", 0);

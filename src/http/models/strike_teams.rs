@@ -1,9 +1,9 @@
 use super::HttpError;
 use crate::{
-    database::entity::{
-        Currency, StrikeTeam, StrikeTeamMission, currency::CurrencyType,
-        strike_team_mission::StrikeTeamMissionId, strike_team_mission_progress::UserMissionState,
-        strike_teams::StrikeTeamId,
+    database::dto::{
+        currency::CurrencyDto, currency::CurrencyType, strike_team_mission::StrikeTeamMissionDto,
+        strike_team_mission::StrikeTeamMissionId, strike_team_mission::UserMissionState,
+        strike_teams::StrikeTeamDto, strike_teams::StrikeTeamId,
     },
     definitions::{
         i18n::Localized,
@@ -11,8 +11,8 @@ use crate::{
     },
     services::activity::ActivityResult,
 };
+use chrono::{DateTime, Utc};
 use hyper::StatusCode;
-use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::collections::HashMap;
@@ -58,8 +58,8 @@ pub struct ResolveMissionResponse {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PurchaseResponse {
-    pub currency_balance: Currency,
-    pub team: StrikeTeam,
+    pub currency_balance: CurrencyDto,
+    pub team: StrikeTeamDto,
     pub next_purchase_cost: Option<u32>,
 }
 #[derive(Debug, Deserialize)]
@@ -90,7 +90,7 @@ pub struct StrikeTeamsList {
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamWithMission {
     #[serde(flatten)]
-    pub team: StrikeTeam,
+    pub team: StrikeTeamDto,
     pub mission: Option<StrikeTeamActiveMission>,
 }
 
@@ -108,7 +108,7 @@ pub struct StrikeTeamActiveMission {
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub name: StrikeTeamMissionId,
     pub live_mission: StrikeTeamMissionWithState,
-    pub finish_time: Option<DateTimeUtc>,
+    pub finish_time: Option<DateTime<Utc>>,
     pub successful: bool,
     pub earn_negative_trait: bool,
 }
@@ -127,14 +127,14 @@ pub struct StrikeTeamMissionSpecific {
     pub name: StrikeTeamMissionId,
     pub live_mission: StrikeTeamMissionWithState,
 
-    pub finish_time: DateTimeUtc,
+    pub finish_time: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StrikeTeamMissionWithState {
     #[serde(flatten)]
-    pub mission: StrikeTeamMission,
+    pub mission: StrikeTeamMissionDto,
 
     pub user_mission_state: UserMissionState,
     pub seen: bool,

@@ -1,5 +1,8 @@
 use crate::{
-    database::entity::{StrikeTeamMission, strike_team_mission_progress::UserMissionState},
+    database::{
+        DbPool, dto::strike_team_mission::StrikeTeamMissionWithProgressDto,
+        repositories::strike_team_mission::StrikeTeamMissionRepository,
+    },
     definitions::{
         i18n::{I18n, Localized},
         mission::tutorial::get_tutorial_mission,
@@ -19,7 +22,6 @@ use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
-use sea_orm::DatabaseConnection;
 use serde_json::Value;
 use std::sync::Arc;
 
@@ -28,27 +30,22 @@ use std::sync::Arc;
 /// Obtains a list of currently available missions
 pub async fn current_missions(
     Auth(user): Auth,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
 ) -> HttpResult<VecWithCount<StrikeTeamMissionWithState>> {
     let current_time = Utc::now().timestamp();
-    let missions = StrikeTeamMission::visible_missions(&db, &user, current_time).await?;
+    let missions =
+        StrikeTeamMissionRepository::get_user_visible_missions(&db, user.id, current_time).await?;
 
     let mut missions: Vec<StrikeTeamMissionWithState> = missions
         .into_iter()
-        .map(|(mission, progress)| match progress {
-            Some(value) => StrikeTeamMissionWithState {
+        .map(
+            |StrikeTeamMissionWithProgressDto { mission, progress }| StrikeTeamMissionWithState {
                 mission,
-                user_mission_state: value.user_mission_state,
-                seen: value.seen,
-                completed: value.completed,
+                user_mission_state: progress.user_mission_state,
+                seen: progress.seen,
+                completed: progress.completed,
             },
-            None => StrikeTeamMissionWithState {
-                mission,
-                user_mission_state: UserMissionState::Available,
-                seen: false,
-                completed: false,
-            },
-        })
+        )
         .collect();
 
     missions.localize(I18n::get());
@@ -113,7 +110,7 @@ pub async fn start_mission(
 /// Submits the details of a mission that has been finished
 pub async fn finish_mission(
     Path(mission_id): Path<u32>,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<DbPool>,
     Extension(games): Extension<Arc<Games>>,
     JsonDump(req): JsonDump<CompleteMissionData>,
 ) -> Result<StatusCode, DynHttpError> {
@@ -124,13 +121,18 @@ pub async fn finish_mission(
         .ok_or(MissionError::UnknownGame)?;
 
     let complete_data = req;
-    let mission_data = process_mission_data(&db, complete_data).await;
-    debug!(
-        "Processed mission data OUTPUT: {}",
-        serde_json::to_string(&mission_data).unwrap()
-    );
-    let game = &mut *game.write();
-    game.set_processed(mission_data);
+    {
+        let mut transaction = db.begin().await?;
+        let mission_data = process_mission_data(&mut transaction, complete_data).await;
+        debug!(
+            "Processed mission data OUTPUT: {}",
+            serde_json::to_string(&mission_data).unwrap()
+        );
+        transaction.commit().await?;
+
+        let game = &mut *game.write();
+        game.set_processed(mission_data);
+    }
 
     Ok(StatusCode::NO_CONTENT)
 }

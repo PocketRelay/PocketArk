@@ -1,16 +1,30 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    ops::DerefMut,
+};
 
 use chrono::Utc;
 use log::debug;
-use sea_orm::{DatabaseConnection, DbErr};
 use thiserror::Error;
 use uuid::Uuid;
 
 use crate::{
-    database::entity::{
-        ChallengeProgress, Character, Currency, InventoryItem, SharedData, User,
-        challenge_progress::CounterUpdateType, currency::CurrencyType,
-        shared_data::SharedProgression,
+    database::{
+        DbErr, DbTransaction,
+        dto::{
+            challenge_progress::{
+                ChallengeProgressDto, ChallengeState, CounterUpdateType, CreateChallengeProgressDto,
+            },
+            character::CharacterDto,
+            currency::{CurrencyDto, CurrencyType, CurrencyUpdateDto},
+            inventory_items::InventoryItemDto,
+            shared_data::{SharedDataDto, SharedProgression},
+            users::UserDto,
+        },
+        repositories::{
+            challenge_progress::ChallengeProgressRepository, characters::CharactersRepository,
+            currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
+        },
     },
     definitions::{
         badges::{BadgeLevelName, Badges},
@@ -20,9 +34,12 @@ use crate::{
         level_tables::LevelTables,
         match_modifiers::MatchModifiers,
     },
-    http::models::mission::{
-        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
-        PlayerInfoBadge, PlayerInfoResult, RewardSource,
+    http::models::{
+        character::{CharacterClasses, CharacterResponse},
+        mission::{
+            CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData,
+            MissionPlayerInfo, PlayerInfoBadge, PlayerInfoResult, RewardSource,
+        },
     },
     services::{
         activity::{
@@ -52,7 +69,7 @@ pub struct PlayerDataBuilder {
     pub reward_sources: Vec<RewardSource>,
     pub total_currency: HashMap<CurrencyType, u32>,
     pub prestige_progression: PrestigeProgression,
-    pub items_earned: Vec<InventoryItem>,
+    pub items_earned: Vec<InventoryItemDto>,
     pub challenges_updates: Vec<ChallengeProgressChange>,
     pub badges: Vec<PlayerInfoBadge>,
 }
@@ -71,9 +88,9 @@ impl PlayerDataBuilder {
         }
     }
 
-    fn append_prestige(map: &mut HashMap<Uuid, PrestigeData>, shared_data: &SharedData) {
+    fn append_prestige(map: &mut HashMap<Uuid, PrestigeData>, shared_data: &SharedDataDto) {
         // Insert the before change
-        shared_data.shared_progression.0.iter().for_each(|value| {
+        shared_data.shared_progression.iter().for_each(|value| {
             map.insert(
                 value.name,
                 PrestigeData {
@@ -85,11 +102,11 @@ impl PlayerDataBuilder {
         });
     }
 
-    pub fn append_prestige_before(&mut self, shared_data: &SharedData) {
+    pub fn append_prestige_before(&mut self, shared_data: &SharedDataDto) {
         Self::append_prestige(&mut self.prestige_progression.before, shared_data)
     }
 
-    pub fn append_prestige_after(&mut self, shared_data: &SharedData) {
+    pub fn append_prestige_after(&mut self, shared_data: &SharedDataDto) {
         Self::append_prestige(&mut self.prestige_progression.after, shared_data)
     }
 
@@ -163,7 +180,7 @@ impl PlayerDataBuilder {
 }
 
 pub async fn process_mission_data(
-    db: &DatabaseConnection,
+    db: &mut DbTransaction<'_>,
     mission_data: CompleteMissionData,
 ) -> MissionDetails {
     let now = Utc::now();
@@ -229,7 +246,7 @@ pub async fn process_mission_data(
 }
 
 pub async fn process_player_data(
-    db: &DatabaseConnection,
+    db: &mut DbTransaction<'_>,
     data: &MissionPlayerData,
     mission_data: &CompleteMissionData,
 ) -> Result<MissionPlayerInfo, PlayerDataProcessError> {
@@ -238,12 +255,12 @@ pub async fn process_player_data(
     let classes = Classes::get();
     let level_tables = LevelTables::get();
 
-    let user = User::by_id(db, data.nucleus_id)
+    let user = UserRepository::get_by_id(db.deref_mut(), data.nucleus_id as i64)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
 
     debug!("Loaded processing user");
-    let mut shared_data = SharedData::get(db, &user).await?;
+    let mut shared_data = SharedDataRepository::get_by_user(db.deref_mut(), user.id).await?;
 
     debug!("Loaded shared data");
 
@@ -252,9 +269,10 @@ pub async fn process_player_data(
         .active_character_id
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
-    let mut character = Character::find_by_id_user(db, &user, active_character_id)
-        .await?
-        .ok_or(PlayerDataProcessError::MissingCharacter)?;
+    let mut character =
+        CharactersRepository::get_by_user_by_id(db.deref_mut(), user.id, active_character_id)
+            .await?
+            .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
     let class = classes
         .by_name(&character.class_name)
@@ -305,18 +323,23 @@ pub async fn process_player_data(
     // (Needs to happen *before* append_prestige_before to ensure it shows up in the "before" state)
     if !shared_data
         .shared_progression
-        .0
         .iter()
         .any(|value| value.name.eq(&class.prestige_level_name))
     {
-        shared_data.shared_progression.0.push(SharedProgression {
+        shared_data.shared_progression.push(SharedProgression {
             i18n_name: I18nName::raw(""),
             i18n_description: I18nDescription::raw(""),
             level: 0,
             name: class.prestige_level_name,
             xp: prestige_level_table.initial_progression(),
         });
-        shared_data = shared_data.save_progression(db).await?;
+
+        SharedDataRepository::set_user_shared_progression(
+            db.deref_mut(),
+            user.id,
+            &shared_data.shared_progression,
+        )
+        .await?;
     }
 
     // Insert the before change
@@ -324,7 +347,7 @@ pub async fn process_player_data(
 
     // Character prestige leveling
     {
-        let shared_progression = &mut shared_data.shared_progression.0;
+        let shared_progression = &mut shared_data.shared_progression;
         let prestige_value = shared_progression
             .iter_mut()
             .find(|value| value.name.eq(&class.prestige_level_name));
@@ -341,7 +364,12 @@ pub async fn process_player_data(
             prestige_value.level = level;
 
             // Save the changed progression
-            shared_data = shared_data.save_progression(db).await?;
+            SharedDataRepository::set_user_shared_progression(
+                db.deref_mut(),
+                user.id,
+                shared_progression,
+            )
+            .await?;
         }
     }
 
@@ -362,13 +390,32 @@ pub async fn process_player_data(
     // Save challenge changes
     for (index, change) in data_builder.challenges_updates.iter().enumerate() {
         let challenge_id = change.definition.base.name;
-        let challenge = match ChallengeProgress::get(db, &user, challenge_id).await? {
+        let challenge = match ChallengeProgressRepository::get_by_user_by_id(
+            db.deref_mut(),
+            user.id,
+            challenge_id,
+        )
+        .await?
+        {
             Some(value) => value,
-            None => ChallengeProgress::create(db, &user, challenge_id).await?,
+            None => {
+                ChallengeProgressRepository::create(
+                    db.deref_mut(),
+                    CreateChallengeProgressDto {
+                        user_id: user.id,
+                        challenge_id,
+                        counters: vec![],
+                        last_changed: Utc::now(),
+                        state: ChallengeState::NotStarted,
+                    },
+                )
+                .await?
+            }
         };
 
         let (update, change_type, counter) = apply_challenge_progress_change(&challenge, change);
-        let model = challenge.update(db, update).await?;
+
+        ChallengeProgressRepository::update(db.deref_mut(), user.id, challenge_id, update).await?;
 
         let status_change = match change_type {
             CounterUpdateType::Changed => ChallengeStatusChange::Changed,
@@ -379,7 +426,7 @@ pub async fn process_player_data(
         challenges_updated.insert(
             (index + 1).to_string(),
             ChallengeUpdated {
-                challenge_id: model.challenge_id,
+                challenge_id,
                 counters: vec![ChallengeUpdateCounter {
                     name: counter.name,
                     current_count: counter.current_count,
@@ -395,19 +442,26 @@ pub async fn process_player_data(
 
     // Update character level and xp
     if new_xp != previous_xp || level > previous_level {
-        character = character.update_xp(db, new_xp, level).await?
+        CharactersRepository::set_xp_level(db.deref_mut(), character.id, new_xp, level).await?;
+
+        character.xp = new_xp;
+        character.level = level;
     }
 
     debug!("Updating currencies");
 
     // Add all the new currency amounts
-    Currency::add_many(
-        db,
-        &user,
+    CurrencyRepository::apply_currency_updates(
+        db.deref_mut(),
+        user.id,
         data_builder
             .total_currency
             .iter()
-            .map(|(key, value)| (*key, *value)),
+            .map(|(key, value)| CurrencyUpdateDto {
+                ty: *key,
+                balance: *value as i32,
+            })
+            .collect(),
     )
     .await?;
 

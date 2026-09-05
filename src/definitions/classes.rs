@@ -19,7 +19,6 @@ use crate::definitions::{
 };
 use anyhow::Context;
 use log::debug;
-use sea_orm::FromJsonQueryResult;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
@@ -157,7 +156,7 @@ pub type CharacterBonus = serde_json::Map<String, serde_json::Value>;
 /// simplified for this implementation to the only kind of
 /// point made use of (Skill points)
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PointMap {
     /// Skill points in the point map
     #[serde(rename = "MEA_skill_points")]
@@ -178,7 +177,7 @@ impl PointMap {
 /// Stored on the server as a [Vec] of tuples because the server never
 /// needs to actually read the contents of the map
 #[serde_as]
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct CharacterAttributes(
     #[serde_as(as = "serde_with::Map<_, _>")] Vec<(String, serde_json::Value)>,
@@ -189,7 +188,7 @@ pub struct CharacterAttributes(
 /// Stored on the server as a [Vec] of tuples because the server never
 /// needs to actually read the contents of the map
 #[serde_as]
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, FromJsonQueryResult)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct CustomizationMap(
     #[serde_as(as = "serde_with::Map<_, _>")] Vec<(String, CustomizationEntry)>,

@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::utils::models::Sku;
+use crate::{database::dto::users::UserId, utils::models::Sku};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -33,8 +33,8 @@ pub struct AuthResponse {
 pub struct AuthUser {
     pub roles: &'static [&'static str],
     #[serde(rename = "pid")]
-    pub pid: u32,
-    pub persona_id: u32,
+    pub pid: UserId,
+    pub persona_id: UserId,
     pub sku: Sku,
     pub anonymous: bool,
     pub name: String,

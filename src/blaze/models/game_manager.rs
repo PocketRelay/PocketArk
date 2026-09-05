@@ -11,7 +11,7 @@ use tdf::{
 use crate::{
     blaze::models::user_sessions::{NatType, PairAddress},
     config::{Config, TunnelConfig},
-    database::entity::users::UserId,
+    database::dto::users::UserId,
     services::{
         game::{AttrMap, Game, GameID, player::GamePlayer},
         tunnel::http_tunnel::TUNNEL_HOST_LOCAL_PORT,
@@ -59,7 +59,7 @@ impl From<&str> for MatchmakeScenario {
 }
 
 pub struct StartMatchmakingScenarioResponse {
-    pub user_id: u32,
+    pub user_id: UserId,
 }
 
 impl TdfSerialize for StartMatchmakingScenarioResponse {
@@ -87,7 +87,7 @@ pub struct UpdateAttrRequest {
     #[tdf(tag = "GID")]
     pub gid: u32,
     #[tdf(tag = "PID")]
-    pub pid: u32,
+    pub pid: UserId,
 }
 
 #[derive(TdfDeserialize)]
@@ -543,7 +543,7 @@ pub struct PlayerRemoved {
     #[tdf(tag = "GID")]
     pub game_id: GameID,
     #[tdf(tag = "PID")]
-    pub player_id: u32,
+    pub player_id: UserId,
     #[tdf(tag = "REAS")]
     pub reason: RemoveReason,
 }
@@ -576,7 +576,7 @@ pub enum RemoveReason {
 }
 
 pub struct NotifyMatchmakingSessionConnectionValidated {
-    pub player_id: u32,
+    pub player_id: UserId,
     pub game_id: u32,
 }
 
@@ -1053,7 +1053,7 @@ pub enum GameState {
 #[tdf(group)]
 pub struct HostInfo {
     #[tdf(tag = "CONG")]
-    connection_group_id: u32,
+    connection_group_id: UserId,
     #[tdf(tag = "CSID")]
     connection_slot_id: u32,
     #[tdf(tag = "HPID")]
