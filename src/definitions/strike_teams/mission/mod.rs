@@ -1,14 +1,11 @@
-use crate::{
-    database::dto::strike_team_mission::MissionAccessibility,
-    definitions::{
-        i18n::{I18n, I18nDesc, I18nName, Localized},
-        shared::CustomAttributes,
-        strike_teams::{
-            StrikeTeams,
-            mission::{
-                level::MissionLevel, mission_type::MissionType, modifier::MissionModifier,
-                rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
-            },
+use crate::definitions::{
+    i18n::{I18n, I18nDesc, I18nName, Localized},
+    shared::CustomAttributes,
+    strike_teams::{
+        StrikeTeams,
+        mission::{
+            level::MissionLevel, mission_type::MissionType, modifier::MissionModifier,
+            rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
         },
     },
 };
@@ -18,7 +15,7 @@ use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, str::FromStr};
-use strum::Display;
+use strum::{Display, EnumIter, FromRepr};
 use uuid::Uuid;
 
 pub mod level;
@@ -103,6 +100,32 @@ impl Localized for MissionDefinitions {
 pub struct MissionTypeGroup {
     pub standard: Vec<MissionDefinition>,
     pub apex: Vec<MissionDefinition>,
+}
+
+/// Enum for the different known mission accessibility types
+#[derive(Debug, Clone, EnumIter, FromRepr, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[repr(u8)]
+pub enum MissionAccessibility {
+    // Strike teams or apex
+    Any = 0,
+    // Apex only
+    #[serde(rename = "Multi_Player")]
+    MultiPlayer = 1,
+    // Strike teams only
+    #[serde(rename = "Single_Player")]
+    SinglePlayer = 2,
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("unknown mission accessibility repr")]
+pub struct UnknownMissionAccessibility;
+
+impl TryFrom<u8> for MissionAccessibility {
+    type Error = UnknownMissionAccessibility;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        Self::from_repr(value).ok_or(UnknownMissionAccessibility)
+    }
 }
 
 /// Definition for a mission

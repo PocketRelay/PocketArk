@@ -4,10 +4,7 @@
 //! The randomness used for these packs are only guesses and may not
 //! be accurate to the actual game loot tables.
 
-use crate::{
-    database::DbErr,
-    definitions::items::{ItemDefinition, ItemName},
-};
+use crate::definitions::items::{ItemDefinition, ItemName};
 use anyhow::Context;
 use log::debug;
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
@@ -198,9 +195,6 @@ pub enum GenerateError {
     /// Failed to do weighted randomness
     #[error(transparent)]
     Weight(#[from] WeightedError),
-    /// Failed to query the database for item ownership
-    #[error("Server error")]
-    Database(#[from] DbErr),
 }
 
 /// Wrapper around a collection of rewards to make adding

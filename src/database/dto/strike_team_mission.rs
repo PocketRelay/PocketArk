@@ -7,26 +7,12 @@ use crate::definitions::{
     i18n::Localized,
     shared::CustomAttributes,
     strike_teams::mission::{
-        MissionDescriptor, mission_type::MissionType, modifier::MissionModifier,
-        rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
+        MissionAccessibility, MissionDescriptor, mission_type::MissionType,
+        modifier::MissionModifier, rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
     },
 };
 
 pub type StrikeTeamMissionId = i64;
-
-/// Enum for the different known mission accessibility types
-#[derive(Debug, Clone, EnumIter, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
-#[repr(u8)]
-pub enum MissionAccessibility {
-    // Strike teams or apex
-    Any = 0,
-    // Apex only
-    #[serde(rename = "Multi_Player")]
-    MultiPlayer = 1,
-    // Strike teams only
-    #[serde(rename = "Single_Player")]
-    SinglePlayer = 2,
-}
 
 #[derive(Debug, FromRow, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -43,6 +29,7 @@ pub struct StrikeTeamMissionDto {
     #[sqlx(json)]
     pub mission_type: MissionType,
     /// Mission accessibility
+    #[sqlx(try_from = "u8")]
     pub accessibility: MissionAccessibility,
     /// Custom defined mission waves
     #[sqlx(json)]

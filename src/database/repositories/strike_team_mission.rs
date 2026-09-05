@@ -42,7 +42,7 @@ impl StrikeTeamMissionRepository {
                 .bind_json(mission.descriptor)?
                 .bind_json(mission.mission_type)?
                 .bind_json(mission.tags)?
-                .bind(mission.accessibility)
+                .bind(mission.accessibility as u8)
                 .bind_json(mission.static_modifiers)?
                 .bind_json(mission.dynamic_modifiers)?
                 .bind_json(mission.rewards)?

@@ -2,15 +2,12 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use uuid::{Uuid, uuid};
 
-use crate::{
-    database::dto::strike_team_mission::MissionAccessibility,
-    definitions::{
-        challenges::CurrencyReward,
-        currency::CurrencyType,
-        i18n::Localized,
-        items::{ItemDefinition, ItemName, Items},
-        strike_teams::mission::MissionDifficulty,
-    },
+use crate::definitions::{
+    challenges::CurrencyReward,
+    currency::CurrencyType,
+    i18n::Localized,
+    items::{ItemDefinition, ItemName, Items},
+    strike_teams::mission::{MissionAccessibility, MissionDifficulty},
 };
 
 pub type MissionRewardsId = Uuid;

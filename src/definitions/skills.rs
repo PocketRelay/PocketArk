@@ -3,13 +3,10 @@
 //! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
 use super::{
-    i18n::{I18nDescription, I18nName},
+    i18n::{I18n, I18nDescription, I18nName, Localized},
     shared::CustomAttributes,
 };
-use crate::{
-    definitions::i18n::{I18n, Localized},
-    utils::ImStr,
-};
+use crate::utils::ImStr;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::debug;

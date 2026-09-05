@@ -1,6 +1,4 @@
-use crate::definitions::currency::CurrencyType;
-
-use super::shared::CustomAttributes;
+use super::{currency::CurrencyType, shared::CustomAttributes};
 use anyhow::Context;
 use log::debug;
 use serde::{Deserialize, Serialize};

@@ -1,5 +1,7 @@
-use super::i18n::{I18n, I18nDescription, I18nName, Localized};
-use super::shared::CustomAttributes;
+use super::{
+    i18n::{I18n, I18nDescription, I18nName, Localized},
+    shared::CustomAttributes,
+};
 use anyhow::Context;
 use category::Category;
 use log::debug;
