@@ -13,8 +13,8 @@ use crate::{
     definitions::{
         i18n::{I18n, Localized},
         strike_teams::{
-            MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, create_user_strike_team,
-            equipment::StrikeTeamEquipment, specialization::StrikeTeamSpecialization,
+            MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, equipment::StrikeTeamEquipment,
+            specialization::StrikeTeamSpecialization,
         },
     },
     http::{
@@ -28,6 +28,7 @@ use crate::{
             },
         },
     },
+    services::strike_teams::create_user_strike_team,
 };
 use axum::{
     Extension, Json,

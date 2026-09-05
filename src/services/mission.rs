@@ -3,13 +3,7 @@
 
 use std::{ops::Add, time::Duration};
 
-use anyhow::Context;
-use chrono::{DateTime, Datelike, Days, TimeZone, Timelike, Utc};
-use log::{debug, error};
-use rand::{SeedableRng, rngs::StdRng};
-use tokio::time::sleep;
-use uuid::Uuid;
-
+use crate::http::models::strike_teams::StrikeTeamMissionWithState;
 use crate::{
     database::{
         DbPool, dto::strike_team_mission::CreateStrikeTeamMissionDto,
@@ -19,6 +13,12 @@ use crate::{
         MissionDifficulty, StrikeTeamMissionData, random_mission,
     },
 };
+use anyhow::Context;
+use chrono::{DateTime, Datelike, Days, TimeZone, Timelike, Utc};
+use log::{debug, error};
+use rand::{SeedableRng, rngs::StdRng};
+use tokio::time::sleep;
+use uuid::Uuid;
 
 /// Background task that handles creating missions on the fixed
 /// four hourly schedule
@@ -285,4 +285,11 @@ impl MissionBackgroundTask {
             Some(next_offset)
         }
     }
+}
+
+/// Tutorial mission definition
+const TUTORIAL_MISSION_DEFINITION: &str = include_str!("../resources/data/tutorial_mission.json");
+
+pub fn get_tutorial_mission() -> StrikeTeamMissionWithState {
+    serde_json::from_str(TUTORIAL_MISSION_DEFINITION).expect("failed to load tutorial mission data")
 }

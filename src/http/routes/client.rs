@@ -11,7 +11,6 @@ use crate::{
             currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
         },
     },
-    definitions::{items::create_default_items, strike_teams::create_user_strike_team},
     http::{
         middleware::{
             association::Association, ip_address::IpAddress, json_validated::JsonValidated,
@@ -26,7 +25,9 @@ use crate::{
         },
     },
     services::{
+        items::create_default_items,
         sessions::{AssociationId, Sessions},
+        strike_teams::create_user_strike_team,
         tunnel::{TunnelService, http_tunnel::HttpTunnel},
     },
     utils::hashing::{hash_password, verify_password},

@@ -5,30 +5,20 @@
 //! The collection of strike team missions available are the same for *every* player
 //! and are rotated
 
-use crate::{
-    database::{
-        DbTransaction,
-        dto::{
-            strike_teams::{CreateStrikeTeamDto, StrikeTeamDto},
-            users::UserDto,
-        },
-        repositories::strike_teams::StrikeTeamsRepository,
-    },
-    definitions::{
-        level_tables::{LevelTable, LevelTableName, LevelTables, ProgressionXp},
-        strike_teams::{
-            equipment::StrikeTeamEquipmentList,
-            icon::StrikeTeamIcon,
-            mission::{MissionDefinitions, tag::MissionTags},
-            name::{StrikeTeamName, random_team_name},
-            specialization::StrikeTeamSpecializations,
-            traits::{StrikeTeamTrait, StrikeTeamTraits},
-        },
+use crate::definitions::{
+    level_tables::{LevelTable, LevelTableName, LevelTables, ProgressionXp},
+    strike_teams::{
+        equipment::StrikeTeamEquipmentList,
+        icon::StrikeTeamIcon,
+        mission::{MissionDefinitions, tag::MissionTags},
+        name::{StrikeTeamName, random_team_name},
+        specialization::StrikeTeamSpecializations,
+        traits::{StrikeTeamTrait, StrikeTeamTraits},
     },
 };
 use anyhow::Context;
-use rand::{Rng, SeedableRng, rngs::StdRng};
-use std::{ops::DerefMut, sync::OnceLock};
+use rand::Rng;
+use std::sync::OnceLock;
 use uuid::uuid;
 
 pub mod equipment;
@@ -94,32 +84,6 @@ pub struct StrikeTeamData {
     pub level: u32,
     pub xp: ProgressionXp,
     pub positive_trait: StrikeTeamTrait,
-}
-
-/// Creates a new strike team for the provided user
-pub async fn create_user_strike_team(
-    db: &mut DbTransaction<'_>,
-    user: &UserDto,
-) -> anyhow::Result<StrikeTeamDto> {
-    // Generate random strike team data
-    let mut rng = StdRng::from_entropy();
-    let strike_team_data = random_strike_team(&mut rng).context("Failed to create strike team")?;
-
-    // Create the strike team
-    let team = StrikeTeamsRepository::create(
-        db.deref_mut(),
-        CreateStrikeTeamDto {
-            user_id: user.id,
-            name: strike_team_data.name,
-            icon: strike_team_data.icon,
-            level: strike_team_data.level,
-            xp: strike_team_data.xp,
-            positive_traits: vec![strike_team_data.positive_trait],
-            negative_traits: Vec::new(),
-        },
-    )
-    .await?;
-    Ok(team)
 }
 
 pub fn random_strike_team<R>(rng: &mut R) -> anyhow::Result<StrikeTeamData>

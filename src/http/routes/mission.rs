@@ -3,10 +3,7 @@ use crate::{
         DbPool, dto::strike_team_mission::StrikeTeamMissionWithProgressDto,
         repositories::strike_team_mission::StrikeTeamMissionRepository,
     },
-    definitions::{
-        i18n::{I18n, Localized},
-        mission::tutorial::get_tutorial_mission,
-    },
+    definitions::i18n::{I18n, Localized},
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -16,7 +13,10 @@ use crate::{
             strike_teams::StrikeTeamMissionWithState,
         },
     },
-    services::game::{data::process_mission_data, store::Games},
+    services::{
+        game::{data::process_mission_data, store::Games},
+        mission::get_tutorial_mission,
+    },
 };
 use axum::{Extension, Json, extract::Path};
 use chrono::Utc;

@@ -16,7 +16,6 @@ use crate::{
         repositories::{currency::CurrencyRepository, inventory_items::InventoryItemsRepository},
     },
     definitions::{
-        characters::acquire_item_character,
         classes::Classes,
         items::{
             ItemDefinition, ItemName, Items,
@@ -26,6 +25,7 @@ use crate::{
         packs::{GenerateError, ItemReward, Packs, RewardCollection},
         store_catalogs::{StoreArticleName, StoreCatalogs},
     },
+    services::{characters::acquire_item_character, items::get_droppable_items},
 };
 use chrono::Utc;
 use log::debug;
@@ -231,7 +231,7 @@ impl ActivityService {
                     .await?;
 
                 // Get droppable items
-                let droppable_items = item_definitions.droppable_items(&owned_items);
+                let droppable_items = get_droppable_items(item_definitions, &owned_items);
 
                 // Generate collection of rewards
                 pack.generate_rewards(&mut rng, &droppable_items, &mut rewards)
