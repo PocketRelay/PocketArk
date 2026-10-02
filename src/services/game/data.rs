@@ -1,12 +1,8 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    ops::DerefMut,
-};
+use std::{collections::BTreeMap, ops::DerefMut};
 
 use chrono::Utc;
 use log::debug;
 use thiserror::Error;
-use uuid::Uuid;
 
 use crate::{
     database::{
@@ -14,8 +10,7 @@ use crate::{
         dto::{
             challenge_progress::{ChallengeState, CounterUpdateType, CreateChallengeProgressDto},
             currency::CurrencyUpdateDto,
-            inventory_items::InventoryItemDto,
-            shared_data::{SharedDataDto, SharedProgression},
+            shared_data::SharedProgression,
         },
         repositories::{
             challenge_progress::ChallengeProgressRepository, characters::CharactersRepository,
@@ -24,23 +19,25 @@ use crate::{
     },
     definitions::{
         activity::ActivityEvent,
-        badges::{BadgeLevelName, Badges},
         challenges::{ChallengeCounter, ChallengeDefinition, Challenges, CurrencyReward},
         classes::Classes,
         currency::CurrencyType,
         i18n::{I18nDescription, I18nName},
         level_tables::LevelTables,
-        match_modifiers::MatchModifiers,
     },
     http::models::mission::{
-        CompleteMissionData, MissionDetails, MissionModifier, MissionPlayerData, MissionPlayerInfo,
-        PlayerInfoBadge, PlayerInfoResult, RewardSource,
+        CompleteMissionData, MissionDetails, MissionPlayerData, MissionPlayerInfo, PlayerInfoResult,
+    },
+    mission::{
+        outcome::MissionOutcomeDataBuilder,
+        processors::{
+            MissionOutcomeProcessor, ProcessMissionData, badges::BadgeProcessor,
+            initial_score::InitialScoreProcessor, initial_xp::InitialXpProcessor,
+            modifiers::ModifiersProcessor,
+        },
     },
     services::{
-        activity::{
-            ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated, PrestigeData,
-            PrestigeProgression,
-        },
+        activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
         challenges::apply_challenge_progress_change,
     },
     utils::models::Sku,
@@ -56,114 +53,6 @@ pub enum PlayerDataProcessError {
     MissingCharacter,
     #[error("Missing class")]
     MissingClass,
-}
-
-#[derive(Default)]
-pub struct PlayerDataBuilder {
-    pub score: u32,
-    pub xp_earned: u32,
-    pub reward_sources: Vec<RewardSource>,
-    pub total_currency: HashMap<CurrencyType, u32>,
-    pub prestige_progression: PrestigeProgression,
-    pub items_earned: Vec<InventoryItemDto>,
-    pub challenges_updates: Vec<ChallengeProgressChange>,
-    pub badges: Vec<PlayerInfoBadge>,
-}
-
-impl PlayerDataBuilder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    fn append_prestige(map: &mut HashMap<Uuid, PrestigeData>, shared_data: &SharedDataDto) {
-        // Insert the before change
-        shared_data.shared_progression.iter().for_each(|value| {
-            map.insert(
-                value.name,
-                PrestigeData {
-                    level: value.level,
-                    name: value.name,
-                    xp: value.xp.current,
-                },
-            );
-        });
-    }
-
-    pub fn append_prestige_before(&mut self, shared_data: &SharedDataDto) {
-        Self::append_prestige(&mut self.prestige_progression.before, shared_data)
-    }
-
-    pub fn append_prestige_after(&mut self, shared_data: &SharedDataDto) {
-        Self::append_prestige(&mut self.prestige_progression.after, shared_data)
-    }
-
-    pub fn add_challenge_progress(&mut self, update: ChallengeProgressChange) {
-        let existing = self
-            .challenges_updates
-            .iter_mut()
-            // Check if theres already a matching progress update
-            .find(|value| {
-                value.definition.base.name == update.definition.base.name
-                    && value.counter.name == update.counter.name
-            });
-
-        if let Some(existing) = existing {
-            existing.progress = existing.progress.saturating_add(update.progress);
-        } else {
-            self.challenges_updates.push(update);
-        }
-    }
-
-    pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
-        // Append earned xp
-        self.xp_earned = self.xp_earned.saturating_add(xp);
-
-        if let Some(existing) = self
-            .reward_sources
-            .iter_mut()
-            .find(|value| value.name.eq(name))
-        {
-            existing.xp = existing.xp.saturating_add(xp);
-        } else {
-            self.reward_sources.push(RewardSource {
-                currencies: HashMap::new(),
-                xp,
-                name: name.to_string(),
-            });
-        }
-    }
-
-    pub fn add_reward_currency(&mut self, name: &str, currency: CurrencyType, value: u32) {
-        // Append currencies to total currency
-
-        if let Some(existing) = self.total_currency.get_mut(&currency) {
-            *existing += value
-        } else {
-            self.total_currency.insert(currency, value);
-        }
-
-        if let Some(existing) = self
-            .reward_sources
-            .iter_mut()
-            .find(|value| value.name.eq(name))
-        {
-            // Update currency within reward
-            if let Some(existing) = existing.currencies.get_mut(&currency) {
-                *existing = existing.saturating_add(value);
-            } else {
-                existing.currencies.insert(currency, value);
-            }
-        } else {
-            let mut currencies = HashMap::new();
-            currencies.insert(currency, value);
-
-            self.reward_sources.push(RewardSource {
-                currencies,
-                xp: 0,
-                name: name.to_string(),
-            });
-        }
-    }
 }
 
 pub async fn process_mission_data(
@@ -265,27 +154,23 @@ pub async fn process_player_data(
         .by_name(&character.class_name)
         .ok_or(PlayerDataProcessError::MissingClass)?;
 
-    let mut data_builder = PlayerDataBuilder::new();
+    let process_mission_data = ProcessMissionData {
+        player_data: data,
+        mission_data,
+    };
+    let mut data_builder = MissionOutcomeDataBuilder::new();
 
     debug!("Processing score");
-
-    // Set the initial score from the activity scores
-    data_builder.score = data.activity_report.activity_total_score();
+    InitialScoreProcessor.process_mission_data(&process_mission_data, &mut data_builder);
 
     debug!("Processing badges");
-
-    process_badges(&data.activity_report.activities, &mut data_builder);
+    BadgeProcessor.process_mission_data(&process_mission_data, &mut data_builder);
 
     debug!("Base score reward");
-    // Base reward xp is the score earned
-    data_builder.add_reward_xp("base", data_builder.score);
-
-    // TODO: "other_badge_rewards"
-    data_builder.add_reward_xp("other_badge_rewards", 0);
+    InitialXpProcessor.process_mission_data(&process_mission_data, &mut data_builder);
 
     debug!("Compute modifiers");
-    // Compute modifier amounts
-    compute_modifiers(&mission_data.modifiers, &mut data_builder);
+    ModifiersProcessor.process_mission_data(&process_mission_data, &mut data_builder);
 
     debug!("Compute leveling");
 
@@ -494,51 +379,6 @@ pub async fn process_player_data(
     })
 }
 
-/// Processes the `activities` from the game adding any rewards
-/// and badges from completed badge levels
-fn process_badges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBuilder) {
-    let badges = Badges::get();
-
-    activities
-        .iter()
-        // Find matching badges for the activity
-        .filter_map(|activity| {
-            // Find a badge matching the activity
-            let (badge, progress, levels) = badges.by_activity(activity)?;
-            // Only continue if they have a level achieved
-            let highest_level = *levels.last()?;
-
-            Some((badge, progress, levels, highest_level))
-        })
-        .for_each(|(badge, progress, levels, highest_level)| {
-            // Total accumulated XP and currency from achieved levels
-            let mut total_xp: u32 = 0;
-            let mut total_currency: u32 = 0;
-
-            // Names of the levels that have been earned
-            let mut level_names: Vec<BadgeLevelName> = Vec::with_capacity(levels.len());
-
-            for level in levels {
-                total_xp += level.xp_reward;
-                total_currency += level.currency_reward;
-                level_names.push(level.name.clone());
-            }
-
-            // The reward source is the badge name
-            let reward_name = badge.name.to_string();
-
-            // Append the rewards
-            data_builder.add_reward_xp(&reward_name, total_xp);
-            data_builder.add_reward_currency(&reward_name, badge.currency, total_currency);
-            data_builder.badges.push(PlayerInfoBadge {
-                count: progress,
-                level_name: highest_level.name.clone(),
-                rewarded_levels: level_names,
-                name: badge.name,
-            });
-        });
-}
-
 /// Temporary data for storing changes to challenges
 pub struct ChallengeProgressChange {
     /// The challenge definition
@@ -551,7 +391,7 @@ pub struct ChallengeProgressChange {
 
 /// Processes challenge updates that may have occurred from the
 /// collection of `activities`
-fn process_challenges(activities: &[ActivityEvent], data_builder: &mut PlayerDataBuilder) {
+fn process_challenges(activities: &[ActivityEvent], data_builder: &mut MissionOutcomeDataBuilder) {
     let challenge_definitions = Challenges::get();
 
     activities
@@ -572,45 +412,5 @@ fn process_challenges(activities: &[ActivityEvent], data_builder: &mut PlayerDat
                 counter,
                 progress,
             })
-        });
-}
-
-/// Computes the xp and currency rewards from the provided mission modifiers
-/// appending them to the provided data builder
-fn compute_modifiers(mission_modifiers: &[MissionModifier], data_builder: &mut PlayerDataBuilder) {
-    let match_modifiers = MatchModifiers::get();
-
-    mission_modifiers
-        .iter()
-        .filter_map(|mission_modifier| {
-            // Find a matching modifier
-            let match_modifier = match_modifiers.by_name(&mission_modifier.name)?;
-            // Find a matching modifier value
-            let modifier_value = match_modifier.by_value(&mission_modifier.value)?;
-
-            Some((match_modifier, modifier_value))
-        })
-        .for_each(|(modifier, modifier_entry)| {
-            // Apply xp rewards if the modifier has any
-            if let Some(xp_data) = &modifier_entry.xp_data {
-                let amount = xp_data.get_amount(data_builder.xp_earned);
-                data_builder.add_reward_xp(&modifier.name, amount);
-            }
-
-            modifier_entry
-                .currency_data
-                .iter()
-                .for_each(|(key, modifier_data)| {
-                    // Get current currency amount for additive multiplier
-                    let current_amount = data_builder
-                        .total_currency
-                        .get(key)
-                        .copied()
-                        .unwrap_or_default();
-
-                    // Get the earned amount
-                    let earned_amount = modifier_data.get_amount(current_amount);
-                    data_builder.add_reward_currency(&modifier.name, *key, earned_amount);
-                });
         });
 }

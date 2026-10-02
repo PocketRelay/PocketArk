@@ -7,6 +7,7 @@ pub mod config;
 pub mod database;
 pub mod definitions;
 pub mod http;
+pub mod mission;
 pub mod services;
 pub mod utils;
 
