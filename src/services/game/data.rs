@@ -10,31 +10,20 @@ use crate::{
         dto::{
             challenge_progress::{ChallengeState, CounterUpdateType, CreateChallengeProgressDto},
             currency::CurrencyUpdateDto,
-            shared_data::SharedProgression,
+            users::UserDto,
         },
         repositories::{
             challenge_progress::ChallengeProgressRepository, characters::CharactersRepository,
             currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
         },
     },
-    definitions::{
-        activity::ActivityEvent,
-        challenges::{ChallengeCounter, ChallengeDefinition, Challenges, CurrencyReward},
-        classes::Classes,
-        currency::CurrencyType,
-        i18n::{I18nDescription, I18nName},
-        level_tables::LevelTables,
-    },
+    definitions::{challenges::CurrencyReward, classes::Classes},
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionPlayerData, MissionPlayerInfo, PlayerInfoResult,
     },
     mission::{
-        outcome::MissionOutcomeDataBuilder,
-        processors::{
-            MissionOutcomeProcessor, ProcessMissionData, badges::BadgeProcessor,
-            initial_score::InitialScoreProcessor, initial_xp::InitialXpProcessor,
-            modifiers::ModifiersProcessor,
-        },
+        outcome::{MissionOutcomeDataBuilder, MissionOutcomeLevelingChange},
+        processors::{MISSION_PROCESSOR_PIPELINE, ProcessMissionData},
     },
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
@@ -121,7 +110,7 @@ pub async fn process_mission_data(
     }
 }
 
-pub async fn process_player_data(
+async fn process_player_data(
     db: &mut DbTransaction<'_>,
     data: &MissionPlayerData,
     mission_data: &CompleteMissionData,
@@ -129,15 +118,13 @@ pub async fn process_player_data(
     debug!("Processing player data");
 
     let classes = Classes::get();
-    let level_tables = LevelTables::get();
 
     let user = UserRepository::get_by_id(db.deref_mut(), data.nucleus_id as i64)
         .await?
         .ok_or(PlayerDataProcessError::UnknownUser)?;
-
     debug!("Loaded processing user");
-    let mut shared_data = SharedDataRepository::get_by_user(db.deref_mut(), user.id).await?;
 
+    let shared_data = SharedDataRepository::get_by_user(db.deref_mut(), user.id).await?;
     debug!("Loaded shared data");
 
     // Ensure the player actually has a character selected
@@ -145,7 +132,7 @@ pub async fn process_player_data(
         .active_character_id
         .ok_or(PlayerDataProcessError::MissingCharacter)?;
 
-    let mut character =
+    let character =
         CharactersRepository::get_by_user_by_id(db.deref_mut(), user.id, active_character_id)
             .await?
             .ok_or(PlayerDataProcessError::MissingCharacter)?;
@@ -157,110 +144,99 @@ pub async fn process_player_data(
     let process_mission_data = ProcessMissionData {
         player_data: data,
         mission_data,
+        class,
+        character: &character,
+        active_character_id,
+        shared_data: &shared_data,
     };
     let mut data_builder = MissionOutcomeDataBuilder::new();
 
-    debug!("Processing score");
-    InitialScoreProcessor.process_mission_data(&process_mission_data, &mut data_builder);
+    let pipeline = &*MISSION_PROCESSOR_PIPELINE;
+    for entry in pipeline {
+        debug!(
+            "executing mission processing pipeline entry: {}",
+            entry.name
+        );
 
-    debug!("Processing badges");
-    BadgeProcessor.process_mission_data(&process_mission_data, &mut data_builder);
-
-    debug!("Base score reward");
-    InitialXpProcessor.process_mission_data(&process_mission_data, &mut data_builder);
-
-    debug!("Compute modifiers");
-    ModifiersProcessor.process_mission_data(&process_mission_data, &mut data_builder);
-
-    debug!("Compute leveling");
-
-    // Character leveling
-    let level_table = level_tables
-        .by_name(&class.level_name)
-        .expect("Missing class level table");
-
-    let previous_xp = character.xp;
-    let previous_level = character.level;
-
-    let (new_xp, level) =
-        level_table.compute_leveling(character.xp, character.level, data_builder.xp_earned);
-
-    let prestige_level_table = level_tables
-        .by_name(&class.prestige_level_name)
-        .expect("Missing prestige level table");
-
-    debug!("Compute prestige");
-
-    // Insert the initial prestige data if we don't have any
-    // (Needs to happen *before* append_prestige_before to ensure it shows up in the "before" state)
-    if !shared_data
-        .shared_progression
-        .iter()
-        .any(|value| value.name.eq(&class.prestige_level_name))
-    {
-        shared_data.shared_progression.push(SharedProgression {
-            i18n_name: I18nName::raw(""),
-            i18n_description: I18nDescription::raw(""),
-            level: 0,
-            name: class.prestige_level_name,
-            xp: prestige_level_table.initial_progression(),
-        });
-
-        SharedDataRepository::set_user_shared_progression(
-            db.deref_mut(),
-            user.id,
-            &shared_data.shared_progression,
-        )
-        .await?;
+        entry
+            .processor
+            .process_mission_data(&process_mission_data, &mut data_builder);
     }
 
-    // Insert the before change
-    data_builder.append_prestige_before(&shared_data);
+    let persist_outcome =
+        persist_mission_processing_outcome(db, &user, &process_mission_data, &data_builder).await?;
 
-    // Character prestige leveling
-    {
-        let shared_progression = &mut shared_data.shared_progression;
-        let prestige_value = shared_progression
-            .iter_mut()
-            .find(|value| value.name.eq(&class.prestige_level_name));
-
-        // Update the prestige value in-place
-        if let Some(prestige_value) = prestige_value {
-            let (new_xp, level) = prestige_level_table.compute_leveling(
-                prestige_value.xp,
-                prestige_value.level,
-                data_builder.xp_earned,
-            );
-
-            prestige_value.xp = new_xp;
-            prestige_value.level = level;
-
-            // Save the changed progression
-            SharedDataRepository::set_user_shared_progression(
-                db.deref_mut(),
-                user.id,
-                shared_progression,
-            )
-            .await?;
+    let (previous_xp, previous_level, current_xp, current_level) = match data_builder.leveling {
+        Some(MissionOutcomeLevelingChange { xp, level }) => {
+            let previous_xp = character.xp;
+            let previous_level = character.level;
+            (previous_xp, previous_level, xp, level)
         }
-    }
+        None => {
+            let previous_xp = character.xp;
+            let previous_level = character.level;
+            (previous_xp, previous_level, previous_xp, previous_level)
+        }
+    };
 
-    // Insert after change
-    data_builder.append_prestige_after(&shared_data);
+    let total_currencies_earned = data_builder
+        .total_currency
+        .into_iter()
+        .map(|(name, value)| CurrencyReward { name, value })
+        .collect();
 
-    data_builder.add_reward_currency("enemytype", CurrencyType::Grind, 0);
-    data_builder.add_reward_currency("level_multiplier", CurrencyType::Grind, 0);
-    data_builder.add_reward_currency("difficulty_multiplier", CurrencyType::Grind, 0);
-    data_builder.add_reward_currency("enemytype_multiplier", CurrencyType::Grind, 0);
+    let result = PlayerInfoResult {
+        challenges_updated: persist_outcome.challenges_updated,
+        items_earned: data_builder.items_earned,
+        xp_earned: data_builder.xp_earned,
+        previous_xp: previous_xp.current,
+        current_xp: current_xp.current,
+        previous_level,
+        level: current_level,
+        leveled_up: current_level != previous_level,
+        score: data_builder.score,
+        total_score: data_builder.score,
+        character_class_name: class.name,
+        total_currencies_earned,
+        reward_sources: data_builder.reward_sources,
+        prestige_progression: data_builder.prestige_progression,
+    };
 
-    debug!("Process challenges");
+    Ok(MissionPlayerInfo {
+        activities_processed: true,
+        bonuses: vec![],
+        activities: vec![],
+        badges: data_builder.badges,
+        stats: data.stats.clone(),
+        result,
+        pid: user.id,
+        persona_id: user.id,
+        persona_display_name: user.username,
+        character_id: character.character_id,
+        character_class: character.class_name,
+        modifiers: vec![],
+        session_id: user.id.to_string(),
+        wave_participation: data.waves_in_match,
+        present_at_end: data.present_at_end,
+    })
+}
 
-    process_challenges(&data.activity_report.activities, &mut data_builder);
+struct PersistMissionProcessingOutcomeData {
+    challenges_updated: BTreeMap<String, ChallengeUpdated>,
+}
 
+/// Persists the changes user data from processing a mission to the database
+async fn persist_mission_processing_outcome(
+    db: &mut DbTransaction<'_>,
+    user: &UserDto,
+    process_mission_data: &ProcessMissionData<'_>,
+    outcome: &MissionOutcomeDataBuilder,
+) -> Result<PersistMissionProcessingOutcomeData, PlayerDataProcessError> {
+    let character = &process_mission_data.character;
     let mut challenges_updated: BTreeMap<String, ChallengeUpdated> = BTreeMap::new();
 
     // Save challenge changes
-    for (index, change) in data_builder.challenges_updates.iter().enumerate() {
+    for (index, change) in outcome.challenges_updates.iter().enumerate() {
         let challenge_id = change.definition.base.name;
         let challenge = match ChallengeProgressRepository::get_by_user_by_id(
             db.deref_mut(),
@@ -310,107 +286,32 @@ pub async fn process_player_data(
 
     debug!("Saving character level and xp");
 
-    // TOD: Character leveling up needs to add 3 skill points per level
-
     // Update character level and xp
-    if new_xp != previous_xp || level > previous_level {
-        CharactersRepository::set_xp_level(db.deref_mut(), character.id, new_xp, level).await?;
-
-        character.xp = new_xp;
-        character.level = level;
+    if let Some(MissionOutcomeLevelingChange { xp, level }) = outcome.leveling {
+        CharactersRepository::set_xp_level(db.deref_mut(), character.id, xp, level).await?;
     }
 
-    debug!("Updating currencies");
-
-    // Add all the new currency amounts
-    CurrencyRepository::apply_currency_updates(
+    // Save the changed progression
+    SharedDataRepository::set_user_shared_progression(
         db.deref_mut(),
         user.id,
-        data_builder
-            .total_currency
-            .iter()
-            .map(|(key, value)| CurrencyUpdateDto {
-                ty: *key,
-                balance: *value as i32,
-            })
-            .collect(),
+        &outcome.shared_progression,
     )
     .await?;
 
-    let total_currencies_earned = data_builder
+    debug!("Updating currencies");
+
+    let currency_updates: Vec<CurrencyUpdateDto> = outcome
         .total_currency
-        .into_iter()
-        .map(|(name, value)| CurrencyReward { name, value })
+        .iter()
+        .map(|(key, value)| CurrencyUpdateDto {
+            ty: *key,
+            balance: *value as i32,
+        })
         .collect();
 
-    let result = PlayerInfoResult {
-        challenges_updated,
-        items_earned: data_builder.items_earned,
-        xp_earned: data_builder.xp_earned,
-        previous_xp: previous_xp.current,
-        current_xp: new_xp.current,
-        previous_level,
-        level: character.level,
-        leveled_up: character.level != previous_level,
-        score: data_builder.score,
-        total_score: data_builder.score,
-        character_class_name: class.name,
-        total_currencies_earned,
-        reward_sources: data_builder.reward_sources,
-        prestige_progression: data_builder.prestige_progression,
-    };
+    // Add all the new currency amounts
+    CurrencyRepository::apply_currency_updates(db.deref_mut(), user.id, currency_updates).await?;
 
-    Ok(MissionPlayerInfo {
-        activities_processed: true,
-        bonuses: vec![],
-        activities: vec![],
-        badges: data_builder.badges,
-        stats: data.stats.clone(),
-        result,
-        pid: user.id,
-        persona_id: user.id,
-        persona_display_name: user.username,
-        character_id: character.character_id,
-        character_class: character.class_name,
-        modifiers: vec![],
-        session_id: user.id.to_string(),
-        wave_participation: data.waves_in_match,
-        present_at_end: data.present_at_end,
-    })
-}
-
-/// Temporary data for storing changes to challenges
-pub struct ChallengeProgressChange {
-    /// The challenge definition
-    pub definition: &'static ChallengeDefinition,
-    /// The counter to change
-    pub counter: &'static ChallengeCounter,
-    /// The progress made to the challenge
-    pub progress: u32,
-}
-
-/// Processes challenge updates that may have occurred from the
-/// collection of `activities`
-fn process_challenges(activities: &[ActivityEvent], data_builder: &mut MissionOutcomeDataBuilder) {
-    let challenge_definitions = Challenges::get();
-
-    activities
-        .iter()
-        // Find activities with associated challenges
-        .filter_map(|activity| {
-            let (definition, counter, descriptor) =
-                challenge_definitions.get_by_activity(activity)?;
-            // Only include activities with current progress
-            let progress = activity.attribute_u32(&descriptor.progress_key).ok()?;
-
-            Some((definition, counter, progress))
-        })
-        .for_each(|(definition, counter, progress)| {
-            // Store the challenge changes
-            data_builder.add_challenge_progress(ChallengeProgressChange {
-                definition,
-                counter,
-                progress,
-            })
-        });
+    Ok(PersistMissionProcessingOutcomeData { challenges_updated })
 }

@@ -5,7 +5,7 @@ use crate::{
         ChallengeProgressCounter, ChallengeProgressDto, ChallengeState, CounterUpdateType,
     },
     definitions::challenges::{ChallengeCounter, ChallengeDefinition},
-    services::game::data::ChallengeProgressChange,
+    mission::outcome::ChallengeProgressChange,
 };
 
 pub struct AppliedChallengeProgressUpdate {

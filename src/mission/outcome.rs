@@ -1,15 +1,29 @@
 use uuid::Uuid;
 
 use crate::{
-    database::dto::{inventory_items::InventoryItemDto, shared_data::SharedDataDto},
-    definitions::currency::CurrencyType,
-    http::models::mission::{PlayerInfoBadge, RewardSource},
-    services::{
-        activity::{PrestigeData, PrestigeProgression},
-        game::data::ChallengeProgressChange,
+    database::dto::{
+        inventory_items::InventoryItemDto,
+        shared_data::{SharedDataDto, SharedProgression},
     },
+    definitions::{
+        challenges::{ChallengeCounter, ChallengeDefinition},
+        currency::CurrencyType,
+        level_tables::ProgressionXp,
+    },
+    http::models::mission::{PlayerInfoBadge, RewardSource},
+    services::activity::{PrestigeData, PrestigeProgression},
 };
 use std::collections::HashMap;
+
+/// Temporary data for storing changes to challenges
+pub struct ChallengeProgressChange {
+    /// The challenge definition
+    pub definition: &'static ChallengeDefinition,
+    /// The counter to change
+    pub counter: &'static ChallengeCounter,
+    /// The progress made to the challenge
+    pub progress: u32,
+}
 
 #[derive(Default)]
 pub struct MissionOutcomeDataBuilder {
@@ -21,6 +35,13 @@ pub struct MissionOutcomeDataBuilder {
     pub items_earned: Vec<InventoryItemDto>,
     pub challenges_updates: Vec<ChallengeProgressChange>,
     pub badges: Vec<PlayerInfoBadge>,
+    pub leveling: Option<MissionOutcomeLevelingChange>,
+    pub shared_progression: Vec<SharedProgression>,
+}
+
+pub struct MissionOutcomeLevelingChange {
+    pub xp: ProgressionXp,
+    pub level: u32,
 }
 
 impl MissionOutcomeDataBuilder {
@@ -28,9 +49,9 @@ impl MissionOutcomeDataBuilder {
         Self::default()
     }
 
-    fn append_prestige(map: &mut HashMap<Uuid, PrestigeData>, shared_data: &SharedDataDto) {
+    fn append_prestige(map: &mut HashMap<Uuid, PrestigeData>, progression: &[SharedProgression]) {
         // Insert the before change
-        shared_data.shared_progression.iter().for_each(|value| {
+        progression.iter().for_each(|value| {
             map.insert(
                 value.name,
                 PrestigeData {
@@ -42,12 +63,12 @@ impl MissionOutcomeDataBuilder {
         });
     }
 
-    pub fn append_prestige_before(&mut self, shared_data: &SharedDataDto) {
-        Self::append_prestige(&mut self.prestige_progression.before, shared_data)
+    pub fn append_prestige_before(&mut self, progression: &[SharedProgression]) {
+        Self::append_prestige(&mut self.prestige_progression.before, progression)
     }
 
-    pub fn append_prestige_after(&mut self, shared_data: &SharedDataDto) {
-        Self::append_prestige(&mut self.prestige_progression.after, shared_data)
+    pub fn append_prestige_after(&mut self, progression: &[SharedProgression]) {
+        Self::append_prestige(&mut self.prestige_progression.after, progression)
     }
 
     pub fn add_challenge_progress(&mut self, update: ChallengeProgressChange) {
