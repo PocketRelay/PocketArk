@@ -88,54 +88,48 @@ impl MissionOutcomeDataBuilder {
         }
     }
 
-    pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
-        // Append earned xp
-        self.xp_earned = self.xp_earned.saturating_add(xp);
-
+    fn apply_reward<F: FnOnce(&mut RewardSource)>(&mut self, name: &str, action: F) {
         if let Some(existing) = self
             .reward_sources
             .iter_mut()
             .find(|value| value.name.eq(name))
         {
-            existing.xp = existing.xp.saturating_add(xp);
+            action(existing);
         } else {
-            self.reward_sources.push(RewardSource {
+            let mut source = RewardSource {
                 currencies: HashMap::new(),
-                xp,
+                xp: 0,
                 name: name.to_string(),
-            });
+            };
+            action(&mut source);
+
+            self.reward_sources.push(source);
         }
+    }
+
+    pub fn add_reward_xp(&mut self, name: &str, xp: u32) {
+        // Append earned xp
+        self.xp_earned = self.xp_earned.saturating_add(xp);
+
+        self.apply_reward(name, |source| {
+            source.xp = xp;
+        });
     }
 
     pub fn add_reward_currency(&mut self, name: &str, currency: CurrencyType, value: u32) {
         // Append currencies to total currency
-
         if let Some(existing) = self.total_currency.get_mut(&currency) {
             *existing += value
         } else {
             self.total_currency.insert(currency, value);
         }
 
-        if let Some(existing) = self
-            .reward_sources
-            .iter_mut()
-            .find(|value| value.name.eq(name))
-        {
-            // Update currency within reward
-            if let Some(existing) = existing.currencies.get_mut(&currency) {
+        self.apply_reward(name, |source| {
+            if let Some(existing) = source.currencies.get_mut(&currency) {
                 *existing = existing.saturating_add(value);
             } else {
-                existing.currencies.insert(currency, value);
+                source.currencies.insert(currency, value);
             }
-        } else {
-            let mut currencies = HashMap::new();
-            currencies.insert(currency, value);
-
-            self.reward_sources.push(RewardSource {
-                currencies,
-                xp: 0,
-                name: name.to_string(),
-            });
-        }
+        });
     }
 }
