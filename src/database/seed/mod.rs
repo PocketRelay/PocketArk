@@ -35,8 +35,8 @@ pub async fn seed() {
     let db = connect_database().await.unwrap();
 
     let create_user = CreateUserDto {
-        email: NormalizedEmail::new("test@test.com"),
-        username: "Test".to_string(),
+        email: NormalizedEmail::new("test2@test.com"),
+        username: "Test2".to_string(),
         password: hash_password("test").unwrap(),
     };
 

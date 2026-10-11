@@ -1,17 +1,20 @@
 use crate::{
     blaze::{
         components::{self, game_manager},
-        models::game_manager::{
-            AdminListChange, AdminListOperation, AttributesChange, GameSettings, GameSetupContext,
-            GameSetupResponse, GameState, JoinComplete, NotifyGameStateChange,
-            NotifyMatchmakingSessionConnectionValidated, PlayerAttributesChange, PlayerJoining,
-            PlayerNetConnectionStatus, PlayerRemoved, PlayerState, PlayerStateChange, RemoveReason,
-            ReportingIdChange, SettingChange,
+        models::{
+            game_manager::{
+                AdminListChange, AdminListOperation, AttributesChange, GameSettings,
+                GameSetupContext, GameSetupResponse, GameState, JoinComplete,
+                NotifyGameStateChange, NotifyMatchmakingSessionConnectionValidated,
+                PlayerAttributesChange, PlayerJoining, PlayerNetConnectionStatus, PlayerRemoved,
+                PlayerState, PlayerStateChange, RemoveReason, ReportingIdChange, SettingChange,
+            },
+            user_sessions::NatType,
         },
         packet::Packet,
         session::SessionLink,
     },
-    config::Config,
+    config::{Config, TunnelConfig},
     database::dto::users::UserId,
     http::models::mission::{MissionDetails, MissionModifier},
     services::{
@@ -316,6 +319,18 @@ impl Game {
         // Update other players with the client details
         self.add_user_sub(&player);
 
+        let tunnel = {
+            let host = self.players.first().unwrap_or(&player);
+            let host_net = host.net().unwrap_or_default();
+
+            // Whether to tunnel the connection
+            match &config.tunnel {
+                TunnelConfig::Stricter => !matches!(host_net.qos.natt, NatType::Open),
+                TunnelConfig::Always => true,
+                TunnelConfig::Disabled => false,
+            }
+        };
+
         // Notify other players of the joining player
         self.notify_all(Packet::notify(
             game_manager::COMPONENT,
@@ -324,6 +339,7 @@ impl Game {
                 slot,
                 player: &player,
                 game_id: self.id,
+                tunnel,
             },
         ));
 

@@ -7,3 +7,4 @@ pub mod mission;
 pub mod sessions;
 pub mod strike_teams;
 pub mod tunnel;
+pub mod virtual_peer;

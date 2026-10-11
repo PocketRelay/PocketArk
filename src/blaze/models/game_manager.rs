@@ -15,6 +15,7 @@ use crate::{
     services::{
         game::{AttrMap, Game, GameID, player::GamePlayer},
         tunnel::http_tunnel::TUNNEL_HOST_LOCAL_PORT,
+        virtual_peer::{virtual_peer_address, virtual_peer_address_pair},
     },
 };
 
@@ -325,6 +326,15 @@ impl TdfSerialize for GameSetupResponse<'_> {
         let game = self.game;
         let host = game.players.first().expect("Missing game host for setup");
 
+        let host_net = host.net().unwrap_or_default();
+
+        // Whether to tunnel the connection
+        let tunnel = match &self.config.tunnel {
+            TunnelConfig::Stricter => !matches!(host_net.qos.natt, NatType::Open),
+            TunnelConfig::Always => true,
+            TunnelConfig::Disabled => false,
+        };
+
         w.group(b"GAME", |w| {
             // Admin player list
             w.tag_list_iter_owned(b"ADMN", game.players.iter().map(|player| player.user.id));
@@ -387,30 +397,25 @@ impl TdfSerialize for GameSetupResponse<'_> {
             w.tag_str_empty(b"GTYP");
             w.tag_str_empty(b"GURL");
 
-            let host_net = host.net().unwrap_or_default();
-
-            // Whether to tunnel the connection
-            let tunnel = match &self.config.tunnel {
-                TunnelConfig::Stricter => !matches!(host_net.qos.natt, NatType::Open),
-                TunnelConfig::Always => true,
-                TunnelConfig::Disabled => false,
-            };
-
             {
                 w.tag_list_start(b"HNET", TdfType::Group, 1);
 
                 // Override for tunneling
                 if tunnel {
                     // Forced local host for test dedicated server
-                    w.write_byte(3);
-                    TdfSerialize::serialize(
-                        &PairAddress {
-                            addr: Ipv4Addr::LOCALHOST,
-                            port: TUNNEL_HOST_LOCAL_PORT,
-                            maci: 0,
-                        },
-                        w,
-                    );
+                    // w.write_byte(3);
+                    // TdfSerialize::serialize(
+                    //     &PairAddress {
+                    //         addr: Ipv4Addr::LOCALHOST,
+                    //         port: TUNNEL_HOST_LOCAL_PORT,
+                    //         maci: 0,
+                    //     },
+                    //     w,
+                    // );
+
+                    let virtual_address = virtual_peer_address_pair(0);
+                    w.write_byte(2 /* Address pair type */);
+                    TdfSerialize::serialize(&virtual_address, w)
                 } else {
                     // Open NATs can directly have players connect normally
                     if let NetworkAddress::AddressPair(pair) = &host_net.addr {
@@ -517,7 +522,7 @@ impl TdfSerialize for GameSetupResponse<'_> {
         // Player list
         w.tag_list_start(b"PROS", TdfType::Group, game.players.len());
         for (slot, player) in game.players.iter().enumerate() {
-            player.encode(game.id, slot, w);
+            player.encode(game.id, tunnel, slot, w);
         }
 
         // QoS settings
@@ -913,6 +918,8 @@ pub struct PlayerJoining<'a> {
     pub slot: usize,
     /// The player that is joining
     pub player: &'a GamePlayer,
+
+    pub tunnel: bool,
 }
 
 impl TdfSerialize for PlayerJoining<'_> {
@@ -920,7 +927,7 @@ impl TdfSerialize for PlayerJoining<'_> {
         w.tag_u32(b"GID", self.game_id);
 
         w.tag_group(b"PDAT");
-        self.player.encode(self.game_id, self.slot, w);
+        self.player.encode(self.game_id, self.tunnel, self.slot, w);
     }
 }
 

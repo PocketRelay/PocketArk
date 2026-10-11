@@ -12,6 +12,7 @@ use crate::{
     },
     database::dto::users::{UserDto, UserId},
     services::game::AttrMap,
+    services::virtual_peer::virtual_peer_address,
 };
 
 pub struct GamePlayer {
@@ -84,7 +85,13 @@ impl GamePlayer {
         session.notify(packet)
     }
 
-    pub fn encode<S: tdf::TdfSerializer>(&self, game_id: u32, slot: usize, w: &mut S) {
+    pub fn encode<S: tdf::TdfSerializer>(
+        &self,
+        game_id: u32,
+        tunnel: bool,
+        slot: usize,
+        w: &mut S,
+    ) {
         w.tag_blob_empty(b"BLOB");
         w.tag_owned(b"CONG", self.user.id);
         w.tag_usize(b"CSID", slot);
@@ -101,8 +108,11 @@ impl GamePlayer {
             w.tag_ref(b"PATT", &self.attr);
         }
         w.tag_u64(b"PID", self.user.id as u64);
-        w.tag_ref(b"PNET", &self.network_address());
-
+        if tunnel && slot <= 4 {
+            w.tag_ref(b"PNET", &virtual_peer_address(slot as u8));
+        } else {
+            w.tag_ref(b"PNET", &self.network_address());
+        }
         w.tag_u8(b"PSET", 1);
         w.tag_u8(b"RCRE", 0);
         w.tag_str_empty(b"ROLE");
