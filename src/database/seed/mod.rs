@@ -1,4 +1,5 @@
 use chrono::Utc;
+use pocket_ark_i18n::{I18nDescription, I18nName};
 use uuid::Uuid;
 
 use crate::{
@@ -20,7 +21,6 @@ use crate::{
     definitions::{
         classes::{Classes, PointMap},
         currency::CurrencyType,
-        i18n::{I18nDescription, I18nName},
         items::Items,
         level_tables::{LevelTables, ProgressionXp},
     },

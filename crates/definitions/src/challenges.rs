@@ -1,22 +1,20 @@
 use crate::{
-    definitions::{
-        activity::{ActivityDescriptor, ActivityEvent},
-        currency::CurrencyType,
-        items::ItemName,
-        shared::CustomAttributes,
-    },
-    utils::{ImStr, models::DateDuration},
+    activity::{ActivityDescriptor, ActivityEvent},
+    currency::CurrencyType,
+    items::ItemName,
 };
 use anyhow::Context;
-use log::debug;
+use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes, date_duration::DateDuration};
 use pocket_ark_i18n::{I18n, I18nDescription, I18nKey, I18nTitle, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::sync::OnceLock;
+use tracing::debug;
 use uuid::Uuid;
 
 /// Challenge definitions (192)
-const CHALLENGE_DEFINITIONS: &str = include_str!("../resources/data/challengeDefinitions.json");
+const CHALLENGE_DEFINITIONS: &str =
+    include_str!("../../../src/resources/data/challengeDefinitions.json");
 
 pub struct Challenges {
     pub values: Vec<ChallengeDefinition>,

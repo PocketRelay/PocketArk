@@ -1,5 +1,5 @@
-use crate::utils::ImStr;
 use anyhow::Context;
+use pocket_ark_core::ImStr;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 

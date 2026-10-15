@@ -1,14 +1,12 @@
+use pocket_ark_core::custom_attributes::CustomAttributes;
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use strum::EnumIter;
 use uuid::Uuid;
 
-use crate::definitions::{
-    shared::CustomAttributes,
-    strike_teams::mission::{
-        MissionAccessibility, MissionDescriptor, mission_type::MissionType,
-        modifier::MissionModifier, rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
-    },
+use crate::definitions::strike_teams::mission::{
+    MissionAccessibility, MissionDescriptor, mission_type::MissionType, modifier::MissionModifier,
+    rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
 };
 use pocket_ark_i18n::{I18n, Localized};
 

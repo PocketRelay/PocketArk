@@ -2,19 +2,18 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
-use super::shared::CustomAttributes;
-use crate::utils::ImStr;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
-use log::debug;
+use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes};
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::{str::FromStr, sync::OnceLock};
+use tracing::debug;
 use uuid::Uuid;
 
 /// Skill definitions (64)
-const SKILL_DEFINITIONS: &str = include_str!("../resources/data/skillDefinitions.json");
+const SKILL_DEFINITIONS: &str = include_str!("../../../src/resources/data/skillDefinitions.json");
 
 /// Type alias for a [Uuid] that represents a [SkillDefinition] name
 pub type SkillDefinitionName = Uuid;

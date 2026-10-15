@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::{Uuid, uuid};
 
-use crate::definitions::shared::CustomAttributes;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 
 use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 

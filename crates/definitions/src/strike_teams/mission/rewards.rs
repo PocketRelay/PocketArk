@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use uuid::{Uuid, uuid};
 
-use crate::definitions::{
+use crate::{
     challenges::CurrencyReward,
     currency::CurrencyType,
     items::{ItemDefinition, ItemName, Items},

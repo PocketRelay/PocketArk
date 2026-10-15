@@ -1,10 +1,8 @@
+use pocket_ark_core::ImStr;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    definitions::strike_teams::mission::{MissionDifficulty, level::MissionLevel, tag::MissionTag},
-    utils::ImStr,
-};
+use crate::strike_teams::mission::{MissionDifficulty, level::MissionLevel, tag::MissionTag};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MissionModifier {

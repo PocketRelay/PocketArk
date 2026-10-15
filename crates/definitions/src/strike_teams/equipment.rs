@@ -1,11 +1,12 @@
-use crate::definitions::{currency::CurrencyType, shared::CustomAttributes};
+use crate::currency::CurrencyType;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, str::FromStr};
 
 const STRIKE_TEAM_EQUIPMENT_DEFINITIONS: &str =
-    include_str!("../../resources/data/strikeTeamEquipment.json");
+    include_str!("../../../../src/resources/data/strikeTeamEquipment.json");
 
 pub struct StrikeTeamEquipmentList {
     pub equipment: Vec<StrikeTeamEquipment>,

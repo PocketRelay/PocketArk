@@ -10,22 +10,22 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_kit
 
-use crate::definitions::{
+use crate::{
     items::{InventoryNamespace, ItemName, link::ItemLink},
     level_tables::LevelTableName,
-    shared::CustomAttributes,
     skills::SkillTree,
 };
 use anyhow::Context;
-use log::debug;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18nDescription, I18nName};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
+use tracing::debug;
 use uuid::Uuid;
 
 /// Class definitions (36)
-const CLASS_DEFINITIONS: &str = include_str!("../resources/data/characterClasses.json");
+const CLASS_DEFINITIONS: &str = include_str!("../../../src/resources/data/characterClasses.json");
 
 /// Collection of class definitions and lookup tables for finding
 /// classes based on certain fields

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/i18n", "crates/core"]
+members = ["crates/i18n", "crates/core", "crates/definitions"]
 
 [workspace.package]
 authors = ["Jacobtread <jacobtread@gmail.com>"]
@@ -21,11 +21,28 @@ serde_with = "3.16.1"
 thiserror = "2"
 anyhow = "1"
 
+# Date time
+chrono = { version = "^0.4.42", features = ["serde", "alloc"] }
+
+# UUIDs
+uuid = { version = "^1", features = ["v4", "serde", "fast-rng"] }
+
 itertools = "0.15.0"
 tracing = "0.1.44"
 
+# String enums
+strum = { version = "0.28.0", features = ["derive"] }
+
+
+# Random number generation
+rand = "0.8"
+
+# Numeric enums
+num_enum = "0.7.5"
+
 pocket-ark-i18n = { version = "0.0.0", path = "./crates/i18n" }
 pocket-ark-core = { version = "0.0.0", path = "./crates/core" }
+pocket-ark-definitions = { version = "0.0.0", path = "./crates/definitions" }
 
 [package]
 name = "pocket-ark"
@@ -41,6 +58,7 @@ authors.workspace = true
 
 pocket-ark-i18n.workspace = true
 pocket-ark-core.workspace = true
+pocket-ark-definitions.workspace = true
 
 # HTTP framework and related dependencies
 axum = { version = "^0.8.9", features = ["tracing", "tower-log"] }
@@ -71,10 +89,10 @@ bitflags = { version = "2.10", features = ["serde"] }
 bytes = "1.11.0"
 
 # Unique IDs
-uuid = { version = "^1", features = ["v4", "serde", "fast-rng"] }
+uuid.workspace = true
 
 # Date and time
-chrono = { version = "^0.4.42", features = ["serde", "alloc"] }
+chrono.workspace = true
 
 # Error handling
 thiserror.workspace = true
@@ -91,8 +109,7 @@ argon2 = { version = "0.5.3", features = ["std"] }
 base64ct = { version = "1.8.0", features = ["alloc"] }
 
 # Random number generation
-rand = "0.8"
-
+rand.workspace = true
 
 # TDF packet format
 tdf = { version = "0.4", features = ["bytes"] }
@@ -101,10 +118,8 @@ tdf = { version = "0.4", features = ["bytes"] }
 parking_lot = "0.12.5"
 
 # Numeric enums
-num_enum = "0.7.5"
-
-# String enums
-strum = { version = "0.28.0", features = ["derive"] }
+num_enum.workspace = true
+strum.workspace = true
 
 # Validation
 validator = { version = "0.20.0", features = ["derive"] }

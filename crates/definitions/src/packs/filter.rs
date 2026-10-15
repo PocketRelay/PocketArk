@@ -1,4 +1,4 @@
-use crate::definitions::{
+use crate::{
     items::{
         ItemDefinition, ItemName,
         category::{BaseCategory, Category},

@@ -1,8 +1,6 @@
-use crate::{
-    definitions::{currency::CurrencyType, items::ItemName, shared::CustomAttributes},
-    utils::{ImStr, models::DateDuration},
-};
+use crate::{currency::CurrencyType, items::ItemName};
 use anyhow::Context;
+use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes, date_duration::DateDuration};
 use pocket_ark_i18n::{I18nDescription, I18nName};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -10,7 +8,8 @@ use std::sync::OnceLock;
 use uuid::Uuid;
 
 /// Definition file for the contents of the in-game store
-const STORE_CATALOG_DEFINITION: &str = include_str!("../resources/data/storeCatalog.json");
+const STORE_CATALOG_DEFINITION: &str =
+    include_str!("../../../src/resources/data/storeCatalog.json");
 
 pub struct StoreCatalogs {
     pub catalog: StoreCatalog,

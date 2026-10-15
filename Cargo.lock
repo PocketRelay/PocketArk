@@ -1860,6 +1860,7 @@ dependencies = [
  "num_enum",
  "parking_lot",
  "pocket-ark-core",
+ "pocket-ark-definitions",
  "pocket-ark-i18n",
  "pocket-relay-udp-tunnel",
  "rand 0.8.8",
@@ -1885,6 +1886,31 @@ dependencies = [
 [[package]]
 name = "pocket-ark-core"
 version = "0.0.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "serde_with",
+]
+
+[[package]]
+name = "pocket-ark-definitions"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "num_enum",
+ "pocket-ark-core",
+ "pocket-ark-i18n",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "strum",
+ "thiserror 2.0.20",
+ "tracing",
+ "uuid",
+]
 
 [[package]]
 name = "pocket-ark-i18n"

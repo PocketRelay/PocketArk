@@ -1,15 +1,13 @@
-use crate::definitions::{
-    shared::CustomAttributes,
-    strike_teams::{
-        StrikeTeams,
-        mission::{
-            level::MissionLevel, mission_type::MissionType, modifier::MissionModifier,
-            rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
-        },
+use crate::strike_teams::{
+    StrikeTeams,
+    mission::{
+        level::MissionLevel, mission_type::MissionType, modifier::MissionModifier,
+        rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
     },
 };
 use anyhow::Context;
 use chrono::Utc;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
@@ -26,7 +24,7 @@ pub mod tag;
 pub mod wave;
 
 const STRIKE_TEAM_MISSION_DEFINITIONS: &str =
-    include_str!("../../../resources/data/strikeTeamMissions.json");
+    include_str!("../../../../../src/resources/data/strikeTeamMissions.json");
 
 /// Collection of mission definitions
 #[derive(Deserialize)]

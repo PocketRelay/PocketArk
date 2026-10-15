@@ -2,7 +2,7 @@
 //! structure that needs to be stored. This module specifies the
 //! parser for that format
 
-use crate::definitions::{
+use crate::{
     items::{
         ItemName,
         category::{Category, CategoryError},
@@ -442,7 +442,7 @@ impl<'a> Parser<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::definitions::{
+    use crate::{
         items::{
             category::{BaseCategory, Category},
             rarity::ItemRarity,

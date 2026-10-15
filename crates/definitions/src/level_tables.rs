@@ -1,15 +1,14 @@
 //! Leveling table structures and logic
 
-use super::shared::CustomAttributes;
-use crate::utils::ImStr;
 use anyhow::Context;
-use log::debug;
+use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes};
 use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use std::{collections::HashMap, sync::OnceLock};
+use tracing::debug;
 use uuid::Uuid;
 
 /// Level table definitions (7)
-const LEVEL_TABLE_DEFINITIONS: &str = include_str!("../resources/data/levelTables.json");
+const LEVEL_TABLE_DEFINITIONS: &str = include_str!("../../../src/resources/data/levelTables.json");
 
 /// Collection of level tables
 pub struct LevelTables {

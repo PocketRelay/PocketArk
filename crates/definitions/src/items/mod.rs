@@ -1,13 +1,13 @@
-use super::shared::CustomAttributes;
 use anyhow::Context;
 use category::Category;
-use log::debug;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use rarity::ItemRarity;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
+use tracing::debug;
 use uuid::Uuid;
 
 pub mod category;
@@ -18,7 +18,8 @@ pub mod rarity;
 pub type ItemName = Uuid;
 
 /// Item definitions (628)
-const INVENTORY_DEFINITIONS: &str = include_str!("../../resources/data/inventoryDefinitions.json");
+const INVENTORY_DEFINITIONS: &str =
+    include_str!("../../../../src/resources/data/inventoryDefinitions.json");
 
 /// Collection of [ItemDefinition]s with a lookup index based
 /// on the [ItemName]s

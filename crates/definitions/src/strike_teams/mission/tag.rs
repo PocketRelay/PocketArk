@@ -8,7 +8,7 @@ use pocket_ark_core::ImStr;
 use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 
 const STRIKE_TEAM_TAG_DEFINITIONS: &str =
-    include_str!("../../../resources/data/strikeTeamTags.json");
+    include_str!("../../../../../src/resources/data/strikeTeamTags.json");
 
 /// Collection of mission tags, split based on their different types
 #[derive(Debug, Serialize, Deserialize)]

@@ -4,13 +4,13 @@
 //! The randomness used for these packs are only guesses and may not
 //! be accurate to the actual game loot tables.
 
-use crate::definitions::items::{ItemDefinition, ItemName};
+use crate::items::{ItemDefinition, ItemName};
 use anyhow::Context;
-use log::debug;
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, sync::OnceLock};
 use thiserror::Error;
+use tracing::debug;
 
 use builder::PackBuilder;
 use filter::{Filter, Weight};
@@ -20,7 +20,7 @@ mod filter;
 mod parser;
 
 /// Pack definitions
-const PACK_DEFINITIONS: &str = include_str!("../../resources/data/packs.json");
+const PACK_DEFINITIONS: &str = include_str!("../../../../src/resources/data/packs.json");
 
 /// Collection of defined [Pack]s
 pub struct Packs {

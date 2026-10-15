@@ -6,7 +6,7 @@ use std::{
 };
 use thiserror::Error;
 
-use crate::definitions::items::{
+use crate::items::{
     ItemName,
     category::{BaseCategory, BaseCategoryError},
 };

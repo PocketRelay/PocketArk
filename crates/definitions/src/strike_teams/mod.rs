@@ -5,7 +5,7 @@
 //! The collection of strike team missions available are the same for *every* player
 //! and are rotated
 
-use crate::definitions::{
+use crate::{
     level_tables::{LevelTable, LevelTableName, LevelTables, ProgressionXp},
     strike_teams::{
         equipment::StrikeTeamEquipmentList,

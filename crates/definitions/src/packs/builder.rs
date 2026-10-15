@@ -5,7 +5,7 @@
 #![allow(unused)]
 
 use super::filter::Filter;
-use crate::definitions::{
+use crate::{
     items::{
         ItemName,
         category::{BaseCategory, Category},
@@ -963,7 +963,7 @@ fn generate_packs() -> HashMap<ItemName, Pack> {
 #[cfg(test)]
 mod test {
     use super::generate_packs;
-    use crate::definitions::packs::Pack;
+    use crate::packs::Pack;
     use std::collections::HashMap;
 
     /// Tests that the packs JSON generated from code matches that which is

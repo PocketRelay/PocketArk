@@ -1,12 +1,14 @@
-use super::{currency::CurrencyType, shared::CustomAttributes};
+use super::currency::CurrencyType;
 use anyhow::Context;
-use log::debug;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::sync::OnceLock;
+use tracing::debug;
 
 /// Modifier definitions (6)
-pub const MATCH_MODIFIER_DEFINITIONS: &str = include_str!("../resources/data/matchModifiers.json");
+pub const MATCH_MODIFIER_DEFINITIONS: &str =
+    include_str!("../../../src/resources/data/matchModifiers.json");
 
 pub struct MatchModifiers {
     pub values: Vec<MatchModifier>,

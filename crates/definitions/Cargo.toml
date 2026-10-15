@@ -1,0 +1,31 @@
+[package]
+name = "pocket-ark-definitions"
+version = "0.0.0"
+description = "Mass Effect Andromeda private server - definitions"
+
+edition.workspace = true
+license.workspace = true
+keywords.workspace = true
+authors.workspace = true
+
+[dependencies]
+pocket-ark-core.workspace = true
+pocket-ark-i18n.workspace = true
+
+serde.workspace = true
+serde_with.workspace = true
+serde_json.workspace = true
+
+anyhow.workspace = true
+thiserror.workspace = true
+
+strum.workspace = true
+
+tracing.workspace = true
+
+chrono.workspace = true
+
+num_enum.workspace = true
+rand.workspace = true
+
+uuid.workspace = true

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::definitions::shared::CustomAttributes;
+use pocket_ark_core::custom_attributes::CustomAttributes;
 
 pub type MissionWaveName = Uuid;
 

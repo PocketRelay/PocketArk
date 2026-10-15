@@ -1,21 +1,18 @@
 use crate::{
-    definitions::{
-        activity::{ActivityDescriptor, ActivityEvent},
-        currency::CurrencyType,
-        shared::CustomAttributes,
-    },
-    utils::ImStr,
+    activity::{ActivityDescriptor, ActivityEvent},
+    currency::CurrencyType,
 };
 use anyhow::Context;
-use log::debug;
+use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes};
 use pocket_ark_i18n::{I18n, I18nDescription, I18nTitle, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::sync::OnceLock;
+use tracing::debug;
 use uuid::Uuid;
 
 /// Badge definitions (20)
-const BADGE_DEFINITIONS: &str = include_str!("../resources/data/matchBadges.json");
+const BADGE_DEFINITIONS: &str = include_str!("../../../src/resources/data/matchBadges.json");
 
 /// Type alias for a [Uuid] that represents the name of a [Badge]
 pub type BadgeName = Uuid;
