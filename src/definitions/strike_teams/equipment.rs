@@ -1,8 +1,5 @@
-use crate::definitions::{
-    currency::CurrencyType,
-    i18n::{I18n, I18nDescription, I18nName, Localized},
-    shared::CustomAttributes,
-};
+use crate::definitions::{currency::CurrencyType, shared::CustomAttributes};
+use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, str::FromStr};

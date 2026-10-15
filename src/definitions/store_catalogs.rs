@@ -1,13 +1,9 @@
 use crate::{
-    definitions::{
-        currency::CurrencyType,
-        i18n::{I18nDescription, I18nName},
-        items::ItemName,
-        shared::CustomAttributes,
-    },
+    definitions::{currency::CurrencyType, items::ItemName, shared::CustomAttributes},
     utils::{ImStr, models::DateDuration},
 };
 use anyhow::Context;
+use pocket_ark_i18n::{I18nDescription, I18nName};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::sync::OnceLock;

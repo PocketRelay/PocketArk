@@ -1,5 +1,4 @@
 use crate::definitions::{
-    i18n::{I18n, I18nDesc, I18nName, Localized},
     shared::CustomAttributes,
     strike_teams::{
         StrikeTeams,
@@ -11,6 +10,7 @@ use crate::definitions::{
 };
 use anyhow::Context;
 use chrono::Utc;
+use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

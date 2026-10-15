@@ -1,8 +1,6 @@
-use crate::{
-    services::game::{Game, GameID, GameJoinableState, GameRef, rules::RuleSet},
-    utils::hashing::IntHashMap,
-};
+use crate::services::game::{Game, GameID, GameJoinableState, GameRef, rules::RuleSet};
 use parking_lot::RwLock;
+use pocket_ark_core::IntHashMap;
 use std::sync::{
     Arc,
     atomic::{AtomicU32, Ordering},

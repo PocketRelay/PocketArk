@@ -1,10 +1,9 @@
 use serde::{Deserialize, Serialize};
 use uuid::{Uuid, uuid};
 
-use crate::definitions::{
-    i18n::{I18n, I18nDesc, I18nName, Localized},
-    shared::CustomAttributes,
-};
+use crate::definitions::shared::CustomAttributes;
+
+use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -2,14 +2,12 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
-use super::{
-    i18n::{I18n, I18nDescription, I18nName, Localized},
-    shared::CustomAttributes,
-};
+use super::shared::CustomAttributes;
 use crate::utils::ImStr;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use log::debug;
+use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::{str::FromStr, sync::OnceLock};
@@ -82,7 +80,7 @@ pub struct SkillDefinition {
 }
 
 impl Localized for SkillDefinition {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.i18n_name.localize(i18n);
         self.i18n_description.localize(i18n);
         self.tiers.localize(i18n);
@@ -105,7 +103,7 @@ pub struct SkillDefinitionTier {
 }
 
 impl Localized for SkillDefinitionTier {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.skills.localize(i18n);
     }
 }
@@ -150,7 +148,7 @@ pub struct Skill {
 }
 
 impl Localized for Skill {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.i18n_name.localize(i18n);
         self.i18n_description.localize(i18n);
     }

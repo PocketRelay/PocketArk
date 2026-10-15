@@ -5,13 +5,10 @@ use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{
-    definitions::{
-        i18n::{I18n, I18nDescription, I18nName, Localized},
-        strike_teams::mission::tag::MissionTagName,
-    },
-    utils::ImStr,
-};
+use crate::definitions::strike_teams::mission::tag::MissionTagName;
+
+use pocket_ark_core::ImStr;
+use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 
 const STRIKE_TEAM_TRAIT_DEFINITIONS: &str =
     include_str!("../../resources/data/strikeTeamTraits.json");

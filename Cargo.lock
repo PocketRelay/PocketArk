@@ -1847,7 +1847,6 @@ dependencies = [
  "bitflags 2.13.1",
  "bytes",
  "chrono",
- "csv",
  "dotenvy",
  "futures",
  "http-body-util",
@@ -1860,6 +1859,8 @@ dependencies = [
  "log4rs",
  "num_enum",
  "parking_lot",
+ "pocket-ark-core",
+ "pocket-ark-i18n",
  "pocket-relay-udp-tunnel",
  "rand 0.8.8",
  "reqwest",
@@ -1879,6 +1880,22 @@ dependencies = [
  "tracing",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "pocket-ark-core"
+version = "0.0.0"
+
+[[package]]
+name = "pocket-ark-i18n"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "csv",
+ "pocket-ark-core",
+ "serde",
+ "serde_with",
+ "tracing",
 ]
 
 [[package]]

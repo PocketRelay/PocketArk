@@ -1,10 +1,7 @@
 use uuid::Uuid;
 
 use crate::{
-    database::dto::{
-        inventory_items::InventoryItemDto,
-        shared_data::{SharedDataDto, SharedProgression},
-    },
+    database::dto::{inventory_items::InventoryItemDto, shared_data::SharedProgression},
     definitions::{
         challenges::{ChallengeCounter, ChallengeDefinition},
         currency::CurrencyType,

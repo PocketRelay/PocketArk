@@ -4,13 +4,13 @@ use strum::EnumIter;
 use uuid::Uuid;
 
 use crate::definitions::{
-    i18n::Localized,
     shared::CustomAttributes,
     strike_teams::mission::{
         MissionAccessibility, MissionDescriptor, mission_type::MissionType,
         modifier::MissionModifier, rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
     },
 };
+use pocket_ark_i18n::{I18n, Localized};
 
 pub type StrikeTeamMissionId = i64;
 
@@ -58,7 +58,7 @@ pub struct StrikeTeamMissionDto {
 }
 
 impl Localized for StrikeTeamMissionDto {
-    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.descriptor.localize(i18n);
         self.mission_type.localize(i18n);
         self.tags.localize(i18n);

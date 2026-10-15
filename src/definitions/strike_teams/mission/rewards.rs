@@ -5,10 +5,10 @@ use uuid::{Uuid, uuid};
 use crate::definitions::{
     challenges::CurrencyReward,
     currency::CurrencyType,
-    i18n::Localized,
     items::{ItemDefinition, ItemName, Items},
     strike_teams::mission::{MissionAccessibility, MissionDifficulty},
 };
+use pocket_ark_i18n::{I18n, Localized};
 
 pub type MissionRewardsId = Uuid;
 
@@ -32,7 +32,7 @@ pub struct MissionRewards {
 }
 
 impl Localized for MissionRewards {
-    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.item_definitions.localize(i18n);
     }
 }

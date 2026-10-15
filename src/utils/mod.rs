@@ -5,5 +5,4 @@ pub mod models;
 pub mod serialize;
 pub mod signing;
 
-/// Type alias for an immutable string without its capacity
-pub type ImStr = Box<str>;
+pub use pocket_ark_core::ImStr;

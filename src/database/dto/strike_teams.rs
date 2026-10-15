@@ -5,7 +5,6 @@ use sqlx::prelude::FromRow;
 use crate::{
     database::dto::users::UserId,
     definitions::{
-        i18n::Localized,
         level_tables::ProgressionXp,
         strike_teams::{
             equipment::StrikeTeamEquipment, icon::StrikeTeamIcon, name::StrikeTeamName,
@@ -13,6 +12,7 @@ use crate::{
         },
     },
 };
+use pocket_ark_i18n::{I18n, Localized};
 
 pub type StrikeTeamId = u32;
 
@@ -62,7 +62,7 @@ pub struct StrikeTeamDto {
 }
 
 impl Localized for StrikeTeamDto {
-    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.equipment.localize(i18n);
         self.positive_traits.localize(i18n);
         self.negative_traits.localize(i18n);

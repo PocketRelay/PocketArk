@@ -1,11 +1,9 @@
-use crate::{
-    definitions::i18n::{I18n, I18nName, Localized},
-    http::models::leaderboard::{
-        LeaderboardCategory, LeaderboardIdent, LeaderboardResponse, LeaderboardRow,
-        LeaderboardsResponse,
-    },
+use crate::http::models::leaderboard::{
+    LeaderboardCategory, LeaderboardIdent, LeaderboardResponse, LeaderboardRow,
+    LeaderboardsResponse,
 };
 use axum::{Json, extract::Path};
+use pocket_ark_i18n::{I18n, I18nName, Localized};
 use serde_json::Map;
 use uuid::{Uuid, uuid};
 

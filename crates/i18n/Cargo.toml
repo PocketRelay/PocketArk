@@ -1,0 +1,22 @@
+[package]
+name = "pocket-ark-i18n"
+version = "0.0.0"
+description = "Mass Effect Andromeda private server - i18n translations"
+
+edition.workspace = true
+license.workspace = true
+keywords.workspace = true
+authors.workspace = true
+
+[dependencies]
+pocket-ark-core.workspace = true
+
+serde.workspace = true
+serde_with.workspace = true
+
+anyhow.workspace = true
+
+tracing.workspace = true
+
+# CSV parsing
+csv = "1.4.0"

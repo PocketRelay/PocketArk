@@ -2,13 +2,13 @@ use crate::{
     definitions::{
         activity::{ActivityDescriptor, ActivityEvent},
         currency::CurrencyType,
-        i18n::{I18n, I18nDescription, I18nTitle, Localized},
         shared::CustomAttributes,
     },
     utils::ImStr,
 };
 use anyhow::Context;
 use log::debug;
+use pocket_ark_i18n::{I18n, I18nDescription, I18nTitle, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::sync::OnceLock;

@@ -2,7 +2,6 @@ use crate::{
     definitions::{
         activity::{ActivityDescriptor, ActivityEvent},
         currency::CurrencyType,
-        i18n::{I18n, I18nDescription, I18nKey, I18nTitle, Localized},
         items::ItemName,
         shared::CustomAttributes,
     },
@@ -10,6 +9,7 @@ use crate::{
 };
 use anyhow::Context;
 use log::debug;
+use pocket_ark_i18n::{I18n, I18nDescription, I18nKey, I18nTitle, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::sync::OnceLock;
@@ -106,7 +106,7 @@ pub struct ChallengeDefinitionBase {
 }
 
 impl Localized for ChallengeDefinitionBase {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.i18n_title.localize(i18n);
         self.i18n_description.localize(i18n);
     }
@@ -141,7 +141,7 @@ impl ChallengeDefinition {
 }
 
 impl Localized for ChallengeDefinition {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.base.localize(i18n);
         self.counters.localize(i18n);
     }
@@ -182,7 +182,7 @@ pub struct ChallengeCounter {
 }
 
 impl Localized for ChallengeCounter {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.i18n_title.localize(i18n);
         self.i18n_description.localize(i18n);
     }

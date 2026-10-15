@@ -7,13 +7,13 @@ use crate::{
     },
     definitions::{
         currency::CurrencyType,
-        i18n::Localized,
         strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
     },
     services::activity::ActivityResult,
 };
 use chrono::{DateTime, Utc};
 use hyper::StatusCode;
+use pocket_ark_i18n::{I18n, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::collections::HashMap;
@@ -96,7 +96,7 @@ pub struct StrikeTeamWithMission {
 }
 
 impl Localized for StrikeTeamWithMission {
-    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.team.localize(i18n);
         self.mission.localize(i18n);
     }
@@ -115,7 +115,7 @@ pub struct StrikeTeamActiveMission {
 }
 
 impl Localized for StrikeTeamActiveMission {
-    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.live_mission.localize(i18n);
     }
 }
@@ -143,7 +143,7 @@ pub struct StrikeTeamMissionWithState {
 }
 
 impl Localized for StrikeTeamMissionWithState {
-    fn localize(&mut self, i18n: &crate::definitions::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.mission.localize(i18n);
     }
 }

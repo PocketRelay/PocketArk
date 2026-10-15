@@ -5,7 +5,6 @@ use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use axum::{Extension, middleware};
 use bytes::Bytes;
-use definitions::i18n::I18n;
 use definitions::strike_teams::StrikeTeams;
 use definitions::{
     badges::Badges, challenges::Challenges, classes::Classes, items::Items,
@@ -14,6 +13,7 @@ use definitions::{
 use hyper::{StatusCode, Uri};
 use log::error;
 use log::info;
+use pocket_ark_i18n::I18n;
 use services::mission::MissionBackgroundTask;
 use services::sessions::Sessions;
 use tokio::net::TcpListener;

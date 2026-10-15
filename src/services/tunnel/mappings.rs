@@ -1,8 +1,9 @@
 use std::{collections::HashMap, net::SocketAddr, time::Duration};
 
+use pocket_ark_core::IntHashMap;
 use tokio::time::Instant;
 
-use crate::{services::sessions::AssociationId, utils::hashing::IntHashMap};
+use crate::services::sessions::AssociationId;
 
 use super::{PoolId, PoolIndex, TunnelId, http_tunnel::HttpTunnelHandle};
 

@@ -11,7 +11,6 @@
 //! https://masseffectandromeda.fandom.com/wiki/Character_kit
 
 use crate::definitions::{
-    i18n::{I18nDescription, I18nName},
     items::{InventoryNamespace, ItemName, link::ItemLink},
     level_tables::LevelTableName,
     shared::CustomAttributes,
@@ -19,6 +18,7 @@ use crate::definitions::{
 };
 use anyhow::Context;
 use log::debug;
+use pocket_ark_i18n::{I18nDescription, I18nName};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};

@@ -7,12 +7,9 @@ use uuid::Uuid;
 
 use crate::{
     database::dto::users::UserId,
-    definitions::{
-        classes::CharacterEquipment,
-        i18n::{I18nDescription, I18nName},
-        level_tables::ProgressionXp,
-    },
+    definitions::{classes::CharacterEquipment, level_tables::ProgressionXp},
 };
+use pocket_ark_i18n::{I18nDescription, I18nName};
 
 #[derive(Debug, FromRow, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename = "camelCase")]

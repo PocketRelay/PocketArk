@@ -1,10 +1,8 @@
-use super::{
-    i18n::{I18n, I18nDescription, I18nName, Localized},
-    shared::CustomAttributes,
-};
+use super::shared::CustomAttributes;
 use anyhow::Context;
 use category::Category;
 use log::debug;
+use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use rarity::ItemRarity;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -169,7 +167,7 @@ pub struct ItemDefinition {
 }
 
 impl Localized for ItemDefinition {
-    fn localize(&mut self, i18n: &super::i18n::I18n) {
+    fn localize(&mut self, i18n: &I18n) {
         self.i18n_name.localize(i18n);
         if let Some(i18n_description) = &mut self.i18n_description {
             i18n_description.localize(i18n);

@@ -1,11 +1,7 @@
-use std::str::FromStr;
-
+use crate::definitions::shared::CustomAttributes;
+use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
-
-use crate::definitions::{
-    i18n::{I18n, I18nDescription, I18nName, Localized},
-    shared::CustomAttributes,
-};
+use std::str::FromStr;
 
 const STRIKE_TEAM_SPECIALIZATION_DEFINITIONS: &str =
     include_str!("../../resources/data/strikeTeamSpecialization.json");

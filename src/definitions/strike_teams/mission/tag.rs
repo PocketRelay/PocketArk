@@ -4,10 +4,8 @@ use anyhow::Context;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    definitions::i18n::{I18n, I18nDesc, I18nName, Localized},
-    utils::ImStr,
-};
+use pocket_ark_core::ImStr;
+use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 
 const STRIKE_TEAM_TAG_DEFINITIONS: &str =
     include_str!("../../../resources/data/strikeTeamTags.json");

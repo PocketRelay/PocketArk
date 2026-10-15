@@ -1,0 +1,9 @@
+[package]
+name = "pocket-ark-core"
+version = "0.0.0"
+description = "Mass Effect Andromeda private server - core"
+
+edition.workspace = true
+license.workspace = true
+keywords.workspace = true
+authors.workspace = true

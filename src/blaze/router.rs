@@ -4,6 +4,7 @@
 use bytes::Bytes;
 use futures::future::BoxFuture;
 use log::{debug, error};
+use pocket_ark_core::IntHashMap;
 use std::{
     any::{Any, TypeId},
     convert::Infallible,
@@ -18,7 +19,7 @@ use tdf::{
 
 use crate::{
     blaze::models::errors::GlobalError, database::dto::users::UserDto,
-    services::game::player::GamePlayer, utils::hashing::IntHashMap,
+    services::game::player::GamePlayer,
 };
 
 use super::{
