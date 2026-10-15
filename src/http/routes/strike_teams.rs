@@ -10,13 +10,6 @@ use crate::{
             strike_team_mission::StrikeTeamMissionRepository, strike_teams::StrikeTeamsRepository,
         },
     },
-    definitions::{
-        currency::CurrencyType,
-        strike_teams::{
-            MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, equipment::StrikeTeamEquipment,
-            specialization::StrikeTeamSpecialization,
-        },
-    },
     http::{
         middleware::user::Auth,
         models::{
@@ -36,6 +29,13 @@ use axum::{
 };
 use chrono::{DateTime, Utc};
 use log::debug;
+use pocket_ark_definitions::{
+    currency::CurrencyType,
+    strike_teams::{
+        MAX_STRIKE_TEAMS, STRIKE_TEAM_COSTS, StrikeTeams, equipment::StrikeTeamEquipment,
+        specialization::StrikeTeamSpecialization,
+    },
+};
 use pocket_ark_i18n::{I18n, Localized};
 use std::{collections::HashMap, ops::DerefMut};
 use uuid::Uuid;

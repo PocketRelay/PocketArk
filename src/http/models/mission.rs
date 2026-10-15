@@ -1,13 +1,13 @@
 use crate::{
     database::dto::{inventory_items::InventoryItemDto, users::UserId},
-    definitions::{
-        activity::ActivityEvent, badges::BadgeLevelName, challenges::CurrencyReward,
-        currency::CurrencyType,
-    },
     services::activity::{ChallengeUpdated, PrestigeProgression},
-    utils::models::Sku,
 };
 use hyper::StatusCode;
+use pocket_ark_core::sku::Sku;
+use pocket_ark_definitions::{
+    activity::ActivityEvent, badges::BadgeLevelName, challenges::CurrencyReward,
+    currency::CurrencyType,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::serde_as;

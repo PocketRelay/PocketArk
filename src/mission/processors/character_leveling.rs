@@ -1,10 +1,8 @@
-use crate::{
-    definitions::level_tables::LevelTables,
-    mission::{
-        outcome::{MissionOutcomeDataBuilder, MissionOutcomeLevelingChange},
-        processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
-    },
+use crate::mission::{
+    outcome::{MissionOutcomeDataBuilder, MissionOutcomeLevelingChange},
+    processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
 };
+use pocket_ark_definitions::level_tables::LevelTables;
 
 pub struct CharacterLevelingProcessor;
 

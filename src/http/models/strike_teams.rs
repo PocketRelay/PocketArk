@@ -5,14 +5,14 @@ use crate::{
         strike_team_mission::StrikeTeamMissionId, strike_team_mission::UserMissionState,
         strike_teams::StrikeTeamDto, strike_teams::StrikeTeamId,
     },
-    definitions::{
-        currency::CurrencyType,
-        strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
-    },
     services::activity::ActivityResult,
 };
 use chrono::{DateTime, Utc};
 use hyper::StatusCode;
+use pocket_ark_definitions::{
+    currency::CurrencyType,
+    strike_teams::{name::StrikeTeamName, traits::StrikeTeamTrait},
+};
 use pocket_ark_i18n::{I18n, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};

@@ -1,10 +1,8 @@
-use crate::{
-    database::dto::{
-        challenge_progress::ChallengeProgressDto,
-        challenge_progress::{ChallengeProgressCounterWithDefinition, ChallengeState},
-    },
-    definitions::challenges::{ChallengeDefinition, ChallengeDefinitionBase},
+use crate::database::dto::{
+    challenge_progress::ChallengeProgressDto,
+    challenge_progress::{ChallengeProgressCounterWithDefinition, ChallengeState},
 };
+use pocket_ark_definitions::challenges::{ChallengeDefinition, ChallengeDefinitionBase};
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::skip_serializing_none;

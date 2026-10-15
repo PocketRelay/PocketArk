@@ -6,11 +6,6 @@ use crate::{
         dto::{currency::CurrencyDto, users::UserDto},
         repositories::currency::CurrencyRepository,
     },
-    definitions::{
-        activity::{ActivityEvent, ActivityName},
-        currency::CurrencyType,
-        store_catalogs::StoreCatalogs,
-    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -26,6 +21,11 @@ use crate::{
 use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
+use pocket_ark_definitions::{
+    activity::{ActivityEvent, ActivityName},
+    currency::CurrencyType,
+    store_catalogs::StoreCatalogs,
+};
 
 /// GET /store/catalogs
 ///

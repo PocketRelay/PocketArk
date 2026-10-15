@@ -1,13 +1,11 @@
 use super::HttpError;
-use crate::{
-    database::dto::{character::CharacterDto, shared_data::SharedDataDto},
-    definitions::{
-        classes::{CharacterEquipment, Class, CustomizationEntry},
-        level_tables::LevelTable,
-        skills::{SkillDefinition, SkillTree},
-    },
-};
+use crate::database::dto::{character::CharacterDto, shared_data::SharedDataDto};
 use hyper::StatusCode;
+use pocket_ark_definitions::{
+    classes::{CharacterEquipment, Class, CustomizationEntry},
+    level_tables::LevelTable,
+    skills::{SkillDefinition, SkillTree},
+};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashMap;

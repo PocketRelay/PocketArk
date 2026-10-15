@@ -1,22 +1,12 @@
-use chrono::{DateTime, Utc};
-
 use crate::{
     database::dto::challenge_progress::{
-        ChallengeProgressCounter, ChallengeProgressDto, ChallengeState, CounterUpdateType,
+        AppliedChallengeProgressUpdate, ChallengeProgressCounter, ChallengeProgressDto,
+        ChallengeState, CounterUpdateType,
     },
-    definitions::challenges::{ChallengeCounter, ChallengeDefinition},
     mission::outcome::ChallengeProgressChange,
 };
-
-pub struct AppliedChallengeProgressUpdate {
-    pub last_changed: DateTime<Utc>,
-    pub times_completed: u32,
-    pub counters: Vec<ChallengeProgressCounter>,
-    //
-    pub first_completed: Option<DateTime<Utc>>,
-    pub last_completed: Option<DateTime<Utc>>,
-    pub state: ChallengeState,
-}
+use chrono::Utc;
+use pocket_ark_definitions::challenges::{ChallengeCounter, ChallengeDefinition};
 
 pub fn apply_challenge_progress_change(
     challenge: &ChallengeProgressDto,

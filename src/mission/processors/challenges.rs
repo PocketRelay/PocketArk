@@ -1,10 +1,8 @@
-use crate::{
-    definitions::challenges::Challenges,
-    mission::{
-        outcome::{ChallengeProgressChange, MissionOutcomeDataBuilder},
-        processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
-    },
+use crate::mission::{
+    outcome::{ChallengeProgressChange, MissionOutcomeDataBuilder},
+    processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
 };
+use pocket_ark_definitions::challenges::Challenges;
 
 pub struct ChallengesProcessor;
 

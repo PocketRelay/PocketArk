@@ -1,10 +1,9 @@
-use crate::{
-    definitions::currency::CurrencyType,
-    mission::{
-        outcome::MissionOutcomeDataBuilder,
-        processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
-    },
+use crate::mission::{
+    outcome::MissionOutcomeDataBuilder,
+    processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
 };
+
+use pocket_ark_definitions::currency::CurrencyType;
 
 pub struct CurrencyProcessor;
 

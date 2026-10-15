@@ -5,10 +5,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
-use crate::{
-    database::dto::users::UserId,
-    definitions::{classes::CharacterEquipment, level_tables::ProgressionXp},
-};
+use crate::database::dto::users::UserId;
+use pocket_ark_definitions::{classes::CharacterEquipment, level_tables::ProgressionXp};
 use pocket_ark_i18n::{I18nDescription, I18nName};
 
 #[derive(Debug, FromRow, Clone, PartialEq, Eq, Serialize, Deserialize)]

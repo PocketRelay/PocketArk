@@ -1,15 +1,13 @@
-use crate::{
-    database::{
-        DbTransaction,
-        dto::{
-            strike_teams::{CreateStrikeTeamDto, StrikeTeamDto},
-            users::UserDto,
-        },
-        repositories::strike_teams::StrikeTeamsRepository,
+use crate::database::{
+    DbTransaction,
+    dto::{
+        strike_teams::{CreateStrikeTeamDto, StrikeTeamDto},
+        users::UserDto,
     },
-    definitions::strike_teams::random_strike_team,
+    repositories::strike_teams::StrikeTeamsRepository,
 };
 use anyhow::Context;
+use pocket_ark_definitions::strike_teams::random_strike_team;
 use rand::{SeedableRng, rngs::StdRng};
 use std::ops::DerefMut;
 

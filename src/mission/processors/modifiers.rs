@@ -1,10 +1,8 @@
-use crate::{
-    definitions::match_modifiers::MatchModifiers,
-    mission::{
-        outcome::MissionOutcomeDataBuilder,
-        processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
-    },
+use crate::mission::{
+    outcome::MissionOutcomeDataBuilder,
+    processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
 };
+use pocket_ark_definitions::match_modifiers::MatchModifiers;
 
 pub struct ModifiersProcessor;
 

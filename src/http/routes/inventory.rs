@@ -5,10 +5,6 @@ use crate::{
         DbPool, DbTransaction, dto::users::UserDto,
         repositories::inventory_items::InventoryItemsRepository,
     },
-    definitions::{
-        activity::{ActivityEvent, ActivityName},
-        items::{InventoryNamespace, ItemDefinition, Items},
-    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -24,6 +20,10 @@ use crate::{
 use axum::{Extension, Json, extract::Query};
 use hyper::StatusCode;
 use log::debug;
+use pocket_ark_definitions::{
+    activity::{ActivityEvent, ActivityName},
+    items::{InventoryNamespace, ItemDefinition, Items},
+};
 use uuid::Uuid;
 
 /// GET /inventory

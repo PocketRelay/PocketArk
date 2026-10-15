@@ -2,6 +2,7 @@ use std::{collections::BTreeMap, ops::DerefMut};
 
 use chrono::Utc;
 use log::debug;
+use pocket_ark_core::sku::Sku;
 use thiserror::Error;
 
 use crate::{
@@ -17,7 +18,6 @@ use crate::{
             currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
         },
     },
-    definitions::{challenges::CurrencyReward, classes::Classes},
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionPlayerData, MissionPlayerInfo, PlayerInfoResult,
     },
@@ -29,8 +29,8 @@ use crate::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
         challenges::apply_challenge_progress_change,
     },
-    utils::models::Sku,
 };
+use pocket_ark_definitions::{challenges::CurrencyReward, classes::Classes};
 
 #[derive(Debug, Error)]
 pub enum PlayerDataProcessError {

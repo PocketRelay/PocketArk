@@ -2,10 +2,14 @@ use itertools::Itertools;
 use sqlx::AssertSqlSafe;
 use strum::IntoEnumIterator;
 
-use crate::database::dto::currency::{CurrencyDto, CurrencyUpdateDto};
-use crate::database::dto::users::UserId;
-use crate::database::{DbExecutor, DbResult};
-use crate::definitions::currency::CurrencyType;
+use crate::database::{
+    DbExecutor, DbResult,
+    dto::{
+        currency::{CurrencyDto, CurrencyUpdateDto},
+        users::UserId,
+    },
+};
+use pocket_ark_definitions::currency::CurrencyType;
 
 pub struct CurrencyRepository;
 

@@ -1,14 +1,14 @@
 use super::HttpError;
 use crate::{
     database::dto::{currency::CurrencyDto, inventory_items::InventoryItemDto},
-    definitions::{
-        currency::CurrencyType,
-        items::ItemDefinition,
-        store_catalogs::{StoreArticleName, StoreCatalog},
-    },
     services::activity::ActivityResult,
 };
 use hyper::StatusCode;
+use pocket_ark_definitions::{
+    currency::CurrencyType,
+    items::ItemDefinition,
+    store_catalogs::{StoreArticleName, StoreCatalog},
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;

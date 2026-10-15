@@ -15,21 +15,21 @@ use crate::{
         },
         repositories::{currency::CurrencyRepository, inventory_items::InventoryItemsRepository},
     },
-    definitions::{
-        activity::{ActivityEvent, ActivityName},
-        classes::Classes,
-        items::{
-            ItemDefinition, ItemName, Items,
-            category::{BaseCategory, Category},
-        },
-        level_tables::LevelTables,
-        packs::{GenerateError, ItemReward, Packs, RewardCollection},
-        store_catalogs::{StoreArticleName, StoreCatalogs},
-    },
     services::{characters::acquire_item_character, items::get_droppable_items},
 };
 use chrono::Utc;
 use log::debug;
+use pocket_ark_definitions::{
+    activity::{ActivityEvent, ActivityName},
+    classes::Classes,
+    items::{
+        ItemDefinition, ItemName, Items,
+        category::{BaseCategory, Category},
+    },
+    level_tables::LevelTables,
+    packs::{GenerateError, ItemReward, Packs, RewardCollection},
+    store_catalogs::{StoreArticleName, StoreCatalogs},
+};
 use rand::{SeedableRng, rngs::StdRng};
 use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use serde_json::Value;

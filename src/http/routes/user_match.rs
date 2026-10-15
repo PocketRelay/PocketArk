@@ -1,8 +1,6 @@
-use crate::{
-    definitions::{badges::Badges, match_modifiers::MatchModifiers},
-    http::models::user_match::{MatchBadgesResponse, MatchModifiersResponse},
-};
+use crate::http::models::user_match::{MatchBadgesResponse, MatchModifiersResponse};
 use axum::Json;
+use pocket_ark_definitions::{badges::Badges, match_modifiers::MatchModifiers};
 
 /// GET /user/match/badges
 ///

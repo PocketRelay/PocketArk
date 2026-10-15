@@ -1,19 +1,18 @@
 use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
+use pocket_ark_core::sku::Sku;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use serde_with::skip_serializing_none;
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
-use crate::{
-    database::dto::users::UserId,
-    definitions::{
-        classes::{CharacterAttributes, CharacterEquipment, ClassName, CustomizationMap, PointMap},
-        level_tables::ProgressionXp,
-        skills::SkillTree,
-    },
-    utils::models::Sku,
+use crate::database::dto::users::UserId;
+
+use pocket_ark_definitions::{
+    classes::{CharacterAttributes, CharacterEquipment, ClassName, CustomizationMap, PointMap},
+    level_tables::ProgressionXp,
+    skills::SkillTree,
 };
 
 pub type CharacterId = i64;

@@ -7,18 +7,18 @@ use crate::{
         },
         repositories::inventory_items::InventoryItemsRepository,
     },
-    definitions::{
-        classes::Classes,
-        items::{
-            ItemDefinition, Items,
-            category::{BaseCategory, Category},
-        },
-        level_tables::LevelTables,
-    },
     services::characters::acquire_item_character,
 };
 use anyhow::anyhow;
 use chrono::Utc;
+use pocket_ark_definitions::{
+    classes::Classes,
+    items::{
+        ItemDefinition, Items,
+        category::{BaseCategory, Category},
+    },
+    level_tables::LevelTables,
+};
 use std::ops::DerefMut;
 use uuid::uuid;
 

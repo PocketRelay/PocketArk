@@ -8,13 +8,13 @@ use crate::{
         },
         repositories::challenge_progress::ChallengeProgressRepository,
     },
-    definitions::challenges::Challenges,
     http::{
         middleware::user::Auth,
         models::{HttpResult, challenge::*},
     },
 };
 use axum::{Extension, Json};
+use pocket_ark_definitions::challenges::Challenges;
 
 /// GET /challenges/categories
 ///

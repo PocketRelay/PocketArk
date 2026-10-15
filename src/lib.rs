@@ -5,14 +5,14 @@ use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use axum::{Extension, middleware};
 use bytes::Bytes;
-use definitions::strike_teams::StrikeTeams;
-use definitions::{
-    badges::Badges, challenges::Challenges, classes::Classes, items::Items,
-    level_tables::LevelTables, match_modifiers::MatchModifiers,
-};
 use hyper::{StatusCode, Uri};
 use log::error;
 use log::info;
+use pocket_ark_definitions::strike_teams::StrikeTeams;
+use pocket_ark_definitions::{
+    badges::Badges, challenges::Challenges, classes::Classes, items::Items,
+    level_tables::LevelTables, match_modifiers::MatchModifiers,
+};
 use pocket_ark_i18n::I18n;
 use services::mission::MissionBackgroundTask;
 use services::sessions::Sessions;
@@ -26,19 +26,18 @@ use tokio::signal;
 use utils::signing::SigningKey;
 
 use crate::config::{TunnelConfig, VERSION, load_config};
-use crate::definitions::packs::Packs;
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
 use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
 use crate::utils::logging;
+use pocket_ark_definitions::packs::Packs;
 
 #[allow(unused)]
 pub mod blaze;
 
 pub mod config;
 pub mod database;
-pub mod definitions;
 pub(crate) mod http;
 pub mod mission;
 pub mod services;

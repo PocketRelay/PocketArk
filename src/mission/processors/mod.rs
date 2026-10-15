@@ -2,7 +2,6 @@ use uuid::Uuid;
 
 use crate::{
     database::dto::{character::CharacterDto, shared_data::SharedDataDto},
-    definitions::classes::Class,
     http::models::mission::{CompleteMissionData, MissionPlayerData},
     mission::{
         outcome::MissionOutcomeDataBuilder,
@@ -14,6 +13,7 @@ use crate::{
         },
     },
 };
+use pocket_ark_definitions::classes::Class;
 
 use std::sync::LazyLock;
 

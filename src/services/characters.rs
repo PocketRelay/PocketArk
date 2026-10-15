@@ -1,21 +1,19 @@
 use std::ops::DerefMut;
 
-use crate::database::DbTransaction;
-use crate::{
-    database::{
-        dto::{
-            character::{CreateCharacterDto, PlayStats},
-            users::UserDto,
-        },
-        repositories::characters::CharactersRepository,
+use crate::database::{
+    DbTransaction,
+    dto::{
+        character::{CreateCharacterDto, PlayStats},
+        users::UserDto,
     },
-    definitions::{
-        classes::{Classes, PointMap},
-        items::ItemName,
-        level_tables::{LevelTables, ProgressionXp},
-    },
+    repositories::characters::CharactersRepository,
 };
 use anyhow::{Context, anyhow};
+use pocket_ark_definitions::{
+    classes::{Classes, PointMap},
+    items::ItemName,
+    level_tables::{LevelTables, ProgressionXp},
+};
 use uuid::Uuid;
 
 /// Handles the initialization of a character after an item for

@@ -1,13 +1,13 @@
 use chrono::{DateTime, Utc};
+use pocket_ark_core::ImStr;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use sqlx::prelude::FromRow;
 use strum::EnumIter;
 use uuid::Uuid;
 
-use crate::{
-    database::dto::users::UserId, definitions::challenges::ChallengeCounter, utils::ImStr,
-};
+use crate::database::dto::users::UserId;
+use pocket_ark_definitions::challenges::ChallengeCounter;
 
 /// Type alias for a challenge ID
 pub type ChallengeId = Uuid;
@@ -106,4 +106,15 @@ pub enum ChallengeState {
     Completed = 1,
     #[serde(rename = "NOT_STARTED")]
     NotStarted = 2,
+}
+
+#[derive(Debug, Clone)]
+pub struct AppliedChallengeProgressUpdate {
+    pub last_changed: DateTime<Utc>,
+    pub times_completed: u32,
+    pub counters: Vec<ChallengeProgressCounter>,
+    //
+    pub first_completed: Option<DateTime<Utc>>,
+    pub last_completed: Option<DateTime<Utc>>,
+    pub state: ChallengeState,
 }

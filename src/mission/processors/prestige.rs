@@ -1,11 +1,11 @@
 use crate::{
     database::dto::shared_data::SharedProgression,
-    definitions::level_tables::LevelTables,
     mission::{
         outcome::MissionOutcomeDataBuilder,
         processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
     },
 };
+use pocket_ark_definitions::level_tables::LevelTables;
 use pocket_ark_i18n::{I18nDescription, I18nName};
 
 pub struct PrestigeProcessor;

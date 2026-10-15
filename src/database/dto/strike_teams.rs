@@ -2,14 +2,12 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use sqlx::prelude::FromRow;
 
-use crate::{
-    database::dto::users::UserId,
-    definitions::{
-        level_tables::ProgressionXp,
-        strike_teams::{
-            equipment::StrikeTeamEquipment, icon::StrikeTeamIcon, name::StrikeTeamName,
-            traits::StrikeTeamTrait,
-        },
+use crate::database::dto::users::UserId;
+use pocket_ark_definitions::{
+    level_tables::ProgressionXp,
+    strike_teams::{
+        equipment::StrikeTeamEquipment, icon::StrikeTeamIcon, name::StrikeTeamName,
+        traits::StrikeTeamTrait,
     },
 };
 use pocket_ark_i18n::{I18n, Localized};

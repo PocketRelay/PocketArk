@@ -1,10 +1,14 @@
-use crate::database::dto::challenge_progress::{
-    ChallengeId, ChallengeProgressDto, CreateChallengeProgressDto,
+use crate::database::{
+    DbExecutor, DbResult,
+    dto::{
+        challenge_progress::{
+            AppliedChallengeProgressUpdate, ChallengeId, ChallengeProgressDto,
+            CreateChallengeProgressDto,
+        },
+        users::UserId,
+    },
+    extensions::SqlxBindExt,
 };
-use crate::database::dto::users::UserId;
-use crate::database::extensions::SqlxBindExt;
-use crate::database::{DbExecutor, DbResult};
-use crate::services::challenges::AppliedChallengeProgressUpdate;
 
 pub struct ChallengeProgressRepository;
 

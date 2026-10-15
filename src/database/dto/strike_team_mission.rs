@@ -4,7 +4,7 @@ use sqlx::prelude::FromRow;
 use strum::EnumIter;
 use uuid::Uuid;
 
-use crate::definitions::strike_teams::mission::{
+use pocket_ark_definitions::strike_teams::mission::{
     MissionAccessibility, MissionDescriptor, mission_type::MissionType, modifier::MissionModifier,
     rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
 };

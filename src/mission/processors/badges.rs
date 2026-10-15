@@ -1,11 +1,11 @@
 use crate::{
-    definitions::badges::{BadgeLevelName, Badges},
     http::models::mission::PlayerInfoBadge,
     mission::{
         outcome::MissionOutcomeDataBuilder,
         processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
     },
 };
+use pocket_ark_definitions::badges::{BadgeLevelName, Badges};
 
 pub struct BadgeProcessor;
 

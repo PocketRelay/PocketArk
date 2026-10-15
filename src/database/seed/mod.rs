@@ -18,13 +18,14 @@ use crate::{
             users::UserRepository,
         },
     },
-    definitions::{
-        classes::{Classes, PointMap},
-        currency::CurrencyType,
-        items::Items,
-        level_tables::{LevelTables, ProgressionXp},
-    },
     utils::{hashing::hash_password, logging::setup_test_logging},
+};
+
+use pocket_ark_definitions::{
+    classes::{Classes, PointMap},
+    currency::CurrencyType,
+    items::Items,
+    level_tables::{LevelTables, ProgressionXp},
 };
 
 #[tokio::test]

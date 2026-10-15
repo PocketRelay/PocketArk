@@ -1,19 +1,18 @@
 use uuid::Uuid;
 
-use crate::{
-    database::{
-        DbExecutor, DbResult,
-        dto::{
-            character::{CharacterDto, CharacterId, CreateCharacterDto},
-            users::UserId,
-        },
-        extensions::SqlxBindExt,
+use crate::database::{
+    DbExecutor, DbResult,
+    dto::{
+        character::{CharacterDto, CharacterId, CreateCharacterDto},
+        users::UserId,
     },
-    definitions::{
-        classes::{CharacterEquipment, ClassName, CustomizationMap},
-        level_tables::ProgressionXp,
-        skills::SkillTree,
-    },
+    extensions::SqlxBindExt,
+};
+
+use pocket_ark_definitions::{
+    classes::{CharacterEquipment, ClassName, CustomizationMap},
+    level_tables::ProgressionXp,
+    skills::SkillTree,
 };
 
 pub struct CharactersRepository;

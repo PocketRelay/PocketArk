@@ -6,11 +6,6 @@ use crate::{
         dto::{character::CharacterDto, shared_data::CharacterSharedEquipment},
         repositories::{characters::CharactersRepository, shared_data::SharedDataRepository},
     },
-    definitions::{
-        classes::{ClassName, Classes, CustomizationMap},
-        level_tables::LevelTables,
-        skills::{SkillDefinition, Skills},
-    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -22,6 +17,11 @@ use crate::{
 use axum::{Extension, Json, extract::Path};
 use hyper::StatusCode;
 use log::debug;
+use pocket_ark_definitions::{
+    classes::{ClassName, Classes, CustomizationMap},
+    level_tables::LevelTables,
+    skills::{SkillDefinition, Skills},
+};
 use uuid::Uuid;
 
 /// GET /characters
