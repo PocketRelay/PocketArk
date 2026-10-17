@@ -260,74 +260,35 @@ impl Encoder<Packet> for PacketCodec {
     }
 }
 
-/// Wrapper over a packet structure to provide debug logging
-/// with names resolved for the component
-pub struct PacketDebug<'a> {
-    /// Reference to the packet itself
-    pub packet: &'a Packet,
-
-    /// Decide whether to display the contents of the packet
-    pub minified: bool,
-}
-
-impl<'a> PacketDebug<'a> {
-    pub fn from_default(packet: &'a Packet) -> Self {
-        Self {
-            packet,
-            minified: false,
-        }
-    }
-}
-
 #[macro_export]
 macro_rules! debug_packet {
     ($packet:expr, $minified:expr$(, $($arg:tt)*)?) => {{
         let header = &$packet.frame;
-        tracing::debug!(
-            component = format!("{:#06x}", header.component),
-            command = format!("{:#06x}", header.command),
-            flags = format!("{:?} ({})", header.flags, header.flags.bits()),
-            seq = %header.seq,
-            notify = %header.notify,
-            unused = %header.unused,
-            pre_msg = ?$crate::packet::DebugPreMessage($packet),
-            contents = ?$crate::packet::DebugPacketContent($packet),
-            $($($arg)*)?
-        );
+        if tracing::enabled!(tracing::Level::DEBUG) {
+            tracing::debug!(
+                component = format!("{:#06x}", header.component),
+                command = format!("{:#06x}", header.command),
+                flags = format!("{:?} ({})", header.flags, header.flags.bits()),
+                seq = %header.seq,
+                notify = %header.notify,
+                unused = %header.unused,
+                pre_msg = ?$crate::packet::DebugTdfStringify(&$packet.pre_msg),
+                contents = ?$crate::packet::DebugTdfStringify(&$packet.contents),
+                $($($arg)*)?
+            );
+        }
     }};
 }
 
-pub struct DebugPreMessage<'a>(pub &'a Packet);
+pub struct DebugTdfStringify<'a>(pub &'a Bytes);
 
-impl<'a> Debug for DebugPreMessage<'a> {
+impl<'a> Debug for DebugTdfStringify<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.0.pre_msg.is_empty() {
-            return write!(f, "None");
+        if self.0.is_empty() {
+            return f.write_str("None");
         }
 
-        let r = TdfDeserializer::new(&self.0.pre_msg);
-        let mut out = String::new();
-
-        out.push_str("{\n");
-        let mut s = TdfStringifier::new(r, &mut out);
-
-        let _ = s.stringify();
-
-        if out.len() == 2 {
-            // Remove new line if nothing else was appended
-            out.pop();
-        }
-
-        out.push('}');
-        f.write_str(&out)
-    }
-}
-
-pub struct DebugPacketContent<'a>(pub &'a Packet);
-
-impl<'a> Debug for DebugPacketContent<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let r = TdfDeserializer::new(&self.0.contents);
+        let r = TdfDeserializer::new(self.0);
         let mut out = String::new();
         let mut s = TdfStringifier::new(r, &mut out);
         let _ = s.stringify();

@@ -1,5 +1,5 @@
 use crate::{
-    PacketDebug, debug_packet,
+    debug_packet,
     packet::{Packet, PacketCodec},
 };
 use futures::{SinkExt, StreamExt, future::BoxFuture};

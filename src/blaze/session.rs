@@ -5,7 +5,7 @@ use hyper_util::rt::TokioIo;
 use pocket_ark_blaze_networking::{
     blaze_socket::{BlazeLock, BlazeLockFuture, BlazeRx, BlazeSocketFuture, BlazeTx},
     debug_packet,
-    packet::{Packet, PacketCodec, PacketDebug},
+    packet::{Packet, PacketCodec},
     router::BlazeRouter,
 };
 use pocket_ark_database::dto::users::UserDto;
