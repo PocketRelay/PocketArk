@@ -7,12 +7,12 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use hyper::{HeaderMap, StatusCode, header::ToStrError};
-use log::warn;
 use std::{
     net::{AddrParseError, IpAddr, Ipv4Addr, SocketAddr},
     sync::Arc,
 };
 use thiserror::Error;
+use tracing::warn;
 
 use crate::config::Config;
 

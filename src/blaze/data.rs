@@ -2,6 +2,7 @@ use parking_lot::{RwLock, RwLockReadGuard};
 use serde::Serialize;
 use std::{net::Ipv4Addr, sync::Arc, task::Context, time::Duration};
 use tokio::time::{Instant, Interval, MissedTickBehavior, interval_at};
+use tracing::Span;
 
 use crate::{
     blaze::{
@@ -24,6 +25,14 @@ use crate::{
 
 use pocket_ark_blaze_networking::packet::Packet;
 use pocket_ark_database::dto::users::{UserDto, UserId};
+
+pub struct SessionInitData {
+    /// IP address associated with the session
+    pub addr: Ipv4Addr,
+    /// User will not have an association if they are using an outdated
+    /// client version.
+    pub association_id: Option<AssociationId>,
+}
 
 pub struct SessionData {
     /// Extended session data, writable data

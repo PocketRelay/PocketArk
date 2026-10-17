@@ -6,8 +6,6 @@ use axum::response::{IntoResponse, Response};
 use axum::{Extension, middleware};
 use bytes::Bytes;
 use hyper::{StatusCode, Uri};
-use log::error;
-use log::info;
 use pocket_ark_definitions::strike_teams::StrikeTeams;
 use pocket_ark_definitions::{
     badges::Badges, challenges::Challenges, classes::Classes, items::Items,
@@ -17,6 +15,8 @@ use pocket_ark_i18n::I18n;
 use services::mission::MissionBackgroundTask;
 use services::sessions::Sessions;
 use tokio::net::TcpListener;
+use tracing::error;
+use tracing::info;
 
 use http_body_util::BodyExt;
 use std::net::SocketAddr;
@@ -31,6 +31,7 @@ use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
 use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
 use crate::utils::logging;
+use crate::utils::public_address::log_connection_urls;
 use pocket_ark_definitions::packs::Packs;
 
 pub mod blaze;
@@ -46,13 +47,13 @@ pub async fn run() {
     let mut config = load_config().unwrap_or_default();
 
     // Initialize logging
-    logging::setup(config.logging);
+    logging::setup(config.logging).await;
 
     // Create the server socket address while the port is still available
     let addr: SocketAddr = SocketAddr::new(config.host, config.port);
 
     // This step may take longer than expected so its spawned instead of joined
-    tokio::spawn(logging::log_connection_urls(config.port));
+    tokio::spawn(log_connection_urls(config.port));
 
     // Pre-initialize all shared definitions
     _ = Items::get();
@@ -186,7 +187,7 @@ where
     };
 
     if let Ok(body) = std::str::from_utf8(&bytes) {
-        log::debug!("{direction} uri = {uri}, body = {body}");
+        tracing::debug!(%direction, %uri, %body);
     }
 
     Ok(bytes)

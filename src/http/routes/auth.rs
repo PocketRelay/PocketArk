@@ -7,7 +7,7 @@ use crate::http::{
 };
 use axum::Json;
 use chrono::Utc;
-use log::debug;
+use tracing::debug;
 
 /// POST /auth
 pub async fn authenticate(

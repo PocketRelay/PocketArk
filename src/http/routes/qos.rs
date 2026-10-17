@@ -4,7 +4,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use hyper::{header, http::HeaderValue};
-use log::debug;
+use tracing::debug;
 
 pub struct RawXml(String);
 

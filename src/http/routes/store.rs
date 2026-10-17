@@ -15,7 +15,6 @@ use crate::{
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;
-use log::debug;
 use pocket_ark_database::{
     DbPool, DbTransaction,
     dto::{currency::CurrencyDto, users::UserDto},
@@ -26,6 +25,7 @@ use pocket_ark_definitions::{
     currency::CurrencyType,
     store_catalogs::StoreCatalogs,
 };
+use tracing::debug;
 
 /// GET /store/catalogs
 ///

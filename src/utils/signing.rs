@@ -1,11 +1,11 @@
 use argon2::password_hash::rand_core::{OsRng, RngCore};
-use log::{debug, error};
 use ring::hmac::{self, HMAC_SHA256, Key, Tag};
 use std::{io, path::Path};
 use tokio::{
     fs::{File, write},
     io::AsyncReadExt,
 };
+use tracing::{debug, error};
 
 pub struct SigningKey(Key);
 

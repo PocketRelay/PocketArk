@@ -17,7 +17,6 @@ use axum::{
     extract::{Path, Query},
 };
 use chrono::{DateTime, Utc};
-use log::debug;
 use pocket_ark_database::{
     DbPool,
     dto::{
@@ -38,6 +37,7 @@ use pocket_ark_definitions::{
 };
 use pocket_ark_i18n::{I18n, Localized};
 use std::{collections::HashMap, ops::DerefMut};
+use tracing::debug;
 use uuid::Uuid;
 
 use super::store::try_spend_currency;

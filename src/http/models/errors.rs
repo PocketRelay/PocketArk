@@ -2,12 +2,12 @@
 //! shared HTTP error types used by multiple route groups
 
 use hyper::StatusCode;
-use log::error;
 use std::{
     error::Error,
     fmt::{Debug, Display},
 };
 use thiserror::Error;
+use tracing::error;
 
 use axum::{
     Json,

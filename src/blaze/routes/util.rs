@@ -1,5 +1,5 @@
-use log::debug;
 use tdf::TdfMap;
+use tracing::debug;
 
 use crate::blaze::{
     extractors::SessionAuth,

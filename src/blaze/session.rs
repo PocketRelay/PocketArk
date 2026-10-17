@@ -1,16 +1,15 @@
-use crate::blaze::data::SessionData;
-use futures::future::BoxFuture;
+use crate::blaze::data::{SessionData, SessionInitData};
+use futures::{TryFutureExt, future::BoxFuture};
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
-use log::{debug, error, log_enabled};
 use pocket_ark_blaze_networking::{
     blaze_socket::{BlazeLock, BlazeLockFuture, BlazeRx, BlazeSocketFuture, BlazeTx},
+    debug_packet,
     packet::{Packet, PacketCodec, PacketDebug},
     router::BlazeRouter,
 };
 use pocket_ark_database::dto::users::UserDto;
 use std::{
-    fmt::Debug,
     future::Future,
     pin::Pin,
     sync::Weak,
@@ -20,6 +19,7 @@ use std::{sync::Arc, task::ready};
 use tdf::{TdfSerialize, types::bytes::serialize_bytes};
 use tokio::spawn;
 use tokio_util::codec::Framed;
+use tracing::{Instrument, Span};
 use uuid::Uuid;
 
 pub type SessionLink = Arc<Session>;
@@ -36,53 +36,57 @@ pub struct Session {
 }
 
 impl Session {
+    fn new(id: Uuid, tx: BlazeTx, data: SessionData) -> Self {
+        Self { id, tx, data }
+    }
+
+    #[tracing::instrument(
+        name = "session",
+        skip_all,
+        fields(
+            session_id = %id,
+            user_id = %user.id,
+            username = %user.username
+        )
+    )]
     pub fn start(
         id: Uuid,
         io: Upgraded,
-        data: SessionData,
+        user: &UserDto,
+        init_data: SessionInitData,
         router: Arc<BlazeRouter<SessionLink>>,
     ) -> WeakSessionLink {
         // Create blaze socket handler
         let (blaze_future, blaze_rx, blaze_tx) =
             BlazeSocketFuture::new(Framed::new(TokioIo::new(io), PacketCodec));
 
-        spawn(async move {
-            if let Err(cause) = blaze_future.await {
-                error!("error running blaze socket future: {cause:?}")
-            }
+        let session_span = Span::current();
+        let data = SessionData::new(init_data.addr, init_data.association_id);
 
-            debug!("session blaze future completed");
-        });
-
-        debug!("session started (SID: {id})");
+        let blaze_future = blaze_future
+            .inspect_err(|error| tracing::error!(?error, "error running blaze socket future"))
+            .inspect_ok(|_| tracing::debug!("session blaze future completed"))
+            .instrument(session_span.clone());
 
         // Create session handler
-        let session = Arc::new(Self {
-            id,
-            tx: blaze_tx,
-            data,
-        });
-
+        let session = Arc::new(Self::new(id, blaze_tx, data));
         let weak_session = Arc::downgrade(&session);
+        let session_future = session
+            .run(blaze_rx, router)
+            .instrument(session_span.clone());
 
-        spawn({
-            let session = session;
+        spawn(blaze_future);
+        spawn(session_future);
 
-            async move {
-                // Run the session to completion
-                SessionFuture::new(blaze_rx, &session, &router).await;
-
-                debug!("session future complete");
-
-                // Clear session data, speeds up process of ending the session
-                // prevents session data being accessed while shutting down
-                session.data.clear_auth();
-
-                debug!("session auth cleared, session dropped");
-            }
-        });
-
+        tracing::debug!("session started");
         weak_session
+    }
+
+    // Extra layer to provide borrowed references of session and router so
+    // that the session future lifetimes can be qualified
+    async fn run(self: Arc<Self>, rx: BlazeRx, router: Arc<BlazeRouter<SessionLink>>) {
+        SessionFuture::new(rx, &self, &router).await;
+        tracing::debug!("session future complete");
     }
 
     pub fn notify(&self, mut packet: Packet) {
@@ -93,11 +97,9 @@ impl Session {
         //     let msg = NotifyContext { uid, error: 0 };
         //     packet.pre_msg = serialize_bytes(&msg);
         // }
-        //
+
         let msg = NotifyContext { uid: 1, error: 0 };
         packet.pre_msg = serialize_bytes(&msg);
-
-        debug_log_packet_lockless(self.id, None, "Queued Notify", &packet);
         self.tx.notify(packet);
     }
 }
@@ -115,25 +117,9 @@ impl TdfSerialize for NotifyContext {
     }
 }
 
-struct DebugSessionData {
-    id: Uuid,
-    auth: Option<Arc<UserDto>>,
-    action: &'static str,
-}
-
-impl Debug for DebugSessionData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Session ({}): {}", self.id, self.action)?;
-
-        if let Some(auth) = &self.auth {
-            writeln!(f, "Auth ({}): (Name: {})", auth.id, auth.username)?;
-        }
-
-        Ok(())
-    }
-}
-
 /// Future for processing a session
+///
+/// Produces [Poll::Ready] when the session has completed / closed
 struct SessionFuture<'a> {
     /// Receiver for packets to handle
     rx: BlazeRx,
@@ -180,6 +166,15 @@ impl SessionFuture<'_> {
     }
 }
 
+impl Drop for SessionFuture<'_> {
+    fn drop(&mut self) {
+        // Clear session data, speeds up process of ending the session
+        // prevents session data being accessed while shutting down
+        self.session.data.clear_auth();
+        tracing::debug!("session auth cleared, session dropped");
+    }
+}
+
 impl Future for SessionFuture<'_> {
     type Output = ();
 
@@ -219,7 +214,7 @@ impl Future for SessionFuture<'_> {
                         .take()
                         .expect("Unexpected acquire state without packet");
 
-                    debug_log_packet(this.session, "Receive", &packet);
+                    debug_packet!(&packet, direction = "request", "receiving packet");
 
                     let future = this.router.handle(this.session.clone(), packet);
 
@@ -230,7 +225,7 @@ impl Future for SessionFuture<'_> {
                     // Poll the handler until completion
                     let response = ready!(Pin::new(future).poll(cx));
 
-                    debug_log_packet(this.session, "Send", &response);
+                    debug_packet!(&response, direction = "response", "sending packet");
 
                     // Send the response to the writer
                     if tx.send(response).is_err() {
@@ -244,43 +239,4 @@ impl Future for SessionFuture<'_> {
             }
         }
     }
-}
-
-/// Logs debugging information about a player
-fn debug_log_packet(session: &Session, action: &'static str, packet: &Packet) {
-    // Skip if debug logging is disabled
-    if !log_enabled!(log::Level::Debug) {
-        return;
-    }
-
-    let id = session.id;
-    let auth = session.data.get_player();
-    debug_log_packet_lockless(id, auth, action, packet);
-}
-
-/// Logs debugging information about a player
-pub fn debug_log_packet_lockless(
-    id: Uuid,
-    auth: Option<Arc<UserDto>>,
-    action: &'static str,
-    packet: &Packet,
-) {
-    // Skip if debug logging is disabled
-    if !log_enabled!(log::Level::Debug) {
-        return;
-    }
-
-    // let key = component_key(packet.frame.component, packet.frame.command);
-    // // Don't log the packet if its debug ignored
-    // if DEBUG_IGNORED_PACKETS.contains(&key) {
-    //     return;
-    // }
-
-    let debug_data = DebugSessionData { action, id, auth };
-    let debug_packet = PacketDebug {
-        packet,
-        minified: false,
-    };
-
-    debug!("\n{debug_data:?}{debug_packet:?}");
 }

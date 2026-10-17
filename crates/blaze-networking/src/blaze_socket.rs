@@ -1,4 +1,7 @@
-use crate::packet::{Packet, PacketCodec};
+use crate::{
+    PacketDebug, debug_packet,
+    packet::{Packet, PacketCodec},
+};
 use futures::{SinkExt, StreamExt, future::BoxFuture};
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
@@ -10,6 +13,7 @@ use std::{
 };
 use tokio::sync::{Mutex, OwnedMutexGuard, mpsc};
 use tokio_util::codec::Framed;
+use tracing::{Instrument, Span};
 
 /// Future for processing a blaze socket
 pub struct BlazeSocketFuture {
@@ -42,12 +46,17 @@ impl BlazeTx {
     pub fn notify(&self, packet: Packet) {
         // Acquire the lock position before scheduling the task to ensure correct ordering
         let tx = self.acquire_tx();
+        let span = Span::current();
 
-        tokio::spawn(async move {
-            let tx = tx.await;
-            // debug_log_packet_lockless(Uuid::new_v4(), None, "Notifing", &packet);
-            let _ = tx.send(packet);
-        });
+        tokio::spawn(
+            async move {
+                let tx = tx.await;
+                debug_packet!(&packet, direction = "notify", "sending packet");
+
+                let _ = tx.send(packet);
+            }
+            .instrument(span),
+        );
     }
 
     /// Create a future to acquire the sender lock.

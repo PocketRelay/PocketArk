@@ -1,6 +1,6 @@
-use log::{debug, info};
 use pocket_ark_blaze_networking::{Blaze, Extension};
 use tdf::TdfMap;
+use tracing::{debug, info};
 
 use crate::{
     blaze::{

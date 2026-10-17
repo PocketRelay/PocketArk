@@ -1,11 +1,12 @@
-use log::LevelFilter;
 use serde::Deserialize;
+use serde_with::serde_as;
 use std::{
     env,
     fs::read_to_string,
     net::{IpAddr, Ipv4Addr},
     path::Path,
 };
+use tracing::level_filters::LevelFilter;
 
 /// The server version extracted from the Cargo.toml
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -53,12 +54,14 @@ pub fn load_config() -> Option<Config> {
 
 pub type Port = u16;
 
+#[serde_as]
 #[derive(Deserialize)]
 #[serde(default)]
 pub struct Config {
     pub host: IpAddr,
     pub port: Port,
     pub reverse_proxy: bool,
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub logging: LevelFilter,
     pub tunnel: TunnelConfig,
     pub udp_tunnel: UdpTunnelConfig,
@@ -70,7 +73,7 @@ impl Default for Config {
             host: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
             port: 8080,
             reverse_proxy: false,
-            logging: LevelFilter::Info,
+            logging: LevelFilter::INFO,
             tunnel: Default::default(),
             udp_tunnel: Default::default(),
         }

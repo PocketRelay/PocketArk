@@ -6,7 +6,6 @@
 
 use crate::services::{characters::acquire_item_character, items::get_droppable_items};
 use chrono::Utc;
-use log::debug;
 use pocket_ark_database::{
     DbTransaction,
     dto::{
@@ -33,6 +32,7 @@ use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use serde_json::Value;
 use std::{collections::HashMap, fmt::Debug, ops::DerefMut};
 use thiserror::Error;
+use tracing::debug;
 use uuid::Uuid;
 
 pub struct ActivityService;

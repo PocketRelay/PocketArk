@@ -3,7 +3,7 @@
 
 use crate::{
     blaze::{
-        data::SessionData,
+        data::SessionInitData,
         session::{Session, SessionLink},
     },
     config::{Config, VERSION},
@@ -34,7 +34,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use hyper::{StatusCode, header, http::HeaderValue, upgrade::OnUpgrade};
-use log::{debug, error};
 use pocket_ark_blaze_networking::router::BlazeRouter;
 use pocket_ark_database::{
     DbPool,
@@ -44,6 +43,7 @@ use pocket_ark_database::{
     },
 };
 use std::{ops::DerefMut, sync::Arc};
+use tracing::{debug, error, record_all};
 use uuid::Uuid;
 
 /// GET /ark/client/details
@@ -172,8 +172,11 @@ pub async fn upgrade(
         let id = Uuid::new_v4();
 
         debug!("Session started (SID: {id}, ASSOC: {association_id:?}, ADDR: {addr})");
-        let data = SessionData::new(addr, association_id);
-        let link = Session::start(id, io, data, router);
+        let data = SessionInitData {
+            addr,
+            association_id,
+        };
+        let link = Session::start(id, io, &user, data, router);
 
         let assoc = sessions.add_session(user, link.clone());
         if let Some(session) = link.upgrade() {

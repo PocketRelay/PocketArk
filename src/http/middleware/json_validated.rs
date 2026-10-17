@@ -4,9 +4,9 @@
 use axum::extract::{FromRequest, Request};
 use bytes::Bytes;
 use hyper::StatusCode;
-use log::error;
 use serde::de::DeserializeOwned;
 use thiserror::Error;
+use tracing::error;
 use validator::Validate;
 
 use crate::http::models::{DynHttpError, HttpError};

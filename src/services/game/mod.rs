@@ -20,12 +20,12 @@ use crate::{
         tunnel::TunnelService,
     },
 };
-use log::{debug, warn};
 use parking_lot::RwLock;
 use pocket_ark_blaze_networking::packet::Packet;
 use pocket_ark_database::dto::users::UserId;
 use std::sync::{Arc, Weak};
 use tdf::TdfMap;
+use tracing::{debug, warn};
 
 pub mod data;
 pub mod matchmaking;

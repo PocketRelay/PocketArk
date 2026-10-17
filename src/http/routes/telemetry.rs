@@ -1,6 +1,6 @@
 use crate::http::models::telemetry::PinResponse;
 use axum::Json;
-use log::debug;
+use tracing::debug;
 
 /// POST /pinEvents
 ///

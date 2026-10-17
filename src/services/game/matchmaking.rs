@@ -1,8 +1,8 @@
 use std::{collections::VecDeque, time::SystemTime};
 
-use log::debug;
 use parking_lot::Mutex;
 use pocket_ark_blaze_networking::packet::Packet;
+use tracing::debug;
 
 use super::{GameAddPlayerExt, GameJoinableState, GamePlayer, GameRef, rules::RuleSet};
 use crate::{

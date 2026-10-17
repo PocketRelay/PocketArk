@@ -3,8 +3,8 @@
 use axum::extract::{FromRequest, Request};
 use bytes::Bytes;
 use hyper::StatusCode;
-use log::{debug, error};
 use serde::de::DeserializeOwned;
+use tracing::{debug, error};
 
 /// [axum::Json] extractor alternative for use in debug mode that dumps
 /// incoming payloads to the debug log

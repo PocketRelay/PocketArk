@@ -6,7 +6,6 @@ use self::codec::{TunnelCodec, TunnelMessage};
 use futures::{Sink, Stream};
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
-use log::{debug, error};
 use std::{
     future::Future,
     pin::Pin,
@@ -15,6 +14,7 @@ use std::{
 };
 use tokio::{sync::mpsc, time::Instant};
 use tokio_util::codec::Framed;
+use tracing::{debug, error};
 
 use crate::services::{sessions::AssociationId, tunnel::TunnelId};
 

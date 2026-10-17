@@ -1,9 +1,9 @@
 use std::{collections::BTreeMap, ops::DerefMut};
 
 use chrono::Utc;
-use log::debug;
 use pocket_ark_core::sku::Sku;
 use thiserror::Error;
+use tracing::debug;
 
 use crate::{
     http::models::mission::{
@@ -83,8 +83,8 @@ pub async fn process_mission_data(
             Ok(info) => {
                 player_infos.push(info);
             }
-            Err(err) => {
-                log::error!("Error while processing player: {} {:?}", err, value);
+            Err(error) => {
+                tracing::error!(?value, %error, "Error while processing player");
             }
         }
     }

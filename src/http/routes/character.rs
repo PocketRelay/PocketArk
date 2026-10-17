@@ -7,7 +7,6 @@ use crate::http::{
 };
 use axum::{Extension, Json, extract::Path};
 use hyper::StatusCode;
-use log::debug;
 use pocket_ark_database::{
     DbPool,
     dto::{character::CharacterDto, shared_data::CharacterSharedEquipment},
@@ -19,6 +18,7 @@ use pocket_ark_definitions::{
     skills::{SkillDefinition, Skills},
 };
 use std::mem::swap;
+use tracing::debug;
 use uuid::Uuid;
 
 /// GET /characters

@@ -1,5 +1,4 @@
 use crate::services::sessions::Sessions;
-use log::{debug, error};
 use pocket_relay_udp_tunnel::{TunnelMessage, deserialize_message, serialize_message};
 use std::collections::VecDeque;
 use std::future::Future;
@@ -8,6 +7,7 @@ use std::task::ready;
 use std::{net::SocketAddr, sync::Arc, task::Poll};
 use tokio::io::ReadBuf;
 use tokio::{net::UdpSocket, time::Instant};
+use tracing::{debug, error};
 
 use super::TunnelService;
 use super::{

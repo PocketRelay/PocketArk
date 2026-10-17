@@ -6,8 +6,8 @@ use crate::{
     services::activity::ActivityResult,
 };
 use axum::Json;
-use log::debug;
 use serde_json::Value;
+use tracing::debug;
 
 /// POST /activity
 ///

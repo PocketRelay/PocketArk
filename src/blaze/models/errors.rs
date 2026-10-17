@@ -23,7 +23,7 @@ pub struct BlazeDbErr(DatabaseError);
 impl From<DbErr> for BlazeDbErr {
     fn from(value: DbErr) -> Self {
         error!("Database error: {}", value);
-        BlazeDbErr(DatabaseError::System.into())
+        BlazeDbErr(DatabaseError::System)
     }
 }
 

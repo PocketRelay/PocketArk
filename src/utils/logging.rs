@@ -1,180 +1,56 @@
-use std::net::Ipv4Addr;
-
-use futures::TryFutureExt;
-use log::LevelFilter;
-use log4rs::{
-    Config,
-    append::{console::ConsoleAppender, file::FileAppender},
-    config::{Appender, Logger, Root},
-    encode::pattern::PatternEncoder,
-    init_config,
-};
-
-/// The pattern to use when logging
-const LOGGING_PATTERN: &str = "[{d} {h({l})} {M}] {m}{n}";
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 /// Log file name
 pub const LOG_FILE_NAME: &str = "data/server.log";
 
 /// Setup function for setting up the Log4rs logging configuring it
 /// for all the different modules and and setting up file and stdout logging
-pub fn setup(logging_level: LevelFilter) {
-    if logging_level == LevelFilter::Off {
-        // Don't initialize logger at all if logging is disabled
+pub async fn setup(logging_level: LevelFilter) {
+    if logging_level == LevelFilter::OFF {
         return;
     }
 
-    // Create logging appenders
-    let pattern = Box::new(PatternEncoder::new(LOGGING_PATTERN));
-    let console = Box::new(ConsoleAppender::builder().encoder(pattern.clone()).build());
-    let file = Box::new(
-        FileAppender::builder()
-            .encoder(pattern)
-            .build(LOG_FILE_NAME)
-            .expect("Unable to create logging file appender"),
-    );
+    if let Some(parent) = std::path::Path::new(LOG_FILE_NAME).parent() {
+        let _ = tokio::fs::create_dir_all(parent).await;
+    }
 
-    const APPENDERS: [&str; 2] = ["stdout", "file"];
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+        EnvFilter::new(format!(
+            "debug,sqlx={logging_level},pocket_ark={logging_level}",
+        ))
+    });
 
-    let config = Config::builder()
-        .appender(Appender::builder().build("stdout", console))
-        .appender(Appender::builder().build("file", file))
-        .logger(
-            Logger::builder()
-                .appenders(APPENDERS)
-                .additive(false)
-                .build("pocket_ark", logging_level),
-        )
-        .logger(
-            Logger::builder()
-                .appenders(APPENDERS)
-                .additive(false)
-                .build("sqlx", LevelFilter::Debug),
-        )
-        .build(
-            Root::builder()
-                .appenders(APPENDERS)
-                .build(LevelFilter::Debug),
-        )
-        .expect("Failed to create logging config");
+    let stdout_layer = fmt::layer().with_target(true).with_ansi(true);
 
-    init_config(config).expect("Unable to initialize logger");
+    let file_appender = tracing_appender::rolling::never("data", "server.log");
+    let (non_blocking_file, _guard) = tracing_appender::non_blocking(file_appender);
+    Box::leak(Box::new(_guard));
 
-    // Include panics in logging
+    let file_layer = fmt::layer()
+        .with_writer(non_blocking_file)
+        .with_target(true)
+        .with_ansi(false);
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(file_layer)
+        .with(stdout_layer)
+        .init();
+
     log_panics::init();
 }
 
 #[cfg(test)]
 pub fn setup_test_logging() {
-    let pattern = Box::new(PatternEncoder::new(LOGGING_PATTERN));
-    let console = Box::new(ConsoleAppender::builder().encoder(pattern.clone()).build());
+    let filter = EnvFilter::new("debug");
 
-    let config = Config::builder()
-        .appender(Appender::builder().build("stdout", console))
-        .build(Root::builder().appender("stdout").build(LevelFilter::Debug))
-        .expect("Failed to create logging config");
+    let stdout_layer = fmt::layer().with_target(true).with_ansi(true);
 
-    init_config(config).expect("Unable to initialize logger");
+    let _ = tracing_subscriber::registry()
+        .with(filter)
+        .with(stdout_layer)
+        .try_init();
 
-    // Include panics in logging
     log_panics::init();
-}
-
-/// Prints a list of possible urls that can be used to connect to
-/// this Pocket relay server
-pub async fn log_connection_urls(http_port: u16) {
-    let mut output = String::new();
-    if let Ok(local_address) = local_ip_address::local_ip() {
-        output.push_str("LAN: ");
-        output.push_str(&local_address.to_string());
-        if http_port != 80 {
-            output.push(':');
-            output.push_str(&http_port.to_string());
-        }
-    }
-    if let Some(public_address) = public_address().await {
-        if !output.is_empty() {
-            output.push_str(", ");
-        }
-        output.push_str(&format!("WAN: {public_address}"));
-        if http_port != 80 {
-            output.push(':');
-            output.push_str(&http_port.to_string());
-        }
-    }
-
-    if !output.is_empty() {
-        output.push_str(", ");
-    }
-
-    output.push_str("LOCAL: 127.0.0.1");
-    if http_port != 80 {
-        output.push(':');
-        output.push_str(&http_port.to_string());
-    }
-
-    log::info!("Connection URLS ({output})");
-}
-
-/// Retrieves the public address of the server either using the cached
-/// value if its not expired or fetching the new value from the API using
-/// `fetch_public_addr`
-pub async fn public_address() -> Option<Ipv4Addr> {
-    // Try fetch from cloudflare first
-    if let Some(addr) = public_address_cloudflare().await {
-        return Some(addr);
-    }
-
-    // API addresses for IP lookup
-    const ADDRESSES: [&str; 2] = ["https://api.ipify.org/", "https://ipv4.icanhazip.com/"];
-
-    // Try all addresses using the first valid value
-    for address in ADDRESSES {
-        let addr = match reqwest::get(address)
-            // Read the response as text
-            .and_then(reqwest::Response::text)
-            .await
-        {
-            Ok(value) => value,
-            Err(_) => continue,
-        };
-
-        let addr = addr
-            // Trim whitespace and new lines
-            .trim_matches(|c: char| c == '\n' || c.is_whitespace())
-            // Attempt to parse as an IPv4 address
-            .parse::<Ipv4Addr>();
-
-        if let Ok(parsed) = addr {
-            return Some(parsed);
-        }
-    }
-
-    None
-}
-
-/// Retrieves the public address of the server using the cloudflare API
-pub async fn public_address_cloudflare() -> Option<Ipv4Addr> {
-    let response = match reqwest::get("https://cloudflare.com/cdn-cgi/trace")
-        .and_then(reqwest::Response::text)
-        .await
-    {
-        Ok(value) => value,
-        Err(_) => return None,
-    };
-
-    // Find the line containing the IP address
-    let (_, addr) = response
-        .lines()
-        .filter_map(|value| value.split_once('='))
-        .find(|(key, _)| *key == "ip")?;
-
-    // Attempt to parse it as an IPv4 address
-    let addr = addr
-        // Trim whitespace and new lines
-        .trim_matches(|c: char| c == '\n' || c.is_whitespace())
-        // Attempt to parse as an IPv4 address
-        .parse::<Ipv4Addr>();
-
-    addr.ok()
 }
