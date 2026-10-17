@@ -1,10 +1,6 @@
 use std::future::ready;
 
-use super::{
-    components,
-    router::{BlazeRouter, BlazeRouterBuilder},
-    session::SessionLink,
-};
+use super::{components, router::BlazeRouterBuilder};
 
 mod auth;
 mod game_manager;

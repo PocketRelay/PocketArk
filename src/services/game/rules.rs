@@ -90,7 +90,6 @@ pub enum MatchRuleValue {
         /// Value to match using
         value: String,
         /// Random value to use
-        #[allow(unused)]
         rand_value: Option<String>,
         /// Mode to perform the match with
         match_mode: Option<String>,

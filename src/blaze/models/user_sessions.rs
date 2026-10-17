@@ -1,20 +1,16 @@
 use crate::blaze::{
-    components::{self, game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
+    components::{game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
     data::NetData,
     models::constants::PING_SITE_ALIAS,
 };
 use bitflags::bitflags;
 use pocket_ark_database::dto::users::{UserDto, UserId};
 use serde::Serialize;
-use std::{
-    net::{Ipv4Addr, SocketAddrV4},
-    sync::Arc,
-};
+use std::{net::Ipv4Addr, sync::Arc};
 use tdf::prelude::*;
 
 #[derive(Debug, Clone)]
 #[repr(u32)]
-#[allow(unused)]
 pub enum UserSessionsError {
     UserNotFound = 96258,
 }
@@ -76,7 +72,7 @@ pub struct IpPairAddress {
 }
 
 impl IpPairAddress {
-    pub fn tag<S: tdf::TdfSerializer>(addr: Option<&IpPairAddress>, tag: &[u8], w: &mut S) {
+    pub fn tag<S: tdf::TdfSerializer>(addr: Option<&IpPairAddress>, _tag: &[u8], w: &mut S) {
         if let Some(addr) = addr {
             w.tag_union_value(b"ADDR", 0x2, b"VALU", addr);
         } else {

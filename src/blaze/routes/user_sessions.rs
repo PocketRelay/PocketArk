@@ -1,33 +1,26 @@
 use std::sync::Arc;
 
-use bytes::Bytes;
-use tdf::types::bytes::serialize_bytes;
-
 use crate::{
     blaze::{
-        data::NetData,
         models::{
             errors::ServerResult,
             user_sessions::{
-                LookupRequest, LookupResponse, NetworkInfo, OwnedUserIdentification,
-                UpdateHardwareFlags, UpdateNetworkRequest, UserSessionExtendedData,
-                UserSessionsError,
+                LookupRequest, LookupResponse, NetworkInfo, UpdateHardwareFlags,
+                UpdateNetworkRequest, UserSessionsError,
             },
         },
-        packet::Packet,
-        router::{Blaze, BlazeWithHeader, Extension},
-        session::{NotifyContext, SessionLink},
+        router::{Blaze, Extension},
+        session::SessionLink,
     },
     services::sessions::Sessions,
 };
-use pocket_ark_database::dto::users::UserDto;
 
 pub async fn update_network_info(
     session: SessionLink,
     Blaze(UpdateNetworkRequest { info }): Blaze<UpdateNetworkRequest>,
 ) {
     let NetworkInfo {
-        mut address,
+        address,
         ping_site_latency,
         qos,
     } = info;

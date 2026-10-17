@@ -1,6 +1,5 @@
 use pocket_ark::run;
 
-#[allow(unused)]
 pub mod blaze;
 
 pub mod config;

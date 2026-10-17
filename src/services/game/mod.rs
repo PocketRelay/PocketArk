@@ -111,7 +111,6 @@ pub enum GameJoinableState {
     /// The game doesn't match the provided rules
     NotMatch,
     /// The game is stopping
-    #[allow(unused)]
     Stopping,
 }
 

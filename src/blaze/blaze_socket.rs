@@ -11,7 +11,7 @@ use tokio::sync::{Mutex, OwnedMutexGuard, mpsc};
 use tokio_util::codec::Framed;
 use uuid::Uuid;
 
-use crate::blaze::session::{WeakSessionLink, debug_log_packet_lockless};
+use crate::blaze::session::debug_log_packet_lockless;
 
 use super::packet::{Packet, PacketCodec};
 

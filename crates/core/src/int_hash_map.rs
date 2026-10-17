@@ -21,7 +21,6 @@ impl BuildHasher for BuildIntHasher {
 /// Const safe init shorthand function for [`IntHashMap`] that
 /// doesn't allocate anything until used
 #[inline(always)]
-#[allow(unused)]
 pub const fn int_hash_map<K, V>() -> IntHashMap<K, V> {
     IntHashMap::with_hasher(BuildIntHasher)
 }

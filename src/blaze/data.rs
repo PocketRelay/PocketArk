@@ -438,7 +438,7 @@ impl Drop for SessionSubscription {
             None => return,
         };
 
-        let user = session.data.get_player();
+        let _user = session.data.get_player();
 
         // Notify the subscriber they've removed the user subscription
         session.notify(Packet::notify(

@@ -47,7 +47,6 @@ pub type ChallengeCounterName = ImStr;
 
 /// Action for showing what the progress update was
 #[derive(Debug, PartialEq, Eq)]
-#[allow(unused)]
 pub enum CounterUpdateType {
     /// The counter existing and was just updated
     Changed,

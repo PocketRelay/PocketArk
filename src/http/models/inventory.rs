@@ -76,11 +76,11 @@ pub struct InventorySeenRequest {
 /// Item consume request body
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[allow(unused)]
 pub struct ConsumeRequest {
     /// List of items to consume
     pub items: Vec<ConsumeTarget>,
     /// The namespace to search within
+    #[allow(unused)]
     pub namespace: String,
 }
 

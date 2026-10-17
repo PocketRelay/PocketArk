@@ -33,7 +33,6 @@ use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
 use crate::utils::logging;
 use pocket_ark_definitions::packs::Packs;
 
-#[allow(unused)]
 pub mod blaze;
 
 pub mod config;

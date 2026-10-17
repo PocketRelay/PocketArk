@@ -48,7 +48,6 @@ impl Sessions {
     }
 
     /// Creates a new association token
-    #[allow(unused)]
     pub fn create_assoc_token(&self) -> String {
         let uuid = Uuid::new_v4();
         let data: &[u8; 16] = uuid.as_bytes();

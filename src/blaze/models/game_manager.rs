@@ -1,20 +1,16 @@
-use std::{net::Ipv4Addr, str::FromStr};
-
 use bitflags::bitflags;
 use serde::Serialize;
 use tdf::{
-    ObjectId, TdfDeserialize, TdfDeserializeOwned, TdfGeneric, TdfMap, TdfSerialize, TdfType,
-    TdfTyped,
+    ObjectId, TdfDeserialize, TdfGeneric, TdfMap, TdfSerialize, TdfType, TdfTyped,
     types::{string::write_empty_str, tagged_union::TAGGED_UNSET_KEY},
 };
 
 use crate::{
-    blaze::models::user_sessions::{NatType, PairAddress},
+    blaze::models::user_sessions::NatType,
     config::{Config, TunnelConfig},
     services::{
         game::{AttrMap, Game, GameID, player::GamePlayer},
-        tunnel::http_tunnel::TUNNEL_HOST_LOCAL_PORT,
-        virtual_peer::{virtual_peer_address, virtual_peer_address_pair},
+        virtual_peer::virtual_peer_address_pair,
     },
 };
 use pocket_ark_database::dto::users::UserId;
@@ -23,7 +19,6 @@ use super::user_sessions::NetworkAddress;
 
 #[derive(Debug, Clone)]
 #[repr(u32)]
-#[allow(unused)]
 pub enum GameManagerError {
     InvalidGameId = 0x2,
     GameFull = 0x4,
@@ -257,7 +252,6 @@ pub enum DatalessContext {
     // HostInjectionSetupContext = 0x4,
 }
 
-#[allow(unused)]
 #[derive(Debug, Copy, Clone, TdfSerialize, TdfTyped)]
 #[repr(u8)]
 pub enum PresenceMode {
@@ -269,7 +263,6 @@ pub enum PresenceMode {
     Private = 0x2,
 }
 
-#[allow(unused)]
 #[derive(Debug, Copy, Clone, TdfSerialize, TdfTyped)]
 #[repr(u8)]
 pub enum VoipTopology {
@@ -281,7 +274,6 @@ pub enum VoipTopology {
     PeerToPeer = 0x2,
 }
 
-#[allow(unused)]
 #[derive(Debug, Copy, Clone, TdfSerialize, TdfTyped)]
 #[repr(u8)]
 pub enum GameNetworkTopology {
@@ -296,7 +288,6 @@ pub enum GameNetworkTopology {
 }
 
 /// Various modes that the game can be configured to leverage Connection Concierge service (CCS).
-#[allow(unused)]
 #[derive(Debug, Copy, Clone, TdfSerialize, TdfTyped)]
 #[repr(u8)]
 pub enum CCSMode {

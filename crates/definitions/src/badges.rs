@@ -47,7 +47,6 @@ impl Badges {
         &self.values
     }
 
-    #[allow(unused)]
     pub fn by_activity(&self, activity: &ActivityEvent) -> Option<(&Badge, u32, Vec<&BadgeLevel>)> {
         // Find a badge with an activity that can be applied
         let (badge, badge_activity) = self.values.iter().find_map(|badge| {

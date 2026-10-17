@@ -49,7 +49,6 @@ impl Skills {
     }
 
     /// Find a [SkillDefinition] by its `name`
-    #[allow(unused)]
     pub fn by_name(&self, name: &SkillDefinitionName) -> Option<&SkillDefinition> {
         self.values
             .iter()

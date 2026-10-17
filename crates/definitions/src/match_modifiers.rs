@@ -34,7 +34,6 @@ impl MatchModifiers {
     }
 
     /// Finds a match modifier by `name`
-    #[allow(unused)]
     pub fn by_name(&self, name: &str) -> Option<&MatchModifier> {
         self.values
             .iter()
@@ -57,7 +56,6 @@ pub struct MatchModifier {
 impl MatchModifier {
     /// Finds an entry in the collection of modifiers wheres the
     /// modifier targets the provided `value`
-    #[allow(unused)]
     pub fn by_value(&self, value: &str) -> Option<&MatchModifierValue> {
         self.values.iter().find(|modifier| modifier.name.eq(value))
     }
@@ -98,7 +96,6 @@ pub struct ModifierAmount {
 impl ModifierAmount {
     /// Returns the amount that should be added based on
     /// the old value with the modifier
-    #[allow(unused)]
     pub fn get_amount(&self, old_value: u32) -> u32 {
         let additive_value = (old_value as f32 * self.additive_multiplier).trunc() as u32;
         self.flat_amount + additive_value

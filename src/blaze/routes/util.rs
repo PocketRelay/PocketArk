@@ -11,7 +11,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 /// Handles responding to pre-auth requests which is the first request
 /// that clients will send. The response to this contains information
 /// about the server the client is connecting to.
-pub async fn pre_auth(session: SessionLink) -> Blaze<PreAuthResponse> {
+pub async fn pre_auth() -> Blaze<PreAuthResponse> {
     Blaze(PreAuthResponse)
 }
 

@@ -6,27 +6,26 @@ use crate::{
         models::{
             errors::ServerResult,
             game_manager::{
-                AddAdminPlayerRequest, GameManagerError, GameSetupContext, GameState,
-                LeaveGameRequest, MatchmakeScenario, MatchmakingResult,
-                MeshEndpointsConnectedRequest, PlayerNetConnectionStatus, PlayerState,
-                ReplayGameRequest, SetSettingRequest, StartMatchmakingScenarioRequest,
-                StartMatchmakingScenarioResponse, UpdateAttrRequest, UpdateGameAttrRequest,
-                UpdateStateRequest,
+                AddAdminPlayerRequest, GameManagerError, GameSetupContext, LeaveGameRequest,
+                MatchmakeScenario, MatchmakingResult, MeshEndpointsConnectedRequest,
+                PlayerNetConnectionStatus, PlayerState, ReplayGameRequest, SetSettingRequest,
+                StartMatchmakingScenarioRequest, StartMatchmakingScenarioResponse,
+                UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
             },
         },
         router::{Blaze, Extension, SessionAuth},
-        session::{self, SessionLink},
+        session::SessionLink,
     },
     config::Config,
     services::{
         game::{
-            self, DEFAULT_FIT, Game, GameAddPlayerExt, GameJoinableState, matchmaking::Matchmaking,
+            DEFAULT_FIT, Game, GameAddPlayerExt, GameJoinableState, matchmaking::Matchmaking,
             player::GamePlayer, rules::RuleSet, store::Games,
         },
         tunnel::TunnelService,
     },
 };
-use std::{sync::Arc, thread::sleep, time::Duration};
+use std::sync::Arc;
 
 pub async fn start_matchmaking_scenario(
     session: SessionLink,
@@ -188,7 +187,6 @@ pub async fn replay_game(
 }
 
 pub async fn leave_game(
-    session: SessionLink,
     SessionAuth(user): SessionAuth,
     Blaze(req): Blaze<LeaveGameRequest>,
     Extension(games): Extension<Arc<Games>>,
@@ -200,15 +198,14 @@ pub async fn leave_game(
 }
 
 pub async fn finalize_game_creation(
-    session: SessionLink,
-    SessionAuth(user): SessionAuth,
-    Extension(games): Extension<Arc<Games>>,
+    _session: SessionLink,
+    SessionAuth(_user): SessionAuth,
+    Extension(_games): Extension<Arc<Games>>,
 ) {
     // Should make the game be available for joining
 }
 
 pub async fn mesh_endpoints_connected(
-    session: SessionLink,
     SessionAuth(user): SessionAuth,
     Extension(games): Extension<Arc<Games>>,
     Blaze(MeshEndpointsConnectedRequest {

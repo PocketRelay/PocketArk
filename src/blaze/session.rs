@@ -1,40 +1,17 @@
 use super::{
-    components::{self, user_sessions},
-    models::{
-        game_manager::RemoveReason,
-        user_sessions::{
-            HardwareFlags, IpPairAddress, NetworkAddress, NotifyUserAdded, NotifyUserRemoved,
-            NotifyUserUpdated, QosNetworkData, UserDataFlags, UserIdentification,
-            UserSessionExtendedData, UserSessionExtendedDataUpdate,
-        },
-    },
-    packet::{FrameFlags, Packet, PacketCodec},
+    packet::{Packet, PacketCodec},
     router::BlazeRouter,
 };
-use crate::{
-    blaze::{
-        blaze_socket::{BlazeLock, BlazeLockFuture, BlazeRx, BlazeSocketFuture, BlazeTx},
-        components::component_key,
-        data::SessionData,
-        packet::PacketDebug,
-    },
-    services::{
-        game::{GameID, WeakGameRef},
-        sessions::Sessions,
-    },
+use crate::blaze::{
+    blaze_socket::{BlazeLock, BlazeLockFuture, BlazeRx, BlazeSocketFuture, BlazeTx},
+    data::SessionData,
+    packet::PacketDebug,
 };
-use bytes::Bytes;
-use futures::{
-    Sink, SinkExt, Stream, StreamExt,
-    future::BoxFuture,
-    stream::{SplitSink, SplitStream},
-};
+use futures::future::BoxFuture;
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
-use log::{debug, error, log_enabled, warn};
-use parking_lot::Mutex;
-use pocket_ark_database::dto::users::{UserDto, UserId};
-use serde::Serialize;
+use log::{debug, error, log_enabled};
+use pocket_ark_database::dto::users::UserDto;
 use std::{
     fmt::Debug,
     future::Future,
@@ -42,13 +19,9 @@ use std::{
     sync::Weak,
     task::{Context, Poll},
 };
-use std::{io, sync::Arc, task::ready};
-use tdf::{TdfSerialize, serialize_vec, types::bytes::serialize_bytes};
-use tokio::{
-    spawn,
-    sync::{RwLock, mpsc},
-    task::JoinSet,
-};
+use std::{sync::Arc, task::ready};
+use tdf::{TdfSerialize, types::bytes::serialize_bytes};
+use tokio::spawn;
 use tokio_util::codec::Framed;
 use uuid::Uuid;
 
@@ -300,8 +273,7 @@ pub fn debug_log_packet_lockless(
         return;
     }
 
-    let key = component_key(packet.frame.component, packet.frame.command);
-
+    // let key = component_key(packet.frame.component, packet.frame.command);
     // // Don't log the packet if its debug ignored
     // if DEBUG_IGNORED_PACKETS.contains(&key) {
     //     return;

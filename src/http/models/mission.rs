@@ -16,7 +16,6 @@ use uuid::Uuid;
 use super::HttpError;
 
 #[derive(Debug, Error)]
-#[allow(unused)]
 pub enum MissionError {
     #[error("Unknown game")]
     UnknownGame,
@@ -73,7 +72,6 @@ pub struct MissionActivityReport {
     pub options: Value,
 }
 
-#[allow(unused)]
 impl MissionActivityReport {
     /// Provides the total score earned across all of the
     /// activities
