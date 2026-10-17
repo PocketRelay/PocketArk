@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use pocket_ark_core::sku::Sku;
 use serde::{Deserialize, Serialize};
 
-use crate::database::dto::users::UserId;
+use pocket_ark_database::dto::users::UserId;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

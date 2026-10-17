@@ -1,10 +1,10 @@
 use uuid::Uuid;
 
 use crate::{
-    database::dto::{inventory_items::InventoryItemDto, shared_data::SharedProgression},
     http::models::mission::{PlayerInfoBadge, RewardSource},
     services::activity::{PrestigeData, PrestigeProgression},
 };
+use pocket_ark_database::dto::{inventory_items::InventoryItemDto, shared_data::SharedProgression};
 use pocket_ark_definitions::{
     challenges::{ChallengeCounter, ChallengeDefinition},
     currency::CurrencyType,

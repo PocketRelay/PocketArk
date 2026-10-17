@@ -1,6 +1,6 @@
 use super::HttpError;
-use crate::database::dto::{character::CharacterDto, shared_data::SharedDataDto};
 use hyper::StatusCode;
+use pocket_ark_database::dto::{character::CharacterDto, shared_data::SharedDataDto};
 use pocket_ark_definitions::{
     classes::{CharacterEquipment, Class, CustomizationEntry},
     level_tables::LevelTable,

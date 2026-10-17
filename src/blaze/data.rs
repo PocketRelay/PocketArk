@@ -17,12 +17,12 @@ use crate::{
         packet::Packet,
         session::WeakSessionLink,
     },
-    database::dto::users::{UserDto, UserId},
     services::{
         game::{GameID, GameRef, WeakGameRef},
         sessions::{AssociationId, SessionUserAssociation},
     },
 };
+use pocket_ark_database::dto::users::{UserDto, UserId};
 
 pub struct SessionData {
     /// Extended session data, writable data

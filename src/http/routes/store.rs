@@ -1,11 +1,6 @@
 use std::ops::DerefMut;
 
 use crate::{
-    database::{
-        DbPool, DbTransaction,
-        dto::{currency::CurrencyDto, users::UserDto},
-        repositories::currency::CurrencyRepository,
-    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -21,6 +16,11 @@ use crate::{
 use axum::{Extension, Json};
 use hyper::StatusCode;
 use log::debug;
+use pocket_ark_database::{
+    DbPool, DbTransaction,
+    dto::{currency::CurrencyDto, users::UserDto},
+    repositories::currency::CurrencyRepository,
+};
 use pocket_ark_definitions::{
     activity::{ActivityEvent, ActivityName},
     currency::CurrencyType,

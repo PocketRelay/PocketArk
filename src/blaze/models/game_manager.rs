@@ -11,13 +11,13 @@ use tdf::{
 use crate::{
     blaze::models::user_sessions::{NatType, PairAddress},
     config::{Config, TunnelConfig},
-    database::dto::users::UserId,
     services::{
         game::{AttrMap, Game, GameID, player::GamePlayer},
         tunnel::http_tunnel::TUNNEL_HOST_LOCAL_PORT,
         virtual_peer::{virtual_peer_address, virtual_peer_address_pair},
     },
 };
+use pocket_ark_database::dto::users::UserId;
 
 use super::user_sessions::NetworkAddress;
 

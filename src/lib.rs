@@ -37,7 +37,6 @@ use pocket_ark_definitions::packs::Packs;
 pub mod blaze;
 
 pub mod config;
-pub mod database;
 pub(crate) mod http;
 pub mod mission;
 pub mod services;
@@ -67,7 +66,7 @@ pub async fn run() {
     _ = StrikeTeams::get();
     _ = Packs::get();
 
-    let (db, signing_key) = join!(crate::database::init(), SigningKey::global());
+    let (db, signing_key) = join!(pocket_ark_database::init(), SigningKey::global());
 
     // Start the strike team mission background task
     MissionBackgroundTask::new(db.clone()).start();

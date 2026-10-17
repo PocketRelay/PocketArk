@@ -15,7 +15,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::database::DbErr;
+use pocket_ark_database::DbErr;
 
 /// Errors that can be encountered when working with currency
 #[derive(Debug, Error)]

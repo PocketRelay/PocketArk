@@ -6,18 +6,6 @@ use pocket_ark_core::sku::Sku;
 use thiserror::Error;
 
 use crate::{
-    database::{
-        DbErr, DbTransaction,
-        dto::{
-            challenge_progress::{ChallengeState, CounterUpdateType, CreateChallengeProgressDto},
-            currency::CurrencyUpdateDto,
-            users::UserDto,
-        },
-        repositories::{
-            challenge_progress::ChallengeProgressRepository, characters::CharactersRepository,
-            currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
-        },
-    },
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionPlayerData, MissionPlayerInfo, PlayerInfoResult,
     },
@@ -28,6 +16,18 @@ use crate::{
     services::{
         activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
         challenges::apply_challenge_progress_change,
+    },
+};
+use pocket_ark_database::{
+    DbErr, DbTransaction,
+    dto::{
+        challenge_progress::{ChallengeState, CounterUpdateType, CreateChallengeProgressDto},
+        currency::CurrencyUpdateDto,
+        users::UserDto,
+    },
+    repositories::{
+        challenge_progress::ChallengeProgressRepository, characters::CharactersRepository,
+        currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
     },
 };
 use pocket_ark_definitions::{challenges::CurrencyReward, classes::Classes};

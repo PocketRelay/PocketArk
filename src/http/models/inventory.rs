@@ -1,6 +1,6 @@
 use super::HttpError;
-use crate::database::dto::inventory_items::InventoryItemDto;
 use hyper::StatusCode;
+use pocket_ark_database::dto::inventory_items::InventoryItemDto;
 use pocket_ark_definitions::items::{InventoryNamespace, ItemDefinition};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};

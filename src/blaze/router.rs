@@ -17,10 +17,8 @@ use tdf::{
     TdfDeserialize, TdfDeserializer, TdfSerialize, serialize_vec, types::bytes::serialize_bytes,
 };
 
-use crate::{
-    blaze::models::errors::GlobalError, database::dto::users::UserDto,
-    services::game::player::GamePlayer,
-};
+use crate::{blaze::models::errors::GlobalError, services::game::player::GamePlayer};
+use pocket_ark_database::dto::users::UserDto;
 
 use super::{
     components::{ComponentKey, component_key},

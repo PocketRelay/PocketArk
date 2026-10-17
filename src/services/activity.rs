@@ -4,21 +4,19 @@
 //! The [ActivityService] should process these activities and update stored information
 //! and rewards accordingly
 
-use crate::{
-    database::{
-        DbTransaction,
-        dto::{
-            challenge_progress::{ChallengeCounterName, ChallengeId},
-            currency::CurrencyDto,
-            inventory_items::{CreateInventoryItemDto, InventoryItemDto},
-            users::UserDto,
-        },
-        repositories::{currency::CurrencyRepository, inventory_items::InventoryItemsRepository},
-    },
-    services::{characters::acquire_item_character, items::get_droppable_items},
-};
+use crate::services::{characters::acquire_item_character, items::get_droppable_items};
 use chrono::Utc;
 use log::debug;
+use pocket_ark_database::{
+    DbTransaction,
+    dto::{
+        challenge_progress::{ChallengeCounterName, ChallengeId},
+        currency::CurrencyDto,
+        inventory_items::{CreateInventoryItemDto, InventoryItemDto},
+        users::UserDto,
+    },
+    repositories::{currency::CurrencyRepository, inventory_items::InventoryItemsRepository},
+};
 use pocket_ark_definitions::{
     activity::{ActivityEvent, ActivityName},
     classes::Classes,

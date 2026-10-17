@@ -15,7 +15,6 @@ use crate::{
         session::SessionLink,
     },
     config::{Config, TunnelConfig},
-    database::dto::users::UserId,
     http::models::mission::{MissionDetails, MissionModifier},
     services::{
         game::{player::GamePlayer, rules::RuleSet, store::Games},
@@ -24,6 +23,7 @@ use crate::{
 };
 use log::{debug, warn};
 use parking_lot::RwLock;
+use pocket_ark_database::dto::users::UserId;
 use std::sync::{Arc, Weak};
 use tdf::TdfMap;
 

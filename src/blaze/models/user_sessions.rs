@@ -1,12 +1,10 @@
-use crate::{
-    blaze::{
-        components::{self, game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
-        data::NetData,
-        models::constants::PING_SITE_ALIAS,
-    },
-    database::dto::users::{UserDto, UserId},
+use crate::blaze::{
+    components::{self, game_manager::GAME_TYPE, user_sessions::PLAYER_SESSION_TYPE},
+    data::NetData,
+    models::constants::PING_SITE_ALIAS,
 };
 use bitflags::bitflags;
+use pocket_ark_database::dto::users::{UserDto, UserId};
 use serde::Serialize;
 use std::{
     net::{Ipv4Addr, SocketAddrV4},

@@ -1,6 +1,7 @@
 use std::ops::DerefMut;
 
-use crate::database::{
+use anyhow::{Context, anyhow};
+use pocket_ark_database::{
     DbTransaction,
     dto::{
         character::{CreateCharacterDto, PlayStats},
@@ -8,7 +9,6 @@ use crate::database::{
     },
     repositories::characters::CharactersRepository,
 };
-use anyhow::{Context, anyhow};
 use pocket_ark_definitions::{
     classes::{Classes, PointMap},
     items::ItemName,

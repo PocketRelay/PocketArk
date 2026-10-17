@@ -18,9 +18,9 @@ use crate::{
         router::{Blaze, BlazeWithHeader, Extension},
         session::{NotifyContext, SessionLink},
     },
-    database::dto::users::UserDto,
     services::sessions::Sessions,
 };
+use pocket_ark_database::dto::users::UserDto;
 
 pub async fn update_network_info(
     session: SessionLink,

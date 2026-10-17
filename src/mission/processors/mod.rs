@@ -1,7 +1,6 @@
 use uuid::Uuid;
 
 use crate::{
-    database::dto::{character::CharacterDto, shared_data::SharedDataDto},
     http::models::mission::{CompleteMissionData, MissionPlayerData},
     mission::{
         outcome::MissionOutcomeDataBuilder,
@@ -13,8 +12,8 @@ use crate::{
         },
     },
 };
+use pocket_ark_database::dto::{character::CharacterDto, shared_data::SharedDataDto};
 use pocket_ark_definitions::classes::Class;
-
 use std::sync::LazyLock;
 
 pub mod badges;

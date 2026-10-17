@@ -18,7 +18,6 @@ use crate::{
         data::SessionData,
         packet::PacketDebug,
     },
-    database::dto::users::{UserDto, UserId},
     services::{
         game::{GameID, WeakGameRef},
         sessions::Sessions,
@@ -34,6 +33,7 @@ use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
 use log::{debug, error, log_enabled, warn};
 use parking_lot::Mutex;
+use pocket_ark_database::dto::users::{UserDto, UserId};
 use serde::Serialize;
 use std::{
     fmt::Debug,

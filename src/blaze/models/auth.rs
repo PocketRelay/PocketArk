@@ -2,10 +2,8 @@ use std::sync::Arc;
 
 use tdf::{ObjectId, TdfDeserialize, TdfSerialize, TdfType, TdfTyped};
 
-use crate::{
-    blaze::{components::user_sessions::PLAYER_SESSION_TYPE, models::constants::LOCALE_NZ},
-    database::dto::users::UserDto,
-};
+use crate::blaze::{components::user_sessions::PLAYER_SESSION_TYPE, models::constants::LOCALE_NZ};
+use pocket_ark_database::dto::users::UserDto;
 
 #[derive(Debug, TdfDeserialize)]
 pub struct AuthRequest {

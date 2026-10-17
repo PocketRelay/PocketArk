@@ -1,19 +1,17 @@
 use std::collections::HashMap;
 
-use crate::{
-    database::{
-        DbPool,
-        dto::challenge_progress::{
-            ChallengeProgressCounter, ChallengeProgressCounterWithDefinition, ChallengeState,
-        },
-        repositories::challenge_progress::ChallengeProgressRepository,
-    },
-    http::{
-        middleware::user::Auth,
-        models::{HttpResult, challenge::*},
-    },
+use crate::http::{
+    middleware::user::Auth,
+    models::{HttpResult, challenge::*},
 };
 use axum::{Extension, Json};
+use pocket_ark_database::{
+    DbPool,
+    dto::challenge_progress::{
+        ChallengeProgressCounter, ChallengeProgressCounterWithDefinition, ChallengeState,
+    },
+    repositories::challenge_progress::ChallengeProgressRepository,
+};
 use pocket_ark_definitions::challenges::Challenges;
 
 /// GET /challenges/categories

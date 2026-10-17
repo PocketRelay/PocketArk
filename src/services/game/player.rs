@@ -10,10 +10,10 @@ use crate::{
         packet::Packet,
         session::WeakSessionLink,
     },
-    database::dto::users::{UserDto, UserId},
     services::game::AttrMap,
     services::virtual_peer::virtual_peer_address,
 };
+use pocket_ark_database::dto::users::{UserDto, UserId};
 
 pub struct GamePlayer {
     pub user: Arc<UserDto>,

@@ -1,11 +1,9 @@
-use crate::{
-    database::dto::challenge_progress::{
-        AppliedChallengeProgressUpdate, ChallengeProgressCounter, ChallengeProgressDto,
-        ChallengeState, CounterUpdateType,
-    },
-    mission::outcome::ChallengeProgressChange,
-};
+use crate::mission::outcome::ChallengeProgressChange;
 use chrono::Utc;
+use pocket_ark_database::dto::challenge_progress::{
+    AppliedChallengeProgressUpdate, ChallengeProgressCounter, ChallengeProgressDto, ChallengeState,
+    CounterUpdateType,
+};
 use pocket_ark_definitions::challenges::{ChallengeCounter, ChallengeDefinition};
 
 pub fn apply_challenge_progress_change(

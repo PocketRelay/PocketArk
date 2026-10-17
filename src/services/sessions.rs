@@ -2,13 +2,13 @@
 //! authenticated sessions on the server
 
 use crate::blaze::session::{SessionLink, WeakSessionLink};
-use crate::database::dto::users::{UserDto, UserId};
 use crate::http::models::HttpError;
 use crate::utils::signing::SigningKey;
 use base64ct::{Base64UrlUnpadded, Encoding};
 use hyper::StatusCode;
 use parking_lot::Mutex;
 use pocket_ark_core::IntHashMap;
+use pocket_ark_database::dto::users::{UserDto, UserId};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use thiserror::Error;

@@ -5,10 +5,10 @@ use crate::{
         BLAZE_VERSION, BYTEVAULT_HOSTNAME, LOCALE_NZ, REGISTRATION_SOURCE, RIVER_HOST,
         TELEMETRY_ADDRS, TELEMETRY_DISA, TELEMETRY_KEY, TICKER_KEY,
     },
-    database::dto::users::UserId,
     utils::constants::LOCAL_HTTP_PORT,
 };
 use bitflags::bitflags;
+use pocket_ark_database::dto::users::UserId;
 use tdf::prelude::*;
 
 pub struct PreAuthResponse;

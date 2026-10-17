@@ -4,7 +4,6 @@ use pocket_ark::run;
 pub mod blaze;
 
 pub mod config;
-pub mod database;
 pub mod http;
 pub mod mission;
 pub mod services;

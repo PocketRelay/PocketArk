@@ -1,9 +1,7 @@
 use super::HttpError;
-use crate::{
-    database::dto::{currency::CurrencyDto, inventory_items::InventoryItemDto},
-    services::activity::ActivityResult,
-};
+use crate::services::activity::ActivityResult;
 use hyper::StatusCode;
+use pocket_ark_database::dto::{currency::CurrencyDto, inventory_items::InventoryItemDto};
 use pocket_ark_definitions::{
     currency::CurrencyType,
     items::ItemDefinition,

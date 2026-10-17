@@ -1,14 +1,14 @@
 use crate::{
-    database::{
-        DbPool,
-        dto::users::{UserDto, UserId},
-        repositories::users::UserRepository,
-    },
     http::models::{DynHttpError, HttpError},
     services::sessions::{Sessions, VerifyError},
 };
 use axum::extract::FromRequestParts;
 use hyper::StatusCode;
+use pocket_ark_database::{
+    DbPool,
+    dto::users::{UserDto, UserId},
+    repositories::users::UserRepository,
+};
 use std::sync::Arc;
 use thiserror::Error;
 

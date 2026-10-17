@@ -1,14 +1,12 @@
 use log::error;
 use tdf::{TdfSerialize, types::bytes::serialize_bytes};
 
-use crate::{
-    blaze::{
-        models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
-        packet::{FrameFlags, Packet},
-        router::IntoPacketResponse,
-    },
-    database::DbErr,
+use crate::blaze::{
+    models::{game_manager::GameManagerError, user_sessions::UserSessionsError},
+    packet::{FrameFlags, Packet},
+    router::IntoPacketResponse,
 };
+use pocket_ark_database::DbErr;
 
 pub type ServerResult<T> = Result<T, BlazeError>;
 

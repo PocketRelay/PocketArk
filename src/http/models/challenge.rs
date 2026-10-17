@@ -1,4 +1,4 @@
-use crate::database::dto::{
+use pocket_ark_database::dto::{
     challenge_progress::ChallengeProgressDto,
     challenge_progress::{ChallengeProgressCounterWithDefinition, ChallengeState},
 };

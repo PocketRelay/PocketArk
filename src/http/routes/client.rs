@@ -4,13 +4,6 @@
 use crate::{
     blaze::{data::SessionData, router::BlazeRouter, session::Session},
     config::{Config, VERSION},
-    database::{
-        DbPool,
-        dto::users::{CreateUserDto, NormalizedEmail},
-        repositories::{
-            currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
-        },
-    },
     http::{
         middleware::{
             association::Association, ip_address::IpAddress, json_validated::JsonValidated,
@@ -39,6 +32,13 @@ use axum::{
 };
 use hyper::{StatusCode, header, http::HeaderValue, upgrade::OnUpgrade};
 use log::{debug, error};
+use pocket_ark_database::{
+    DbPool,
+    dto::users::{CreateUserDto, NormalizedEmail},
+    repositories::{
+        currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
+    },
+};
 use std::{ops::DerefMut, sync::Arc};
 use uuid::Uuid;
 

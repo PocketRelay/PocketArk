@@ -1860,6 +1860,7 @@ dependencies = [
  "num_enum",
  "parking_lot",
  "pocket-ark-core",
+ "pocket-ark-database",
  "pocket-ark-definitions",
  "pocket-ark-i18n",
  "pocket-relay-udp-tunnel",
@@ -1870,7 +1871,6 @@ dependencies = [
  "serde_json",
  "serde_path_to_error",
  "serde_with",
- "sqlx",
  "strum",
  "tdf",
  "thiserror 2.0.20",
@@ -1891,6 +1891,26 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+]
+
+[[package]]
+name = "pocket-ark-database"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "itertools",
+ "pocket-ark-core",
+ "pocket-ark-definitions",
+ "pocket-ark-i18n",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "sqlx",
+ "strum",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]

@@ -1,16 +1,14 @@
-use crate::{
-    database::{
-        DbTransaction,
-        dto::{
-            inventory_items::{CreateInventoryItemDto, InventoryItemDto},
-            users::UserDto,
-        },
-        repositories::inventory_items::InventoryItemsRepository,
-    },
-    services::characters::acquire_item_character,
-};
+use crate::services::characters::acquire_item_character;
 use anyhow::anyhow;
 use chrono::Utc;
+use pocket_ark_database::{
+    DbTransaction,
+    dto::{
+        inventory_items::{CreateInventoryItemDto, InventoryItemDto},
+        users::UserDto,
+    },
+    repositories::inventory_items::InventoryItemsRepository,
+};
 use pocket_ark_definitions::{
     classes::Classes,
     items::{

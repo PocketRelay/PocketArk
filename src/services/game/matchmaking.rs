@@ -3,6 +3,7 @@ use std::{collections::VecDeque, time::SystemTime};
 use log::debug;
 use parking_lot::Mutex;
 
+use super::{GameAddPlayerExt, GameJoinableState, GamePlayer, GameRef, rules::RuleSet};
 use crate::{
     blaze::{
         components::game_manager,
@@ -10,11 +11,9 @@ use crate::{
         packet::Packet,
     },
     config::Config,
-    database::dto::users::UserId,
     services::{game::GameID, tunnel::TunnelService},
 };
-
-use super::{GameAddPlayerExt, GameJoinableState, GamePlayer, GameRef, rules::RuleSet};
+use pocket_ark_database::dto::users::UserId;
 
 #[derive(Default)]
 pub struct Matchmaking {

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/i18n", "crates/core", "crates/definitions"]
+members = ["crates/i18n", "crates/core", "crates/definitions", "crates/database"]
 
 [workspace.package]
 authors = ["Jacobtread <jacobtread@gmail.com>"]
@@ -40,9 +40,13 @@ rand = "0.8"
 # Numeric enums
 num_enum = "0.7.5"
 
+# Async runtime and utilities
+tokio = { version = "^1", features = ["full"] }
+
 pocket-ark-i18n = { version = "0.0.0", path = "./crates/i18n" }
 pocket-ark-core = { version = "0.0.0", path = "./crates/core" }
 pocket-ark-definitions = { version = "0.0.0", path = "./crates/definitions" }
+pocket-ark-database = { version = "0.0.0", path = "./crates/database" }
 
 [package]
 name = "pocket-ark"
@@ -59,6 +63,7 @@ authors.workspace = true
 pocket-ark-i18n.workspace = true
 pocket-ark-core.workspace = true
 pocket-ark-definitions.workspace = true
+pocket-ark-database.workspace = true
 
 # HTTP framework and related dependencies
 axum = { version = "^0.8.9", features = ["tracing", "tower-log"] }
@@ -68,7 +73,7 @@ tower-http = { version = "^0.7.0", features = ["full"] }
 hyper-util = { version = "0.1.18", features = ["tokio"] }
 
 # Async runtime and utilities
-tokio = { version = "^1", features = ["full"] }
+tokio.workspace = true
 tokio-util = { version = "0.7.17", features = ["full"] }
 futures = "^0.3.32"
 
@@ -135,15 +140,6 @@ async-trait = "0.1.92"
 itertools.workspace = true
 tracing.workspace = true
 
-sqlx = { version = "0.9.0", features = [
-  "json",
-  "macros",
-  "chrono",
-  "runtime-tokio",
-  "sqlite",
-  "tls-none",
-  "uuid",
-] }
 # Logging backend
 [dependencies.log4rs]
 version = "1.3.0"

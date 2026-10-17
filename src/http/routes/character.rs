@@ -1,27 +1,24 @@
-use std::mem::swap;
-
-use crate::{
-    database::{
-        DbPool,
-        dto::{character::CharacterDto, shared_data::CharacterSharedEquipment},
-        repositories::{characters::CharactersRepository, shared_data::SharedDataRepository},
-    },
-    http::{
-        middleware::{JsonDump, user::Auth},
-        models::{
-            character::*,
-            errors::{DynHttpError, HttpResult},
-        },
+use crate::http::{
+    middleware::{JsonDump, user::Auth},
+    models::{
+        character::*,
+        errors::{DynHttpError, HttpResult},
     },
 };
 use axum::{Extension, Json, extract::Path};
 use hyper::StatusCode;
 use log::debug;
+use pocket_ark_database::{
+    DbPool,
+    dto::{character::CharacterDto, shared_data::CharacterSharedEquipment},
+    repositories::{characters::CharactersRepository, shared_data::SharedDataRepository},
+};
 use pocket_ark_definitions::{
     classes::{ClassName, Classes, CustomizationMap},
     level_tables::LevelTables,
     skills::{SkillDefinition, Skills},
 };
+use std::mem::swap;
 use uuid::Uuid;
 
 /// GET /characters

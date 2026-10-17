@@ -1,9 +1,7 @@
-use crate::{
-    database::dto::{inventory_items::InventoryItemDto, users::UserId},
-    services::activity::{ChallengeUpdated, PrestigeProgression},
-};
+use crate::services::activity::{ChallengeUpdated, PrestigeProgression};
 use hyper::StatusCode;
 use pocket_ark_core::sku::Sku;
+use pocket_ark_database::dto::{inventory_items::InventoryItemDto, users::UserId};
 use pocket_ark_definitions::{
     activity::ActivityEvent, badges::BadgeLevelName, challenges::CurrencyReward,
     currency::CurrencyType,

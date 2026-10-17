@@ -1,8 +1,4 @@
 use crate::{
-    database::{
-        DbPool, dto::strike_team_mission::StrikeTeamMissionWithProgressDto,
-        repositories::strike_team_mission::StrikeTeamMissionRepository,
-    },
     http::{
         middleware::{JsonDump, user::Auth},
         models::{
@@ -21,6 +17,10 @@ use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
 use hyper::StatusCode;
 use log::debug;
+use pocket_ark_database::{
+    DbPool, dto::strike_team_mission::StrikeTeamMissionWithProgressDto,
+    repositories::strike_team_mission::StrikeTeamMissionRepository,
+};
 use pocket_ark_i18n::{I18n, Localized};
 use serde_json::Value;
 use std::sync::Arc;
