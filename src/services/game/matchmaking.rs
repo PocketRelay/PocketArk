@@ -2,13 +2,13 @@ use std::{collections::VecDeque, time::SystemTime};
 
 use log::debug;
 use parking_lot::Mutex;
+use pocket_ark_blaze_networking::packet::Packet;
 
 use super::{GameAddPlayerExt, GameJoinableState, GamePlayer, GameRef, rules::RuleSet};
 use crate::{
     blaze::{
         components::game_manager,
         models::game_manager::{AsyncMatchmakingStatus, GameSetupContext, MatchmakingResult},
-        packet::Packet,
     },
     config::Config,
     services::{game::GameID, tunnel::TunnelService},

@@ -3,32 +3,27 @@
 
 use bytes::Bytes;
 use futures::future::BoxFuture;
-use log::{debug, error};
 use pocket_ark_core::IntHashMap;
 use std::{
     any::{Any, TypeId},
     convert::Infallible,
-    future::Future,
-    future::ready,
+    future::{Future, ready},
     marker::PhantomData,
     sync::Arc,
 };
 use tdf::{
     TdfDeserialize, TdfDeserializer, TdfSerialize, serialize_vec, types::bytes::serialize_bytes,
 };
+use tracing::{debug, error};
 
-use crate::{blaze::models::errors::GlobalError, services::game::player::GamePlayer};
-use pocket_ark_database::dto::users::UserDto;
-
-use super::{
-    components::{ComponentKey, component_key},
-    models::errors::BlazeError,
+use crate::{
+    component::{ComponentKey, component_key},
+    error::{BlazeError, GlobalError},
     packet::{FireFrame2, Packet},
-    session::SessionLink,
 };
 
-pub trait Handler<Args, Res>: Send + Sync + 'static {
-    fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet>;
+pub trait Handler<Args, Res, State>: Send + Sync + 'static {
+    fn handle(&self, req: PacketRequest<State>) -> BoxFuture<'_, Packet>;
 }
 
 /// Wrapper around [Handler] that stores the required associated
@@ -42,31 +37,31 @@ struct HandlerRoute<H, Args, Res> {
 
 /// Wrapper around [Handler] that erasing the associated generic types
 /// so that it can be stored within the [Router]
-trait ErasedHandler: Send + Sync {
-    fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet>;
+trait ErasedHandler<State>: Send + Sync {
+    fn handle(&self, req: PacketRequest<State>) -> BoxFuture<'_, Packet>;
 }
 
 /// Erased handler implementation for all [Handler] implementations using [HandlerRoute]
-impl<H, Args, Res> ErasedHandler for HandlerRoute<H, Args, Res>
+impl<H, Args, Res, State> ErasedHandler<State> for HandlerRoute<H, Args, Res>
 where
-    H: Handler<Args, Res>,
+    H: Handler<Args, Res, State>,
     Args: 'static,
     Res: 'static,
 {
     #[inline]
-    fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet> {
+    fn handle(&self, req: PacketRequest<State>) -> BoxFuture<'_, Packet> {
         self.handler.handle(req)
     }
 }
 
 /// Request containing the session state and packet
-pub struct PacketRequest {
-    pub state: SessionLink,
+pub struct PacketRequest<State> {
+    pub state: State,
     pub packet: Packet,
     pub extensions: Arc<AnyMap>,
 }
 
-impl PacketRequest {
+impl<State> PacketRequest<State> {
     pub fn extension<T: Send + Sync + 'static>(&self) -> Option<&T> {
         self.extensions
             .get(&TypeId::of::<T>())
@@ -75,18 +70,21 @@ impl PacketRequest {
 }
 
 type AnyMap = IntHashMap<TypeId, Box<dyn Any + Send + Sync>>;
-type RouteMap = IntHashMap<ComponentKey, Box<dyn ErasedHandler>>;
+type RouteMap<State> = IntHashMap<ComponentKey, Box<dyn ErasedHandler<State>>>;
 
 #[derive(Default)]
-pub struct BlazeRouterBuilder {
+pub struct BlazeRouterBuilder<State> {
     /// Map for looking up a route based on the component key
-    routes: RouteMap,
+    routes: RouteMap<State>,
     extensions: AnyMap,
 }
 
-impl BlazeRouterBuilder {
+impl<State> BlazeRouterBuilder<State> {
     pub fn new() -> Self {
-        Default::default()
+        Self {
+            routes: Default::default(),
+            extensions: Default::default(),
+        }
     }
 
     pub fn extension<T: Send + Sync + 'static>(mut self, val: T) -> Self {
@@ -105,8 +103,12 @@ impl BlazeRouterBuilder {
             })
     }
 
-    pub fn route<Args, Res>(&mut self, component: u16, command: u16, route: impl Handler<Args, Res>)
-    where
+    pub fn route<Args, Res>(
+        &mut self,
+        component: u16,
+        command: u16,
+        route: impl Handler<Args, Res, State>,
+    ) where
         Args: 'static,
         Res: 'static,
     {
@@ -119,7 +121,7 @@ impl BlazeRouterBuilder {
         );
     }
 
-    pub fn build(self) -> Arc<BlazeRouter> {
+    pub fn build(self) -> Arc<BlazeRouter<State>> {
         Arc::new(BlazeRouter {
             routes: self.routes,
             extensions: Arc::new(self.extensions),
@@ -127,14 +129,14 @@ impl BlazeRouterBuilder {
     }
 }
 
-pub struct BlazeRouter {
+pub struct BlazeRouter<State> {
     /// Map for looking up a route based on the component key
-    routes: RouteMap,
+    routes: RouteMap<State>,
     extensions: Arc<AnyMap>,
 }
 
-impl BlazeRouter {
-    pub fn handle(&self, state: SessionLink, packet: Packet) -> BoxFuture<'_, Packet> {
+impl<State> BlazeRouter<State> {
+    pub fn handle(&self, state: State, packet: Packet) -> BoxFuture<'_, Packet> {
         match self
             .routes
             .get(&component_key(packet.frame.component, packet.frame.command))
@@ -156,11 +158,11 @@ impl BlazeRouter {
     }
 }
 
-pub trait FromPacketRequest: Sized {
+pub trait FromPacketRequest<State>: Sized {
     type Rejection: IntoPacketResponse;
 
     fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
+        req: &'a mut PacketRequest<State>,
     ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
     where
         Self: 'a;
@@ -184,20 +186,16 @@ pub struct BlazeWithHeader<V> {
 /// serialized ahead of time
 pub struct RawBlaze(Bytes);
 
-/// Extracts the session authenticated player if one is present,
-/// responds with [GlobalError::AuthenticationRequired] if there is none
-pub struct SessionAuth(pub Arc<UserDto>);
-
 pub struct Extension<T>(pub T);
 
-impl<T> FromPacketRequest for Extension<T>
+impl<T, State> FromPacketRequest<State> for Extension<T>
 where
     T: Clone + Send + Sync + 'static,
 {
     type Rejection = BlazeError;
 
     fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
+        req: &'a mut PacketRequest<State>,
     ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
     where
         Self: 'a,
@@ -217,34 +215,6 @@ where
     }
 }
 
-impl FromPacketRequest for SessionAuth {
-    type Rejection = BlazeError;
-
-    fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
-    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
-    where
-        Self: 'a,
-    {
-        let user = req.state.data.get_player().expect("missing user");
-        Box::pin(ready(Ok(SessionAuth(user))))
-    }
-}
-
-impl FromPacketRequest for GamePlayer {
-    type Rejection = BlazeError;
-
-    fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
-    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
-    where
-        Self: 'a,
-    {
-        let user = req.state.data.get_player().expect("missing user");
-        Box::pin(ready(Ok(GamePlayer::new(user, Arc::downgrade(&req.state)))))
-    }
-}
-
 impl<T> From<T> for RawBlaze
 where
     T: TdfSerialize,
@@ -256,14 +226,15 @@ where
     }
 }
 
-impl<V> FromPacketRequest for Blaze<V>
+// Extract of the blaze packet as a deserialized tdf structure
+impl<V, State> FromPacketRequest<State> for Blaze<V>
 where
     for<'a> V: TdfDeserialize<'a> + Send + 'a,
 {
     type Rejection = BlazeError;
 
     fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
+        req: &'a mut PacketRequest<State>,
     ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
     where
         Self: 'a,
@@ -280,6 +251,24 @@ where
     }
 }
 
+// Clone of the request state if the state is cloneable
+impl<State> FromPacketRequest<State> for State
+where
+    State: Clone + Send,
+{
+    type Rejection = BlazeError;
+
+    fn from_packet_request<'a>(
+        req: &'a mut PacketRequest<State>,
+    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
+    where
+        Self: 'a,
+    {
+        let state = req.state.clone();
+        Box::pin(ready(Ok(state)))
+    }
+}
+
 impl<V> BlazeWithHeader<V> {
     pub fn response<E>(&self, res: E) -> Packet
     where
@@ -289,14 +278,14 @@ impl<V> BlazeWithHeader<V> {
     }
 }
 
-impl<V> FromPacketRequest for BlazeWithHeader<V>
+impl<V, State> FromPacketRequest<State> for BlazeWithHeader<V>
 where
     for<'a> V: TdfDeserialize<'a> + Send + 'a,
 {
     type Rejection = BlazeError;
 
     fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
+        req: &'a mut PacketRequest<State>,
     ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
     where
         Self: 'a,
@@ -314,20 +303,6 @@ where
                     GlobalError::System.into()
                 }),
         ))
-    }
-}
-
-impl FromPacketRequest for SessionLink {
-    type Rejection = Infallible;
-
-    fn from_packet_request<'a>(
-        req: &'a mut PacketRequest,
-    ) -> BoxFuture<'a, Result<Self, Self::Rejection>>
-    where
-        Self: 'a,
-    {
-        let state = req.state.clone();
-        Box::pin(ready(Ok(state)))
     }
 }
 
@@ -424,14 +399,15 @@ macro_rules! impl_handler {
     ) => {
 
         #[allow(non_snake_case, unused_mut)]
-        impl<Fun, Fut, $($ty,)* Res> Handler<($($ty,)*), Res> for Fun
+        impl<Fun, Fut, $($ty,)* Res, State> Handler<($($ty,)*), Res, State> for Fun
         where
             Fun: Fn($($ty),*) -> Fut + Send + Sync + 'static,
             Fut: Future<Output = Res> + Send,
-            $( $ty: FromPacketRequest + Send, )*
+            $( $ty: FromPacketRequest<State> + Send, )*
             Res: IntoPacketResponse,
+            State: Send + 'static
         {
-            fn handle(&self, req: PacketRequest) -> BoxFuture<'_, Packet>
+            fn handle(&self, req: PacketRequest<State>) -> BoxFuture<'_, Packet>
             {
                 Box::pin(async move {
                     let mut req = req;

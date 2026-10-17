@@ -1,16 +1,13 @@
-use super::{
-    packet::{Packet, PacketCodec},
-    router::BlazeRouter,
-};
-use crate::blaze::{
-    blaze_socket::{BlazeLock, BlazeLockFuture, BlazeRx, BlazeSocketFuture, BlazeTx},
-    data::SessionData,
-    packet::PacketDebug,
-};
+use crate::blaze::data::SessionData;
 use futures::future::BoxFuture;
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
 use log::{debug, error, log_enabled};
+use pocket_ark_blaze_networking::{
+    blaze_socket::{BlazeLock, BlazeLockFuture, BlazeRx, BlazeSocketFuture, BlazeTx},
+    packet::{Packet, PacketCodec, PacketDebug},
+    router::BlazeRouter,
+};
 use pocket_ark_database::dto::users::UserDto;
 use std::{
     fmt::Debug,
@@ -43,7 +40,7 @@ impl Session {
         id: Uuid,
         io: Upgraded,
         data: SessionData,
-        router: Arc<BlazeRouter>,
+        router: Arc<BlazeRouter<SessionLink>>,
     ) -> WeakSessionLink {
         // Create blaze socket handler
         let (blaze_future, blaze_rx, blaze_tx) =
@@ -143,7 +140,7 @@ struct SessionFuture<'a> {
     /// The session this link is for
     session: &'a SessionLink,
     /// The router to use
-    router: &'a BlazeRouter,
+    router: &'a BlazeRouter<SessionLink>,
     /// State of the future
     state: SessionFutureState<'a>,
 }
@@ -172,7 +169,7 @@ impl SessionFuture<'_> {
     pub fn new<'a>(
         rx: BlazeRx,
         session: &'a Arc<Session>,
-        router: &'a BlazeRouter,
+        router: &'a BlazeRouter<SessionLink>,
     ) -> SessionFuture<'a> {
         SessionFuture {
             router,

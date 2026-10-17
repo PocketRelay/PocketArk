@@ -1,3 +1,4 @@
+use crate::packet::{Packet, PacketCodec};
 use futures::{SinkExt, StreamExt, future::BoxFuture};
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
@@ -9,11 +10,6 @@ use std::{
 };
 use tokio::sync::{Mutex, OwnedMutexGuard, mpsc};
 use tokio_util::codec::Framed;
-use uuid::Uuid;
-
-use crate::blaze::session::debug_log_packet_lockless;
-
-use super::packet::{Packet, PacketCodec};
 
 /// Future for processing a blaze socket
 pub struct BlazeSocketFuture {
@@ -49,7 +45,7 @@ impl BlazeTx {
 
         tokio::spawn(async move {
             let tx = tx.await;
-            debug_log_packet_lockless(Uuid::new_v4(), None, "Notifing", &packet);
+            // debug_log_packet_lockless(Uuid::new_v4(), None, "Notifing", &packet);
             let _ = tx.send(packet);
         });
     }

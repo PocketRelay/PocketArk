@@ -14,7 +14,6 @@ use crate::{
                 UserIdentification, UserSessionExtendedData, UserSessionExtendedDataUpdate,
             },
         },
-        packet::Packet,
         session::WeakSessionLink,
     },
     services::{
@@ -22,6 +21,8 @@ use crate::{
         sessions::{AssociationId, SessionUserAssociation},
     },
 };
+
+use pocket_ark_blaze_networking::packet::Packet;
 use pocket_ark_database::dto::users::{UserDto, UserId};
 
 pub struct SessionData {

@@ -1,13 +1,16 @@
 use std::future::ready;
 
-use super::{components, router::BlazeRouterBuilder};
+use crate::blaze::session::SessionLink;
+
+use super::components;
+use pocket_ark_blaze_networking::BlazeRouterBuilder;
 
 mod auth;
 mod game_manager;
 mod user_sessions;
 mod util;
 
-pub fn router() -> BlazeRouterBuilder {
+pub fn router() -> BlazeRouterBuilder<SessionLink> {
     let mut router = BlazeRouterBuilder::new();
 
     router.route(

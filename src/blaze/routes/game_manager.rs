@@ -1,8 +1,10 @@
 use log::{debug, info};
+use pocket_ark_blaze_networking::{Blaze, Extension};
 use tdf::TdfMap;
 
 use crate::{
     blaze::{
+        extractors::SessionAuth,
         models::{
             errors::ServerResult,
             game_manager::{
@@ -13,7 +15,6 @@ use crate::{
                 UpdateAttrRequest, UpdateGameAttrRequest, UpdateStateRequest,
             },
         },
-        router::{Blaze, Extension, SessionAuth},
         session::SessionLink,
     },
     config::Config,

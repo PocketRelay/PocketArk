@@ -1,10 +1,15 @@
 use log::debug;
 use tdf::TdfMap;
 
-use crate::blaze::models::user_sessions::{IpPairAddress, NetworkAddress};
-use crate::blaze::router::Blaze;
-use crate::blaze::session::SessionLink;
-use crate::blaze::{models::util::*, router::SessionAuth};
+use crate::blaze::{
+    extractors::SessionAuth,
+    models::{
+        user_sessions::{IpPairAddress, NetworkAddress},
+        util::*,
+    },
+    session::SessionLink,
+};
+use pocket_ark_blaze_networking::Blaze;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 

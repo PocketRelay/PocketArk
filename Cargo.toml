@@ -1,6 +1,12 @@
 [workspace]
 resolver = "2"
-members = ["crates/i18n", "crates/core", "crates/definitions", "crates/database"]
+members = [
+  "crates/i18n",
+  "crates/core",
+  "crates/definitions",
+  "crates/database",
+  "crates/blaze-networking",
+]
 
 [workspace.package]
 authors = ["Jacobtread <jacobtread@gmail.com>"]
@@ -42,11 +48,29 @@ num_enum = "0.7.5"
 
 # Async runtime and utilities
 tokio = { version = "^1", features = ["full"] }
+tokio-util = { version = "0.7.17", features = ["full"] }
+futures = "^0.3.32"
+
+# TDF packet format
+tdf = { version = "0.4", features = ["bytes"] }
+
+# Bit flags
+bitflags = { version = "2.10", features = ["serde"] }
+
+# Cheaply cloned bytes
+bytes = "1.11.0"
+
+
+# HTTP framework and related dependencies
+hyper = { version = "^1.10.1", features = ["full"] }
+hyper-util = { version = "0.1.18", features = ["tokio"] }
+
 
 pocket-ark-i18n = { version = "0.0.0", path = "./crates/i18n" }
 pocket-ark-core = { version = "0.0.0", path = "./crates/core" }
 pocket-ark-definitions = { version = "0.0.0", path = "./crates/definitions" }
 pocket-ark-database = { version = "0.0.0", path = "./crates/database" }
+pocket-ark-blaze-networking = { version = "0.0.0", path = "./crates/blaze-networking" }
 
 [package]
 name = "pocket-ark"
@@ -59,23 +83,24 @@ keywords.workspace = true
 authors.workspace = true
 
 [dependencies]
-
 pocket-ark-i18n.workspace = true
 pocket-ark-core.workspace = true
 pocket-ark-definitions.workspace = true
 pocket-ark-database.workspace = true
+pocket-ark-blaze-networking.workspace = true
 
 # HTTP framework and related dependencies
 axum = { version = "^0.8.9", features = ["tracing", "tower-log"] }
-hyper = { version = "^1.10.1", features = ["full"] }
 tower = "^0.5.3"
 tower-http = { version = "^0.7.0", features = ["full"] }
-hyper-util = { version = "0.1.18", features = ["tokio"] }
+
+hyper.workspace = true
+hyper-util.workspace = true
 
 # Async runtime and utilities
 tokio.workspace = true
-tokio-util = { version = "0.7.17", features = ["full"] }
-futures = "^0.3.32"
+tokio-util.workspace = true
+futures.workspace = true
 
 # Logging
 log = { version = "^0.4.33", features = ["serde"] }
@@ -88,10 +113,10 @@ serde_path_to_error = "0.1.20"
 serde_with = "3.16.1"
 
 # Bit flags
-bitflags = { version = "2.10", features = ["serde"] }
+bitflags.workspace = true
 
 # Cheaply cloned bytes
-bytes = "1.11.0"
+bytes.workspace = true
 
 # Unique IDs
 uuid.workspace = true
@@ -117,7 +142,7 @@ base64ct = { version = "1.8.0", features = ["alloc"] }
 rand.workspace = true
 
 # TDF packet format
-tdf = { version = "0.4", features = ["bytes"] }
+tdf.workspace = true
 
 # Locks
 parking_lot = "0.12.5"

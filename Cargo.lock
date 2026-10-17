@@ -1859,6 +1859,7 @@ dependencies = [
  "log4rs",
  "num_enum",
  "parking_lot",
+ "pocket-ark-blaze-networking",
  "pocket-ark-core",
  "pocket-ark-database",
  "pocket-ark-definitions",
@@ -1881,6 +1882,22 @@ dependencies = [
  "tracing",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "pocket-ark-blaze-networking"
+version = "0.0.0"
+dependencies = [
+ "bitflags 2.13.1",
+ "bytes",
+ "futures",
+ "hyper",
+ "hyper-util",
+ "pocket-ark-core",
+ "tdf",
+ "tokio",
+ "tokio-util",
+ "tracing",
 ]
 
 [[package]]

@@ -2,7 +2,10 @@
 //! and the PocketArk client
 
 use crate::{
-    blaze::{data::SessionData, router::BlazeRouter, session::Session},
+    blaze::{
+        data::SessionData,
+        session::{Session, SessionLink},
+    },
     config::{Config, VERSION},
     http::{
         middleware::{
@@ -32,6 +35,7 @@ use axum::{
 };
 use hyper::{StatusCode, header, http::HeaderValue, upgrade::OnUpgrade};
 use log::{debug, error};
+use pocket_ark_blaze_networking::router::BlazeRouter;
 use pocket_ark_database::{
     DbPool,
     dto::users::{CreateUserDto, NormalizedEmail},
@@ -151,7 +155,7 @@ pub async fn upgrade(
     IpAddress(addr): IpAddress,
     Auth(user): Auth,
     Association(association_id): Association,
-    Extension(router): Extension<Arc<BlazeRouter>>,
+    Extension(router): Extension<Arc<BlazeRouter<SessionLink>>>,
     Extension(sessions): Extension<Arc<Sessions>>,
     Upgrade(upgrade): Upgrade,
 ) -> Result<impl IntoResponse, DynHttpError> {

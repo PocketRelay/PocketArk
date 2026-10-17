@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use pocket_ark_blaze_networking::packet::Packet;
 use tdf::ObjectId;
 
 use crate::{
@@ -7,7 +8,6 @@ use crate::{
         components::user_sessions::PLAYER_SESSION_TYPE,
         data::NetData,
         models::{game_manager::PlayerState, user_sessions::NetworkAddress},
-        packet::Packet,
         session::WeakSessionLink,
     },
     services::game::AttrMap,

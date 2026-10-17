@@ -9,11 +9,11 @@ use crate::{
                 UpdateNetworkRequest, UserSessionsError,
             },
         },
-        router::{Blaze, Extension},
         session::SessionLink,
     },
     services::sessions::Sessions,
 };
+use pocket_ark_blaze_networking::{Blaze, Extension};
 
 pub async fn update_network_info(
     session: SessionLink,

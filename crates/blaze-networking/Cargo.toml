@@ -1,0 +1,27 @@
+[package]
+name = "pocket-ark-blaze-networking"
+version = "0.0.0"
+description = "Mass Effect Andromeda private server - blaze networking"
+
+edition.workspace = true
+license.workspace = true
+keywords.workspace = true
+authors.workspace = true
+
+[dependencies]
+pocket-ark-core.workspace = true
+
+tracing.workspace = true
+
+tdf.workspace = true
+
+bitflags.workspace = true
+
+bytes.workspace = true
+
+tokio.workspace = true
+tokio-util.workspace = true
+futures.workspace = true
+
+hyper.workspace = true
+hyper-util.workspace = true

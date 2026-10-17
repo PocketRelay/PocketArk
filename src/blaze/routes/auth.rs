@@ -1,10 +1,6 @@
-use crate::blaze::{
-    components,
-    models::auth::*,
-    packet::Packet,
-    router::{Blaze, SessionAuth},
-    session::SessionLink,
-};
+use pocket_ark_blaze_networking::{Blaze, Packet};
+
+use crate::blaze::{components, extractors::SessionAuth, models::auth::*, session::SessionLink};
 
 pub async fn auth(
     session: SessionLink,
