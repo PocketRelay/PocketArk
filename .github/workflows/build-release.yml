@@ -91,7 +91,6 @@ jobs:
     build-windows:
         name: Build Windows targets
         runs-on: windows-latest
-        needs: [build-dashboard]
         strategy:
             matrix:
                 include:
