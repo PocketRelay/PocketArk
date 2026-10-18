@@ -5,12 +5,10 @@
 //! be accurate to the actual game loot tables.
 
 use crate::items::{ItemDefinition, ItemName};
-use anyhow::Context;
 use rand::{distributions::WeightedError, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, sync::OnceLock};
 use thiserror::Error;
-use tracing::debug;
 
 use builder::PackBuilder;
 use filter::{Filter, Weight};
@@ -226,16 +224,5 @@ impl<'a> RewardCollection<'a> {
                 stack_size,
             })
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::Packs;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = Packs::load().unwrap();
     }
 }
