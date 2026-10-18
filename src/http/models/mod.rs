@@ -1,7 +1,7 @@
 use axum::response::{IntoResponse, Response};
 use hyper::{header::CONTENT_TYPE, http::HeaderValue};
 use serde::Serialize;
-use std::fmt::Debug;
+use std::{borrow::Cow, fmt::Debug};
 
 pub mod auth;
 pub mod challenge;
@@ -45,6 +45,18 @@ where
 pub struct RawJson(pub &'static str);
 
 impl IntoResponse for RawJson {
+    fn into_response(self) -> Response {
+        let mut res = self.0.into_response();
+        res.headers_mut()
+            .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        res
+    }
+}
+
+/// Raw pre encoded JSON bytes response
+pub struct RawJsonBytes(pub Cow<'static, [u8]>);
+
+impl IntoResponse for RawJsonBytes {
     fn into_response(self) -> Response {
         let mut res = self.0.into_response();
         res.headers_mut()
