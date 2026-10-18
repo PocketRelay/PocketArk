@@ -169,6 +169,13 @@ impl PointMap {
             skill_points: Some(3),
         }
     }
+
+    // The default number of total initial points is 5 MEA_skill_points
+    pub fn default_total() -> Self {
+        PointMap {
+            skill_points: Some(5),
+        }
+    }
 }
 
 /// Map of character attributes

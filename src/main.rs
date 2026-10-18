@@ -4,6 +4,7 @@ pub mod blaze;
 
 pub mod config;
 pub mod http;
+pub mod resources;
 pub mod services;
 pub mod utils;
 

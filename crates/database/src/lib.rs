@@ -30,6 +30,18 @@ pub async fn init() -> DbPool {
     }
 }
 
+async fn initialize_database(pool: &SqlitePool) -> DbResult<()> {
+    initialize_migrations_table(pool).await?;
+
+    {
+        let mut transaction = pool.begin().await?;
+        apply_migrations(&mut transaction).await?;
+        transaction.commit().await?;
+    }
+
+    Ok(())
+}
+
 pub async fn connect_database() -> DbResult<SqlitePool> {
     let path = Path::new(&DATABASE_PATH);
 
@@ -47,13 +59,14 @@ pub async fn connect_database() -> DbResult<SqlitePool> {
         .to_url_lossy();
 
     let pool = SqlitePool::connect(options.as_str()).await?;
-    initialize_migrations_table(&pool).await?;
-
-    {
-        let mut transaction = pool.begin().await?;
-        apply_migrations(&mut transaction).await?;
-        transaction.commit().await?;
-    }
+    initialize_database(&pool).await?;
 
     Ok(pool)
+}
+
+/// Creates and initializes a database for running tests in-memory
+pub async fn test_memory_database() -> SqlitePool {
+    let pool = SqlitePool::connect(":memory:").await.unwrap();
+    initialize_database(&pool).await.unwrap();
+    pool
 }

@@ -1,4 +1,4 @@
-use crate::services::characters::acquire_item_character;
+use crate::{resources::Resources, services::characters::acquire_item_character};
 use anyhow::anyhow;
 use chrono::Utc;
 use pocket_ark_database::{
@@ -17,8 +17,38 @@ use pocket_ark_definitions::{
     },
     level_tables::LevelTables,
 };
+use serde::Deserialize;
+use serde_with::skip_serializing_none;
 use std::ops::DerefMut;
-use uuid::uuid;
+use uuid::Uuid;
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize)]
+pub struct DefaultInventoryDefinition {
+    pub items: Vec<DefaultInventoryDefinitionItem>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize)]
+pub struct DefaultInventoryDefinitionItem {
+    pub id: Uuid,
+    #[serde(default = "default_stack_size")]
+    pub stack_size: u32,
+}
+
+pub fn default_stack_size() -> u32 {
+    1
+}
+
+/// Path to the default inventory JSON file resource
+const USER_DEFAULT_INVENTORY_RESOURCE: &str = "userDefaultInventory.json";
+
+/// Load the default inventory definition
+pub async fn load_default_inventory_definition() -> anyhow::Result<DefaultInventoryDefinition> {
+    let resource = Resources::get_resource_bytes(USER_DEFAULT_INVENTORY_RESOURCE).await?;
+    let parsed = serde_json::from_slice(&resource)?;
+    Ok(parsed)
+}
 
 /// Adds the collection of default items and characters to the
 /// provided user
@@ -30,37 +60,19 @@ pub async fn create_default_items(
     let classes = Classes::get();
     let level_tables = LevelTables::get();
 
-    // Create models from initial item defs
-    let ids = [
-        uuid!("af3a2cf0-dff7-4ca8-9199-73ce546c3e7b"), // HUMAN MALE SOLDIER
-        uuid!("79f3511c-55da-67f0-5002-359c370015d8"), // HUMAN FEMALE SOLDIER
-        uuid!("a3960123-3625-4126-82e4-1f9a127d33aa"), // HUMAN MALE ENGINEER
-        uuid!("c756c741-1bc8-47a8-9f35-b7ca943ba034"), // HUMAN FEMALE ENGINEER
-        uuid!("baae0381-8690-4097-ae6d-0c16473519b4"), // HUMAN MALE SENTINEL
-        uuid!("319ffe5d-f8fb-4217-bd2f-2e8af4f53fc8"), // HUMAN FEMALE SENTINEL
-        uuid!("7fd30824-e20c-473e-b906-f4f30ebc4bb0"), // HUMAN MALE VANGUARD
-        uuid!("96fa16c5-9f2b-46f8-a491-a4b0a24a1089"), // HUMAN FEMALE VANGUARD
-        uuid!("34aeef66-a030-445e-98e2-1513c0c78df4"), // HUMAN MALE INFILTRATOR
-        uuid!("cae8a2f3-fdaf-471c-9391-c29f6d4308c3"), // HUMAN FEMALE INFILTRATOR
-        uuid!("e4357633-93bc-4596-99c3-4cc0a49b2277"), // HUMAN MALE ADEPT
-        uuid!("e2f76cf1-4b42-4dba-9751-f2add5c3f654"), // HUMAN FEMALE ADEPT
-        uuid!("4ccc7f54-791c-4b66-954b-a0bd6496f210"), // M-3 PREDATOR
-        uuid!("d5bf2213-d2d2-f892-7310-c39a15fb2ef3"), // M-8 AVENGER
-        uuid!("38e07595-764b-4d9c-b466-f26c7c416860"), // VIPER
-        uuid!("ca7d0f24-fc19-4a78-9d25-9c84eb01e3a5"), // M-23 KATANA
-    ];
+    let defs = load_default_inventory_definition().await?;
 
-    for item in ids {
+    for item in defs.items {
         let definition = item_definitions
-            .by_name(&item)
-            .ok_or(anyhow!("Missing default item '{item}'"))?;
+            .by_name(&item.id)
+            .ok_or(anyhow!("Missing default item '{}'", item.id))?;
 
         InventoryItemsRepository::add_item(
             db.deref_mut(),
             CreateInventoryItemDto {
                 user_id: user.id,
                 definition_name: definition.name,
-                stack_size: 1,
+                stack_size: item.stack_size,
                 capacity: definition.capacity,
                 created_at: Utc::now(),
             },

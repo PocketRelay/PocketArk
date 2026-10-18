@@ -1,25 +1,13 @@
 use pocket_ark_database::{
+    DbPool,
     dto::users::{CreateUserDto, NormalizedEmail, UserDto},
-    migrations::{apply_migrations, initialize_migrations_table},
     repositories::users::UserRepository,
 };
-use sqlx::SqlitePool;
 
-pub async fn test_database() -> SqlitePool {
-    let pool = SqlitePool::connect(":memory:").await.unwrap();
-    initialize_migrations_table(&pool).await.unwrap();
-
-    {
-        let mut transaction = pool.begin().await.unwrap();
-        apply_migrations(&mut transaction).await.unwrap();
-        transaction.commit().await.unwrap();
-    }
-
-    pool
-}
+pub use pocket_ark_database::test_memory_database as test_database;
 
 pub async fn mock_user(
-    db: &SqlitePool,
+    db: &DbPool,
     email: impl AsRef<str>,
     username: impl Into<String>,
 ) -> UserDto {

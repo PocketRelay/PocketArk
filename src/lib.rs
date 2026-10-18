@@ -38,6 +38,7 @@ pub mod blaze;
 
 pub mod config;
 pub(crate) mod http;
+pub mod resources;
 pub mod services;
 pub mod utils;
 

@@ -165,6 +165,9 @@ async-trait = "0.1.92"
 
 itertools.workspace = true
 
+# Asset embedding
+rust-embed = "8.13.0"
+
 # HTTP Client
 [dependencies.reqwest]
 version = "0.13.4"

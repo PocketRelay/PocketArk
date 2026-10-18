@@ -16,6 +16,46 @@ use pocket_ark_definitions::{
 };
 use uuid::Uuid;
 
+/// The default level of characters when acquiring them
+const DEFAULT_CHARACTER_LEVEL: u32 = 1;
+
+pub fn acquire_character_dto(
+    user: &UserDto,
+    item: &ItemName,
+    classes: &Classes,
+    level_tables: &LevelTables,
+) -> anyhow::Result<CreateCharacterDto> {
+    let class = classes
+        .by_item(item)
+        .ok_or(anyhow!("Missing class for character item"))?;
+
+    let level = DEFAULT_CHARACTER_LEVEL;
+    let xp: ProgressionXp = level_tables
+        .by_name(&class.level_name)
+        .context("Missing character level table")?
+        .get_xp_values(level)
+        .context("Invalid character level provided")?
+        .into();
+
+    Ok(CreateCharacterDto {
+        character_id: Uuid::new_v4(),
+        user_id: user.id,
+        class_name: class.name,
+        level,
+        xp,
+        points: PointMap::default_total(),
+        skill_trees: class.skill_trees.clone(),
+        attributes: class.attributes.clone(),
+        bonus: class.bonus.clone(),
+        equipments: class.default_equipments.clone(),
+        customization: class.default_customization.clone(),
+        promotion: 0,
+        points_spent: PointMap::default_spent(),
+        points_granted: PointMap::default_spent(),
+        play_stats: PlayStats::default(),
+    })
+}
+
 /// Handles the initialization of a character after an item for
 /// that character has been acquired
 pub async fn acquire_item_character(
@@ -38,47 +78,8 @@ pub async fn acquire_item_character(
         return Ok(());
     }
 
-    // Character is acquired at level 1
-    let level = 1;
-
-    // Get the current xp progression values
-    let xp: ProgressionXp = level_tables
-        .by_name(&class.level_name)
-        .context("Missing character level table")?
-        .get_xp_values(level)
-        .context("Invalid character level provided")?
-        .into();
-
-    let points: PointMap = PointMap {
-        skill_points: Some(5),
-    };
-    let skill_trees = class.skill_trees.clone();
-    let attributes = class.attributes.clone();
-    let bonus = class.bonus.clone();
-    let equipments = class.default_equipments.clone();
-    let customization = class.default_customization.clone();
-
-    CharactersRepository::create(
-        db.deref_mut(),
-        CreateCharacterDto {
-            character_id: Uuid::new_v4(),
-            user_id: user.id,
-            class_name: class.name,
-            level,
-            xp,
-            points,
-            skill_trees,
-            attributes,
-            bonus,
-            equipments,
-            customization,
-            promotion: 0,
-            points_spent: PointMap::default_spent(),
-            points_granted: PointMap::default_spent(),
-            play_stats: PlayStats::default(),
-        },
-    )
-    .await?;
+    let dto = acquire_character_dto(user, item, classes, level_tables)?;
+    CharactersRepository::create(db.deref_mut(), dto).await?;
 
     Ok(())
 }
