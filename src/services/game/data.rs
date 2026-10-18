@@ -9,7 +9,7 @@ use crate::{
     http::models::mission::{
         CompleteMissionData, MissionDetails, MissionPlayerData, MissionPlayerInfo, PlayerInfoResult,
     },
-    mission::{
+    services::mission::{
         outcome::{MissionOutcomeDataBuilder, MissionOutcomeLevelingChange},
         processors::{MISSION_PROCESSOR_PIPELINE, ProcessMissionData},
     },

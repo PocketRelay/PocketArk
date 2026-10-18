@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::{
     http::models::mission::{CompleteMissionData, MissionPlayerData},
-    mission::{
+    services::mission::{
         outcome::MissionOutcomeDataBuilder,
         processors::{
             badges::BadgeProcessor, challenges::ChallengesProcessor,

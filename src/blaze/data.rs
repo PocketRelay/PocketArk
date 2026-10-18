@@ -2,7 +2,6 @@ use parking_lot::{RwLock, RwLockReadGuard};
 use serde::Serialize;
 use std::{net::Ipv4Addr, sync::Arc, task::Context, time::Duration};
 use tokio::time::{Instant, Interval, MissedTickBehavior, interval_at};
-use tracing::Span;
 
 use crate::{
     blaze::{

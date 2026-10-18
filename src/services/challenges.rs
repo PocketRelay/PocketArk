@@ -1,4 +1,4 @@
-use crate::mission::outcome::ChallengeProgressChange;
+use crate::services::mission::outcome::ChallengeProgressChange;
 use chrono::Utc;
 use pocket_ark_database::dto::challenge_progress::{
     AppliedChallengeProgressUpdate, ChallengeProgressCounter, ChallengeProgressDto, ChallengeState,

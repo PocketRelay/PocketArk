@@ -1,4 +1,4 @@
-use crate::mission::{
+use crate::services::mission::{
     outcome::{ChallengeProgressChange, MissionOutcomeDataBuilder},
     processors::{MissionOutcomeProcessor, ProcessMissionData, ProcessorPipelineEntry},
 };

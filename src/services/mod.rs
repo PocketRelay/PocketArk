@@ -3,6 +3,7 @@ pub mod challenges;
 pub mod characters;
 pub mod game;
 pub mod items;
+pub mod mission;
 pub mod sessions;
 pub mod strike_teams;
 pub mod tunnel;

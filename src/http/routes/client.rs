@@ -43,7 +43,7 @@ use pocket_ark_database::{
     },
 };
 use std::{ops::DerefMut, sync::Arc};
-use tracing::{debug, error, record_all};
+use tracing::{debug, error};
 use uuid::Uuid;
 
 /// GET /ark/client/details
