@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
-use sqlx::{prelude::FromRow, types::Json};
+use sqlx::prelude::FromRow;
 
 use crate::dto::users::UserId;
 use pocket_ark_definitions::{
@@ -47,7 +47,8 @@ pub struct StrikeTeamDto {
     #[sqlx(json)]
     pub xp: ProgressionXp,
     /// Equipment if the strike team has one active
-    pub equipment: Option<Json<StrikeTeamEquipment>>,
+    #[sqlx(json(nullable))]
+    pub equipment: Option<StrikeTeamEquipment>,
     /// Positive traits this strike team has
     #[sqlx(json)]
     pub positive_traits: Vec<StrikeTeamTrait>,
@@ -61,7 +62,7 @@ pub struct StrikeTeamDto {
 impl Localized for StrikeTeamDto {
     fn localize(&mut self, i18n: &I18n) {
         if let Some(value) = self.equipment.as_mut() {
-            value.0.localize(i18n)
+            value.localize(i18n)
         }
 
         self.positive_traits.localize(i18n);
