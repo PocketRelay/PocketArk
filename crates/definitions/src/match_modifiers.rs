@@ -1,14 +1,8 @@
 use super::currency::CurrencyType;
-use anyhow::Context;
 use pocket_ark_core::custom_attributes::CustomAttributes;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::sync::OnceLock;
-use tracing::debug;
-
-/// Modifier definitions (6)
-pub const MATCH_MODIFIER_DEFINITIONS: &str =
-    include_str!("../../../src/resources/data/matchModifiers.json");
 
 pub struct MatchModifiers {
     pub values: Vec<MatchModifier>,
@@ -21,16 +15,19 @@ static STORE: OnceLock<MatchModifiers> = OnceLock::new();
 impl MatchModifiers {
     /// Gets a static reference to the global [MatchModifiers] collection
     pub fn get() -> &'static MatchModifiers {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE
+            .get()
+            .expect("match modifiers global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let values: Vec<MatchModifier> = serde_json::from_str(MATCH_MODIFIER_DEFINITIONS)
-            .context("Failed to load match modifier definitions")?;
+    /// Initialize a new [MatchModifiers] instance from the provided definitions
+    pub fn from_definitions(values: Vec<MatchModifier>) -> Self {
+        Self { values }
+    }
 
-        debug!("Loaded {} match modifier definition(s)", values.len(),);
-
-        Ok(Self { values })
+    /// Initialize the global instance
+    pub fn initialize(value: MatchModifiers) {
+        _ = STORE.set(value);
     }
 
     /// Finds a match modifier by `name`
@@ -99,16 +96,5 @@ impl ModifierAmount {
     pub fn get_amount(&self, old_value: u32) -> u32 {
         let additive_value = (old_value as f32 * self.additive_multiplier).trunc() as u32;
         self.flat_amount + additive_value
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::MatchModifiers;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = MatchModifiers::load().unwrap();
     }
 }

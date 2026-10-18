@@ -1,10 +1,14 @@
+use std::collections::HashMap;
+
 use anyhow::Context;
 use pocket_ark_definitions::{
-    badges::Badges,
+    badges::{Badge, Badges},
     challenges::{ChallengeDefinition, Challenges},
     classes::{Class, Classes},
     items::{ItemDefinition, Items},
     level_tables::{LevelTable, LevelTables},
+    match_modifiers::{MatchModifier, MatchModifiers},
+    packs::{Pack, Packs},
     strike_teams::{
         StrikeTeams,
         equipment::StrikeTeamEquipmentList,
@@ -122,11 +126,36 @@ pub async fn initialize_badges() -> anyhow::Result<()> {
     Ok(())
 }
 
+pub async fn initialize_match_modifiers() -> anyhow::Result<()> {
+    const MATCH_MODIFIERS_RESOURCE: &str = "matchModifiers.json";
+
+    let definitions = Resources::get_resource_bytes(MATCH_MODIFIERS_RESOURCE).await?;
+    let definitions: Vec<MatchModifier> = serde_json::from_slice(&definitions)
+        .context("Failed to parse match modifier definitions")?;
+
+    tracing::debug!("Loaded {} match modifier definition(s)", definitions.len());
+    MatchModifiers::initialize(MatchModifiers::from_definitions(definitions));
+    Ok(())
+}
+
+pub async fn initialize_packs() -> anyhow::Result<()> {
+    const PACKS_RESOURCE: &str = "packs.json";
+
+    let definitions = Resources::get_resource_bytes(PACKS_RESOURCE).await?;
+    let packs: HashMap<uuid::Uuid, Pack> =
+        serde_json::from_slice(&definitions).context("Failed to load pack definitions")?;
+
+    tracing::debug!("Loaded {} pack definition(s)", packs.len());
+    Packs::initialize(Packs::from_definitions(packs));
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use crate::services::definitions::{
-        initialize_challenges, initialize_classes, initialize_i18n, initialize_items,
-        initialize_level_tables, initialize_strike_teams,
+        initialize_badges, initialize_challenges, initialize_classes, initialize_i18n,
+        initialize_items, initialize_level_tables, initialize_match_modifiers, initialize_packs,
+        initialize_strike_teams,
     };
 
     #[tokio::test]
@@ -136,6 +165,7 @@ mod test {
 
     #[tokio::test]
     async fn ensure_items_load() {
+        initialize_i18n().await.unwrap();
         initialize_items().await.unwrap();
     }
 
@@ -151,6 +181,7 @@ mod test {
 
     #[tokio::test]
     async fn ensure_challenges_load() {
+        initialize_i18n().await.unwrap();
         initialize_challenges().await.unwrap();
     }
 
@@ -161,6 +192,17 @@ mod test {
 
     #[tokio::test]
     async fn ensure_badges_load() {
+        initialize_i18n().await.unwrap();
         initialize_badges().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_match_modifiers_load() {
+        initialize_match_modifiers().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_packs_load() {
+        initialize_packs().await.unwrap();
     }
 }

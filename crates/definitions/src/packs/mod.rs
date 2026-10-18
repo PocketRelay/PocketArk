@@ -19,9 +19,6 @@ mod builder;
 mod filter;
 mod parser;
 
-/// Pack definitions
-const PACK_DEFINITIONS: &str = include_str!("../../../../src/resources/data/packs.json");
-
 /// Collection of defined [Pack]s
 pub struct Packs {
     /// Lookup for packs by [ItemName]
@@ -35,15 +32,17 @@ static STORE: OnceLock<Packs> = OnceLock::new();
 impl Packs {
     /// Gets a static reference to the global [ChallengeDefinitions] collection
     pub fn get() -> &'static Packs {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("packs global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let values: HashMap<uuid::Uuid, Pack> =
-            serde_json::from_str(PACK_DEFINITIONS).context("Failed to load pack definitions")?;
+    /// Initialize a new [Packs] instance from the provided definitions
+    pub fn from_definitions(packs: HashMap<uuid::Uuid, Pack>) -> Self {
+        Self { packs }
+    }
 
-        debug!("Loaded {} pack definition(s)", values.len());
-        Ok(Self { packs: values })
+    /// Initialize the global instance
+    pub fn initialize(value: Packs) {
+        _ = STORE.set(value);
     }
 
     pub fn by_name(&self, name: &ItemName) -> Option<&Pack> {

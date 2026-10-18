@@ -7,7 +7,6 @@ use axum::{Extension, middleware};
 use bytes::Bytes;
 use hyper::{StatusCode, Uri};
 use pocket_ark_definitions::strike_teams::StrikeTeams;
-use pocket_ark_definitions::{badges::Badges, match_modifiers::MatchModifiers};
 use services::sessions::Sessions;
 use services::strike_teams::mission_producer::MissionBackgroundTask;
 use tokio::net::TcpListener;
@@ -24,7 +23,8 @@ use utils::signing::SigningKey;
 use crate::config::{TunnelConfig, VERSION, load_config};
 use crate::services::definitions::{
     initialize_badges, initialize_challenges, initialize_classes, initialize_i18n,
-    initialize_items, initialize_level_tables, initialize_strike_teams,
+    initialize_items, initialize_level_tables, initialize_match_modifiers, initialize_packs,
+    initialize_strike_teams,
 };
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
@@ -32,7 +32,6 @@ use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
 use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
 use crate::utils::logging;
 use crate::utils::public_address::log_connection_urls;
-use pocket_ark_definitions::packs::Packs;
 
 pub mod blaze;
 
@@ -78,13 +77,15 @@ pub async fn run() {
         .await
         .expect("failed to initialize badges");
 
-    _ = MatchModifiers::get();
+    initialize_match_modifiers()
+        .await
+        .expect("failed to initialize match modifiers");
 
     initialize_strike_teams()
         .await
         .expect("failed to load strike teams");
 
-    _ = Packs::get();
+    initialize_packs().await.expect("failed to load packs");
 
     let (db, signing_key) = join!(pocket_ark_database::init(), SigningKey::global());
 
