@@ -8,8 +8,10 @@ use crate::{
             strike_teams::StrikeTeamMissionWithState,
         },
     },
-    services::game::{data::process_mission_data, store::Games},
-    services::mission::tutorial::get_tutorial_mission,
+    services::{
+        game::{data::process_mission_data, store::Games},
+        mission::tutorial::get_tutorial_mission_state,
+    },
 };
 use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
@@ -48,7 +50,7 @@ pub async fn current_missions(
 
     missions.localize(I18n::get());
 
-    let tutorial_mission: StrikeTeamMissionWithState = get_tutorial_mission();
+    let tutorial_mission: StrikeTeamMissionWithState = get_tutorial_mission_state().await?;
     missions.push(tutorial_mission);
 
     Ok(Json(VecWithCount::new(missions)))

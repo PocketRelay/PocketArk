@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use uuid::{Uuid, uuid};
 
 use pocket_ark_core::custom_attributes::CustomAttributes;
@@ -35,17 +36,24 @@ impl Localized for MissionType {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MissionTypeDescriptor {
+    /// Unique ID for the mission descriptor
     pub name: Uuid,
+
+    /// Attributes for the mission descriptor
+    /// contains the icons for the descriptor
+    #[serde(default)]
+    pub custom_attributes: CustomAttributes,
+
+    /// Localized name for the mission type
     #[serde(flatten)]
     pub i18n_name: I18nName,
-
+    /// Localized description for the mission type
     #[serde(flatten)]
     pub i18n_desc: Option<I18nDesc>,
-
-    pub custom_attributes: CustomAttributes,
 }
 
 impl Default for MissionTypeDescriptor {

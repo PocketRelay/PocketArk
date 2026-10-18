@@ -5,8 +5,12 @@ use strum::EnumIter;
 use uuid::Uuid;
 
 use pocket_ark_definitions::strike_teams::mission::{
-    MissionAccessibility, MissionDescriptor, mission_type::MissionType, modifier::MissionModifier,
-    rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
+    MissionAccessibility,
+    mission_type::{MissionType, MissionTypeDescriptor},
+    modifier::MissionModifier,
+    rewards::MissionRewards,
+    tag::MissionTag,
+    wave::MissionWave,
 };
 use pocket_ark_i18n::{I18n, Localized};
 
@@ -22,7 +26,7 @@ pub struct StrikeTeamMissionDto {
     pub name: Uuid,
     /// The mission descriptor details
     #[sqlx(json)]
-    pub descriptor: MissionDescriptor,
+    pub descriptor: MissionTypeDescriptor,
     /// The mission type details
     #[sqlx(json)]
     pub mission_type: MissionType,
@@ -79,7 +83,7 @@ pub struct StrikeTeamMissionWithProgressDto {
 #[derive(Debug, Clone)]
 pub struct CreateStrikeTeamMissionDto {
     pub name: Uuid,
-    pub descriptor: MissionDescriptor,
+    pub descriptor: MissionTypeDescriptor,
     pub mission_type: MissionType,
     pub accessibility: MissionAccessibility,
     pub waves: Vec<MissionWave>,

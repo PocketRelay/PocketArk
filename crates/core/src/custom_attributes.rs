@@ -38,3 +38,15 @@ impl CustomAttributes {
             .map(|(_, v)| v)
     }
 }
+
+impl<K, V> Extend<(K, V)> for CustomAttributes
+where
+    K: Into<String>,
+    V: Into<serde_json::Value>,
+{
+    fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
+        for (key, value) in iter {
+            self.insert(key.into(), value.into());
+        }
+    }
+}

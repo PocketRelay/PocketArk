@@ -1,20 +1,22 @@
 use crate::strike_teams::{
     StrikeTeams,
     mission::{
-        level::MissionLevel, mission_type::MissionType, modifier::MissionModifier,
-        rewards::MissionRewards, tag::MissionTag, wave::MissionWave,
+        level::MissionLevel,
+        mission_type::{MissionType, MissionTypeDescriptor},
+        modifier::MissionModifier,
+        rewards::MissionRewards,
+        tag::MissionTag,
+        wave::MissionWave,
     },
 };
 use anyhow::Context;
 use chrono::Utc;
 use pocket_ark_core::custom_attributes::CustomAttributes;
-use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
+use pocket_ark_i18n::{I18n, Localized};
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 use std::{collections::HashMap, str::FromStr};
 use strum::{Display, EnumIter, FromRepr};
-use uuid::Uuid;
 
 pub mod level;
 pub mod mission_type;
@@ -130,7 +132,7 @@ impl TryFrom<u8> for MissionAccessibility {
 #[derive(Deserialize)]
 pub struct MissionDefinition {
     /// The mission descriptor
-    pub descriptor: MissionDescriptor,
+    pub descriptor: MissionTypeDescriptor,
     /// The mission accessibility
     pub accessibility: MissionAccessibility,
     /// Optional collection of waves for custom missions
@@ -160,40 +162,11 @@ pub enum MissionDifficulty {
     Platinum,
 }
 
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MissionDescriptor {
-    /// Unique ID for the mission descriptor
-    pub name: Uuid,
-
-    /// Attributes for the mission descriptor
-    /// contains the icons for the descriptor
-    #[serde(default)]
-    pub custom_attributes: CustomAttributes,
-
-    /// Localized name for the mission type
-    #[serde(flatten)]
-    pub i18n_name: I18nName,
-    /// Localized description for the mission type
-    #[serde(flatten)]
-    pub i18n_desc: Option<I18nDesc>,
-}
-
-impl Localized for MissionDescriptor {
-    fn localize(&mut self, i18n: &I18n) {
-        self.i18n_name.localize(i18n);
-        if let Some(i18n_desc) = &mut self.i18n_desc {
-            i18n_desc.localize(i18n);
-        }
-    }
-}
-
 /// Data required for building and creating a new
 /// strike team mission
 /// (Passed to the database layer)
 pub struct StrikeTeamMissionData {
-    pub descriptor: MissionDescriptor,
+    pub descriptor: MissionTypeDescriptor,
     pub mission_type: MissionType,
     pub tags: Vec<MissionTag>,
     pub accessibility: MissionAccessibility,
