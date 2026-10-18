@@ -1,6 +1,8 @@
 use anyhow::Context;
 use pocket_ark_definitions::{
+    classes::{Class, Classes},
     items::{ItemDefinition, Items},
+    level_tables::{LevelTable, LevelTables},
     strike_teams::{
         StrikeTeams,
         equipment::StrikeTeamEquipmentList,
@@ -53,14 +55,40 @@ pub async fn initialize_items() -> anyhow::Result<()> {
 
     let definitions: Vec<ItemDefinition> =
         serde_json::from_slice(&definitions).context("Failed to load inventory definitions")?;
+    tracing::debug!("Loaded {} item definition(s)", definitions.len());
 
     Items::initialize(Items::from_definitions(definitions));
     Ok(())
 }
 
+pub async fn initialize_classes() -> anyhow::Result<()> {
+    const CLASSES_DEFINITIONS_RESOURCE: &str = "characterClasses.json";
+
+    let definitions = Resources::get_resource_bytes(CLASSES_DEFINITIONS_RESOURCE).await?;
+    let definitions: Vec<Class> =
+        serde_json::from_slice(&definitions).context("Failed to load class definitions")?;
+    tracing::debug!("Loaded {} class definition(s)", definitions.len());
+    Classes::initialize(Classes::from_definitions(definitions));
+    Ok(())
+}
+
+pub async fn initialize_level_tables() -> anyhow::Result<()> {
+    const LEVEL_TABLES_RESOURCE: &str = "levelTables.json";
+
+    let definitions = Resources::get_resource_bytes(LEVEL_TABLES_RESOURCE).await?;
+    let definitions: Vec<LevelTable> =
+        serde_json::from_slice(&definitions).context("Failed to parse level table definitions")?;
+
+    tracing::debug!("Loaded {} level table definition(s)", definitions.len());
+    LevelTables::initialize(LevelTables::from_definitions(definitions));
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
-    use crate::services::definitions::{initialize_items, initialize_strike_teams};
+    use crate::services::definitions::{
+        initialize_classes, initialize_items, initialize_level_tables, initialize_strike_teams,
+    };
 
     #[tokio::test]
     async fn ensure_strike_teams_load() {
@@ -70,5 +98,15 @@ mod test {
     #[tokio::test]
     async fn ensure_items_load() {
         initialize_items().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_classes_load() {
+        initialize_classes().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_level_tables_load() {
+        initialize_level_tables().await.unwrap();
     }
 }

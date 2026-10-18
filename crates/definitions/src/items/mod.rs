@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
-use tracing::debug;
 use uuid::Uuid;
 
 pub mod category;
@@ -39,8 +38,6 @@ impl Items {
     pub fn from_definitions(mut values: Vec<ItemDefinition>) -> Self {
         values.localize(I18n::get());
 
-        debug!("Loaded {} item definition(s)", values.len());
-
         // Create the by name lookup table
         let lookup_by_name: HashMap<ItemName, usize> = values
             .iter()
@@ -54,7 +51,7 @@ impl Items {
         }
     }
 
-    /// Initialize the strike teams definitions
+    /// Initialize the global instance
     pub fn initialize(value: Items) {
         _ = STORE.set(value);
     }

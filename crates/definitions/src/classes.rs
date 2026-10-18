@@ -15,17 +15,12 @@ use crate::{
     level_tables::LevelTableName,
     skills::SkillTree,
 };
-use anyhow::Context;
 use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18nDescription, I18nName};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use std::{collections::HashMap, sync::OnceLock};
-use tracing::debug;
 use uuid::Uuid;
-
-/// Class definitions (36)
-const CLASS_DEFINITIONS: &str = include_str!("../../../src/resources/data/characterClasses.json");
 
 /// Collection of class definitions and lookup tables for finding
 /// classes based on certain fields
@@ -45,15 +40,11 @@ static STORE: OnceLock<Classes> = OnceLock::new();
 impl Classes {
     /// Gets a static reference to the global [Classes] collection
     pub fn get() -> &'static Classes {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("classes global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let values: Vec<Class> =
-            serde_json::from_str(CLASS_DEFINITIONS).context("Failed to load class definitions")?;
-
-        debug!("Loaded {} class definition(s)", values.len());
-
+    /// Initialize a new [Classes] instance from the provided definitions
+    pub fn from_definitions(values: Vec<Class>) -> Self {
         // Generate the lookup maps
         let (lookup_by_name, lookup_by_item) = values
             .iter()
@@ -61,11 +52,16 @@ impl Classes {
             .map(|(index, class)| ((class.name, index), (class.item_link.1, index)))
             .unzip();
 
-        Ok(Self {
+        Self {
             values,
             lookup_by_item,
             lookup_by_name,
-        })
+        }
+    }
+
+    /// Initialize the global instance
+    pub fn initialize(value: Classes) {
+        _ = STORE.set(value);
     }
 
     pub fn all(&self) -> &[Class] {
@@ -271,15 +267,4 @@ pub enum NameOrEmpty {
     Empty,
     #[serde(untagged)]
     Name(ItemName),
-}
-
-#[cfg(test)]
-mod test {
-    use super::Classes;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = Classes::load().unwrap();
-    }
 }

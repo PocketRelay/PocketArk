@@ -1,14 +1,9 @@
 //! Leveling table structures and logic
 
-use anyhow::Context;
 use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes};
 use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use std::{collections::HashMap, sync::OnceLock};
-use tracing::debug;
 use uuid::Uuid;
-
-/// Level table definitions (7)
-const LEVEL_TABLE_DEFINITIONS: &str = include_str!("../../../src/resources/data/levelTables.json");
 
 /// Collection of level tables
 pub struct LevelTables {
@@ -23,17 +18,19 @@ static STORE: OnceLock<LevelTables> = OnceLock::new();
 impl LevelTables {
     /// Gets a static reference to the global [LevelTables] collection
     pub fn get() -> &'static LevelTables {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE
+            .get()
+            .expect("level tables global must be initialized")
     }
 
-    /// Creates and loads the level tables from [LEVEL_TABLE_DEFINITIONS]
-    fn load() -> anyhow::Result<Self> {
-        let values: Vec<LevelTable> = serde_json::from_str(LEVEL_TABLE_DEFINITIONS)
-            .context("Failed to parse level table definitions")?;
+    /// Initialize a new [LevelTables] instance from the provided definitions
+    pub fn from_definitions(values: Vec<LevelTable>) -> Self {
+        Self { values }
+    }
 
-        debug!("Loaded {} level table definition(s)", values.len());
-
-        Ok(Self { values })
+    /// Initialize the global instance
+    pub fn initialize(value: LevelTables) {
+        _ = STORE.set(value);
     }
 
     /// Find a [LevelTable] by its `name`
@@ -178,15 +175,5 @@ impl From<(u32, u32, u32)> for ProgressionXp {
             current: value.1,
             next: value.2,
         }
-    }
-}
-#[cfg(test)]
-mod test {
-    use super::LevelTables;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = LevelTables::load().unwrap();
     }
 }

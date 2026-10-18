@@ -8,8 +8,7 @@ use bytes::Bytes;
 use hyper::{StatusCode, Uri};
 use pocket_ark_definitions::strike_teams::StrikeTeams;
 use pocket_ark_definitions::{
-    badges::Badges, challenges::Challenges, classes::Classes, items::Items,
-    level_tables::LevelTables, match_modifiers::MatchModifiers,
+    badges::Badges, challenges::Challenges, match_modifiers::MatchModifiers,
 };
 use pocket_ark_i18n::I18n;
 use services::sessions::Sessions;
@@ -26,7 +25,9 @@ use tokio::signal;
 use utils::signing::SigningKey;
 
 use crate::config::{TunnelConfig, VERSION, load_config};
-use crate::services::definitions::{initialize_items, initialize_strike_teams};
+use crate::services::definitions::{
+    initialize_classes, initialize_items, initialize_level_tables, initialize_strike_teams,
+};
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
@@ -61,9 +62,14 @@ pub async fn run() {
         .await
         .expect("failed to initialize items");
 
-    _ = Items::get();
-    _ = Classes::get();
-    _ = LevelTables::get();
+    initialize_classes()
+        .await
+        .expect("failed to initialize classes");
+
+    initialize_level_tables()
+        .await
+        .expect("failed to initialize level tables");
+
     _ = Challenges::get();
     _ = I18n::get();
     _ = Badges::get();
