@@ -23,7 +23,7 @@ use crate::{
     services::{
         items::create_default_items,
         sessions::{AssociationId, Sessions},
-        strike_teams::create_user_strike_team,
+        strike_teams::create_user_strike_team::create_user_strike_team,
         tunnel::{TunnelService, http_tunnel::HttpTunnel},
     },
     utils::hashing::{hash_password, verify_password},

@@ -10,7 +10,7 @@ use crate::{
             },
         },
     },
-    services::strike_teams::create_user_strike_team,
+    services::strike_teams::create_user_strike_team::create_user_strike_team,
 };
 use axum::{
     Extension, Json,

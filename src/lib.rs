@@ -12,8 +12,8 @@ use pocket_ark_definitions::{
     level_tables::LevelTables, match_modifiers::MatchModifiers,
 };
 use pocket_ark_i18n::I18n;
-use services::mission::MissionBackgroundTask;
 use services::sessions::Sessions;
+use services::strike_teams::mission_producer::MissionBackgroundTask;
 use tokio::net::TcpListener;
 use tracing::error;
 use tracing::info;

@@ -8,10 +8,8 @@ use crate::{
             strike_teams::StrikeTeamMissionWithState,
         },
     },
-    services::{
-        game::{data::process_mission_data, store::Games},
-        mission::get_tutorial_mission,
-    },
+    mission::tutorial::get_tutorial_mission,
+    services::game::{data::process_mission_data, store::Games},
 };
 use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
