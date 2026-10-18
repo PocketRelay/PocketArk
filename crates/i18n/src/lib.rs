@@ -11,14 +11,10 @@ use pocket_ark_core::{ImStr, IntHashMap, int_hash_map};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::{fmt::Debug, sync::OnceLock};
-use tracing::debug;
 
 pub mod models;
 
 pub use models::{I18nDesc, I18nDescription, I18nName, I18nTitle};
-
-/// Translations (103400)
-const I18N_TRANSLATIONS: &[u8] = include_bytes!("../translations/en.csv");
 
 /// Type alias for a lookup key in the i18n map
 pub type LookupKey = u32;
@@ -51,17 +47,13 @@ static STORE: OnceLock<I18n> = OnceLock::new();
 impl I18n {
     /// Gets a static reference to the global [I18n] collection
     pub fn get() -> &'static I18n {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("i18n global must be initialized")
     }
 
-    /// Creates a new [I18n] collection, loading the translations
-    /// from the embedded file [I18N_TRANSLATIONS]
-    fn load() -> anyhow::Result<Self> {
+    pub fn from_csv_bytes(bytes: &[u8]) -> anyhow::Result<Self> {
         let mut map = int_hash_map();
 
-        let records = ReaderBuilder::new()
-            .from_reader(I18N_TRANSLATIONS)
-            .into_records();
+        let records = ReaderBuilder::new().from_reader(bytes).into_records();
 
         for record in records {
             let record = record.context("Failed to parse translation record")?;
@@ -74,9 +66,17 @@ impl I18n {
             map.insert(key, Box::from(value));
         }
 
-        debug!("Loaded {} translation(s)", map.len());
-
         Ok(Self { map })
+    }
+
+    /// Initialize the global instance
+    pub fn initialize(value: I18n) {
+        _ = STORE.set(value);
+    }
+
+    /// Get the length of the i18n map
+    pub fn count(&self) -> usize {
+        self.map.len()
     }
 
     /// Attempts to find a specific translation from its translation key
@@ -122,16 +122,5 @@ where
 {
     fn localize(&mut self, i18n: &I18n) {
         self.iter_mut().for_each(|value| value.localize(i18n))
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::I18n;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = I18n::load().unwrap();
     }
 }

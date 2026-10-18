@@ -31,16 +31,18 @@ static STORE: OnceLock<Badges> = OnceLock::new();
 impl Badges {
     /// Gets a static reference to the global [Badges] collection
     pub fn get() -> &'static Badges {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("badges global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let mut values: Vec<Badge> = serde_json::from_str(BADGE_DEFINITIONS)
-            .context("Failed to load match badge definitions")?;
+    /// Initialize a new [Badges] instance from the provided definitions
+    pub fn from_definitions(mut values: Vec<Badge>) -> Self {
         values.localize(I18n::get());
-        debug!("Loaded {} badge definition(s)", values.len(),);
+        Self { values }
+    }
 
-        Ok(Self { values })
+    /// Initialize the global instance
+    pub fn initialize(value: Badges) {
+        _ = STORE.set(value);
     }
 
     pub fn all(&self) -> &[Badge] {
@@ -139,15 +141,4 @@ pub struct BadgeLevel {
     pub rewards: Vec<serde_json::Value>,
     /// Additional attributes on the badge (Appears to be unused)
     pub custom_attributes: CustomAttributes,
-}
-
-#[cfg(test)]
-mod test {
-    use super::Badges;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = Badges::load().unwrap();
-    }
 }

@@ -7,10 +7,7 @@ use axum::{Extension, middleware};
 use bytes::Bytes;
 use hyper::{StatusCode, Uri};
 use pocket_ark_definitions::strike_teams::StrikeTeams;
-use pocket_ark_definitions::{
-    badges::Badges, challenges::Challenges, match_modifiers::MatchModifiers,
-};
-use pocket_ark_i18n::I18n;
+use pocket_ark_definitions::{badges::Badges, match_modifiers::MatchModifiers};
 use services::sessions::Sessions;
 use services::strike_teams::mission_producer::MissionBackgroundTask;
 use tokio::net::TcpListener;
@@ -26,7 +23,8 @@ use utils::signing::SigningKey;
 
 use crate::config::{TunnelConfig, VERSION, load_config};
 use crate::services::definitions::{
-    initialize_classes, initialize_items, initialize_level_tables, initialize_strike_teams,
+    initialize_badges, initialize_challenges, initialize_classes, initialize_i18n,
+    initialize_items, initialize_level_tables, initialize_strike_teams,
 };
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
@@ -58,6 +56,8 @@ pub async fn run() {
     tokio::spawn(log_connection_urls(config.port));
 
     // Initialize all shared definition globals
+    initialize_i18n().await.expect("failed to initialize i18n");
+
     initialize_items()
         .await
         .expect("failed to initialize items");
@@ -70,9 +70,14 @@ pub async fn run() {
         .await
         .expect("failed to initialize level tables");
 
-    _ = Challenges::get();
-    _ = I18n::get();
-    _ = Badges::get();
+    initialize_challenges()
+        .await
+        .expect("failed to initialize challenges");
+
+    initialize_badges()
+        .await
+        .expect("failed to initialize badges");
+
     _ = MatchModifiers::get();
 
     initialize_strike_teams()

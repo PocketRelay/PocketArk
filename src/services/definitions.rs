@@ -1,5 +1,7 @@
 use anyhow::Context;
 use pocket_ark_definitions::{
+    badges::Badges,
+    challenges::{ChallengeDefinition, Challenges},
     classes::{Class, Classes},
     items::{ItemDefinition, Items},
     level_tables::{LevelTable, LevelTables},
@@ -11,6 +13,7 @@ use pocket_ark_definitions::{
         traits::StrikeTeamTraits,
     },
 };
+use pocket_ark_i18n::I18n;
 
 use crate::resources::Resources;
 
@@ -84,10 +87,46 @@ pub async fn initialize_level_tables() -> anyhow::Result<()> {
     Ok(())
 }
 
+pub async fn initialize_challenges() -> anyhow::Result<()> {
+    const CHALLENGE_DEFINITIONS_RESOURCE: &str = "challengeDefinitions.json";
+
+    let definitions = Resources::get_resource_bytes(CHALLENGE_DEFINITIONS_RESOURCE).await?;
+    let definitions: Vec<ChallengeDefinition> =
+        serde_json::from_slice(&definitions).context("Failed to parse challenge definitions")?;
+
+    tracing::debug!("Loaded {} challenge definition(s)", definitions.len());
+    Challenges::initialize(Challenges::from_definitions(definitions));
+    Ok(())
+}
+
+pub async fn initialize_i18n() -> anyhow::Result<()> {
+    const EN_LOCALE_RESOURCE: &str = "locales/en.csv";
+
+    let bytes = Resources::get_resource_bytes(EN_LOCALE_RESOURCE).await?;
+    let i18n = I18n::from_csv_bytes(&bytes)?;
+
+    tracing::debug!("Loaded {} translation(s)", i18n.count());
+    I18n::initialize(i18n);
+    Ok(())
+}
+
+pub async fn initialize_badges() -> anyhow::Result<()> {
+    const BADGES_RESOURCE: &str = "matchBadges.json";
+
+    let definitions = Resources::get_resource_bytes(BADGES_RESOURCE).await?;
+    let definitions: Vec<Badge> =
+        serde_json::from_slice(&definitions).context("Failed to parse badge definitions")?;
+
+    tracing::debug!("Loaded {} badge definition(s)", definitions.len());
+    Badges::initialize(Badges::from_definitions(definitions));
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use crate::services::definitions::{
-        initialize_classes, initialize_items, initialize_level_tables, initialize_strike_teams,
+        initialize_challenges, initialize_classes, initialize_i18n, initialize_items,
+        initialize_level_tables, initialize_strike_teams,
     };
 
     #[tokio::test]
@@ -108,5 +147,20 @@ mod test {
     #[tokio::test]
     async fn ensure_level_tables_load() {
         initialize_level_tables().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_challenges_load() {
+        initialize_challenges().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_i18n_load() {
+        initialize_i18n().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_badges_load() {
+        initialize_badges().await.unwrap();
     }
 }

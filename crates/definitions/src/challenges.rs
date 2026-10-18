@@ -3,18 +3,12 @@ use crate::{
     currency::CurrencyType,
     items::ItemName,
 };
-use anyhow::Context;
 use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes, date_duration::DateDuration};
 use pocket_ark_i18n::{I18n, I18nDescription, I18nKey, I18nTitle, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::sync::OnceLock;
-use tracing::debug;
 use uuid::Uuid;
-
-/// Challenge definitions (192)
-const CHALLENGE_DEFINITIONS: &str =
-    include_str!("../../../src/resources/data/challengeDefinitions.json");
 
 pub struct Challenges {
     pub values: Vec<ChallengeDefinition>,
@@ -27,16 +21,18 @@ static STORE: OnceLock<Challenges> = OnceLock::new();
 impl Challenges {
     /// Gets a static reference to the global [ChallengeDefinitions] collection
     pub fn get() -> &'static Challenges {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("challenges global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        debug!("Loading challenges");
-        let mut values: Vec<ChallengeDefinition> = serde_json::from_str(CHALLENGE_DEFINITIONS)
-            .context("Failed to load challenge definitions")?;
-        debug!("Loaded {} challenge definition(s)", values.len());
+    /// Initialize a new [Challenges] instance from the provided definitions
+    pub fn from_definitions(mut values: Vec<ChallengeDefinition>) -> Self {
         values.localize(I18n::get());
-        Ok(Self { values })
+        Self { values }
+    }
+
+    /// Initialize the global instance
+    pub fn initialize(value: Challenges) {
+        _ = STORE.set(value);
     }
 
     pub fn get_by_activity(
@@ -231,15 +227,4 @@ pub struct ItemReward {
     pub count: u32,
     /// The namespace to store the item under
     pub namespace: ImStr,
-}
-
-#[cfg(test)]
-mod test {
-    use super::Challenges;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = Challenges::load().unwrap();
-    }
 }
