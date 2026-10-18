@@ -1,10 +1,12 @@
 use crate::{
     http::{
         middleware::{JsonDump, user::Auth},
-        models::RawJson,
+        models::{DynHttpError, RawJsonBytes},
     },
+    resources::Resources,
     services::activity::ActivityResult,
 };
+use anyhow::Context;
 use axum::Json;
 use serde_json::Value;
 use tracing::debug;
@@ -25,16 +27,17 @@ pub async fn create_report(
     Json(ActivityResult::default())
 }
 
-/// Definition of different activities that can happen within a game.
-static ACTIVITY_METADATA_DEFINITION: &str =
-    include_str!("../../resources/data/activityMetadata.json");
+const ACTIVITY_METADATA_RESOURCE: &str = "activityMetadata.json";
 
 /// GET /activity/metadata
 ///
 /// Obtains the definitions of activities that can happen within a game.
 /// When these activities happen a report is posted to `create_report`
-pub async fn get_metadata() -> RawJson {
-    RawJson(ACTIVITY_METADATA_DEFINITION)
+pub async fn get_metadata() -> Result<RawJsonBytes, DynHttpError> {
+    let data = Resources::get_resource_bytes(ACTIVITY_METADATA_RESOURCE)
+        .await
+        .context("failed to load configuration")?;
+    Ok(RawJsonBytes(data))
 }
 
 /// PUT /wv/playthrough/0

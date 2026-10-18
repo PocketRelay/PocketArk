@@ -24,7 +24,7 @@ use crate::config::{TunnelConfig, VERSION, load_config};
 use crate::services::definitions::{
     initialize_badges, initialize_challenges, initialize_classes, initialize_i18n,
     initialize_items, initialize_level_tables, initialize_match_modifiers, initialize_packs,
-    initialize_strike_teams,
+    initialize_skills, initialize_store_catalog, initialize_strike_teams,
 };
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
@@ -65,6 +65,10 @@ pub async fn run() {
         .await
         .expect("failed to initialize classes");
 
+    initialize_skills()
+        .await
+        .expect("failed to initialize skills");
+
     initialize_level_tables()
         .await
         .expect("failed to initialize level tables");
@@ -86,6 +90,10 @@ pub async fn run() {
         .expect("failed to load strike teams");
 
     initialize_packs().await.expect("failed to load packs");
+
+    initialize_store_catalog()
+        .await
+        .expect("failed to store catalog");
 
     let (db, signing_key) = join!(pocket_ark_database::init(), SigningKey::global());
 

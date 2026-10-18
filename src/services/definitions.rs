@@ -9,6 +9,8 @@ use pocket_ark_definitions::{
     level_tables::{LevelTable, LevelTables},
     match_modifiers::{MatchModifier, MatchModifiers},
     packs::{Pack, Packs},
+    skills::{SkillDefinition, Skills},
+    store_catalogs::{StoreCatalog, StoreCatalogs},
     strike_teams::{
         StrikeTeams,
         equipment::StrikeTeamEquipmentList,
@@ -150,12 +152,36 @@ pub async fn initialize_packs() -> anyhow::Result<()> {
     Ok(())
 }
 
+pub async fn initialize_store_catalog() -> anyhow::Result<()> {
+    const CATALOG_RESOURCE: &str = "storeCatalog.json";
+
+    let definition = Resources::get_resource_bytes(CATALOG_RESOURCE).await?;
+    let catalog: StoreCatalog =
+        serde_json::from_slice(&definition).context("Failed to load store catalog definitions")?;
+
+    tracing::debug!("Loaded store catalog",);
+    StoreCatalogs::initialize(StoreCatalogs::from_definitions(catalog));
+    Ok(())
+}
+
+pub async fn initialize_skills() -> anyhow::Result<()> {
+    const SKILLS_RESOURCE: &str = "skillDefinitions.json";
+
+    let definitions = Resources::get_resource_bytes(SKILLS_RESOURCE).await?;
+    let definitions: Vec<SkillDefinition> =
+        serde_json::from_slice(&definitions).context("Failed to parse skill definitions")?;
+
+    tracing::debug!("Loaded {} skill definition(s)", definitions.len());
+    Skills::initialize(Skills::from_definitions(definitions));
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use crate::services::definitions::{
         initialize_badges, initialize_challenges, initialize_classes, initialize_i18n,
         initialize_items, initialize_level_tables, initialize_match_modifiers, initialize_packs,
-        initialize_strike_teams,
+        initialize_skills, initialize_store_catalog, initialize_strike_teams,
     };
 
     #[tokio::test]
@@ -204,5 +230,16 @@ mod test {
     #[tokio::test]
     async fn ensure_packs_load() {
         initialize_packs().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_store_catalog_load() {
+        initialize_store_catalog().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn ensure_skills_load() {
+        initialize_i18n().await.unwrap();
+        initialize_skills().await.unwrap();
     }
 }

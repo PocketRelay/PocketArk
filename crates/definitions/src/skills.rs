@@ -2,18 +2,13 @@
 //!
 //! https://masseffectandromeda.fandom.com/wiki/Character_Customization_(multiplayer)#Skills
 
-use anyhow::Context;
 use chrono::{DateTime, Utc};
 use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes};
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::{str::FromStr, sync::OnceLock};
-use tracing::debug;
 use uuid::Uuid;
-
-/// Skill definitions (64)
-const SKILL_DEFINITIONS: &str = include_str!("../../../src/resources/data/skillDefinitions.json");
 
 /// Type alias for a [Uuid] that represents a [SkillDefinition] name
 pub type SkillDefinitionName = Uuid;
@@ -34,18 +29,18 @@ static STORE: OnceLock<Skills> = OnceLock::new();
 impl Skills {
     /// Gets a static reference to the global [ChallengeDefinitions] collection
     pub fn get() -> &'static Skills {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("skills global must be initialized")
     }
 
-    /// Creates and loads the skill definitions from [LEVEL_TABLE_DEFINITIONS]
-    fn load() -> anyhow::Result<Self> {
-        let mut values: Vec<SkillDefinition> =
-            serde_json::from_str(SKILL_DEFINITIONS).context("Failed to parse skill definitions")?;
-
-        debug!("Loaded {} skill definition(s)", values.len());
+    /// Initialize a new [Skills] instance from the provided definitions
+    pub fn from_definitions(mut values: Vec<SkillDefinition>) -> Self {
         values.localize(I18n::get());
+        Self { values }
+    }
 
-        Ok(Self { values })
+    /// Initialize the global instance
+    pub fn initialize(value: Skills) {
+        _ = STORE.set(value);
     }
 
     /// Find a [SkillDefinition] by its `name`
@@ -236,16 +231,5 @@ impl SkillTreeTier {
         } else {
             self.skills.push((name, value))
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::Skills;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = Skills::load().unwrap();
     }
 }

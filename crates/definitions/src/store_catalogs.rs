@@ -1,15 +1,10 @@
 use crate::{currency::CurrencyType, items::ItemName};
-use anyhow::Context;
 use pocket_ark_core::{ImStr, custom_attributes::CustomAttributes, date_duration::DateDuration};
 use pocket_ark_i18n::{I18nDescription, I18nName};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::sync::OnceLock;
 use uuid::Uuid;
-
-/// Definition file for the contents of the in-game store
-const STORE_CATALOG_DEFINITION: &str =
-    include_str!("../../../src/resources/data/storeCatalog.json");
 
 pub struct StoreCatalogs {
     pub catalog: StoreCatalog,
@@ -22,14 +17,19 @@ static STORE: OnceLock<StoreCatalogs> = OnceLock::new();
 impl StoreCatalogs {
     /// Gets a static reference to the global [StoreCatalogs] collection
     pub fn get() -> &'static StoreCatalogs {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE
+            .get()
+            .expect("store catalog global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let catalog: StoreCatalog = serde_json::from_str(STORE_CATALOG_DEFINITION)
-            .context("Failed to load store catalog definitions")?;
+    /// Initialize a new [StoreCatalogs] instance from the provided definitions
+    pub fn from_definitions(catalog: StoreCatalog) -> Self {
+        Self { catalog }
+    }
 
-        Ok(Self { catalog })
+    /// Initialize the global instance
+    pub fn initialize(value: StoreCatalogs) {
+        _ = STORE.set(value);
     }
 }
 
@@ -163,15 +163,4 @@ pub struct StorePrice {
     pub original_price: u32,
     /// The final cost price of the item (The actual price)
     pub final_price: u32,
-}
-
-#[cfg(test)]
-mod test {
-    use super::StoreCatalogs;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = StoreCatalogs::load().unwrap();
-    }
 }
