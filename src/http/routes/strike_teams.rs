@@ -2,7 +2,7 @@ use crate::{
     http::{
         middleware::user::Auth,
         models::{
-            CurrencyError, DynHttpError, HttpResult, RawJson, VecWithCount,
+            CurrencyError, DynHttpError, HttpResult, RawJsonBytes, VecWithCount,
             strike_teams::{
                 PurchaseQuery, PurchaseResponse, StrikeTeamError, StrikeTeamMissionSpecific,
                 StrikeTeamMissionWithState, StrikeTeamSuccessRate, StrikeTeamWithMission,
@@ -10,8 +10,10 @@ use crate::{
             },
         },
     },
+    resources::Resources,
     services::strike_teams::create_user_strike_team::create_user_strike_team,
 };
+use anyhow::Context;
 use axum::{
     Extension, Json,
     extract::{Path, Query},
@@ -36,7 +38,7 @@ use pocket_ark_definitions::{
     },
 };
 use pocket_ark_i18n::{I18n, Localized};
-use std::{collections::HashMap, ops::DerefMut, sync::Arc};
+use std::{collections::HashMap, ops::DerefMut};
 use tracing::debug;
 use uuid::Uuid;
 
@@ -119,9 +121,11 @@ pub async fn get_success_rate(
 }
 
 /// GET /striketeams/missionConfig
-pub async fn get_mission_config() -> RawJson {
-    static DEFS: &str = include_str!("../../resources/defaults/strikeTeams/missionConfig.json");
-    RawJson(DEFS)
+pub async fn get_mission_config() -> Result<RawJsonBytes, DynHttpError> {
+    let data = Resources::get_resource_bytes("missionConfig.json")
+        .await
+        .context("failed to load configuration")?;
+    Ok(RawJsonBytes(data))
 }
 
 /// GET /striketeams/specializations
@@ -203,15 +207,16 @@ pub async fn purchase_equipment(
 }
 
 /// POST /striketeams/:id/mission/resolve
-pub async fn resolve_mission(Path(id): Path<Uuid>) -> RawJson {
+pub async fn resolve_mission(Path(id): Path<Uuid>) -> Result<RawJsonBytes, DynHttpError> {
     debug!("Strike team mission resolve: {}", id);
 
     // TODO: Handle resolving a mission in pending resolve state
     // updating to completed state and granting rewards
 
-    static DEFS: &str =
-        include_str!("../../resources/defaults/strikeTeams/placeholderResolve.json");
-    RawJson(DEFS)
+    let data = Resources::get_resource_bytes("placeholders/resolveStrikeTeamMission.json")
+        .await
+        .context("failed to load configuration")?;
+    Ok(RawJsonBytes(data))
 }
 
 /// POST /striketeams/:id/mission/:id
