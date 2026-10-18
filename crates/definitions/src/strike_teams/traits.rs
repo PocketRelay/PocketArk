@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use anyhow::Context;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
@@ -10,9 +8,6 @@ use crate::strike_teams::mission::tag::MissionTagName;
 use pocket_ark_core::ImStr;
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 
-const STRIKE_TEAM_TRAIT_DEFINITIONS: &str =
-    include_str!("../../../../src/resources/data/strikeTeamTraits.json");
-
 /// Collection of traits based on a positive or negative factor
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StrikeTeamTraits {
@@ -22,17 +17,9 @@ pub struct StrikeTeamTraits {
     pub negative: Box<[StrikeTeamTrait]>,
 }
 
-impl FromStr for StrikeTeamTraits {
-    type Err = serde_json::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s)
-    }
-}
-
 impl StrikeTeamTraits {
-    pub fn load() -> serde_json::Result<Self> {
-        Self::from_str(STRIKE_TEAM_TRAIT_DEFINITIONS)
+    pub fn from_bytes(value: &[u8]) -> serde_json::Result<Self> {
+        serde_json::from_slice(value)
     }
 
     /// Choose a random positive trait

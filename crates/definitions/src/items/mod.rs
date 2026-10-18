@@ -1,4 +1,3 @@
-use anyhow::Context;
 use category::Category;
 use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
@@ -17,10 +16,6 @@ pub mod rarity;
 /// Type of the name for items, names are [Uuid]s with some exceptions (Thanks EA)
 pub type ItemName = Uuid;
 
-/// Item definitions (628)
-const INVENTORY_DEFINITIONS: &str =
-    include_str!("../../../../src/resources/data/inventoryDefinitions.json");
-
 /// Collection of [ItemDefinition]s with a lookup index based
 /// on the [ItemName]s
 pub struct Items {
@@ -37,13 +32,11 @@ static STORE: OnceLock<Items> = OnceLock::new();
 impl Items {
     /// Gets a static reference to the global [Items] collection
     pub fn get() -> &'static Items {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE.get().expect("items global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let mut values: Vec<ItemDefinition> = serde_json::from_str(INVENTORY_DEFINITIONS)
-            .context("Failed to load inventory definitions")?;
-
+    /// Initialize a new [Items] instance from the provided definitions
+    pub fn from_definitions(mut values: Vec<ItemDefinition>) -> Self {
         values.localize(I18n::get());
 
         debug!("Loaded {} item definition(s)", values.len());
@@ -55,10 +48,15 @@ impl Items {
             .map(|(index, definition)| (definition.name, index))
             .collect();
 
-        Ok(Self {
+        Self {
             values,
             lookup_by_name,
-        })
+        }
+    }
+
+    /// Initialize the strike teams definitions
+    pub fn initialize(value: Items) {
+        _ = STORE.set(value);
     }
 
     /// Collects a list of [ItemName] for any items that these item
@@ -240,15 +238,4 @@ pub enum InventoryNamespace {
     /// Blank namespace
     #[serde(rename = "")]
     None,
-}
-
-#[cfg(test)]
-mod test {
-    use super::Items;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = Items::load().unwrap();
-    }
 }

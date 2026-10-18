@@ -5,6 +5,8 @@
 //! The collection of strike team missions available are the same for *every* player
 //! and are rotated
 
+use std::sync::OnceLock;
+
 use crate::{
     level_tables::{LevelTable, LevelTableName, LevelTables, ProgressionXp},
     strike_teams::{
@@ -18,7 +20,6 @@ use crate::{
 };
 use anyhow::Context;
 use rand::Rng;
-use std::sync::OnceLock;
 use uuid::uuid;
 
 pub mod equipment;
@@ -49,31 +50,14 @@ static STORE: OnceLock<StrikeTeams> = OnceLock::new();
 impl StrikeTeams {
     /// Gets a static reference to the global [StrikeTeamDefinitions] collection
     pub fn get() -> &'static StrikeTeams {
-        STORE.get_or_init(|| Self::load().unwrap())
+        STORE
+            .get()
+            .expect("strike teams global must be initialized")
     }
 
-    fn load() -> anyhow::Result<Self> {
-        let traits: StrikeTeamTraits =
-            StrikeTeamTraits::load().context("Failed to load strike team traits")?;
-        let tags: MissionTags =
-            MissionTags::load().context("Failed to load strike team mission tags")?;
-
-        let missions: MissionDefinitions =
-            MissionDefinitions::load().context("Failed to load strike team mission definitions")?;
-
-        let specializations: StrikeTeamSpecializations = StrikeTeamSpecializations::load()
-            .context("Failed to load strike team equipment definitions")?;
-
-        let equipment = StrikeTeamEquipmentList::load()
-            .context("Failed to load strike team equipment definitions")?;
-
-        Ok(Self {
-            traits,
-            tags,
-            missions,
-            equipment,
-            specializations,
-        })
+    /// Initialize the strike teams definitions
+    pub fn initialize(value: StrikeTeams) {
+        _ = STORE.set(value);
     }
 }
 
@@ -86,12 +70,13 @@ pub struct StrikeTeamData {
     pub positive_trait: StrikeTeamTrait,
 }
 
-pub fn random_strike_team<R>(rng: &mut R) -> anyhow::Result<StrikeTeamData>
+pub fn random_strike_team<R>(
+    strike_teams: &StrikeTeams,
+    rng: &mut R,
+) -> anyhow::Result<StrikeTeamData>
 where
     R: Rng,
 {
-    let strike_teams = StrikeTeams::get();
-
     // Default level
     let level: u32 = 1;
 
@@ -123,15 +108,4 @@ where
         xp,
         positive_trait,
     })
-}
-
-#[cfg(test)]
-mod test {
-    use super::StrikeTeams;
-
-    /// Tests ensuring loading succeeds
-    #[test]
-    fn ensure_load_succeed() {
-        _ = StrikeTeams::load().unwrap();
-    }
 }

@@ -7,9 +7,6 @@ use serde::{Deserialize, Serialize};
 use pocket_ark_core::ImStr;
 use pocket_ark_i18n::{I18n, I18nDesc, I18nName, Localized};
 
-const STRIKE_TEAM_TAG_DEFINITIONS: &str =
-    include_str!("../../../../../src/resources/data/strikeTeamTags.json");
-
 /// Collection of mission tags, split based on their different types
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MissionTags {
@@ -19,17 +16,9 @@ pub struct MissionTags {
     pub mission: Vec<MissionTag>,
 }
 
-impl FromStr for MissionTags {
-    type Err = serde_json::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s)
-    }
-}
-
 impl MissionTags {
-    pub fn load() -> serde_json::Result<Self> {
-        Self::from_str(STRIKE_TEAM_TAG_DEFINITIONS)
+    pub fn from_bytes(value: &[u8]) -> serde_json::Result<Self> {
+        serde_json::from_slice(value)
     }
 
     pub fn random_enemy<R>(&self, rng: &mut R) -> anyhow::Result<&MissionTag>

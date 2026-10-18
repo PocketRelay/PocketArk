@@ -15,7 +15,7 @@ use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, Localized};
 use rand::{Rng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, str::FromStr};
+use std::collections::HashMap;
 use strum::{Display, EnumIter, FromRepr};
 
 pub mod level;
@@ -24,9 +24,6 @@ pub mod modifier;
 pub mod rewards;
 pub mod tag;
 pub mod wave;
-
-const STRIKE_TEAM_MISSION_DEFINITIONS: &str =
-    include_str!("../../../../../src/resources/data/strikeTeamMissions.json");
 
 /// Collection of mission definitions
 #[derive(Deserialize)]
@@ -37,18 +34,9 @@ pub struct MissionDefinitions {
     pub special: Vec<MissionDefinition>,
 }
 
-impl FromStr for MissionDefinitions {
-    type Err = serde_json::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let this: MissionDefinitions = serde_json::from_str(s)?;
-        Ok(this)
-    }
-}
-
 impl MissionDefinitions {
-    pub fn load() -> serde_json::Result<Self> {
-        Self::from_str(STRIKE_TEAM_MISSION_DEFINITIONS)
+    pub fn from_bytes(value: &[u8]) -> serde_json::Result<Self> {
+        serde_json::from_slice(value)
     }
 
     pub fn by_difficulty(
@@ -183,6 +171,7 @@ pub struct StrikeTeamMissionData {
 /// Generates a random mission for the provided `difficulty` and whether
 /// the mission should be an Apex mission
 pub fn random_mission<R>(
+    strike_teams: &StrikeTeams,
     rng: &mut R,
     difficulty: MissionDifficulty,
     apex: bool,
@@ -190,8 +179,6 @@ pub fn random_mission<R>(
 where
     R: Rng,
 {
-    let strike_teams = StrikeTeams::get();
-
     let accessibility = match (&difficulty, apex) {
         // Platinum can only be played in multiplayer
         (MissionDifficulty::Platinum, _) => MissionAccessibility::MultiPlayer,

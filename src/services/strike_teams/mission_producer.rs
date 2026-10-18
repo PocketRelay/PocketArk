@@ -9,8 +9,9 @@ use pocket_ark_database::{
     DbPool, dto::strike_team_mission::CreateStrikeTeamMissionDto,
     repositories::strike_team_mission::StrikeTeamMissionRepository,
 };
-use pocket_ark_definitions::strike_teams::mission::{
-    MissionDifficulty, StrikeTeamMissionData, random_mission,
+use pocket_ark_definitions::strike_teams::{
+    StrikeTeams,
+    mission::{MissionDifficulty, StrikeTeamMissionData, random_mission},
 };
 use rand::{SeedableRng, rngs::StdRng};
 use tokio::time::sleep;
@@ -22,14 +23,17 @@ use uuid::Uuid;
 pub struct MissionBackgroundTask {
     /// Database access is required for missions
     db: DbPool,
+
+    /// Strike teams definitions access
+    strike_teams: &'static StrikeTeams,
 }
 
 /// Represents an hour offset for execution
 type HourOffset = u32;
 
 impl MissionBackgroundTask {
-    pub fn new(db: DbPool) -> Self {
-        Self { db }
+    pub fn new(db: DbPool, strike_teams: &'static StrikeTeams) -> Self {
+        Self { db, strike_teams }
     }
 
     /// Starts the task in a background tokio task
@@ -182,39 +186,74 @@ impl MissionBackgroundTask {
         // Bronze standard issued at 12am and 12pm
         if offset == AM_12 || offset == PM_12 {
             // Bronze Standard
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Bronze, false)?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Bronze,
+                false,
+            )?);
         }
 
         // Silver standard issued at 4am and 4pm
         if offset == AM_4 || offset == PM_4 {
             // Silver Standard
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Silver, false)?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Silver,
+                false,
+            )?);
         }
 
         // Gold standard issued at 8am and 8pm
         if offset == AM_8 || offset == PM_8 {
             // Gold Standard
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Gold, false)?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Gold,
+                false,
+            )?);
         }
 
         // Bronze apex issued at 12am
         if offset == AM_12 {
             // Bronze Apex
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Bronze, true)?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Bronze,
+                true,
+            )?);
         }
 
         // Gold apex issued at 4pm
         if offset == PM_4 {
             // Gold Apex
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Gold, true)?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Gold,
+                true,
+            )?);
         }
 
         // Silver and platinum apex issued at 8pm
         if offset == PM_8 {
             // Silver Apex
             // Platinum Apex
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Silver, true)?);
-            mission_data.push(random_mission(&mut rng, MissionDifficulty::Platinum, true)?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Silver,
+                true,
+            )?);
+            mission_data.push(random_mission(
+                self.strike_teams,
+                &mut rng,
+                MissionDifficulty::Platinum,
+                true,
+            )?);
         }
 
         let create_mission_data = mission_data

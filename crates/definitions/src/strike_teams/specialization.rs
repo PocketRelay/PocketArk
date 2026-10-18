@@ -1,26 +1,14 @@
 use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-
-const STRIKE_TEAM_SPECIALIZATION_DEFINITIONS: &str =
-    include_str!("../../../../src/resources/data/strikeTeamSpecialization.json");
 
 pub struct StrikeTeamSpecializations {
     pub specializations: Vec<StrikeTeamSpecialization>,
 }
 
 impl StrikeTeamSpecializations {
-    pub fn load() -> serde_json::Result<Self> {
-        Self::from_str(STRIKE_TEAM_SPECIALIZATION_DEFINITIONS)
-    }
-}
-
-impl FromStr for StrikeTeamSpecializations {
-    type Err = serde_json::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let specializations: Vec<StrikeTeamSpecialization> = serde_json::from_str(s)?;
+    pub fn from_bytes(value: &[u8]) -> serde_json::Result<Self> {
+        let specializations: Vec<StrikeTeamSpecialization> = serde_json::from_slice(value)?;
         Ok(Self { specializations })
     }
 }

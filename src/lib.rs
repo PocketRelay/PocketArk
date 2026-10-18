@@ -26,6 +26,7 @@ use tokio::signal;
 use utils::signing::SigningKey;
 
 use crate::config::{TunnelConfig, VERSION, load_config};
+use crate::services::definitions::{initialize_items, initialize_strike_teams};
 use crate::services::game::matchmaking::Matchmaking;
 use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
@@ -55,7 +56,11 @@ pub async fn run() {
     // This step may take longer than expected so its spawned instead of joined
     tokio::spawn(log_connection_urls(config.port));
 
-    // Pre-initialize all shared definitions
+    // Initialize all shared definition globals
+    initialize_items()
+        .await
+        .expect("failed to initialize items");
+
     _ = Items::get();
     _ = Classes::get();
     _ = LevelTables::get();
@@ -63,13 +68,17 @@ pub async fn run() {
     _ = I18n::get();
     _ = Badges::get();
     _ = MatchModifiers::get();
-    _ = StrikeTeams::get();
+
+    initialize_strike_teams()
+        .await
+        .expect("failed to load strike teams");
+
     _ = Packs::get();
 
     let (db, signing_key) = join!(pocket_ark_database::init(), SigningKey::global());
 
     // Start the strike team mission background task
-    MissionBackgroundTask::new(db.clone()).start();
+    MissionBackgroundTask::new(db.clone(), StrikeTeams::get()).start();
 
     let games = Arc::new(Games::default());
     let sessions = Arc::new(Sessions::new(signing_key));

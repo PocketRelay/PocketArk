@@ -1,6 +1,7 @@
 pub mod activity;
 pub mod challenges;
 pub mod characters;
+pub mod definitions;
 pub mod game;
 pub mod items;
 pub mod mission;

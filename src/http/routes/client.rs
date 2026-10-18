@@ -42,6 +42,9 @@ use pocket_ark_database::{
         currency::CurrencyRepository, shared_data::SharedDataRepository, users::UserRepository,
     },
 };
+use pocket_ark_definitions::{
+    classes::Classes, items::Items, level_tables::LevelTables, strike_teams::StrikeTeams,
+};
 use std::{ops::DerefMut, sync::Arc};
 use tracing::{debug, error};
 use uuid::Uuid;
@@ -95,6 +98,7 @@ pub async fn login(
 pub async fn create(
     Extension(db): Extension<DbPool>,
     Extension(sessions): Extension<Arc<Sessions>>,
+
     JsonValidated(CreateUserRequest {
         email,
         username,
@@ -121,13 +125,25 @@ pub async fn create(
         password,
     };
 
+    let item_definitions = Items::get();
+    let classes = Classes::get();
+    let level_tables = LevelTables::get();
+    let strike_teams = StrikeTeams::get();
+
     let user = {
         let mut transaction = db.begin().await?;
         // Create the user account
         let user = UserRepository::create(transaction.deref_mut(), create).await?;
 
         // Give the user all the default items
-        create_default_items(&mut transaction, &user).await?;
+        create_default_items(
+            item_definitions,
+            classes,
+            level_tables,
+            &mut transaction,
+            &user,
+        )
+        .await?;
 
         // Give the user the default currencies
         CurrencyRepository::add_initial_currency(transaction.deref_mut(), user.id).await?;
@@ -136,7 +152,7 @@ pub async fn create(
         SharedDataRepository::create_default(transaction.deref_mut(), user.id).await?;
 
         // Setup the user strike teams
-        create_user_strike_team(&mut transaction, &user).await?;
+        create_user_strike_team(strike_teams, &mut transaction, &user).await?;
 
         transaction.commit().await?;
 

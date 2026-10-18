@@ -53,13 +53,12 @@ pub async fn load_default_inventory_definition() -> anyhow::Result<DefaultInvent
 /// Adds the collection of default items and characters to the
 /// provided user
 pub async fn create_default_items(
+    item_definitions: &Items,
+    classes: &Classes,
+    level_tables: &LevelTables,
     db: &mut DbTransaction<'_>,
     user: &UserDto,
 ) -> anyhow::Result<()> {
-    let item_definitions = Items::get();
-    let classes = Classes::get();
-    let level_tables = LevelTables::get();
-
     let defs = load_default_inventory_definition().await?;
 
     for item in defs.items {

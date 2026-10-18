@@ -36,7 +36,7 @@ use pocket_ark_definitions::{
     },
 };
 use pocket_ark_i18n::{I18n, Localized};
-use std::{collections::HashMap, ops::DerefMut};
+use std::{collections::HashMap, ops::DerefMut, sync::Arc};
 use tracing::debug;
 use uuid::Uuid;
 
@@ -282,12 +282,14 @@ pub async fn purchase(
     Auth(user): Auth,
     Extension(db): Extension<DbPool>,
 ) -> HttpResult<PurchaseResponse> {
+    let strike_teams = StrikeTeams::get();
     // Get the number of teams they already have
-    let strike_teams = StrikeTeamsRepository::get_by_user_count(&db, user.id).await? as usize;
+    let user_strike_teams_count =
+        StrikeTeamsRepository::get_by_user_count(&db, user.id).await? as usize;
 
     // Get the cost of a new team
     let strike_team_cost = *STRIKE_TEAM_COSTS
-        .get(strike_teams)
+        .get(user_strike_teams_count)
         .ok_or(StrikeTeamError::MaxTeams)?;
 
     let (mut team, currency_balance): (StrikeTeamDto, CurrencyDto) = {
@@ -302,7 +304,7 @@ pub async fn purchase(
         .await?;
 
         // Create the strike team
-        let team = create_user_strike_team(&mut transaction, &user).await?;
+        let team = create_user_strike_team(&strike_teams, &mut transaction, &user).await?;
 
         transaction.commit().await?;
 
@@ -312,7 +314,7 @@ pub async fn purchase(
     team.localize(I18n::get());
 
     // Get the cost of the next team
-    let next_purchase_cost = STRIKE_TEAM_COSTS.get(strike_teams + 1).copied();
+    let next_purchase_cost = STRIKE_TEAM_COSTS.get(user_strike_teams_count + 1).copied();
 
     Ok(Json(PurchaseResponse {
         currency_balance,

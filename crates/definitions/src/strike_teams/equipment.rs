@@ -3,25 +3,15 @@ use pocket_ark_core::custom_attributes::CustomAttributes;
 use pocket_ark_i18n::{I18n, I18nDescription, I18nName, Localized};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::{collections::HashMap, str::FromStr};
-
-const STRIKE_TEAM_EQUIPMENT_DEFINITIONS: &str =
-    include_str!("../../../../src/resources/data/strikeTeamEquipment.json");
+use std::collections::HashMap;
 
 pub struct StrikeTeamEquipmentList {
     pub equipment: Vec<StrikeTeamEquipment>,
 }
 
 impl StrikeTeamEquipmentList {
-    pub fn load() -> serde_json::Result<Self> {
-        Self::from_str(STRIKE_TEAM_EQUIPMENT_DEFINITIONS)
-    }
-}
-
-impl FromStr for StrikeTeamEquipmentList {
-    type Err = serde_json::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let equipment: Vec<StrikeTeamEquipment> = serde_json::from_str(s)?;
+    pub fn from_bytes(value: &[u8]) -> serde_json::Result<Self> {
+        let equipment: Vec<StrikeTeamEquipment> = serde_json::from_slice(value)?;
         Ok(Self { equipment })
     }
 }
