@@ -42,6 +42,7 @@ where
 }
 
 /// Raw pre encoded JSON string response
+#[allow(unused)]
 pub struct RawJson(pub &'static str);
 
 impl IntoResponse for RawJson {

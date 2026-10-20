@@ -309,7 +309,7 @@ pub async fn purchase(
         .await?;
 
         // Create the strike team
-        let team = create_user_strike_team(&strike_teams, &mut transaction, &user).await?;
+        let team = create_user_strike_team(strike_teams, &mut transaction, &user).await?;
 
         transaction.commit().await?;
 
