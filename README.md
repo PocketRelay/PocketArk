@@ -26,7 +26,7 @@ The **Pocket Ark** software in all its forms are in no way or form supported, en
 - [x] Creating and logging into accounts
     - This is no longer done within the game it has instead been moved to the client utility but is fully supported and handles creating accounts along with giving out the default items
 - [x] Creating and playing games
-    - Currently matchmaking is not supported at this stage but you can play by yourself the current matchmaking issue is https://github.com/PocketRelay/PocketArk/issues/1
+    - Matchmaking is currently supported however may not be entirely accurate https://github.com/PocketRelay/PocketArk/issues/1
 - [x] In-game item store
     - You can purchase items from the store and open packs, however the contents of the packs may not be accurate to what you'd get on the official servers as they are created from assumptions through the pack descriptions
     - (Not all packs may be supported at this stage)
@@ -35,7 +35,7 @@ The **Pocket Ark** software in all its forms are in no way or form supported, en
 - [ ] Leaderboards
     - Leaderboards have not yet been implemented, there is currently no tracking issue for this
 - [ ] Matchmaking
-    - Matchmaking as mentioned earlier is not yet functional, you can track the progress of it using this issue https://github.com/PocketRelay/PocketArk/issues/1
+    - Matchmaking as mentioned earlier is not completely accurate https://github.com/PocketRelay/PocketArk/issues/1
 - [ ] Challenges
     - Challenges are not properly implemented yet, some ground logic is there but they are not yet functional, there is no tracking issue for this yet
 - [ ] Dashboard / Inventory Editing
