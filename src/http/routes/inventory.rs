@@ -5,13 +5,14 @@ use crate::{
         middleware::{JsonDump, user::Auth},
         models::{
             DynHttpError, HttpResult,
+            activity::HttpActivityResult,
             inventory::{
                 ConsumeRequest, InventoryError, InventoryRequestQuery, InventoryResponse,
                 InventorySeenRequest, ItemDefinitionsResponse,
             },
         },
     },
-    services::activity::{ActivityResult, ActivityService},
+    services::activity::{ActivityService, result::ActivityResult},
 };
 use axum::{Extension, Json, extract::Query};
 use hyper::StatusCode;
@@ -147,7 +148,7 @@ pub async fn consume_inventory(
     Auth(user): Auth,
     Extension(db): Extension<DbPool>,
     JsonDump(req): JsonDump<ConsumeRequest>,
-) -> HttpResult<ActivityResult> {
+) -> HttpResult<HttpActivityResult> {
     const CONSUME_COUNT: u32 = 1;
 
     debug!("Consume inventory items: {:?}", req);
@@ -174,7 +175,7 @@ pub async fn consume_inventory(
             // Create the activity event
             let event = ActivityEvent::new(ActivityName::ItemConsumed)
                 .with_attribute("category", item_definition.category.to_string())
-                .with_attribute("definitionName", item_definition.name)
+                .with_attribute("definitionName", item_definition.name.to_string())
                 .with_attribute("count", CONSUME_COUNT);
 
             events.push(event);
@@ -186,5 +187,5 @@ pub async fn consume_inventory(
         result
     };
 
-    Ok(Json(result))
+    Ok(Json(HttpActivityResult::from(result)))
 }

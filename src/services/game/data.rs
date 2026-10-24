@@ -14,7 +14,7 @@ use crate::{
         processors::{MISSION_PROCESSOR_PIPELINE, ProcessMissionData},
     },
     services::{
-        activity::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
+        activity::result::{ChallengeStatusChange, ChallengeUpdateCounter, ChallengeUpdated},
         challenges::apply_challenge_progress_change,
     },
 };

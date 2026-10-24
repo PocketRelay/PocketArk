@@ -14,6 +14,7 @@
     "enemytype",
     "firetype",
     "hmac",
+    "impl<Event: DeserializeOwned> ErasedActivityProcessor for BoxedActivityProcessor<Event>",
     "InventoryItemsRepository::add_item(\n            &db,\n            CreateInventoryItemDto {\n                \n            }\n            &user,\n            definition.name,\n            definition.capacity.unwrap_or(100_000),\n            definition.capacity,\n        )",
     "Jacobtread",
     "KETT",

@@ -1,12 +1,12 @@
-use std::{collections::HashMap, fmt::Display, str::FromStr};
+use std::{collections::HashMap, fmt::Display};
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use uuid::Uuid;
 
 /// Represents the name for an activity, contains built in
 /// server activity types along with the [Uuid] variant for
 /// runtime defined activities
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ActivityName {
     /// Item was consumed
     ///
@@ -99,8 +99,8 @@ pub enum ActivityName {
     Named(Uuid),
 }
 
-/// Type alias for a string representing an attribute name
 pub type AttributeName = String;
+pub type AttributesMap = serde_json::Map<AttributeName, serde_json::Value>;
 
 /// Represents a published activity event
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -108,7 +108,7 @@ pub struct ActivityEvent {
     /// The name of the activity event
     pub name: ActivityName,
     /// Data attributes associated with this activity event
-    pub attributes: HashMap<AttributeName, ActivityAttribute>,
+    pub attributes: AttributesMap,
 }
 
 impl ActivityEvent {
@@ -123,60 +123,17 @@ impl ActivityEvent {
     /// Adds an attribute to an activity event
     pub fn with_attribute<V>(mut self, key: &str, value: V) -> Self
     where
-        V: Into<ActivityAttribute>,
+        V: Into<serde_json::Value>,
     {
         self.attributes.insert(key.to_string(), value.into());
         self
     }
 
-    #[allow(unused)]
-    pub fn attribute_string(&self, key: &str) -> Result<&String, AttributeError> {
-        let attribute = self
-            .attributes
-            .get(key)
-            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
-
-        match attribute {
-            ActivityAttribute::String(value) => Ok(value),
-            _ => Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
-        }
-    }
-
-    /// Obtains an attribute by attempting to parse it
-    /// from a [ActivityAttribute::String] value
-    pub fn attribute_parsed<V>(&self, key: &str) -> Result<V, AttributeError>
+    pub fn parse_attributes<V>(&self) -> Result<V, AttributeError>
     where
-        V: FromStr,
-        <V as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+        V: DeserializeOwned,
     {
-        let attribute = self
-            .attributes
-            .get(key)
-            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
-
-        let value = match attribute {
-            ActivityAttribute::String(value) => value,
-            _ => return Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
-        };
-
-        value
-            .parse()
-            // Handle parsing error
-            .map_err(|err| {
-                AttributeError::new(key, AttributeErrorCause::ParseFailed(Box::new(err)))
-            })
-    }
-
-    pub fn attribute_uuid(&self, key: &str) -> Result<Uuid, AttributeError> {
-        let attribute = self
-            .attributes
-            .get(key)
-            .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
-
-        match attribute {
-            ActivityAttribute::Uuid(value) => Ok(*value),
-            _ => Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
-        }
+        Ok(serde_json::from_value(serde_json::Value::Object(self.attributes.clone())).unwrap())
     }
 
     pub fn attribute_u32(&self, key: &str) -> Result<u32, AttributeError> {
@@ -186,7 +143,16 @@ impl ActivityEvent {
             .ok_or(AttributeError::new(key, AttributeErrorCause::Missing))?;
 
         match attribute {
-            ActivityAttribute::Integer(value) => Ok(*value),
+            serde_json::Value::Number(value) => {
+                let value = match value.as_u64() {
+                    Some(value) => value,
+                    None => {
+                        return Err(AttributeError::new(key, AttributeErrorCause::IncorrectType));
+                    }
+                };
+
+                Ok(value as u32)
+            }
             _ => Err(AttributeError::new(key, AttributeErrorCause::IncorrectType)),
         }
     }
@@ -297,6 +263,8 @@ pub enum AttributeErrorCause {
     Missing,
     /// Attribute was an unexpected type
     IncorrectType,
+    /// Number value was invalid
+    InvalidNumber,
     /// Failed to parse the value
     ParseFailed(Box<dyn std::error::Error + Send + Sync + 'static>),
 }
@@ -321,6 +289,7 @@ impl Display for AttributeErrorCause {
                 f.write_str("Failed to parse: ")?;
                 Display::fmt(err, f)
             }
+            AttributeErrorCause::InvalidNumber => f.write_str("Invalid attribute number value"),
         }
     }
 }
@@ -346,18 +315,18 @@ pub struct ActivityDescriptor {
 #[serde(untagged)]
 pub enum ActivityFilter {
     /// Direct value comparison
-    Value(ActivityAttribute),
+    Value(serde_json::Value),
     /// Not equal comparison
     NotEqual {
         /// The value to compare not equal against
         #[serde(rename = "$ne")]
-        ne: ActivityAttribute,
+        ne: serde_json::Value,
     },
 }
 
 impl ActivityFilter {
     /// Checks whether the provided [ActivityAttribute] matches this filter
-    pub fn matches(&self, other: &ActivityAttribute) -> bool {
+    pub fn matches(&self, other: &serde_json::Value) -> bool {
         match self {
             Self::Value(value) => value.eq(other),
             Self::NotEqual { ne } => ne.ne(other),

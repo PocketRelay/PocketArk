@@ -1,10 +1,10 @@
 use crate::{
     http::{
         middleware::{JsonDump, user::Auth},
-        models::{DynHttpError, RawJsonBytes},
+        models::{DynHttpError, RawJsonBytes, activity::HttpActivityResult},
     },
     resources::Resources,
-    services::activity::ActivityResult,
+    services::activity::result::ActivityResult,
 };
 use anyhow::Context;
 use axum::Json;
@@ -19,12 +19,12 @@ use tracing::debug;
 pub async fn create_report(
     Auth(user): Auth,
     JsonDump(req): JsonDump<Value>,
-) -> Json<ActivityResult> {
+) -> Json<HttpActivityResult> {
     debug!("Activity reported: {} {}", user.username, req);
 
     // TODO: actually handle activities
 
-    Json(ActivityResult::default())
+    Json(HttpActivityResult::from(ActivityResult::default()))
 }
 
 const ACTIVITY_METADATA_RESOURCE: &str = "activityMetadata.json";

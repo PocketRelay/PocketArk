@@ -1,5 +1,6 @@
+use crate::http::models::activity::HttpActivityResult;
+
 use super::HttpError;
-use crate::services::activity::ActivityResult;
 use hyper::StatusCode;
 use pocket_ark_database::dto::{currency::CurrencyDto, inventory_items::InventoryItemDto};
 use pocket_ark_definitions::{
@@ -48,7 +49,7 @@ pub struct ObtainStoreItemRequest {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ObtainStoreItemResponse {
-    pub generated_activity_result: ActivityResult,
+    pub generated_activity_result: HttpActivityResult,
     pub items: Vec<InventoryItemDto>,
     pub definitions: Vec<&'static ItemDefinition>,
 }

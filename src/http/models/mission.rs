@@ -1,4 +1,3 @@
-use crate::services::activity::{ChallengeUpdated, PrestigeProgression};
 use hyper::StatusCode;
 use pocket_ark_core::sku::Sku;
 use pocket_ark_database::dto::{inventory_items::InventoryItemDto, users::UserId};
@@ -12,6 +11,8 @@ use serde_with::serde_as;
 use std::collections::{BTreeMap, HashMap};
 use thiserror::Error;
 use uuid::Uuid;
+
+use crate::services::activity::result::{ChallengeUpdated, PrestigeProgression};
 
 use super::HttpError;
 

@@ -1,5 +1,6 @@
+use crate::http::models::activity::HttpActivityResult;
+
 use super::HttpError;
-use crate::services::activity::ActivityResult;
 use chrono::{DateTime, Utc};
 use hyper::StatusCode;
 use pocket_ark_database::dto::{
@@ -50,7 +51,7 @@ pub struct ResolveMissionResponse {
     pub team: StrikeTeamWithMission,
     pub mission_successful: bool,
     pub traits_acquired: Vec<StrikeTeamTrait>,
-    pub activity_response: ActivityResult,
+    pub activity_response: HttpActivityResult,
 }
 
 #[skip_serializing_none]

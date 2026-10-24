@@ -5,13 +5,14 @@ use crate::{
         middleware::{JsonDump, user::Auth},
         models::{
             CurrencyError, DynHttpError, HttpResult,
+            activity::HttpActivityResult,
             store::{
                 ClaimUnclaimedResponse, ObtainStoreItemRequest, ObtainStoreItemResponse,
                 StoreCatalogResponse, StoreError, UpdateSeenArticles, UserCurrenciesResponse,
             },
         },
     },
-    services::activity::{ActivityResult, ActivityService},
+    services::activity::{ActivityService, result::ActivityResult},
 };
 use axum::{Extension, Json};
 use hyper::StatusCode;
@@ -110,11 +111,11 @@ pub async fn obtain_article(
         // Create the activity event
         let event = ActivityEvent::new(ActivityName::ArticlePurchased)
             .with_attribute("currencyName", req.currency.to_string())
-            .with_attribute("articleName", article.name)
+            .with_attribute("articleName", article.name.to_string())
             .with_attribute("count", 1);
 
         // Process the event
-        let result = ActivityService::process_event(&mut transaction, &user, event).await?;
+        let result = ActivityService::process_events(&mut transaction, &user, vec![event]).await?;
         transaction.commit().await?;
 
         result
@@ -123,7 +124,7 @@ pub async fn obtain_article(
     Ok(Json(ObtainStoreItemResponse {
         items: result.items_earned.clone(),
         definitions: result.item_definitions.clone(),
-        generated_activity_result: result,
+        generated_activity_result: HttpActivityResult::from(result),
     }))
 }
 

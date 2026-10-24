@@ -3,6 +3,7 @@ use hyper::{header::CONTENT_TYPE, http::HeaderValue};
 use serde::Serialize;
 use std::{borrow::Cow, fmt::Debug};
 
+pub mod activity;
 pub mod auth;
 pub mod challenge;
 pub mod character;
