@@ -1,11 +1,11 @@
-use crate::{resources::Resources, services::characters::acquire_item_character};
+use crate::{resources::Resources, services::items::characters::acquire_item_character};
 use anyhow::anyhow;
 use chrono::Utc;
 use pocket_ark_database::{
     DbTransaction,
     dto::{
         inventory_items::{CreateInventoryItemDto, InventoryItemDto},
-        users::UserDto,
+        users::{UserDto, UserId},
     },
     repositories::inventory_items::InventoryItemsRepository,
 };
@@ -21,6 +21,8 @@ use serde::Deserialize;
 use serde_with::skip_serializing_none;
 use std::ops::DerefMut;
 use uuid::Uuid;
+
+pub mod characters;
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize)]
@@ -50,6 +52,48 @@ pub async fn load_default_inventory_definition() -> anyhow::Result<DefaultInvent
     Ok(parsed)
 }
 
+pub struct AcquireItem<'defs> {
+    /// Definition of the item to acquire
+    pub definition: &'defs ItemDefinition,
+    /// Number of items to acquire
+    pub stack_size: u32,
+}
+
+/// Acquires a item from the `user_id` handles additional behavior such
+/// as character acquisition for character items
+pub async fn acquire_item(
+    classes: &Classes,
+    level_tables: &LevelTables,
+
+    db: &mut DbTransaction<'_>,
+    user_id: UserId,
+    item: AcquireItem<'_>,
+) -> anyhow::Result<InventoryItemDto> {
+    // TODO: Handle having reached item maximum capacity, excess needs to be processed
+    let created_item = InventoryItemsRepository::add_item(
+        db.deref_mut(),
+        CreateInventoryItemDto {
+            user_id,
+            definition_name: item.definition.name,
+            stack_size: item.stack_size,
+            capacity: item.definition.capacity,
+            created_at: Utc::now(),
+        },
+    )
+    .await?;
+
+    // Handle character creation if the item is a character item
+    if item
+        .definition
+        .category
+        .is_within(&Category::Base(BaseCategory::Characters))
+    {
+        acquire_item_character(classes, level_tables, db, user_id, &item.definition.name).await?;
+    }
+
+    Ok(created_item)
+}
+
 /// Adds the collection of default items and characters to the
 /// provided user
 pub async fn create_default_items(
@@ -66,26 +110,17 @@ pub async fn create_default_items(
             .by_name(&item.id)
             .ok_or(anyhow!("Missing default item '{}'", item.id))?;
 
-        InventoryItemsRepository::add_item(
-            db.deref_mut(),
-            CreateInventoryItemDto {
-                user_id: user.id,
-                definition_name: definition.name,
+        acquire_item(
+            classes,
+            level_tables,
+            db,
+            user.id,
+            AcquireItem {
+                definition,
                 stack_size: item.stack_size,
-                capacity: definition.capacity,
-                created_at: Utc::now(),
             },
         )
-        .await
-        .unwrap();
-
-        // Handle character creation if the item is a character item
-        if definition
-            .category
-            .is_within(&Category::Base(BaseCategory::Characters))
-        {
-            acquire_item_character(db, user, &definition.name, classes, level_tables).await?;
-        }
+        .await?;
     }
 
     Ok(())

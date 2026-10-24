@@ -5,7 +5,7 @@ use pocket_ark_database::{
     DbTransaction,
     dto::{
         character::{CreateCharacterDto, PlayStats},
-        users::UserDto,
+        users::UserId,
     },
     repositories::characters::CharactersRepository,
 };
@@ -20,10 +20,11 @@ use uuid::Uuid;
 const DEFAULT_CHARACTER_LEVEL: u32 = 1;
 
 pub fn acquire_character_dto(
-    user: &UserDto,
-    item: &ItemName,
     classes: &Classes,
     level_tables: &LevelTables,
+
+    user_id: UserId,
+    item: &ItemName,
 ) -> anyhow::Result<CreateCharacterDto> {
     let class = classes
         .by_item(item)
@@ -39,7 +40,7 @@ pub fn acquire_character_dto(
 
     Ok(CreateCharacterDto {
         character_id: Uuid::new_v4(),
-        user_id: user.id,
+        user_id,
         class_name: class.name,
         level,
         xp,
@@ -59,11 +60,12 @@ pub fn acquire_character_dto(
 /// Handles the initialization of a character after an item for
 /// that character has been acquired
 pub async fn acquire_item_character(
-    db: &mut DbTransaction<'_>,
-    user: &UserDto,
-    item: &ItemName,
     classes: &Classes,
     level_tables: &LevelTables,
+
+    db: &mut DbTransaction<'_>,
+    user_id: UserId,
+    item: &ItemName,
 ) -> anyhow::Result<()> {
     let class = classes
         .by_item(item)
@@ -71,15 +73,13 @@ pub async fn acquire_item_character(
 
     // User already has the character unlocked
     if let Some(_existing) =
-        CharactersRepository::get_by_user_by_class(db.deref_mut(), user.id, class.name).await?
+        CharactersRepository::get_by_user_by_class(db.deref_mut(), user_id, class.name).await?
     {
         // TODO: Getting the same character as a reward again adds 4 skill points for card rank II and IV and 5 points for VI, VII, and X
-
         return Ok(());
     }
 
-    let dto = acquire_character_dto(user, item, classes, level_tables)?;
+    let dto = acquire_character_dto(classes, level_tables, user_id, item)?;
     CharactersRepository::create(db.deref_mut(), dto).await?;
-
     Ok(())
 }

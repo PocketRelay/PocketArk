@@ -38,6 +38,7 @@ impl MissionOutcomeProcessor for ModifiersProcessor {
                     outcome.add_reward_xp(&modifier.name, amount);
                 }
 
+                // Apply currency rewards
                 modifier_entry
                     .currency_data
                     .iter()

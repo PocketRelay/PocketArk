@@ -4,14 +4,13 @@
 //! The [ActivityService] should process these activities and update stored information
 //! and rewards accordingly
 
-use crate::services::{characters::acquire_item_character, items::get_droppable_items};
-use chrono::Utc;
+use crate::services::items::{AcquireItem, acquire_item, get_droppable_items};
 use pocket_ark_database::{
     DbTransaction,
     dto::{
         challenge_progress::{ChallengeCounterName, ChallengeId},
         currency::CurrencyDto,
-        inventory_items::{CreateInventoryItemDto, InventoryItemDto},
+        inventory_items::InventoryItemDto,
         users::UserDto,
     },
     repositories::{currency::CurrencyRepository, inventory_items::InventoryItemsRepository},
@@ -158,27 +157,19 @@ impl ActivityService {
 
         // Give the user the article item
         {
-            // TODO: Check that the user hasn't already reached the item capacity
-
-            let item = InventoryItemsRepository::add_item(
-                db.deref_mut(),
-                CreateInventoryItemDto {
-                    user_id: user.id,
-                    definition_name: item_definition.name,
+            let item = acquire_item(
+                classes,
+                level_tables,
+                db,
+                user.id,
+                AcquireItem {
+                    definition: item_definition,
                     stack_size,
-                    capacity: item_definition.capacity,
-                    created_at: Utc::now(),
                 },
             )
             .await?;
 
             result.add_item(item, stack_size, item_definition);
-
-            // Handle character creation for character items
-            if item_definition.category.base_eq(&BaseCategory::Characters) {
-                acquire_item_character(db, user, &item_definition.name, classes, level_tables)
-                    .await?;
-            }
         }
 
         Ok(())
@@ -251,24 +242,19 @@ impl ActivityService {
                 stack_size,
             } = reward;
 
-            let item = InventoryItemsRepository::add_item(
-                db.deref_mut(),
-                CreateInventoryItemDto {
-                    user_id: user.id,
-                    definition_name,
+            let item = acquire_item(
+                classes,
+                level_tables,
+                db,
+                user.id,
+                AcquireItem {
+                    definition,
                     stack_size,
-                    capacity: definition.capacity,
-                    created_at: Utc::now(),
                 },
             )
             .await?;
 
             result.add_item(item, stack_size, definition);
-
-            // Handle character creation for character items
-            if definition.category.base_eq(&BaseCategory::Characters) {
-                acquire_item_character(db, user, &definition.name, classes, level_tables).await?;
-            }
         }
 
         Ok(())
