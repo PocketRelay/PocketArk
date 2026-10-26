@@ -31,7 +31,6 @@ use crate::services::game::store::Games;
 use crate::services::tunnel::udp_tunnel::start_udp_tunnel;
 use crate::services::tunnel::{TunnelService, tunnel_keep_alive};
 use crate::utils::logging;
-use crate::utils::public_address::log_connection_urls;
 
 pub mod blaze;
 
@@ -52,7 +51,7 @@ pub async fn run() {
     let addr: SocketAddr = SocketAddr::new(config.host, config.port);
 
     // This step may take longer than expected so its spawned instead of joined
-    tokio::spawn(log_connection_urls(config.port));
+    // tokio::spawn(log_connection_urls(config.port));
 
     // Initialize all shared definition globals
     initialize_i18n().await.expect("failed to initialize i18n");
